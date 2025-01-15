@@ -8,9 +8,14 @@ const Timer = () => {
     const timer = useRef(null);
 
     useEffect(() => {
-            return () => {
-                timer.current?.reset();
-            };
+        const timeout = setTimeout(() => {
+            timer.current?.reset(); 
+            timer.current?.play();
+        }, 0);
+
+        return () => {
+            clearTimeout(timeout); 
+        };
     }, []);
 
     return (

@@ -14,6 +14,7 @@ import ParentsScreen from './src/screens/ParentsScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import ParentsSegments from './src/screens/ParentsSegments';
 import TextToSpeech from './src/components/TextToSpeech';
+import { AppState } from 'react-native';
 import Game1Screen from './src/screens/Game1Screen';
 import Game2Screen from './src/screens/Game2Screen';
 import React, { useEffect } from 'react';
@@ -62,6 +63,8 @@ const App = () => {
   if (store.loading) {
     return
   }
+
+
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>

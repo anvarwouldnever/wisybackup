@@ -230,18 +230,20 @@ class Store {
         });
     }
 
-    async completeGame(collectionId: any, subCollectionId: any, earnedStars: number, collectionIndex: number) {
+    async completeGame(collectionId: any, subCollectionId: any, subCollectionStarId: any, earnedStars: number, collectionIndex: number) {
         try {
             const collections = this.categories[collectionId].collections;
-            // console.log(collection)
             const collection = this.categories[collectionId].collections[collectionIndex];
 
+            runInAction(() => {
+                collection.available_sub_collections = [...collection.available_sub_collections, subCollectionId];
+            })
+
             for (let i = 0; i < collections.length; i++) {
-                const subCollection = collections[i].sub_collections.find(sub => sub.id === subCollectionId);
+                const subCollection = collections[i].sub_collections.find(sub => sub.id === subCollectionStarId);
                 
                 if (subCollection) {
                     runInAction(() => {
-                        subCollection.current_task_id = null;
                         subCollection.stars.earned = earnedStars;
                     });
                     break;
@@ -273,6 +275,12 @@ class Store {
         runInAction(() => {
             this.playingChildId = id;
         });
+    }
+
+    async setPlayingChildStars(stars: number) {
+        runInAction(() => {
+            this.playingChildId.stars += stars 
+        })
     }
 
     async setChildren(children: any) {

@@ -8,7 +8,7 @@ import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio'
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation'
 
-const Game4Screen = ({ data, setLevel, setStars }) => {
+const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data.content.wisy_question)
@@ -17,15 +17,17 @@ const Game4Screen = ({ data, setLevel, setStars }) => {
     const [id, setId] = useState(null);
 
     const vibrate = () => {
-                    Vibration.vibrate(500);
-                };
+        Vibration.vibrate(500);
+    };
 
     const answer = async({ answer }) => {
         try {
+            setId(null)
             setThinking(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer})
             if (response && response.stars && response.success) {
-                setId(answer)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -34,8 +36,9 @@ const Game4Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
                 vibrate()
-                setId(answer)
+                setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -44,12 +47,14 @@ const Game4Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
             } else if(response && response.success) {
-                setId(answer)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -57,8 +62,10 @@ const Game4Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'wrong'})
                 vibrate()
-                setText(response.hint? response.hint : 'Not correct... But anyways, lets move on')
+                setText(response.hint)
                 setTimeout(() => {
                     setLevel(prev => prev + 1);
                     setAttempt('1');

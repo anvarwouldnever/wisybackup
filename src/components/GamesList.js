@@ -40,6 +40,23 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         store.completeGame(activeCategory, id, starId, earnedStars, collectionIndex);
     };
 
+    const handleTaskCompletion = (id, nextTaskId) => {
+        const completeTask = (id, nextTaskId) => {
+            const collection = subCollections.find(item => item.id === id);
+    
+            if (collection) {
+                if (nextTaskId !== null) {
+                    collection.current_task_id = nextTaskId;
+                } else {
+                    collection.current_task_id = collection.tasks[0]?.id
+                }
+            }
+        };
+    
+        completeTask(id, nextTaskId);
+    };
+    
+
     const renderCollections = ({ item, index }) => {
 
         return (
@@ -70,7 +87,8 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         )
     }
 
-    const renderSubCollections = ({ item, onComplete, index }) => {
+    const renderSubCollections = ({ item, onComplete, onCompleteTask }) => {
+        
         
         const { image } = item;
         const isSvg = typeof image === 'string' && image.endsWith('.svg');
@@ -80,26 +98,39 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 ? item.id
             : null;
 
-            const tasksArray = subCollections
-                .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
-                .map(item => {
-                    const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
-                    const tasks = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
+            // console.log(item.current_task_id)
 
-                    return {
-                        tasks: tasks,
-                        id: item.id,
-                    };
-                });
-
+            const prepareTasksArray = (itemId) => {
+                const tasksArray = subCollections
+                    .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
+                    .map(item => {
+                        // console.log(item.current_task_id)
+                        const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+                        const tasksWithoutNextId = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
+            
+                        const tasks = tasksWithoutNextId.map((task, index) => ({
+                            ...task,
+                            next_task_id: tasksWithoutNextId[index + 1]?.id || null, // Следующий ID или null для последнего объекта
+                        }));
+            
+                        return {
+                            tasks,
+                            id: item.id,
+                        };
+                    });
+            
+                const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
+                return tasksArray.slice(clickedIndex);
+            };
+            
+        
         return ( 
             <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.exp))} style={{ width: 'auto', height: 'auto' }}>
                 <TouchableOpacity 
                     onPress={(task != null && item.tasks.length > 0)
                         ? () => {
-                            const clickedIndex = tasksArray.findIndex(obj => obj.id === item.id);
-                            const filteredTasksArray = tasksArray.slice(clickedIndex);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars) });
+                            const filteredTasksArray = prepareTasksArray(item.id);
+                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId) });
                             
                         } 
                         : () => {}}
@@ -109,12 +140,13 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                         width: Platform.isPad? windowWidth * (306 / 1194) :  windowWidth * (136 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), 
                         marginRight: 20,  
                         borderWidth: 1, 
-                        borderColor: '#FFFFFF1F'
+                        borderColor: '#FFFFFF1F',
+                        flexDirection: 'column'
                     }}
                 >
                     {
                         (task != null && item.tasks.length > 0) &&
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? windowHeight * (12 / 360) : 8 }}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? 8 : 8 }}>
                             {[...Array(item.stars.total)].map((_, index) => {
                                 const starImage = index < item.stars.earned ? filledStar : emptyStar;
                                 return (
@@ -122,9 +154,10 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                                         key={index}
                                         source={starImage}
                                         style={{
-                                            width: windowWidth * (16 / 800),
-                                            height: windowHeight * (16 / 360),
+                                            width: Platform.isPad? windowWidth * (22 / 800) : windowWidth * (16 / 800),
+                                            height: Platform.isPad? windowHeight * (22 / 360) : windowHeight * (16 / 360),
                                             marginHorizontal: 2,
+                                            resizeMode: 'contain'
                                         }}
                                     />
                                 );
@@ -184,7 +217,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                             style={{
                                 alignSelf: 'center', 
                                 position: 'absolute', 
-                                top: Platform.isPad? windowHeight * (0 / 800) : windowHeight * (35 / 360),
+                                top: Platform.isPad? windowHeight * (90 / 800) : windowHeight * (35 / 360),
                                 resizeMode: 'contain'
                             }}
                         />
@@ -192,7 +225,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                         <Image 
                             source={{ uri: image }} 
                             style={{ 
-                                width: Platform.isPad? windowWidth * (256 / 1194) : windowWidth * (135 / 800), height: Platform.isPad? windowWidth * (224 / 1194) : windowHeight * (82 / 360), alignSelf: 'center', resizeMode: 'contain' , position: 'absolute', aspectRatio: 1 / 1, top: Platform.isPad? windowHeight * (70 / 800) : windowHeight * (35 / 360), 
+                                width: Platform.isPad? windowWidth * (256 / 1194) : windowWidth * (135 / 800), height: Platform.isPad? windowWidth * (224 / 1194) : windowHeight * (82 / 360), alignSelf: 'center', resizeMode: 'contain' , position: 'absolute', aspectRatio: 1 / 1, top: Platform.isPad? windowHeight * (90 / 800) : windowHeight * (35 / 360), 
                             }}
                             resizeMethod='auto'
                         />
@@ -246,7 +279,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
             horizontal
             key={store.categories}
             data={subCollections || collections}
-            renderItem={subCollections ? (props) => renderSubCollections({ ...props, onComplete: handleGameCompletion }) : renderCollections}
+            renderItem={subCollections ? (props) => renderSubCollections({ ...props, onComplete: handleGameCompletion, onCompleteTask: handleTaskCompletion }) : renderCollections}
             keyExtractor={(item, index) => item.id?.toString() || index.toString()}
             showsHorizontalScrollIndicator={false}
             scrollEventThrottle={16}
@@ -255,3 +288,31 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 }
 
 export default observer(GamesCollections);
+
+// const tasksArray = subCollections
+            //     .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
+            //     .map(item => {
+            //         const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+            //         const tasksWithoutNextId = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
+
+            //         const tasks = tasksWithoutNextId.map((task, index) => ({
+            //             ...task,
+            //             next_task_id: tasksWithoutNextId[index + 1]?.id || null, // Следующий ID или null для последнего объекта
+            //         }));
+
+            //         return {
+            //             tasks: tasks,
+            //             id: item.id,
+            //         };
+            //     });
+
+                // console.log(tasksArray[tasksArray.length - 1].tasks)
+
+        // if (item.current_task_id === 150) {
+        //     for (let index = 0; index < item.tasks.length; index++) {
+        //         console.log(item.tasks[index])
+        //     }
+        // }
+        // const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+        // const tasks = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
+        // console.log(tasks)

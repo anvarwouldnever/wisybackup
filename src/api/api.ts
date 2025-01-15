@@ -20,6 +20,25 @@ class Api {
         }
     }
 
+    async resetPassword(email: string, token: string, password: string) {
+        console.log(email, token, password);
+        try {
+            const response = await axios.post(`${this.baseUrl}/auth/change-password`, {
+                password: password
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            }
+        )
+            console.log(response.data)
+            return response.data;
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async signIn(email: string, password: string) {
         try {
             const response = await axios.post(`${this.baseUrl}/auth/login`, {
@@ -192,7 +211,7 @@ class Api {
             // console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
             console.log(error.response.data.message)
             if (error.response.data.message) {
                 return "Lai ierakstītu atbildi, turi mikrofona pogu."

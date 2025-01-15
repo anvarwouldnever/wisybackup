@@ -12,7 +12,7 @@ import * as FileSystem from 'expo-file-system';
 import { playSound } from '../hooks/usePlayBase64Audio';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 
-const Game10Screen = ({ data, setLevel, setStars }) => {
+const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
     // console.log(data)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -79,8 +79,9 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
             setThinking(true)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image]})
             if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
                 vibrate()
-                setId(data.id)
+                setId({id: data.id, result: 'wrong'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -89,8 +90,9 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && response.stars && response.success) {
-                setId(data.id)
-                setText(response?.hint)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
+                setText(response.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
                     setStars(response.stars)
@@ -98,13 +100,15 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
                 setLines([])
             } else if(response && response.success) {
-                setId(data.id)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -112,10 +116,14 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
-                setLevel(prev => prev + 1);
-                setText('Not correct... But anyways, lets move on')
-                setAttempt('1')
+                setText(response.hint)
+                setTimeout(() => {
+                    setLevel(prev => prev + 1);
+                    setAttempt('1');
+                }, 1500);
             }
         } catch (error) {
             console.log(error)
@@ -134,7 +142,7 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
                 <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>  
                     <View
                         {...panResponder.panHandlers}
-                        style={{backgroundColor: id == data.id? "#ADD64D4D" : 'white', borderWidth: 2, borderColor: id == data.id? "#ADD64D" : 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10}}
+                        style={{backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10}}
                     >
                         <Svg height='100%' width='100%'>
                         {lines.map((line, index) => (
@@ -159,7 +167,7 @@ const Game10Screen = ({ data, setLevel, setStars }) => {
             <View style={{width: windowWidth * (730 / 800), height: Platform.isPad? windowWidth * (64 / 800) : 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', bottom: 0}}>
                 <View style={{width: 'auto', height: Platform.isPad? windowWidth * (150 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                     <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
-                    <Game3TextAnimation text={text} thinking={thinking}/>
+                    {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
                 </View>
             </View>
             {lines.length != 0 && <TouchableOpacity onPress={() => answer()} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>

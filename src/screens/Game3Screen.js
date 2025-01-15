@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, useWindowDimensions, Platform, ImageBackground } from 'react-native'
+import { View, Text, TouchableOpacity, Image, useWindowDimensions, Platform, ImageBackground, Vibration } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import Animated, { ZoomInEasyDown, useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import wisy from '../images/pandaHead.png'
@@ -8,7 +8,7 @@ import store from '../store/store'
 import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio'
 
-const Game3Screen = ({ data, setLevel, setStars }) => {
+const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data.content.wisy_question);
@@ -16,12 +16,29 @@ const Game3Screen = ({ data, setLevel, setStars }) => {
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
+    const vibrate = () => {
+        Vibration.vibrate(500);
+    };
+
     const answer = async({ answer }) => {
         try {
+            setId(null)
             setThinking(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer})
-            if (response && response.stars) {
-                setId(answer)
+            if (response && response.stars && response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
+                setText(response?.hint)
+                playSound(response?.sound)
+                setTimeout(() => {
+                    setStars(response.stars)
+                    setLevel(prev => prev + 1);
+                }, 1500);
+            }
+            else if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                vibrate()
+                setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -30,11 +47,14 @@ const Game3Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: answer, result: 'wrong'})
+                vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
             } else if(response && response.success) {
-                setId(answer)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -42,9 +62,13 @@ const Game3Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
-                setLevel(prev => prev + 1);
-                setText('Not correct... But anyways, lets move on')
-                setAttempt('1')
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'wrong'})
+                setText(response.hint)
+                setTimeout(() => {
+                    setLevel(prev => prev + 1);
+                    setAttempt('1');
+                }, 1500);
             }
         } catch (error) {
             console.log(error)
@@ -58,7 +82,7 @@ const Game3Screen = ({ data, setLevel, setStars }) => {
             {data && data && <Game3AnimalsAnimation id={id} answer={answer} images={data.content.images}/>}
             <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
-                <Game3TextAnimation text={text} thinking={thinking}/>
+                {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
             </View>
         </Animated.View>
     )

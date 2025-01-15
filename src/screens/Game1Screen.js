@@ -12,7 +12,7 @@ import api from '../api/api'
 import TaskComponent from '../components/TaskComponent';
 import store from '../store/store';
 
-const Game1Screen = ({ data, setLevel, setStars }) => {
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId }) => {
 
     // console.log(data)
 
@@ -29,8 +29,10 @@ const Game1Screen = ({ data, setLevel, setStars }) => {
     };
 
     const lastAnswer = (hint, stars) => {
+        onCompleteTask(subCollectionId, data.next_task_id)
         setStars(stars)
         setText(hint)
+        setImage(2)
         setTimeout(() => {
             setLevel(prev => prev + 1)
             setAttempt('1')
@@ -38,10 +40,11 @@ const Game1Screen = ({ data, setLevel, setStars }) => {
     }
 
     const correctAnswer = (hint) => {
+        onCompleteTask(subCollectionId, data.next_task_id)
         setImage(2)
         setText(hint)
         setTimeout(() => {
-            setText("Kā sauc attēlā redzamo dzīvnieku? Turi mikrofona pogu, lai ierunātu atbildi..")
+            setText(hint)
             setAttempt('1')
             setLevel(prev => prev + 1)
             setImage(1)
@@ -54,12 +57,13 @@ const Game1Screen = ({ data, setLevel, setStars }) => {
     };
 
     const incorrectAnswerToNext = (hint) => {
+        onCompleteTask(subCollectionId, data.next_task_id)
         vibrate()
         setText(hint)
         setTimeout(() => {
             setLevel(prev => prev + 1)
             setImage(1)
-            setText("Kā sauc attēlā redzamo dzīvnieku? Turi mikrofona pogu, lai ierunātu atbildi..")
+            setText(hint)
             setAttempt('1')
         }, 3000); 
     };
@@ -82,7 +86,7 @@ const Game1Screen = ({ data, setLevel, setStars }) => {
                 {data && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
                     <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (150 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
                         <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
-                        <Game1TextAnimation text={text} thinking={thinking}/>
+                        {text && text != '' && <Game1TextAnimation text={text} thinking={thinking}/>}
                     </View>
                     <View style={{position: 'absolute', bottom: 0, right: 0}}>
                         {!thinking && <MicroAnimation lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} />}

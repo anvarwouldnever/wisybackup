@@ -1,37 +1,30 @@
 import React, { useState } from "react";
-import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform } from "react-native";
+import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform, FlatList } from "react-native";
 import ParentsCancel from "../components/ParentsCancel";
 import dog from '../images/Dog.png';
 import narrowdown from '../images/narrowdown.png';
+import narrowup from '../images/narrowup.png';
 import ParentsComponents from "../components/ParentsComponent";
 import BottomTabs from "../components/BottomTabs";
 import ParentsSettings from "../components/ParentsSettings";
 import SubscriptionState from "../components/SubscriptionState";
+import Modal from 'react-native-modal'
+import store from "../store/store";
+import Child from "../components/Child";
+import DropDownModal from "../components/DropDownModal";
+import { observer } from "mobx-react-lite";
 
 const ParentsScreen = () => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [screen, setScreen] = useState('Knowledge');
+    const [dropDown, setDropDown] = useState();
 
     return (
         <SafeAreaView style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             <ParentsCancel />
-            {screen != 'Settings' && <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800), justifyContent: 'space-between', borderRadius: 12, backgroundColor: '#F8F8F8', flexDirection: 'row', gap: windowWidth * (12 / 360), alignItems: 'center'}}>
-                <Image source={dog} style={{width: windowHeight * (48 / 800), height: windowWidth * (48 / 800), aspectRatio: 48 / 48}}/>
-                <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
-                    <View style={{width: windowWidth * (184 / 360), height: windowHeight * (20 / 800), flexDirection: 'row'}}>
-                        <Text style={{fontWeight: '600', color: '#000000', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>Joshua</Text>
-                        <Text style={{color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>/ age 6</Text>
-                    </View>
-                    <View style={{width: windowWidth * (184 / 360), flexDirection: 'row', height: windowHeight * (20 / 800)}}>
-                        <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>63</Text>
-                        <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>completed tasks</Text>
-                    </View>
-                </View>
-                <TouchableOpacity style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), justifyContent: 'center', alignItems: 'center'}}>
-                    <Image source={narrowdown} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
-                </TouchableOpacity>
-            </View>}
+            {screen != 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen == 'Settings'? null : <View style={{height: windowHeight * (80 / 800), width: windowWidth * (312 / 360)}}/>}
+            {screen != 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
             {screen === 'Settings'? <ParentsSettings /> : <ParentsComponents screen={screen} />}
             {screen === 'Settings' && <SubscriptionState />}
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800)}} />
@@ -42,7 +35,7 @@ const ParentsScreen = () => {
     )
 }
 
-export default ParentsScreen;
+export default observer(ParentsScreen);
 
 
 

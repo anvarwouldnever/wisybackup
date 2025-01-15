@@ -1,5 +1,5 @@
 import { View, TouchableOpacity, Text, Image, useWindowDimensions, Platform, ImageBackground } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import store from '../store/store'
 import Game1Screen from './Game1Screen'
 import { useNavigation } from '@react-navigation/native'
@@ -19,12 +19,12 @@ import Game10Screen from './Game10Screen'
 import Game11Screen from './Game11Screen'
 import Game12Screen from './Game12Screen'
 import Game13Screen from './Game13Screen'
-import statStar from '../images/tabler_star-filled.png';
+import statStar from '../images/tabler_star-filled.png'
 import CongratulationsScreen from './CongratulationsScreen'
 
 const GameScreen = ({ route }) => {
 
-    const { tasks, onComplete } = route.params;
+    const { tasks, onComplete, onCompleteTask } = route.params;
     const navigation = useNavigation();
     const [level, setLevel] = useState(0);
     const [taskLevel, setTaskLevel] = useState(0);
@@ -42,7 +42,7 @@ const GameScreen = ({ route }) => {
 
     const incrementLevel = () => { 
         setLevel(prev => {
-            if (prev + 1 >= tasks.length) {
+            if (prev + 1 > tasks.length) {
                 console.log("Нет больше задач.");
                 return navigation.goBack();
             }
@@ -55,77 +55,77 @@ const GameScreen = ({ route }) => {
     const RenderVoiceGame = () => {
         // done
         return (    
-            <Game1Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game1Screen setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel}/>
         )
     }
 
     const RenderWithImageGame = () => {
         // done
         return (
-            <Game5Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game5Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderSimpleGame = () => {
         // done
         return (
-            <Game3Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game3Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderWithAudio = () => {
         // done
         return (
-            <Game4Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game4Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderWithTitleGame = () => {
         // done
         return (
-            <Game2Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game2Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderHandWrittenSimpleGame = () => {
         // done
         return (
-            <Game8Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game8Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderHandWrittenRepeatGame = () => {
         // done
         return (
-            <Game10Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game10Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderHandWrittenCountingGame = () => {
         // done
         return (
-            <Game9Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game9Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderHandWrittenWordGame = () => {
         // done
         return (
-            <Game11Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game11Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderTextSingleChoiceSimpleGame = () => {
         // done
         return (
-            <Game13Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game13Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
     const RenderTextSingleChoiceWithAudioGame = () => {
         // done
         return (
-            <Game12Screen setStars={setStars} data={task[level]} setLevel={setLevel}/>
+            <Game12Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
         )
     }
 
@@ -250,8 +250,8 @@ const GameScreen = ({ route }) => {
                     task[level].type === 'text_single_choice' && task[level].content.options[0].audio === null && task[level].content.options[0].text != ""?
                     <RenderTextSingleChoiceSimpleGame /> : 
                     task[level].type === 'text_single_choice' && task[level].content.options[0].audio != null || task[level].content.options[0].text.includes(" ")?
-                    <RenderTextSingleChoiceWithAudioGame /> : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1].id} starId={tasks[taskLevel].id} stars={stars} onComplete={onComplete}/>
-                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} id={tasks[taskLevel + 1].id} starId={tasks[taskLevel].id} onComplete={onComplete}/>
+                    <RenderTextSingleChoiceWithAudioGame /> : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} onComplete={onComplete}/>
+                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete}/>
             }
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}

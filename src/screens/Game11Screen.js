@@ -14,7 +14,7 @@ import { playSound } from '../hooks/usePlayBase64Audio';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { SvgUri } from 'react-native-svg';
 
-const Game11Screen = ({ data, setLevel, setStars }) => {
+const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
@@ -102,13 +102,15 @@ const Game11Screen = ({ data, setLevel, setStars }) => {
 
     const answer = async() => {
         try {
+            setId(null)
             const image = await saveAndShareImage()
             // console.log(image)
             setThinking(true)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image]})
-            console.log(response)
+            // console.log(response)
             if (response && response.stars && response.success) {
-                setId(data.id)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -117,6 +119,8 @@ const Game11Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response?.hint)
                 playSound(response?.sound)
@@ -126,13 +130,15 @@ const Game11Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
                 setLines([])
             } else if(response && response.success) {
-                setId(data.id)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -140,8 +146,10 @@ const Game11Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
-                setText(response.hint? response.hint : 'Not correct... But anyways, lets move on')
+                setText(response.hint)
                 setTimeout(() => {
                     setLevel(prev => prev + 1);
                     setAttempt('1');
@@ -172,12 +180,12 @@ const Game11Screen = ({ data, setLevel, setStars }) => {
                         return (
                             <View key={index} style={{ width: windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
                                 {isUnknown ? (
-                                    <ViewShot ref={viewShotRef} style={{backgroundColor: id == data.id? "#ADD64D4D" : 'white', borderWidth: 2, borderColor: id == data.id? "#ADD64D" : '#504297', borderRadius: 10, borderWidth: 2}} options={{ format: 'png', quality: 1 }}>  
+                                    <ViewShot ref={viewShotRef} style={{borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? "#ADD64D" : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: 10, borderWidth: 2}} options={{ format: 'png', quality: 1 }}>  
                                         <View
                                             {...panResponder.panHandlers}
-                                            style={{ backgroundColor: id == data.id? "#ADD64D4D" : 'white', borderWidth: 2, borderColor: id == data.id? "#ADD64D" : 'white', width: windowWidth * (94 / 800), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 10}}
+                                            style={{ backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (94 / 800), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 8}}
                                         >
-                                            <Svg height='100%' width='100%' style={{backgroundColor: id == data.id? "#ADD64D4D" : 'white',}}>
+                                            <Svg height='100%' width='100%'>
                                             {lines.map((line, index) => (
                                                 <Polyline
                                                 key={index}

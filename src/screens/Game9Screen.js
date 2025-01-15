@@ -12,12 +12,13 @@ import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import api from '../api/api'
 import store from '../store/store';
 
-const Game9Screen = ({ data, setLevel, setStars }) => {
+const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
     
     let images = data.content.images
     // console.log(data)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
+    // console.log(data, data.content.wisy_question)
 
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
@@ -98,12 +99,13 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
     const answer = async() => {
         try {
             const image = await saveAndShareImage()
-            // console.log(image)
+            setId(null)
             setThinking(true)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image]})
             console.log(response)
             if (response && response.stars && response.success) {
-                setId(data.id)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -112,6 +114,8 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response?.hint)
                 playSound(response?.sound)
@@ -121,13 +125,15 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
                 setLines([])
             } else if(response && response.success) {
-                setId(data.id)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -135,10 +141,14 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: data.id, result: 'wrong'})
                 vibrate()
-                setLevel(prev => prev + 1);
-                setText('Not correct... But anyways, lets move on')
-                setAttempt('1')
+                setText(response.hint)
+                setTimeout(() => {
+                    setLevel(prev => prev + 1);
+                    setAttempt('1');
+                }, 1500);
             }
         } catch (error) {
             console.log(error)
@@ -182,7 +192,7 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
                     <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>
                         <View
                             {...panResponder.panHandlers}
-                            style={{width: windowWidth * (115 / 800), height: Platform.isPad? windowWidth * (115 / 800) : windowHeight * (115 / 360), backgroundColor: id == data.id? "#ADD64D4D" : 'white', borderWidth: 2, borderColor: id == data.id? "#ADD64D" : 'white', borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}
+                            style={{width: windowWidth * (115 / 800), height: Platform.isPad? windowWidth * (115 / 800) : windowHeight * (115 / 360), backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}
                         >
                             <Svg height='100%' width='100%'>
                                 {lines.map((line, index) => (
@@ -206,7 +216,7 @@ const Game9Screen = ({ data, setLevel, setStars }) => {
                 </View>
             </View>
             <View style={{width: 'auto', height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', bottom: 0, left: 0}}>
-                <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (100 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+                <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (85 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                     <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
                     <Game3TextAnimation text={text} thinking={thinking}/>
                 </View>

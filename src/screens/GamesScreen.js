@@ -67,12 +67,12 @@ const GamesScreen = () => {
         <View style={{flex: 1, backgroundColor: 'white'}}>
             <ImageBackground source={bgimage} style={{flex: 1}}>
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
-                <View style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
+                <TouchableOpacity onPress={() => navigation.goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
                     <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
                         <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
                     </View>
                     <Image source={dog} style={{width: windowWidth * (48 / 800), height: windowHeight * (48 / 360), aspectRatio: 48 / 48}}/>
-                </View>
+                </TouchableOpacity>
                 <View style={{alignItems: 'center', position: 'absolute', bottom: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (10 / 360), left: Platform.isPad? 'auto' : windowWidth * (60 / 800), justifyContent: 'space-between', height: 'auto', gap: Platform.isPad? 20 : 0}}>
                     <View style={{width: windowWidth * (192 / 800), height: 'auto'}}>
                         <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
@@ -93,7 +93,7 @@ const GamesScreen = () => {
                 {subCollections != null? <HeaderCollection /> : <HeaderMenu />}
                 <View style={{backgroundColor: '#F8F8F833', gap: 4, justifyContent: 'center', flexDirection: 'row', padding: 8, alignItems: 'center', width: Platform.isPad? windowWidth * (113 / 1194) : windowWidth * (75 / 800), height: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}}>
                     <Image source={star} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
-                    <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowHeight * (24 / 834) : windowWidth * (20 / 800), color: 'white', textAlign: 'center'}}>180</Text>
+                    <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowHeight * (24 / 834) : windowWidth * (20 / 800), color: 'white', textAlign: 'center'}}>{store.playingChildId?.stars}</Text>
                 </View>
                 <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (736 / 800), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => navigation.navigate('ParentsCaptchaScreen')}>
                     <Image source={parent} style={{width: windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (24 / 800) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>

@@ -9,9 +9,8 @@ import { Audio } from 'expo-av';
 import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio';
 
-const Game12Screen = ({ data, setLevel, setStars }) => {
+const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
-    // console.log(data.content)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data.question);
     const [attempt, setAttempt] = useState('1');
@@ -50,10 +49,12 @@ const Game12Screen = ({ data, setLevel, setStars }) => {
 
     const answer = async({ answer }) => {
         try {
+            setId(null)
             setThinking(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer})
             if (response && response.stars && response.success) {
-                setId(answer)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -62,6 +63,8 @@ const Game12Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && response.stars && !response.success) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
                 playSound(response?.sound)
                 setTimeout(() => {
@@ -70,12 +73,14 @@ const Game12Screen = ({ data, setLevel, setStars }) => {
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
             } else if(response && response.success) {
-                setId(answer)
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
                 setTimeout(() => {
@@ -83,10 +88,14 @@ const Game12Screen = ({ data, setLevel, setStars }) => {
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                onCompleteTask(subCollectionId, data.next_task_id)
+                setId({id: answer, result: 'wrong'})
                 vibrate();
-                setLevel(prev => prev + 1);
-                setText('Not correct... But anyways, lets move on')
-                setAttempt('1')
+                setText(response.hint)
+                setTimeout(() => {
+                    setLevel(prev => prev + 1);
+                    setAttempt('1');
+                }, 1500);
             }
         } catch (error) {
             console.log(error)
@@ -109,7 +118,7 @@ const Game12Screen = ({ data, setLevel, setStars }) => {
 
                         return (
                             <View key={index} style={{width: windowWidth * (440 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
-                                <TouchableOpacity onPress={() => answer({ answer: option.id })} style={{width: option.audio != null ? windowWidth * (390 / 800) : windowWidth * (440 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: id == option.id? "#ADD64D4D" : 'white', borderColor: id == option.id? "#ADD64D" : 'white', borderWidth: 2, borderTopLeftRadius: 100, borderBottomLeftRadius: 100, borderTopRightRadius: option.audio === null? 100 : 0, borderBottomRightRadius: option.audio === null? 100 : 0, justifyContent: 'center', paddingLeft: 16}}>
+                                <TouchableOpacity onPress={() => answer({ answer: option.id })} style={{width: option.audio != null ? windowWidth * (390 / 800) : windowWidth * (440 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == option.id && id?.result == 'wrong'? '#D816164D' : 'white', borderColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? '#D81616' : 'white', borderWidth: 2, borderTopLeftRadius: 100, borderBottomLeftRadius: 100, borderTopRightRadius: option.audio === null? 100 : 0, borderBottomRightRadius: option.audio === null? 100 : 0, justifyContent: 'center', paddingLeft: 16}}>
                                     <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#222222', textAlign: option.audio === null? 'center' : 'left'}}>{option.text}</Text>
                                 </TouchableOpacity>
                                 {option.audio != null && <TouchableOpacity onPress={() => voice(option.audio)} style={{width: windowWidth * (46 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
