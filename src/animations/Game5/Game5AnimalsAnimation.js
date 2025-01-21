@@ -1,11 +1,11 @@
 import { View, Image, TouchableOpacity, FlatList, Platform, useWindowDimensions } from 'react-native';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import SvgUri from 'react-native-svg';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking }) => {
+const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const [key, setKey] = useState(0);
@@ -14,13 +14,37 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking }) => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
     }, [images]);
 
+    const timeoutRef = useRef(null);
+    
+        useEffect(() => {
+            if (id?.id && id?.result) {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+                timeoutRef.current = setTimeout(() => {
+                    setId(null);
+                }, 2500);
+            }
+            return () => {
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current);
+                }
+            };
+        }, [id, setId]);
+
     const isAnimalSvg = animal && animal.endsWith('.svg');
 
     const renderItem = ({ item }) => {
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <TouchableOpacity onPress={thinking? () => {return} : () => answer({ answer: item.id })} style={{
+            <TouchableOpacity onPress={thinking? () => {return} : () => {
+                    answer({ answer: item.id })
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
+                    }
+                    setId(null)
+            }} style={{
                 borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item.id && id?.result == 'wrong'? '#D816164D' : 'white', 
                 width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                 justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white',
@@ -30,7 +54,6 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking }) => {
                 ) : (
                     <Image source={{ uri: item.url }} style={{ width: windowWidth * (108 / 800), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1 }} />
                 )}
-                {item.name === 'monkey' && <Image source={passedimg} style={{ width: windowWidth * (24 / 800), height: Platform.isPad ? windowWidth * (24 / 800) : windowHeight * (24 / 360), position: 'absolute', right: 4, top: 4 }} />}
                 {id?.id == item?.id && <View style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
                     <Image source={id?.result == 'correct'? galochka : x} style={{width: windowWidth * (16 / 800), height: windowHeight * (16 / 360)}}/>
                 </View>}

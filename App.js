@@ -39,30 +39,31 @@ const Stack = createStackNavigator();
 
 const App = () => {
 
-  const url = Linking.useURL();
+    const url = Linking.useURL();
 
-  useEffect(() => {
+    // useEffect(() => {
+    //   const handleDeepLink = (event) => {
+    //     const url = event.url;
+    //     const { path, queryParams } = Linking.parse(url);
+  
+    //     if (path === 'email-confirmation') {
+    //       const token = queryParams.token;
+    //       Alert.alert('Email Confirmation', `Token: ${token}`);
+    //       // Здесь вы можете выполнить переход на нужный экран
+    //       // navigation.navigate('ConfirmationScreen', { token });
+    //     }
+    //   };
+  
+    //   Linking.addEventListener('url', handleDeepLink);
+  
+    //   return () => {
+    //     Linking.removeEventListener('url', handleDeepLink);
+    //   };
+    // }, []);
 
-    if (url) {
-      const { hostname, path, queryParams } = Linking.parse(url);
+    if (store.loading) {
+      return
     }
-
-    const handleDeepLink = ({ url }) => {
-      console.log(url)
-    };
-
-    // Подписка на события deep linking
-    const subscription = Linking.addEventListener('url', handleDeepLink);
-
-    return () => {
-      // Отписка при размонтировании компонента
-      subscription.remove();
-    };
-  }, []);
-
-  if (store.loading) {
-    return
-  }
 
 
 

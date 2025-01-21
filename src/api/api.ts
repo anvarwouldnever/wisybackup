@@ -16,12 +16,12 @@ class Api {
                 return true
             }
         } catch (error) {
-            return error.response.data.message
+            return error.response.data.message;
         }
     }
 
     async resetPassword(email: string, token: string, password: string) {
-        console.log(email, token, password);
+        // console.log(email, token, password);
         try {
             const response = await axios.post(`${this.baseUrl}/auth/change-password`, {
                 password: password
@@ -48,7 +48,7 @@ class Api {
             if (response.data.token) {
                 const token = response.data.token
                 const children = await this.getChildren()
-                console.log(token) 
+                // console.log(token) 
                 return { token, children }
             }
         } catch (error) {
@@ -120,6 +120,35 @@ class Api {
         return response.data
     }
 
+    async getAttributes() {
+        const response = await axios.get(`${this.baseUrl}/attributes`, {
+            headers: {
+                Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+            }
+        })
+        return response.data.data
+    }
+
+    async getAttributeByChild(params: any) {
+        try {
+            const response = await axios.get(`${this.baseUrl}/attributes/${params.attribute_id}`, {
+                headers: {
+                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                },
+                params: {
+                    child_id: params.child_id,
+                    from: params.from,
+                    to: params.to
+                }
+            })
+            console.log(response.data)
+            return response.data
+        } catch (error) {
+            console.log(error.response.data)
+            console.log(error.response.data.message)
+        }
+    }
+
     async getCategories(data: any) {
         try {
             const response = await axios.get(`${this.baseUrl}/categories`, {
@@ -164,7 +193,7 @@ class Api {
             })
 
             // for (let index = 0; index < response.data.data.length; index++) {
-            //     console.log(response.data.data[index].stars)
+            //     console.log(response.data.data[index].attributes)
             // }
 
             return response.data
@@ -189,13 +218,14 @@ class Api {
         }
     }
     
-    async answerTask(task_id: string, attempt: string, voice: any, child_id: string, token: string) {
+    async answerTask(task_id: string, attempt: string, voice: any, child_id: string, token: string, lead_time: number) {
         try {
-            // console.log(task_id, attempt, voice, child_id)
+            console.log(lead_time);
             const formData = new FormData();
             formData.append('task_id', task_id);
             formData.append('attempt', attempt);
             formData.append('child_id', child_id);
+            formData.append('lead_time', `${lead_time}`);
             formData.append('voice', {
                 uri: voice,
                 type: 'audio/m4a',
@@ -263,7 +293,8 @@ class Api {
                 task_id: params.task_id,
                 attempt: params.attempt,
                 child_id: params.child_id,
-                answer: params.answer
+                answer: params.answer,
+                lead_time: params.lead_time
             },
             {
                 headers: {
@@ -284,6 +315,7 @@ class Api {
                 formData.append('task_id', `${answer.task_id}`);
                 formData.append('attempt', `${answer.attempt}`);
                 formData.append('child_id', `${answer.child_id}`);
+                formData.append('lead_time', `${answer.lead_time}`);
                 formData.append('images[0]', answer.images[0]);
 
                 // answer.images.forEach((image: any, index: number) => {
@@ -300,7 +332,6 @@ class Api {
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                 })
-                console.log(response.data)
                 return response.data
         } catch (error) {
             console.log(error.response)

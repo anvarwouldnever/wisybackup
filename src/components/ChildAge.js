@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 import { Dimensions, TouchableOpacity, Text, Modal, Platform, View } from "react-native";
 import Animated, { SlideInRight } from "react-native-reanimated";
-import Calendar from "./Calendar";
+import Calendar from "../calendars/Calendar";
 import { format } from "date-fns";
-import CalendarAndroid from "./CalendarAndroid";
+import CalendarAndroid from "../calendars/CalendarAndroid";
 import store from "../store/store";
 
 const { width, height } = Dimensions.get('window');

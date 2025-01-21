@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { View, StyleSheet, ImageBackground, Text, useWindowDimensions, TouchableOpacity, Image, Platform, Vibration } from 'react-native';
 import bg from '../images/bg.png'
 import narrowleft from '../images/narrowleft-purple.png'
@@ -11,15 +11,25 @@ import MicroAnimation from '../animations/MicroAnimation';
 import api from '../api/api'
 import TaskComponent from '../components/TaskComponent';
 import store from '../store/store';
+import { useFocusEffect } from '@react-navigation/native'
+import * as ScreenOrientation from 'expo-screen-orientation';
+import useTimer from '../hooks/useTimer';
+import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 
-const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId }) => {
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes }) => {
 
-    // console.log(data)
+    const { getTime, start, stop, reset } = useTimer();
 
-    const navigation = useNavigation();
+    useEffect(() => {
+        start();
+        return () => {
+            reset();
+        }
+    }, [])
+
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-    const [text, setText] = useState("Kā sauc attēlā redzamo dzīvnieku? Turi mikrofona pogu, lai ierunātu atbildi..");
+    const [text, setText] = useState(null);
     const [attempt, setAttempt] = useState('1');
     const [image, setImage] = useState(1);
     const [thinking, setThinking] = useState(false);
@@ -29,7 +39,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     const lastAnswer = (hint, stars) => {
-        onCompleteTask(subCollectionId, data.next_task_id)
+        reset();
+        if (isFromAttributes) {
+            store.loadCategories();
+        } else {
+            onCompleteTask(subCollectionId, data.next_task_id)
+        }
         setStars(stars)
         setText(hint)
         setImage(2)
@@ -40,7 +55,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     }
 
     const correctAnswer = (hint) => {
-        onCompleteTask(subCollectionId, data.next_task_id)
+        reset();
+        if (isFromAttributes) {
+            store.loadCategories();
+        } else {
+            onCompleteTask(subCollectionId, data.next_task_id)
+        }
         setImage(2)
         setText(hint)
         setTimeout(() => {
@@ -51,13 +71,19 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         }, 3000);
     };
 
-    const incorrectAnswer = (hint, attempt) => {
-        setText(hint)
-        setAttempt(attempt) 
+    const incorrectAnswer = (hint) => {
+        start();
+        setText(hint);
+        setAttempt('2'); 
     };
 
     const incorrectAnswerToNext = (hint) => {
-        onCompleteTask(subCollectionId, data.next_task_id)
+        reset();
+        if (isFromAttributes) {
+            store.loadCategories();
+        } else {
+            onCompleteTask(subCollectionId, data.next_task_id)
+        }
         vibrate()
         setText(hint)
         setTimeout(() => {
@@ -70,8 +96,10 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
 
     const sendAnswer = async(uri) => {
         try {
+            const lead_time = getTime();
+            stop();
             setThinking(true)
-            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`)
+            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, '', lead_time)
             return requestStatus    
         } catch (error) {
             console.log(error)   
@@ -84,12 +112,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50}}>
             <View source={bg} style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingTop: 50, justifyContent: Platform.isPad? 'center' : ''}}>
                 {data && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
-                    <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (150 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
+                    <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (90 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
                         <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
-                        {text && text != '' && <Game1TextAnimation text={text} thinking={thinking}/>}
+                        <Game3TextAnimation text={text} thinking={thinking}/>
                     </View>
                     <View style={{position: 'absolute', bottom: 0, right: 0}}>
-                        {!thinking && <MicroAnimation lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} />}
+                        {!thinking && <MicroAnimation lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
                     </View>
             </View>
         </View>

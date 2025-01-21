@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { View, useWindowDimensions, FlatList, Text, Image, TouchableOpacity, Platform } from "react-native";
 import passedimg from '../../images/gamepassed.png';
 import { SvgUri } from "react-native-svg";
@@ -6,7 +6,7 @@ import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Animals1Animation = ({ answer, id, images, animal }) => {
+const Animals1Animation = ({ answer, id, images, animal, setId }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const [key, setKey] = useState(0);
@@ -15,11 +15,35 @@ const Animals1Animation = ({ answer, id, images, animal }) => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
     }, [animal, images]);
     
+    const timeoutRef = useRef(null);
+
+    useEffect(() => {
+        if (id?.id && id?.result) {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+            timeoutRef.current = setTimeout(() => {
+                setId(null);
+            }, 2500);
+        }
+        return () => {
+            if (timeoutRef.current) {
+                clearTimeout(timeoutRef.current);
+            }
+        };
+    }, [id, setId]);
+    
     const renderItem = ({ item }) => {
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <TouchableOpacity onPress={() => answer({ answer: item.id })} style={{
+            <TouchableOpacity activeOpacity={1} onPress={() => {
+                    answer({ answer: item.id })
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
+                    }
+                    setId(null)
+                }} style={{
                 borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white',  
                 width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                 justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white',

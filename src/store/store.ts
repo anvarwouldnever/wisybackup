@@ -6,6 +6,7 @@ import api from '../api/api';
 class Store {
 
     slides = null;
+    attributes = null;
     addchildui = null;
     loading = true;
     token = null;
@@ -34,6 +35,7 @@ class Store {
         await this.loadData()
         await this.loadSlides();
         await this.loadAddChildUI();
+        await this.loadAttributes()
         // await this.loadCategories()
         // await this.loadDataGame1()
         // await this.loadMessages()
@@ -58,6 +60,19 @@ class Store {
                 const request = await api.getSlides()
                 runInAction(() => {
                     this.slides = request;
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
+    async loadAttributes() {
+        if(this.connectionState) {
+            try {
+                const request = await api.getAttributes();
+                runInAction(() => {
+                    this.attributes = request;
                 })
             } catch (error) {
                 console.log(error)
@@ -274,6 +289,7 @@ class Store {
     async setPlayingChildId(id: any) {
         runInAction(() => {
             this.playingChildId = id;
+            console.log(this.playingChildId)
         });
     }
 

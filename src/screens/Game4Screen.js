@@ -7,6 +7,7 @@ import store from '../store/store'
 import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio'
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation'
+import useTimer from '../hooks/useTimer'
 
 const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
@@ -16,16 +17,28 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
+    const { getTime, start, stop, reset } = useTimer();
+
+    useEffect(() => {
+        start();
+        return () => {
+            reset();
+        }
+    }, [])
+
     const vibrate = () => {
         Vibration.vibrate(500);
     };
 
     const answer = async({ answer }) => {
         try {
+            const lead_time = getTime();
+            stop();
             setId(null)
             setThinking(true)
-            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer})
+            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time})
             if (response && response.stars && response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
@@ -36,6 +49,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }, 1500);
             }
             else if (response && response.stars && !response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 vibrate()
                 setId({id: answer, result: 'wrong'})
@@ -47,12 +61,14 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                start();
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
             } else if(response && response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: answer, result: 'correct'})
                 setText(response.hint)
@@ -62,6 +78,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: answer, result: 'wrong'})
                 vibrate()
@@ -80,7 +97,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     return (
         <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, justifyContent: 'center'}}>
-            {data && <Game4AnimalsAnimation id={id} answer={answer} audio={data.content.question_audio} images={data.content.images}/>}
+            {data && <Game4AnimalsAnimation id={id} answer={answer} audio={data.content.question_audio} images={data.content.images} setId={setId}/>}
             <View style={{width: 'auto', height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', left: 0, bottom: 0}}>
                 <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
                 <Game3TextAnimation text={text} thinking={thinking}/>

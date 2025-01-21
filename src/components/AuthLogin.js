@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Dimensions, Text, TouchableOpacity, TextInput, Image, ActivityIndicator } from "react-native";
+import { Linking, View, Dimensions, Text, TouchableOpacity, TextInput, Image, ActivityIndicator } from "react-native";
 import google from '../images/google.png'
 import apple from '../images/apple.png'
 import facebook from '../images/facebook.png'
@@ -7,12 +7,28 @@ import Animated, { FadeInRight } from "react-native-reanimated";
 import api from '../api/api'
 import store from "../store/store";
 import { observer } from 'mobx-react-lite'
+import { openInbox, getEmailClients } from "react-native-email-link";
 
 const { width, height } = Dimensions.get('window');
 
 const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
 
     // igor.khegay@avtech.uz
+
+    // const getClients = async() => {
+    //     const clients = await getEmailClients();
+    //     console.log(clients)
+    // }
+
+    const handleOpenUrl = async (url) => {
+        const supported = await Linking.canOpenURL(url);
+    
+        if (supported) {
+          await Linking.openURL(url);
+        } else {
+          Alert.alert('Ошибка', 'Невозможно открыть URL: ' + url);
+        }
+    };
 
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
@@ -74,15 +90,15 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
                 </TouchableOpacity>
                 <View style={{height: 1, width: width * 0.8666, backgroundColor: '#E5E5E5'}}/>
                 <View style={{justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center', width: width * 0.8666, height: height * (192 / 800)}}>
-                    <TouchableOpacity style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
+                    <TouchableOpacity onPress={() => openInbox()} style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
                         <Image source={google} style={{width: height * (24 / 800), height: height * (24 / 800)}}/>
                         <Text style={{fontWeight: '600', fontSize: height * (14 / 800), color: '#222222', width: width * (248 / 360)}}>Continue with Google</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
+                    <TouchableOpacity onPress={() => handleOpenUrl('https://www.gmail.com')} style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
                         <Image source={apple} style={{width: height * (24 / 800), height: height * (24 / 800)}}/>
                         <Text style={{fontWeight: '600', fontSize: height * (14 / 800), color: '#222222', width: width * (248 / 360)}}>Continue with Apple</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
+                    <TouchableOpacity onPress={() => handleOpenUrl('https://www.facebook.com')} style={{justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row', padding: 16, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, borderStyle: 'solid', borderRadius: 100}}>
                         <Image source={facebook} style={{width: height * (24 / 800), height: height * (24 / 800)}}/>
                         <Text style={{fontWeight: '600', fontSize: height * (14 / 800), color: '#222222', width: width * (248 / 360)}}>Continue with Facebook</Text>
                     </TouchableOpacity>

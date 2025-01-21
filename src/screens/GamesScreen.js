@@ -95,7 +95,10 @@ const GamesScreen = () => {
                     <Image source={star} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
                     <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowHeight * (24 / 834) : windowWidth * (20 / 800), color: 'white', textAlign: 'center'}}>{store.playingChildId?.stars}</Text>
                 </View>
-                <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (736 / 800), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => navigation.navigate('ParentsCaptchaScreen')}>
+                <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (736 / 800), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => { 
+                        setSubCollections(null)
+                        navigation.navigate('ParentsCaptchaScreen')
+                }}>
                     <Image source={parent} style={{width: windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (24 / 800) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
                 </TouchableOpacity>
                 <View style={{width: windowWidth * (470 / 800), height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>

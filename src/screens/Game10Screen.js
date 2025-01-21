@@ -1,5 +1,5 @@
 import { View, Text, useWindowDimensions, Platform, Image, TouchableOpacity, PanResponder, Vibration } from 'react-native'
-import React, { useState, useRef } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import Game8Tutorial from '../components/Game8Tutorial';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
@@ -11,12 +11,11 @@ import store from '../store/store';
 import * as FileSystem from 'expo-file-system';
 import { playSound } from '../hooks/usePlayBase64Audio';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
+import useTimer from '../hooks/useTimer';
 
 const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
 
-    // console.log(data)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    // const [tutorial, setTutorial] = useState(true);
     const viewShotRef = useRef(null);
 
     const [text, setText] = useState(data.content.wisy_question);
@@ -26,6 +25,15 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
     const [id, setId] = useState(null);
+
+    const { getTime, start, stop, reset } = useTimer();
+
+    useEffect(() => {
+        start();
+        return () => {
+            reset();
+        }
+    }, [])
     
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -46,6 +54,25 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const vibrate = () => {
                 Vibration.vibrate(500);
             };
+
+    const timeoutRef = useRef(null);
+                
+                    useEffect(() => {
+                        if (id?.id && id?.result) {
+                            if (timeoutRef.current) {
+                                clearTimeout(timeoutRef.current);
+                            }
+                            timeoutRef.current = setTimeout(() => {
+                                setId(null);
+                                setLines([]);
+                            }, 2500);
+                        }
+                        return () => {
+                            if (timeoutRef.current) {
+                                clearTimeout(timeoutRef.current);
+                            }
+                        };
+                    }, [id, setId]);
 
     const saveAndShareImage = async () => {
         try {
@@ -74,11 +101,13 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const answer = async() => {
         try {
+            const lead_time = getTime();
+            stop();
             const image = await saveAndShareImage()
-            // console.log(image)
             setThinking(true)
-            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image]})
+            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time})
             if (response && response.stars && !response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 vibrate()
                 setId({id: data.id, result: 'wrong'})
@@ -90,6 +119,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }, 1500);
             }
             else if (response && response.stars && response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: data.id, result: 'correct'})
                 setText(response.hint)
@@ -100,13 +130,14 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }, 1500);
             }
             else if (response && !response.success && !response.to_next) {
+                start()
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playSound(response.sound)
                 setAttempt('2')
-                setLines([])
             } else if(response && response.success) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: data.id, result: 'correct'})
                 setText(response.hint)
@@ -116,6 +147,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     setAttempt('1');
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
+                reset()
                 onCompleteTask(subCollectionId, data.next_task_id)
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
@@ -170,7 +202,13 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
                 </View>
             </View>
-            {lines.length != 0 && <TouchableOpacity onPress={() => answer()} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
+            {lines.length != 0 && <TouchableOpacity onPress={() => {
+                    answer()
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
+                    }
+                    setId(null);
+                }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
                 <Text style={{fontSize: 16, color: 'white', fontWeight: '600'}}>Send</Text>
             </TouchableOpacity>}
         </View>

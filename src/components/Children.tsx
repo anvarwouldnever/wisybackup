@@ -12,27 +12,27 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
   
     return (
         <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, alignSelf: 'center', alignItems: 'center', width: 'auto', height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), gap: 32}}>
-                    {store.children && store.children.map((player, index) => {
-                        // console.log(player)
-                        return (
-                            <View key={index} style={{width: Platform.isPad? windowWidth * (96 / 800) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>
-                                <TouchableOpacity activeOpacity={1} onPress={() => { 
-                                        setChosenPlayerIndex(index)
-                                        setChosenPlayer(player)    
-                                    }
-                                } 
-                                    style={{width: 'auto', height: 'auto', borderWidth: 3, borderColor: chosenPlayerIndex === index? '#504297' : '#F4E3F1', borderRadius: 100}}>
-                                    <Image source={rabbit} style={{borderWidth: 2, borderColor: 'white', borderRadius: 100, width: Platform.isPad? windowHeight * (96 / 360) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), aspectRatio: 96 / 96}}/>    
-                                </TouchableOpacity>
-                                <Text style={{color: '#504297', width: 'auto', height: windowHeight * (24 / 360), fontSize: 14, lineHeight: 24, fontWeight: '600', textAlign: 'center'}}>{player.name}</Text>
-                            </View>
-                        )
-                    })}
-                    <TouchableOpacity onPress={() => navigation.navigate('ChildParamsScreen')} style={{width: Platform.isPad? windowWidth * (96 / 800) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>
+            {store.children && store.children.map((player, index) => {
+                    // console.log(player)
+                return (
+                    <View key={index} style={{width: Platform.isPad? windowWidth * (96 / 800) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center', marginLeft: index == 0? 150 : 0}}>
+                        <TouchableOpacity activeOpacity={1} onPress={() => { 
+                                setChosenPlayerIndex(index)
+                                setChosenPlayer(player)    
+                            }
+                        } 
+                        style={{width: 'auto', height: 'auto', borderWidth: 3, borderColor: chosenPlayerIndex === index? '#504297' : '#F4E3F1', borderRadius: 100}}>
+                        <Image source={rabbit} style={{borderWidth: 2, borderColor: 'white', borderRadius: 100, width: Platform.isPad? windowHeight * (96 / 360) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), aspectRatio: 96 / 96}}/>    
+                        </TouchableOpacity>
+                        <Text style={{color: '#504297', width: 'auto', height: windowHeight * (24 / 360), fontSize: 14, lineHeight: 24, fontWeight: '600', textAlign: 'center'}}>{player.name}</Text>
+                    </View>
+                )
+            })}
+                    <TouchableOpacity onPress={() => navigation.navigate('ChildParamsScreen')} style={{width: Platform.isPad? windowWidth * (96 / 800) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center', marginRight: 150}}>
                         <Image source={plus} style={{width: Platform.isPad? windowHeight * (96 / 360) : windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), aspectRatio: 96 / 96}}/>
                         <Text style={{color: '#504297', width: 'auto', height: windowHeight * (24 / 360), fontSize: 14, lineHeight: 24, fontWeight: '600'}}>Add new user</Text>
                     </TouchableOpacity>
-                </ScrollView>
+        </ScrollView>
     )
 }
 

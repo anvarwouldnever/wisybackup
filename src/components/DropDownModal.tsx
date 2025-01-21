@@ -7,11 +7,27 @@ import Modal from 'react-native-modal'
 
 const DropDownModal = ({ setDropDown, dropDown }) => {
 
+        const calculateAge = (birthday) => {
+            const today = new Date();
+            const birthDate = new Date(birthday);
+            let age = today.getFullYear() - birthDate.getFullYear();
+        
+            if (
+                today.getMonth() < birthDate.getMonth() || 
+                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
+            ) {
+                age--;
+            }
+        
+            return age;
+        };
+
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const renderChild = ({ item, index }) => {
                 
                 const last = store.children.length - 1;
+                const age = calculateAge(item.birthday);
                 
                 return (
                     <TouchableOpacity onPress={() => {
@@ -22,10 +38,10 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                         <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
                             <View style={{width: windowWidth * (184 / 360), height: windowHeight * (20 / 800), flexDirection: 'row'}}>
                                 <Text style={{fontWeight: '600', color: '#000000', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>{item.name}</Text>
-                                <Text style={{color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>/ age 6</Text>
+                                <Text style={{color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>/ age {age}</Text>
                             </View>
                             <View style={{width: windowWidth * (184 / 360), flexDirection: 'row', height: windowHeight * (20 / 800)}}>
-                                <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>63</Text>
+                                <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>{item.completed_sub_collections}</Text>
                                 <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>completed tasks</Text>
                             </View>
                         </View>

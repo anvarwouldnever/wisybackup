@@ -6,9 +6,9 @@ import { SvgUri } from "react-native-svg";
 import Animated, { FadeInRight, FadeOutLeft, Easing } from "react-native-reanimated";
 import star from '../images/tabler_star-filled.png';
 import { BlurView } from 'expo-blur';
-import lock from '../images/zamok.png'
-import filledStar from '../images/filledStar.png'
-import emptyStar from '../images/emptyStar.png'
+import lock from '../images/zamok.png';
+import filledStar from '../images/filledStar.png';
+import emptyStar from '../images/emptyStar.png';
 import { observer } from "mobx-react-lite";
 
 const GamesCollections = ({ setSubCollections, subCollections, setName, activeCategory }) => {
@@ -55,7 +55,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     
         completeTask(id, nextTaskId);
     };
-    
 
     const renderCollections = ({ item, index }) => {
 
@@ -88,7 +87,10 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     }
 
     const renderSubCollections = ({ item, onComplete, onCompleteTask }) => {
-        
+
+        // console.log(item.attributes)
+
+        console.log(item)
         
         const { image } = item;
         const isSvg = typeof image === 'string' && image.endsWith('.svg');
@@ -130,8 +132,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                     onPress={(task != null && item.tasks.length > 0)
                         ? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId) });
-                            
+                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 
                         : () => {}}
                     style={{
@@ -164,41 +165,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                             })}
                         </View>
                     }
-                    {/* {
-                        task === null? 
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? windowHeight * (12 / 360) : 8 }}>
-                            {[...Array(item.stars.total)].map((_, index) => {
-                                const starImage = index < item.stars.earned ? filledStar : emptyStar;
-                                return (
-                                    <Image
-                                        key={index}
-                                        source={starImage}
-                                        style={{
-                                            width: windowWidth * (16 / 800),
-                                            height: windowHeight * (16 / 360),
-                                            marginHorizontal: 2,
-                                        }}
-                                    />
-                                );
-                            })}
-                        </View>
-                        :
-                        <Text 
-                            style={{
-                                fontWeight: '600', 
-                                fontSize: Platform.isPad? windowWidth * (20 / 1194) : windowHeight * (12 / 360),
-                                lineHeight: 20, 
-                                textAlign: 'center', 
-                                width: '100%', 
-                                height: 'auto', 
-                                color: 'white', 
-                                position: 'absolute', 
-                                top: Platform.isPad? windowHeight * (12 / 360) : 8
-                            }}
-                        >
-                            Tap to play
-                        </Text>
-                    } */}
                     <View 
                         style={{
                             width: '100%', 
@@ -252,18 +218,30 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                             justifyContent: 'center'
                         }}
                     >
-                        {item.skills && item.skills.length > 0 && item.skills.map((image, index) => (
-                            <Image 
-                                key={index}
-                                source={image}
-                                style={{
-                                    resizeMode: 'contain', 
-                                    width: windowWidth * (24 / 800), 
-                                    height: windowHeight * (24 / 360), 
-                                    marginHorizontal: 5
-                                }} 
-                            />
-                        ))}
+                        {item.attributes && item.attributes.length > 0 && item.attributes.map((item, index) => {
+                            const isSvg = typeof item.image === 'string' && item.image.endsWith('.svg');
+
+                            return isSvg ? (
+                                <SvgUri
+                                    key={index}
+                                    uri={item.image}
+                                    width={windowWidth * (24 / 800)}
+                                    height={windowHeight * (24 / 360)}
+                                    style={{ marginHorizontal: 5 }}
+                                />
+                            ) : (
+                                <Image
+                                    key={index}
+                                    source={{ uri: item.image }}
+                                    style={{
+                                        resizeMode: 'contain',
+                                        width: windowWidth * (24 / 800),
+                                        height: windowHeight * (24 / 360),
+                                        marginHorizontal: 5,
+                                    }}
+                                />
+                            );
+                        })}
                     </View>
                     {(task === null || item.tasks.length <= 0) && <BlurView intensity={10} tint="light" style={{flex: 1, borderRadius: 12, overflow: 'hidden', justifyContent: 'center', alignItems: 'center'}}>
                             <Image source={lock} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360)}} resizeMode='contain' />
@@ -316,3 +294,39 @@ export default observer(GamesCollections);
         // const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
         // const tasks = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
         // console.log(tasks)
+
+        {/* {
+                        task === null? 
+                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? windowHeight * (12 / 360) : 8 }}>
+                            {[...Array(item.stars.total)].map((_, index) => {
+                                const starImage = index < item.stars.earned ? filledStar : emptyStar;
+                                return (
+                                    <Image
+                                        key={index}
+                                        source={starImage}
+                                        style={{
+                                            width: windowWidth * (16 / 800),
+                                            height: windowHeight * (16 / 360),
+                                            marginHorizontal: 2,
+                                        }}
+                                    />
+                                );
+                            })}
+                        </View>
+                        :
+                        <Text 
+                            style={{
+                                fontWeight: '600', 
+                                fontSize: Platform.isPad? windowWidth * (20 / 1194) : windowHeight * (12 / 360),
+                                lineHeight: 20, 
+                                textAlign: 'center', 
+                                width: '100%', 
+                                height: 'auto', 
+                                color: 'white', 
+                                position: 'absolute', 
+                                top: Platform.isPad? windowHeight * (12 / 360) : 8
+                            }}
+                        >
+                            Tap to play
+                        </Text>
+                    } */}

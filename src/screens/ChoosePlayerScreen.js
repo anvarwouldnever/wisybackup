@@ -26,9 +26,9 @@ const ChoosePlayerScreen = () => {
     );
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
             <BackgroundMusic />
-            <View style={{width: Platform.isPad? windowWidth * (600 / 800) : windowWidth * (600 / 800), alignItems: 'center'}}>
+            <View style={{width: Platform.isPad? 'auto' : 'auto', alignItems: 'center'}}>
                 <Children setChosenPlayerIndex={setChosenPlayerIndex} chosenPlayerIndex={chosenPlayerIndex} setChosenPlayer={setChosenPlayer}/>
             </View>
             {chosenPlayerIndex != null && <TouchableOpacity onPress={() => {
@@ -39,7 +39,7 @@ const ChoosePlayerScreen = () => {
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), color: 'white'}}>Let's play</Text>
                 <Image source={narrow} style={{width: 24, height: 24, marginLeft: 10, aspectRatio: 24 / 24}}/>
             </TouchableOpacity>}
-        </SafeAreaView>
+        </View>
     );
 };
 

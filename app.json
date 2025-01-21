@@ -33,7 +33,8 @@
         {
           "microphonePermission": "Allow MyWisy to access your microphone."
         }
-      ]
+      ],
+      ["react-native-email-link"]
     ],
     "android": {
       "adaptiveIcon": {

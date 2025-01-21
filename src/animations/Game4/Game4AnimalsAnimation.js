@@ -1,5 +1,5 @@
 import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import passedimg from '../../images/gamepassed.png';
 import speaker from '../../images/speaker2.png'
 import store from '../../store/store'
@@ -9,7 +9,7 @@ import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Game4AnimalsAnimation = ({ answer, id, audio, images }) => {
+const Game4AnimalsAnimation = ({ answer, id, audio, images, setId }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const sound = React.useRef(new Audio.Sound());
@@ -19,6 +19,24 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images }) => {
     useEffect(() => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
     }, [images, audio]);
+
+    const timeoutRef = useRef(null);
+        
+            useEffect(() => {
+                if (id?.id && id?.result) {
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                    }
+                    timeoutRef.current = setTimeout(() => {
+                        setId(null);
+                    }, 2500);
+                }
+                return () => {
+                    if (timeoutRef.current) {
+                        clearTimeout(timeoutRef.current);
+                    }
+                };
+            }, [id, setId]);
 
     useEffect(() => {
         return () => {
@@ -48,7 +66,13 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images }) => {
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <TouchableOpacity onPress={() => answer({ answer: item.id })} style={{
+            <TouchableOpacity onPress={() => {
+                answer({ answer: item.id })
+                if (timeoutRef.current) {
+                    clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
+                }
+                setId(null)
+            }} style={{
                 borderRadius: 10, backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item.id && id?.result == 'wrong'? '#D816164D' : 'white', 
                 width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                 justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white',

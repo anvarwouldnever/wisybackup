@@ -1,8 +1,9 @@
 import { View, TouchableOpacity, Text, Image, useWindowDimensions, Platform, ImageBackground } from 'react-native'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import store from '../store/store'
 import Game1Screen from './Game1Screen'
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import * as ScreenOrientation from 'expo-screen-orientation';
 import Animated, { useAnimatedStyle, withTiming, withSpring, withSequence, useSharedValue } from 'react-native-reanimated'
 import narrowleft from '../images/narrowleft-purple.png'
 import star from '../images/Star.png'
@@ -24,7 +25,7 @@ import CongratulationsScreen from './CongratulationsScreen'
 
 const GameScreen = ({ route }) => {
 
-    const { tasks, onComplete, onCompleteTask } = route.params;
+    const { tasks, onComplete, onCompleteTask, isFromAttributes } = route.params;
     const navigation = useNavigation();
     const [level, setLevel] = useState(0);
     const [taskLevel, setTaskLevel] = useState(0);
@@ -55,7 +56,7 @@ const GameScreen = ({ route }) => {
     const RenderVoiceGame = () => {
         // done
         return (    
-            <Game1Screen setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel}/>
+            <Game1Screen setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -250,8 +251,8 @@ const GameScreen = ({ route }) => {
                     task[level].type === 'text_single_choice' && task[level].content.options[0].audio === null && task[level].content.options[0].text != ""?
                     <RenderTextSingleChoiceSimpleGame /> : 
                     task[level].type === 'text_single_choice' && task[level].content.options[0].audio != null || task[level].content.options[0].text.includes(" ")?
-                    <RenderTextSingleChoiceWithAudioGame /> : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} onComplete={onComplete}/>
-                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete}/>
+                    <RenderTextSingleChoiceWithAudioGame /> : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
             }
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}

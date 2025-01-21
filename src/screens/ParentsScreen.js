@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform, FlatList } from "react-native";
 import ParentsCancel from "../components/ParentsCancel";
 import dog from '../images/Dog.png';
@@ -17,19 +17,22 @@ import { observer } from "mobx-react-lite";
 const ParentsScreen = () => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [screen, setScreen] = useState('Knowledge');
+    const initialScreen = store.attributes[0]
+    const [screen, setScreen] = useState(initialScreen);
     const [dropDown, setDropDown] = useState();
 
+    const handleScreenChange = useCallback((newScreen) => setScreen(newScreen), []);
+
     return (
-        <SafeAreaView style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
+        <SafeAreaView style={{flex: 1, alignItems: 'center', gap: 15, backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             <ParentsCancel />
-            {screen != 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen == 'Settings'? null : <View style={{height: windowHeight * (80 / 800), width: windowWidth * (312 / 360)}}/>}
-            {screen != 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
-            {screen === 'Settings'? <ParentsSettings /> : <ParentsComponents screen={screen} />}
-            {screen === 'Settings' && <SubscriptionState />}
+            {screen !== 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen === 'Settings'? null : <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800)}}/>}
+            {screen !== 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
+            {screen !== 'Settings'? <ParentsComponents screen={screen}/> : <ParentsSettings />}
+            {/* {screen === 'Settings' && <SubscriptionState />} */}
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800)}} />
-            <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', position: 'absolute', bottom: Platform.OS === 'ios'?windowHeight * (40 / 932) : windowHeight * (15 / 932), alignSelf: 'center'}}>
-                <BottomTabs screen={screen} setScreen={setScreen} />
+            <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', position: 'absolute', bottom: Platform.OS === 'ios'? windowHeight * (40 / 932) : windowHeight * (15 / 932), alignSelf: 'center'}}>
+                <BottomTabs screen={screen} setScreen={handleScreenChange} />
             </View>
         </SafeAreaView>
     )

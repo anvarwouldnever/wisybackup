@@ -10,7 +10,7 @@ import store from '../store/store';
 import Timer from '../components/Timer';
 import { useNavigation } from '@react-navigation/native';
 
-const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText }) => {
+const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes }) => {
     
     const stars = Array.from({ length: parseInt(starsText, 10) }, (_, index) => ({
         id: index + 1,
@@ -18,12 +18,17 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [numStars, setNumStars] = useState(0)
-    const navigation = useNavigation()
+    const navigation = useNavigation();
 
     const [layoutCaptured, setLayoutCaptured] = useState();
 
     useEffect(() => {
-        onComplete(id, starId, stars.length);
+        
+        if (isFromAttributes) {
+            store.loadCategories()
+        } else {
+            onComplete(id, starId, stars.length);
+        }
 
         const timeoutId = setTimeout(() => {
             setTaskLevel();
