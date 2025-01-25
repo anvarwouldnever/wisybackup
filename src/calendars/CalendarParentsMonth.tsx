@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
 import moment from 'moment';
 import { format } from 'date-fns';
 
 const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
     const [markedDates, setMarkedDates] = useState({});
+    const [selectedDate, setSelectedDate] = useState(new Date());
     const { height, width } = useWindowDimensions();
 
     const cancel = () => {
@@ -13,47 +14,20 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
     };
 
     const done = () => {
-        if (Object.keys(markedDates).length === 0) {
-            console.log('No month selected');
-            setShow(false);
-            return;
-        }
-
-        const selectedDates = Object.keys(markedDates);
-        const firstDay = selectedDates[0];
-        const lastDay = selectedDates[selectedDates.length - 1];
-
-        if (firstDay && lastDay) {
+        const selectedMoment = moment(selectedDate);
+        const startOfMonth = selectedMoment.clone().startOf('month').format('DD.MM.yyyy'); // Правильное форматирование
+        const endOfMonth = selectedMoment.clone().endOf('month').format('DD.MM.yyyy'); // Правильное форматирование
+    
+        if (startOfMonth && endOfMonth) {
             const formattedMonthRange = {
-                startDate: format(new Date(firstDay), 'dd.MM.yyyy'),
-                endDate: format(new Date(lastDay), 'dd.MM.yyyy'),
+                startDate: startOfMonth,
+                endDate: endOfMonth,
             };
-
-            console.log('Selected month:', formattedMonthRange);
+    
             setMonthRange(formattedMonthRange); // Устанавливаем в state диапазон месяца
         }
-
+    
         setShow(false);
-    };
-
-    const highlightMonth = (dateString) => {
-        const selectedDate = moment(dateString);
-        const startOfMonth = selectedDate.clone().startOf('month'); // Первый день месяца
-        const endOfMonth = selectedDate.clone().endOf('month'); // Последний день месяца
-
-        const newMarkedDates = {};
-
-        for (let m = startOfMonth.clone(); m.isSameOrBefore(endOfMonth); m.add(1, 'days')) {
-            const key = m.format('YYYY-MM-DD');
-            newMarkedDates[key] = {
-                color: '#504297',
-                textColor: 'white',
-                startingDay: key === startOfMonth.format('YYYY-MM-DD'),
-                endingDay: key === endOfMonth.format('YYYY-MM-DD'),
-            };
-        }
-
-        setMarkedDates(newMarkedDates);
     };
 
     return (
@@ -76,23 +50,24 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
                 shadowOpacity: 1,
             }}
         >
-            <Calendar
-                onDayPress={(day) => {
-                    highlightMonth(day.dateString); // Вызываем функцию подсветки месяца
+            <RNDateTimePicker
+                value={selectedDate}
+                onChange={(event, date) => {
+                    if (date) {
+                        setSelectedDate(date); // Устанавливаем выбранную дату
+                    }
                 }}
+                themeVariant="light"
                 style={{
-                    width: width * (314 / 360),
-                    height: 'auto',
-                    alignSelf: 'center',
-                    borderRadius: 10,
+                    marginTop: 1,
+                    width: width * 0.8666 - 25,
+                    maxWidth: 420,
+                    height: height * (320 / 800),
+                    backgroundColor: 'white',
                 }}
-                theme={{
-                    textSectionTitleColor: '#504297',
-                    arrowColor: '#504297',
-                    indicatorColor: '#504297',
-                }}
-                markedDates={markedDates}
-                markingType="period"
+                accentColor="#504297"
+                display="spinner"
+                mode="date"
             />
             <View
                 style={{
@@ -153,3 +128,12 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
 };
 
 export default CalendarParentsMonth;
+
+
+{/* <RNDateTimePicker
+                    value={new Date()}
+                    themeVariant="light"
+                    style={{marginTop: 1, width: width * 0.8666 - 25, maxWidth: 420, height: height * (320 / 800), backgroundColor: 'white'}}
+                    accentColor="#504297"
+                    display='spinner'
+                /> */}

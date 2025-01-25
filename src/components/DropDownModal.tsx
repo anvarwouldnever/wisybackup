@@ -54,7 +54,7 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
 
         return (
             <Modal backdropColor="black" backdropOpacity={0.3} hasBackdrop={true} onBackdropPress={() => setDropDown(prev => !prev)} style={{height: 'auto', alignSelf: 'center', width: windowWidth * (312 / 360), position: 'absolute', top: windowHeight * (76 / 800)}} isVisible={dropDown} animationIn={'fadeIn'} >
-                <View style={{height: windowHeight * (233 / 800), borderRadius: 12, overflow: 'hidden'}}>
+                <View style={{height: windowHeight * (233 / 800), borderRadius: 12, overflow: 'hidden', backgroundColor: 'white'}}>
                     <FlatList 
                         data={store.children.slice().sort((a, b) => {
                             if (a.id === store.playingChildId.id) return -1;

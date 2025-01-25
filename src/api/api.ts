@@ -129,19 +129,18 @@ class Api {
         return response.data.data
     }
 
-    async getAttributeByChild(params: any) {
+    async getAttributeByChild(param) {
         try {
-            const response = await axios.get(`${this.baseUrl}/attributes/${params.attribute_id}`, {
+            const response = await axios.get(`${this.baseUrl}/attributes/${param.attribute_id}`, {
                 headers: {
                     Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
                 },
                 params: {
-                    child_id: params.child_id,
-                    from: params.from,
-                    to: params.to
+                    child_id: param.child_id,
+                    from: param.from,
+                    to: param.to
                 }
             })
-            console.log(response.data)
             return response.data
         } catch (error) {
             console.log(error.response.data)

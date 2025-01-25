@@ -8,7 +8,7 @@ import { playSound } from "../hooks/usePlayBase64Audio";
 import store from "../store/store";
 import useTimer from "../hooks/useTimer";
 
-const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
+const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data.content.wisy_question)
@@ -39,7 +39,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             // console.log(response)
             if (response && response.stars && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
@@ -51,7 +55,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             }
             else if (response && response.stars && !response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 vibrate()
                 setId({id: answer, result: 'wrong'})
                 setText(response.hint)
@@ -71,7 +79,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setAttempt('2')
             } else if(response && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setText(response.hint)
                 playSound(response.sound)
                 setId({id: answer, result: 'correct'})
@@ -81,7 +93,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)

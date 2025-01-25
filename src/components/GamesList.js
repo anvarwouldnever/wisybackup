@@ -88,10 +88,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
     const renderSubCollections = ({ item, onComplete, onCompleteTask }) => {
 
-        // console.log(item.attributes)
-
-        console.log(item)
-        
         const { image } = item;
         const isSvg = typeof image === 'string' && image.endsWith('.svg');
 
@@ -99,8 +95,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
             Array.isArray(availableSubCollections) && availableSubCollections.includes(item.id)
                 ? item.id
             : null;
-
-            // console.log(item.current_task_id)
 
             const prepareTasksArray = (itemId) => {
                 const tasksArray = subCollections
@@ -124,6 +118,8 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
                 return tasksArray.slice(clickedIndex);
             };
+
+            // console.log(task, item.tasks.length)
             
         
         return ( 
@@ -215,11 +211,15 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                             alignItems: 'center', 
                             flexDirection: 'row', 
                             alignSelf: 'center', 
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            borderRadius: 10
                         }}
                     >
-                        {item.attributes && item.attributes.length > 0 && item.attributes.map((item, index) => {
+                        {item.attributes && item.attributes.length > 0 && item.attributes.slice(0, 4).map((item, index) => {
                             const isSvg = typeof item.image === 'string' && item.image.endsWith('.svg');
+                            // console.log(item.image)
+
+                            // console.log(store.attributes[0].attributes)
 
                             return isSvg ? (
                                 <SvgUri
@@ -227,7 +227,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                                     uri={item.image}
                                     width={windowWidth * (24 / 800)}
                                     height={windowHeight * (24 / 360)}
-                                    style={{ marginHorizontal: 5 }}
+                                    style={{ marginHorizontal: 5, backgroundColor: item.group.color, borderRadius: 5 }}
                                 />
                             ) : (
                                 <Image
@@ -238,12 +238,13 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                                         width: windowWidth * (24 / 800),
                                         height: windowHeight * (24 / 360),
                                         marginHorizontal: 5,
+                                        backgroundColor: item.group.color
                                     }}
                                 />
                             );
                         })}
                     </View>
-                    {(task === null || item.tasks.length <= 0) && <BlurView intensity={10} tint="light" style={{flex: 1, borderRadius: 12, overflow: 'hidden', justifyContent: 'center', alignItems: 'center'}}>
+                    {(task === null || item.tasks.length === 0) && <BlurView intensity={10} tint="light" style={{flex: 1, borderRadius: 12, overflow: 'hidden', justifyContent: 'center', alignItems: 'center'}}>
                             <Image source={lock} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360)}} resizeMode='contain' />
                         </BlurView>}
                 </TouchableOpacity>

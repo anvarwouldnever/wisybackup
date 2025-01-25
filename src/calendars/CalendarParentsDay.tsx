@@ -50,15 +50,11 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                     borderRadius: 10,
                 }}
                 theme={{
-                    textSectionTitleColor: '#504297',
-                    arrowColor: '#504297',
-                    indicatorColor: '#504297',
-                    selectedDayBackgroundColor: 'black',
+                    todayTextColor: 'black',
                 }}
                 markedDates={{
                     [selectedDate?.dateString]: {
                         selected: true,
-                        marked: true,
                         selectedColor: '#504297',
                     },
                 }}

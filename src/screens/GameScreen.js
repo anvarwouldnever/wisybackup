@@ -30,11 +30,22 @@ const GameScreen = ({ route }) => {
     const [level, setLevel] = useState(0);
     const [taskLevel, setTaskLevel] = useState(0);
     const [stars, setStars] = useState(null)
-    const task = tasks[taskLevel].tasks
+    const task = tasks[taskLevel]?.tasks
+
+    // useFocusEffect(
+    //     useCallback(() => {
+    //         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+            
+    //         return () => {
+    //             ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP); // Восстановление ориентации при уходе с экрана
+    //         };
+    //     }, [])
+    // );
+
 
     const incrementTaskLevel = () => { 
         setTaskLevel(prev => {
-            if (prev + 1 >= tasks.length) {
+            if (prev + 1 >= tasks?.length) {
                 return prev;
             }
             return prev + 1;
@@ -43,7 +54,7 @@ const GameScreen = ({ route }) => {
 
     const incrementLevel = () => { 
         setLevel(prev => {
-            if (prev + 1 > tasks.length) {
+            if (prev + 1 >= tasks?.length) {
                 console.log("Нет больше задач.");
                 return navigation.goBack();
             }
@@ -63,70 +74,70 @@ const GameScreen = ({ route }) => {
     const RenderWithImageGame = () => {
         // done
         return (
-            <Game5Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game5Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderSimpleGame = () => {
         // done
         return (
-            <Game3Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game3Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithAudio = () => {
         // done
         return (
-            <Game4Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game4Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithTitleGame = () => {
         // done
         return (
-            <Game2Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game2Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenSimpleGame = () => {
         // done
         return (
-            <Game8Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game8Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenRepeatGame = () => {
         // done
         return (
-            <Game10Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game10Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenCountingGame = () => {
         // done
         return (
-            <Game9Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game9Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenWordGame = () => {
         // done
         return (
-            <Game11Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game11Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceSimpleGame = () => {
         // done
         return (
-            <Game13Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game13Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceWithAudioGame = () => {
         // done
         return (
-            <Game12Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask}/>
+            <Game12Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -134,7 +145,7 @@ const GameScreen = ({ route }) => {
         const [data, setData] = useState(null);
     
         useEffect(() => {
-            const svgData = task[level].content.svg
+            const svgData = task[level]?.content.svg
             
             if (svgData) {
                 function parseSVG() {
@@ -180,7 +191,7 @@ const GameScreen = ({ route }) => {
         return data ? <Game6Screen data={data} setLevel={setLevel} /> : null;
     };
 
-    const games = task.length
+    const games = task?.length
     const ProgressAnimationWidth = windowWidth * (100 / 800); 
     
     const animatedProgress = useAnimatedStyle(() => {

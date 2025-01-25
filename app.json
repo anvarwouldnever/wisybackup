@@ -16,7 +16,7 @@
     "ios": {
       "requireFullScreen": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.anvarwouldnever3.wisy",
+      "bundleIdentifier": "com.avtechMyWisyTest.wisy",
       "associatedDomains": [
         "applinks:mywisy.com"
       ]
@@ -41,7 +41,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anvarwouldnever3.wisy"
+      "package": "com.avtechMyWisyTest.wisy"
     },
     "web": {
       "favicon": "./assets/favicon.png"

@@ -72,7 +72,7 @@ const LoaderScreen = () => {
                         transform={`rotate(265 ${width * (100 / 430)} ${height * (100 / 932)})`}
                     />
                 </Svg>
-                <ReText style={{position: 'absolute', color: '#222222', fontSize: (height * (24 / 800)), fontWeight: '600'}} text={progressText}/>
+                <ReText style={{position: 'absolute', color: '#222222', fontSize: height * (24 / 800), fontWeight: '600', width: width * (150 / 360), textAlign: 'center'}} text={progressText} />
                 <View style={styles.container}>
                     <Animated.Image source={lapa} style={[styles.circle, animatedStyle]} />
                 </View>

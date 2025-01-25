@@ -10,19 +10,19 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         const navigation = useNavigation();
 
-        const subCollection = store.categories[0].collections[0].sub_collections.find(
-            (item) => item.id === modalData?.id
+        const subCollection = store?.categories[0]?.collections[0]?.sub_collections?.find(
+            (item) => item?.id === modalData?.id
         );
     
         if (!subCollection) {
             return null;
         }
 
-        const taskIndex = subCollection.tasks.findIndex(
+        const taskIndex = subCollection?.tasks?.findIndex(
             (task) => task.id === modalData?.current_task_id
         );
     
-        const filteredTasks = taskIndex !== -1 ? subCollection.tasks.slice(taskIndex) : [];
+        const filteredTasks = taskIndex !== -1 ? subCollection?.tasks?.slice(taskIndex) : [];
     
         const dataForGameScreen = {
             id: modalData.id,
@@ -42,10 +42,10 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
                         </View>
                         <Text style={{color: '#555555', fontWeight: '500', fontSize: 12}}>{modalData?.mistakes} mistakes</Text>
                     </View>
-                    <TouchableOpacity onPress={() => {
-                        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE);
+                    <TouchableOpacity onPress={async() => {
                         setInformationModal(false)
                         navigation.navigate('GameScreen', {tasks: [dataForGameScreen], isFromAttributes: true})
+                        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
                         }} 
                         style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), backgroundColor: '#504297', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{fontWeight: '600', fontSize: 14, color: '#FFFFFF'}}>Open game</Text>

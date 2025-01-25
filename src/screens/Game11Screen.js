@@ -15,7 +15,7 @@ import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { SvgUri } from 'react-native-svg';
 import useTimer from '../hooks/useTimer';
 
-const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
+const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
 
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
@@ -141,7 +141,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             // console.log(response)
             if (response && response.stars && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
@@ -152,7 +156,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             }
             else if (response && response.stars && !response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response?.hint)
@@ -171,7 +179,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setAttempt('2')
             } else if(response && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
@@ -181,7 +193,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)

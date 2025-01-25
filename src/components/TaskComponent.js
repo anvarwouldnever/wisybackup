@@ -16,7 +16,12 @@ const TaskComponent = ({ image, successImage }) => {
         setImageLoaded(false); // Сбрасываем состояние при смене изображения
     }, [image]);
 
+    // console.log(image)
+    // console.log(successImage)
+
     return (
+        <View style={{backgroundColor: 'white', borderRadius: 10, width: windowWidth * (188 / 800),
+            height: Platform.isPad ? windowWidth * (188 / 800) : windowHeight * (188 / 360), position: 'absolute',}}>
         <View style={{
             width: windowWidth * (188 / 800),
             height: Platform.isPad ? windowWidth * (188 / 800) : windowHeight * (188 / 360),
@@ -63,6 +68,7 @@ const TaskComponent = ({ image, successImage }) => {
                     }}
                 />
             )}
+        </View>
         </View>
     );
 }

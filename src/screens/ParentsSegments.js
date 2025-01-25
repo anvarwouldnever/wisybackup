@@ -1,14 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Image, SafeAreaView, Text, TouchableOpacity, View, useWindowDimensions, ActivityIndicator } from "react-native";
-import narrowleft from '../images/tablerleft.png'
-import narrowright from '../images/narrowright.png'
-import calendar from '../images/tabler_calendar-month.png'
-import tablerleft from '../images/tabler_arrow-left.png'
-import circleX from '../images/circleX.png'
-import numbers from '../images/Numbers.png'
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, FlatList } from "react-native";
 import CalendarParentsWeek from "../calendars/CalendarParentsWeek";
 import CalendarParentsDay from "../calendars/CalendarParentsDay";
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from 'expo-screen-orientation';
 import Modal from 'react-native-modal'
 import { startOfWeek, endOfWeek, addDays, format, parse, startOfMonth, endOfMonth, addMonths, isToday, subDays } from "date-fns";
@@ -19,15 +13,14 @@ import InformationModal from "./ParentsSegments/InformationModal";
 import Periods from "./ParentsSegments/Periods";
 import NonAndMistakes from "./ParentsSegments/NonAndMistakes";
 import TimeAndPuzzles from "./ParentsSegments/TimeAndPuzzles";
-import ChosenPeriodText from "./ParentsSegments/ChosenPeriodText";
 import Back from "./ParentsSegments/Back";
-import ArrowLeft from "./ParentsSegments/ArrowLeft";
 import ChosenPeriod from "./ParentsSegments/ChosenPeriod";
+import RenderAttributes from "./ParentsSegments/RenderAttributes";
 
 const ParentsSegments = ({ route }) => {
 
-    const id = route.params.screen.id
-    const name = route.params.screen.name
+    const id = route?.params?.screen?.id
+    const name = route?.params?.screen?.name
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     useFocusEffect(
@@ -67,13 +60,13 @@ const ParentsSegments = ({ route }) => {
     };
 
     const updateMonthRange = (direction) => {
-        const currentStartDate = parse(monthRange.startDate, 'dd.MM.yyyy', new Date()); // парсим startDate в объект Date
-        const newStartDate = addMonths(currentStartDate, direction); // сдвигаем на 1 месяц в зависимости от direction
-        const newEndDate = endOfMonth(newStartDate); // находим конец нового месяца
+        const currentStartDate = parse(monthRange.startDate, 'dd.MM.yyyy', new Date()); 
+        const newStartDate = addMonths(currentStartDate, direction);
+        const newEndDate = endOfMonth(newStartDate); 
     
         setMonthRange({
-            startDate: format(newStartDate, 'dd.MM.yyyy'), // форматируем начало месяца
-            endDate: format(newEndDate, 'dd.MM.yyyy'), // форматируем конец месяца
+            startDate: format(newStartDate, 'dd.MM.yyyy'),
+            endDate: format(newEndDate, 'dd.MM.yyyy'), 
         });
     };
 
@@ -100,8 +93,8 @@ const ParentsSegments = ({ route }) => {
                             setData(attributes);
                         } else {
                             const selectedDate = new Date(formattedDate.split('.').reverse().join('-'));
-                            const fromDate = format(subDays(selectedDate, 1), 'dd.MM.yyyy'); // День назад
-                            const toDate = format(addDays(selectedDate, 1), 'dd.MM.yyyy'); // День вперед
+                            const fromDate = format(subDays(selectedDate, 1), 'dd.MM.yyyy');
+                            const toDate = format(addDays(selectedDate, 1), 'dd.MM.yyyy');
                 
                             const attributes = await api.getAttributeByChild({
                                 attribute_id: id,
@@ -132,112 +125,38 @@ const ParentsSegments = ({ route }) => {
             <Modal visible={show} animationType="fade" transparent>
                 {chosenPeriod === 'day' && <CalendarParentsDay setShow={setShow} setFormattedDate={setFormatedDate} />}
                 {chosenPeriod === 'week' && <CalendarParentsWeek setShow={setShow} setWeekRange={setWeekRange} />}
-                {chosenPeriod === 'month' && <CalendarParentsMonth setShow={setShow} setMonthRange={setMonthRange} />}
+                {chosenPeriod ==='month' && <CalendarParentsMonth setShow={setShow} setMonthRange={setMonthRange} />}
             </Modal>
             <Periods chosenPeriod={chosenPeriod} setChosenPeriod={setChosenPeriod}/>
             <ChosenPeriod changeDate={changeDate} setShow={setShow} chosenPeriod={chosenPeriod} monthRange={monthRange} weekRange={weekRange} formattedDate={formattedDate}/>
-            {/* {thinking? 
-                <ActivityIndicator style={{position: 'absolute', alignSelf: 'center', top: 500}} size='large' color={'#504297'}/> 
-                :  */}
                 <View style={{width: windowWidth * (312 / 360), height: windowHeight * (606 / 800), gap: windowWidth * (24 / 360), alignItems: 'center'}}>
                     <TimeAndPuzzles data={data}/>
                     <View style={{width: windowWidth * (312 / 360), height: windowHeight * (232 / 800), alignItems: 'center', justifyContent: 'space-between'}}>
                         <NonAndMistakes chosenMistakesOption={chosenMistakesOption} setChosenMistakesOption={setChosenMistakesOption}/>
-                        <View style={{width: windowWidth * (312 / 360), height: windowHeight * (164 / 800), gap: 12, alignItems: 'center'}}>
-                        {data?.data &&
-                            data?.data
-                                .filter(item => chosenMistakesOption ? item.mistakes > 0 : item.mistakes === 0)
-                                .map((item, index) =>  {
-                                    
-                                    // console.log(item)
-                                    return (
-                                    <TouchableOpacity
-                                        key={index} 
-                                        onPress={() => {
-                                            setModalData(item);
-                                            setInformationModal(prev => !prev)
-                                        }} 
-                                        style={{
-                                            width: windowWidth * (312 / 360), 
-                                            height: windowHeight * (76 / 800), 
-                                            backgroundColor: '#F8F8F8', 
-                                            borderRadius: 10, 
-                                            padding: windowWidth * (16 / 360), 
-                                            gap: windowWidth * (16 / 360), 
-                                            alignItems: 'center', 
-                                            flexDirection: 'row'
-                                        }}
-                                    >
-                                        <Image 
-                                            source={numbers} 
-                                            style={{
-                                                width: windowHeight * (40 / 800), 
-                                                height: windowHeight * (40 / 800), 
-                                                aspectRatio: 40 / 40
-                                            }}
-                                        />
-                                        <View 
-                                            style={{
-                                                width: windowWidth * (184 / 360), 
-                                                height: windowHeight * (44 / 800), 
-                                                justifyContent: 'space-between'
-                                            }}
-                                        >
-                                            <Text 
-                                                style={{
-                                                    color: '#222222', 
-                                                    fontWeight: '600', 
-                                                    fontSize: windowHeight * (14 / 800), 
-                                                    lineHeight: windowHeight * (20 / 800)
-                                                }}
-                                            >
-                                                {item.name}
-                                            </Text>
-                                            <Text 
-                                                style={{
-                                                    color: '#222222', 
-                                                    fontWeight: '400', 
-                                                    fontSize: windowHeight * (12 / 800), 
-                                                    lineHeight: windowHeight * (20 / 800)
-                                                }}
-                                            >
-                                                {item.mistakes} mistakes
-                                            </Text>
-                                        </View>
-                                        <Image 
-                                            source={narrowright} 
-                                            style={{
-                                                width: windowHeight * (24 / 800), 
-                                                height: windowHeight * (24 / 800)
-                                            }}
-                                        />
-                                    </TouchableOpacity>
-                                )})}
-                            </View>
+                        <View style={{width: windowWidth * (312 / 360), height: windowHeight * (370 / 800), marginTop: 20, alignItems: 'center'}}>
+                        <FlatList
+                            scrollEnabled
+                            data={data?.data?.filter(item => chosenMistakesOption ? item?.mistakes > 0 : item?.mistakes === 0)}
+                            showsVerticalScrollIndicator={false}
+                            keyExtractor={(item, index) => index.toString()}
+                            renderItem={({ item }) => {
+                                return <RenderAttributes item={item} setInformationModal={setInformationModal} setModalData={setModalData}/>
+                            }}
+                            contentContainerStyle={{
+                                height: 'auto',
+                                gap: 5
+                            }}
+                            style={{
+                                width: windowWidth * (312 / 360),
+                                height: '100%',
+                            }}
+                        />
                         </View>
+                    </View>
                 </View>
-            <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal}/>
+            {informationModal && <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal}/>}
         </SafeAreaView>
     )
 }
 
 export default ParentsSegments;
-
-{/* <TouchableOpacity onPress={() => setInformationModal(prev => !prev)} style={{width: windowWidth * (312 / 360), height: windowHeight * (76 / 800), backgroundColor: '#F8F8F8', borderRadius: 10, padding: windowWidth * (16 / 360), gap: windowWidth * (16 / 360), alignItems: 'center', flexDirection: 'row'}}>
-                                <Image source={numbers} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
-                                <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), justifyContent: 'space-between'}}>
-                                    <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800)}}>Counting 10</Text>
-                                    <Text style={{color: '#222222', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>2 mistakes</Text>
-                                </View>
-                                <Image source={narrowright} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800)}}/>
-                            </TouchableOpacity> */}
-
-
-                            // <TouchableOpacity style={{width: windowWidth * (312 / 360), height: windowHeight * (76 / 800), backgroundColor: '#F8F8F8', borderRadius: 10, padding: windowWidth * (16 / 360), gap: windowWidth * (16 / 360), alignItems: 'center', flexDirection: 'row'}}>
-                            //     <Image source={numbers} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
-                            //     <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), justifyContent: 'space-between'}}>
-                            //         <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800)}}>Counting 10</Text>
-                            //         <Text style={{color: '#222222', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>0 mistakes</Text>
-                            //     </View>
-                            //     <Image source={narrowright} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
-                            // </TouchableOpacity>

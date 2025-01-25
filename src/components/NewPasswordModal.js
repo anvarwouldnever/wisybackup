@@ -7,12 +7,11 @@ import store from "../store/store";
 const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [newPassword, setNewPassword] = useState("")
-    // console.log(newPassword)
+    const [newPassword, setNewPassword] = useState("");
 
     return (
         <Modal transparent={true} visible={modal} animationType='slide' onRequestClose={() => setModal(false)}>
-            <TouchableOpacity activeOpacity={0} style={{height: '100%'}} onPress={() => setModal(false)}>
+            <TouchableOpacity activeOpacity={0} style={{height: '100%'}} onPress={() => setModal(false)}>   
                 <KeyboardAvoidingView style={{ position: 'absolute', bottom: 0 }} behavior='padding'>
                     <TouchableWithoutFeedback>
                         <View style={{width: windowWidth, height: windowHeight * (322 / 800), backgroundColor: 'white', borderRadius: 24, shadowColor: 'black', shadowRadius: 600, shadowOpacity: 1}}>
@@ -31,18 +30,36 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
                                             <Image source={eye} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
                                         </TouchableOpacity>
                                     </View>
-                                    <Text style={{width: windowWidth * (312 / 360), height: windowHeight * (20 / 800), fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), color: '#555555'}}>Password must contain at least 1 uppercase letter</Text>
+                                    <Text style={{width: windowWidth * (312 / 360), height: windowHeight * (20 / 800), fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), color: '#555555', textAlign: 'center'}}>Password must contain at least 1 uppercase letter</Text>
                                 </View>
                             </View>
-                            <TouchableOpacity onPress={() => {
-                                    const reset = api.resetPassword(store.email, store.token, newPassword)
-                                    console.log(reset)
-                                    setModal(false)
-                                    setPopUpModal(true)
+                            <TouchableOpacity
+                                onPress={
+                                    newPassword.length <= 8 || !/[A-Z]/.test(newPassword) 
+                                    ? () => {} 
+                                    : () => {
+                                        const reset = api.resetPassword(store.email, store.token, newPassword);
+                                        console.log(reset);
+                                        setModal(false);
+                                        setPopUpModal(true);
+                                    }
                                 }
-                            }
-                            activeOpacity={0.9} style={{backgroundColor: '#504297', borderRadius: 100, justifyContent: 'center', alignItems: 'center', width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), borderWidth: 1, alignSelf: 'center', marginTop: 30}}>
-                                <Text style={{color: '#FFFFFF', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (24 / 800)}}>Save</Text>
+                                style={{
+                                    backgroundColor: '#504297',
+                                    opacity: newPassword.length < 8 || !/[A-Z]/.test(newPassword) ? 0.5 : 1,
+                                    borderRadius: 100,
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                    width: windowWidth * (312 / 360),
+                                    height: windowHeight * (56 / 800),
+                                    borderWidth: 1,
+                                    alignSelf: 'center',
+                                    marginTop: 30
+                                }}
+                            >
+                                <Text style={{color: '#FFFFFF', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (24 / 800)}}>
+                                    Save
+                                </Text>
                             </TouchableOpacity>
                         </View>
                     </TouchableWithoutFeedback>

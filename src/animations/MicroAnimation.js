@@ -28,14 +28,11 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswer
         const requestStatus = await sendAnswer(uri)
         console.log(requestStatus)
         playSound(requestStatus?.sound)
-        if (requestStatus && requestStatus.stars) {
-            return lastAnswer(requestStatus.hint, requestStatus.stars)
-        }
         if (requestStatus.to_next && requestStatus.success) {
-            return correctAnswer(requestStatus.hint)
+            return correctAnswer(requestStatus?.hint, requestStatus?.stars)
         } 
-        else if (requestStatus.to_next && !requestStatus.success) {
-            return incorrectAnswerToNext(requestStatus?.hint)
+        else if (requestStatus.to_next && !requestStatus?.success) {
+            return incorrectAnswerToNext(requestStatus?.hint, requestStatus?.stars)
         } 
         else if (!requestStatus.to_next && !requestStatus.success) {
             console.log(requestStatus.next_attempt)

@@ -39,7 +39,7 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
         try {
             setLoading(true)
             const requestStatus = await api.signIn(email, password)
-            if (requestStatus === 'The email field must be a valid email address.') {
+            if (requestStatus === 'The email must be a valid email address.') {
                 setError('email')
             } else if (requestStatus === 'The password field must be at least 8 characters.') {
                 setError('password')
@@ -85,7 +85,7 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
                     </View>
                 </View>
                 {/* onPress={email === ''? () => setError('email') : password === ''? () => setError('password') : () => signIn()} */}
-                <TouchableOpacity onPress={email === ''? () => setError('email') : password === ''? () => setError('password') : () => signIn()} style={{justifyContent: 'center', alignItems: 'center', opacity: email != '' && password != ''? 1 : 0.5, alignSelf: 'center', width: width * 0.8666, height: height * (56 / 800), backgroundColor: '#504297', borderRadius: 100, }}>
+                <TouchableOpacity onPress={email == ''? () => setError('email') : password.length < 8? () => setError('password') : () => signIn()} style={{justifyContent: 'center', alignItems: 'center', opacity: email != '' && password != '' && password.length >= 8? 1 : 0.5, alignSelf: 'center', width: width * 0.8666, height: height * (56 / 800), backgroundColor: '#504297', borderRadius: 100, }}>
                     <Text style={{fontWeight: '600', color: 'white', textAlign: 'center', fontSize: height * (14 / 800)}}>Continue</Text>
                 </TouchableOpacity>
                 <View style={{height: 1, width: width * 0.8666, backgroundColor: '#E5E5E5'}}/>

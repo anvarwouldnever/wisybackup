@@ -66,7 +66,7 @@ const ParentsSettings = () => {
                             <Animated.View style={[{backgroundColor: 'black', borderWidth: windowHeight * (2 / 800), borderColor: 'black', width: windowHeight * (6 / 800), height: windowHeight * (6 / 800), borderRadius: 100}]}/>
                         </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => navigation.navigate('TextToSpeech')} style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), backgroundColor: '#F8F8F8', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: windowHeight * (16 / 800), borderRadius: 10}}>
+                    <TouchableOpacity style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), backgroundColor: '#F8F8F8', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: windowHeight * (16 / 800), borderRadius: 10}}>
                         <Image source={support} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
                         <Text style={{fontSize: windowHeight * (14 / 800), fontWeight: '600', lineHeight: windowHeight * (20 / 800), color: '#222222', width: windowWidth * (216 / 360)}}>Support</Text>
                         <Image source={narrowright} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>

@@ -21,11 +21,16 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
-        start();
+    
+        start(); // Ваш метод, выполняющий начальную логику
+    
         return () => {
-            reset();
-        }
-    }, [])
+            reset(); // Ваш метод, выполняющий очистку при размонтировании компонента
+        };
+    }, []);
+    
+
+    // console.log(data)
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -39,6 +44,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     const lastAnswer = (hint, stars) => {
+        setImage(2)
         reset();
         if (isFromAttributes) {
             store.loadCategories();
@@ -47,14 +53,14 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         }
         setStars(stars)
         setText(hint)
-        setImage(2)
         setTimeout(() => {
-            setLevel(prev => prev + 1)
+            setText(hint)
             setAttempt('1')
+            setLevel(prev => prev + 1)
         }, 3000);
     }
 
-    const correctAnswer = (hint) => {
+    const correctAnswer = (hint, stars) => {
         reset();
         if (isFromAttributes) {
             store.loadCategories();
@@ -64,6 +70,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         setImage(2)
         setText(hint)
         setTimeout(() => {
+            setStars(stars)
             setText(hint)
             setAttempt('1')
             setLevel(prev => prev + 1)
@@ -77,7 +84,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         setAttempt('2'); 
     };
 
-    const incorrectAnswerToNext = (hint) => {
+    const incorrectAnswerToNext = (hint, stars) => {
         reset();
         if (isFromAttributes) {
             store.loadCategories();
@@ -87,6 +94,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         vibrate()
         setText(hint)
         setTimeout(() => {
+            setStars(stars)
             setLevel(prev => prev + 1)
             setImage(1)
             setText(hint)

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState , useMemo} from 'react';
 import { View, useWindowDimensions, Image, Text, TouchableOpacity, Platform } from 'react-native';
 import Animated, { BounceIn, FadeOut, withTiming, runOnJS, useSharedValue, useAnimatedStyle, withDelay, FadeIn, withSequence, withSpring } from 'react-native-reanimated';
 import star from '../images/tabler_star-filled.png';
@@ -8,7 +8,6 @@ import ConfettiLottie from '../components/ConfettiLottie';
 import StarStats from '../components/StarStats';
 import store from '../store/store';
 import Timer from '../components/Timer';
-import { useNavigation } from '@react-navigation/native';
 
 const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes }) => {
     
@@ -18,7 +17,29 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [numStars, setNumStars] = useState(0)
-    const navigation = useNavigation();
+    const [starsContainerLayout, setStarsContainerLayout] = useState({})
+
+    const starsContainerRef = useRef(null);
+
+    useEffect(() => {
+
+        if (starsContainerRef.current) {
+            starsContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
+                // Вычисляем центр компонента
+                const centerX = pageX + (width / 6);
+                const centerY = pageY - (height / 4);
+        
+                // Устанавливаем центр в состояние
+                setStarsContainerLayout({ x: centerX, y: centerY });
+        
+                // console.log({ centerX, centerY }); // Для отладки
+            });
+        }
+
+        return () => {
+            store.setPlayingChildStars(stars.length);
+        };
+    }, []);    
 
     const [layoutCaptured, setLayoutCaptured] = useState();
 
@@ -36,7 +57,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
         }, 6500);
     
         return () => {
-            clearTimeout(timeoutId); // Очищаем таймер при размонтировании
+            clearTimeout(timeoutId);
         };
     }, [])
 
@@ -48,9 +69,18 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     const starsContainerOpacity = useSharedValue(1) 
 
     const animatedValues = useRef(stars.map(() => ({
-        x: useSharedValue(Platform.isPad? windowWidth * (506 / 800) : windowWidth * (507 / 800)),
-        y: useSharedValue(Platform.isPad? windowHeight * (135 / 360) : windowHeight * (134 / 360))
+        x: useSharedValue(starsContainerLayout?.x),
+        y: useSharedValue(starsContainerLayout?.y)
     })));
+
+    useEffect(() => {
+        if (starsContainerLayout) {
+            animatedValues.current.forEach((value) => {
+                value.x.value = starsContainerLayout.x;
+                value.y.value = starsContainerLayout.y;
+            });
+        }
+    }, [starsContainerLayout]);
 
     const Nums = () => {
         setNumStars(prev => prev + 1)
@@ -72,10 +102,10 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
         }
     }, [layoutCaptured]);
 
-    const animatedStyles = animatedValues.current.map(({ x, y }) => {
+    const animatedStyles = animatedValues?.current?.map(({ x, y }) => {
         return useAnimatedStyle(() => ({
-            left: x.value,
-            top: y.value,
+            left: x?.value,
+            top: y?.value,
         }));
     });
 
@@ -99,8 +129,8 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                 }}
             >
                 <StarsLottie stars={stars}/>
-                <Animated.View entering={BounceIn.delay(1700).duration(800).springify(400)} style={[starsContainerStyle, {width: 75, height: 40, backgroundColor: '#B3ABDB', position: 'absolute', borderRadius: 100, alignSelf: 'flex-end', gap: 1, top: Platform.isPad? '35%' : '35%', right: -40, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 10}]}>
-                    <Text style={{fontWeight: '600', color: 'white', fontSize: 23, textAlign: 'center', alignSelf: 'flex-end'}}>+{`${stars.length}`}</Text>
+                <Animated.View ref={starsContainerRef} entering={BounceIn.delay(1700).duration(800).springify(400)} style={[starsContainerStyle, {width: windowWidth * (75 / 800), height: windowHeight * (40 / 360), backgroundColor: '#B3ABDB', position: 'absolute', borderRadius: 100, alignSelf: 'flex-end', gap: 1, top: Platform.isPad? '30%' : '35%', right: -40, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 10}]}>
+                    <Text style={{fontWeight: '600', color: 'white', fontSize: windowWidth * (23 / 800), textAlign: 'center', alignSelf: 'flex-end'}}>+{`${stars.length}`}</Text>
                 </Animated.View>
                 <View style={{width: windowWidth * (212 / 800), height: Platform.isPad? windowWidth * (60 / 800) : windowHeight * (60 / 360), position: 'absolute', alignSelf: 'center', left: '10%', justifyContent: 'space-between', padding: 4}}>
                     <Text style={{fontSize: windowWidth * (20 / 800), fontWeight: '600', color: '#222222', alignSelf: 'center'}}>Congratulations!</Text>
@@ -138,79 +168,3 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 };
 
 export default CongratulationsScreen;
-
-
-// const animatedX = useSharedValue(565);
-    // const animatedY = useSharedValue(153);
-
-
-    // const animatedStyle = useAnimatedStyle(() => ({
-    //     left: animatedX.value, // Абсолютное положение
-    //     top: animatedY.value,  // Абсолютное положение
-    // }));
-
-    // useEffect(() => {
-    //     if (statStarLayout) {
-    //         stars.forEach((star, index) => {
-    //             const delay = 2000 + (index * 500); // задержка 500мс между анимациями каждой звезды
-    //             const delayTimer = setTimeout(() => {
-    //                 animatedY.value = withTiming(statStarLayout.y, { duration: 800 });
-    //                 animatedX.value = withTiming(statStarLayout.x, { duration: 800 });
-    //             }, delay);
-
-    //             return () => clearTimeout(delayTimer);
-    //         });
-    //     }
-    // }, [statStarLayout]);
-
-
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //     lottieRef.current?.play(0, 60);
-    //     }, 800);
-
-    //     return () => clearTimeout(timer);
-    // }, []);
-
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //     confettiRef.current?.play(0, 150);
-    //     }, 0);
-
-    //     return () => clearTimeout(timer);
-    // }, []);
-
-    // useEffect(() => {
-    //     return () => {
-    //         lottieRef.current?.reset(); // Сбрасываем star1
-    //         confettiRef.current?.reset(); // Сбрасываем confetti
-    //     };
-    // }, []);
-
-    // const Lottie = () => {
-    //     return (
-    //         <LottieView
-    //             ref={lottieRef}
-    //             source={stars.length === 1? star1 : stars.length === 2? star2 : stars.length === 3? star3 : star0}
-    //             style={{ width: windowWidth * (245 / 800), height: windowHeight * (220 / 360)}}
-    //             resizeMode='center'
-    //             autoPlay={false}
-    //             loop={false}
-    //             // onAnimationFinish={() => {console.log('finished')}}
-    //         />
-    //     );
-    // };
-
-    // const Confetti = () => {
-    //     return (
-    //         <LottieView
-    //             ref={confettiRef} 
-    //             source={confetti}
-    //             style={{ width: windowWidth, height: windowHeight }}
-    //             resizeMode='center'
-    //             autoPlay={true}
-    //             loop={false}
-    //             // onAnimationFinish={() => {console.log('confetti finished')}}
-    //         />
-    //     )
-    // }

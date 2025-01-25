@@ -14,7 +14,7 @@ import api from '../api/api'
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
 
-const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask }) => {
+const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
 
     // console.log(data.content.second_image, data.content.first_image)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -112,7 +112,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time})
             if (response && response.stars && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'correct'})
                 setText(response?.hint)
                 playSound(response?.sound)
@@ -123,7 +127,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             }
             else if (response && response.stars && !response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 vibrate()
                 setId({id: data.id, result: 'wrong'})
                 setText(response?.hint)
@@ -142,7 +150,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setAttempt('2')
             } else if(response && response.success) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'correct'})
                 setText(response.hint)
                 playSound(response.sound)
@@ -152,7 +164,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }, 1500);
             } else if(response && !response.success && response.to_next) {
                 reset()
-                onCompleteTask(subCollectionId, data.next_task_id)
+                if (isFromAttributes) {
+                            store.loadCategories();
+                        } else {
+                            onCompleteTask(subCollectionId, data.next_task_id)
+                        }
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
@@ -179,7 +195,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 {data.content.second_image.endsWith(".svg") ? <SvgUri uri={data.content.second_image} width={ windowWidth * (136 / 800)} height={windowHeight * (136 / 360)} /> : <Image source={{uri: data.content.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}/>}
                 <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>=</Text>
               
-                <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>  
+                <ViewShot ref={viewShotRef} style={{borderRadius: 10, backgroundColor: 'white'}} options={{ format: 'png', quality: 1 }}>  
                     <View
                         {...panResponder.panHandlers}
                         style={{backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}

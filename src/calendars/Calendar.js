@@ -30,7 +30,8 @@ const Calendar = ({ setShow, formatDate }) => {
                     themeVariant="light"
                     style={{marginTop: 1, width: width * 0.8666 - 25, maxWidth: 420, height: height * (320 / 800), backgroundColor: 'white'}}
                     accentColor="#504297"
-                    display="inline"
+                    display='spinner'
+                    mode='date'
                 />
                 <View style={{width: width * (314 / 360), maxWidth: 460, paddingHorizontal: 16, height: height * (44 / 800), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', borderBottomLeftRadius: 20, borderBottomRightRadius: 20}}>
                     <TouchableOpacity onPress={() => cancel()} style={{width: width * (53 / 360), height: height * (24 / 800), justifyContent: 'center', alignItems: 'center'}}>
