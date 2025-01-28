@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { FlatList, useWindowDimensions, Text, Platform, TouchableOpacity, Image, View } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
-import Animated, { FadeInRight, FadeOutLeft, Easing } from "react-native-reanimated";
+import Animated, { FadeInRight, Easing } from "react-native-reanimated";
 import star from '../images/tabler_star-filled.png';
 import { BlurView } from 'expo-blur';
 import lock from '../images/zamok.png';
@@ -59,7 +59,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     const renderCollections = ({ item, index }) => {
 
         return (
-            <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.cubic))} exiting={FadeOutLeft.duration(100)} style={{width: 'auto', height: 'auto'}}>
+            <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.cubic))} style={{width: 'auto', height: 'auto'}}>
                     <TouchableOpacity onPress={() => {
                         setCollectionIndex(index);
                         setSubCollections(item.sub_collections);
@@ -119,7 +119,8 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 return tasksArray.slice(clickedIndex);
             };
 
-            // console.log(task, item.tasks.length)
+            // console.log(availableSubCollections)
+            // console.log(item.id)
             
         
         return ( 
@@ -254,80 +255,18 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     
 
     return (
-        <FlatList
-            horizontal
-            key={store.categories}
-            data={subCollections || collections}
-            renderItem={subCollections ? (props) => renderSubCollections({ ...props, onComplete: handleGameCompletion, onCompleteTask: handleTaskCompletion }) : renderCollections}
-            keyExtractor={(item, index) => item.id?.toString() || index.toString()}
-            showsHorizontalScrollIndicator={false}
-            scrollEventThrottle={16}
-        />
+        <View style={{width: windowWidth * (480 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), position: 'absolute', top: Platform.isPad? windowHeight * (224 / 834) : windowHeight * (104 / 360), left: windowWidth * (320 / 800)}}>
+            <FlatList
+                horizontal
+                key={store.categories}
+                data={subCollections || collections}
+                renderItem={subCollections ? (props) => renderSubCollections({ ...props, onComplete: handleGameCompletion, onCompleteTask: handleTaskCompletion }) : renderCollections}
+                keyExtractor={(item, index) => item.id?.toString() || index.toString()}
+                showsHorizontalScrollIndicator={false}
+                scrollEventThrottle={16}
+            />
+        </View>
     )
 }
 
 export default observer(GamesCollections);
-
-// const tasksArray = subCollections
-            //     .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
-            //     .map(item => {
-            //         const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
-            //         const tasksWithoutNextId = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
-
-            //         const tasks = tasksWithoutNextId.map((task, index) => ({
-            //             ...task,
-            //             next_task_id: tasksWithoutNextId[index + 1]?.id || null, // Следующий ID или null для последнего объекта
-            //         }));
-
-            //         return {
-            //             tasks: tasks,
-            //             id: item.id,
-            //         };
-            //     });
-
-                // console.log(tasksArray[tasksArray.length - 1].tasks)
-
-        // if (item.current_task_id === 150) {
-        //     for (let index = 0; index < item.tasks.length; index++) {
-        //         console.log(item.tasks[index])
-        //     }
-        // }
-        // const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
-        // const tasks = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
-        // console.log(tasks)
-
-        {/* {
-                        task === null? 
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? windowHeight * (12 / 360) : 8 }}>
-                            {[...Array(item.stars.total)].map((_, index) => {
-                                const starImage = index < item.stars.earned ? filledStar : emptyStar;
-                                return (
-                                    <Image
-                                        key={index}
-                                        source={starImage}
-                                        style={{
-                                            width: windowWidth * (16 / 800),
-                                            height: windowHeight * (16 / 360),
-                                            marginHorizontal: 2,
-                                        }}
-                                    />
-                                );
-                            })}
-                        </View>
-                        :
-                        <Text 
-                            style={{
-                                fontWeight: '600', 
-                                fontSize: Platform.isPad? windowWidth * (20 / 1194) : windowHeight * (12 / 360),
-                                lineHeight: 20, 
-                                textAlign: 'center', 
-                                width: '100%', 
-                                height: 'auto', 
-                                color: 'white', 
-                                position: 'absolute', 
-                                top: Platform.isPad? windowHeight * (12 / 360) : 8
-                            }}
-                        >
-                            Tap to play
-                        </Text>
-                    } */}

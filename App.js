@@ -1,4 +1,4 @@
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigation } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -17,7 +17,7 @@ import TextToSpeech from './src/components/TextToSpeech';
 import { AppState } from 'react-native';
 import Game1Screen from './src/screens/Game1Screen';
 import Game2Screen from './src/screens/Game2Screen';
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import store from './src/store/store';
 import * as Linking from 'expo-linking';
@@ -34,42 +34,33 @@ import GameScreen from './src/screens/GameScreen';
 import SvgPathExtractor from './src/screens/TestScreen';
 import Game14Screen from './src/screens/Game14Screen';
 import LanguageScreen from './src/screens/LanguageScreen';
+import SplashScreen from './src/screens/SplashScreen';
+import ForgotPassword from './src/components/ForgotPassword';
 
 const Stack = createStackNavigator();
 
 const App = () => {
 
-    const url = Linking.useURL();
+  const url = Linking.useURL();
 
-    // useEffect(() => {
-    //   const handleDeepLink = (event) => {
-    //     const url = event.url;
-    //     const { path, queryParams } = Linking.parse(url);
-  
-    //     if (path === 'email-confirmation') {
-    //       const token = queryParams.token;
-    //       Alert.alert('Email Confirmation', `Token: ${token}`);
-    //       // Здесь вы можете выполнить переход на нужный экран
-    //       // navigation.navigate('ConfirmationScreen', { token });
-    //     }
-    //   };
-  
-    //   Linking.addEventListener('url', handleDeepLink);
-  
-    //   return () => {
-    //     Linking.removeEventListener('url', handleDeepLink);
-    //   };
-    // }, []);
+  const navigationRef = useRef(null);
 
-    if (store.loading) {
-      return
+  if (url) {
+    const { queryParams } = Linking.parse(url);
+    console.log(queryParams);
+    if (store.token === null && queryParams?.token) {
+      store.setToken(queryParams.token);
+      navigationRef.current?.navigate('ChoosePlayerScreen');
     }
+  }
 
-
+  if (store.loading) {
+    return <SplashScreen />
+  }
 
   return (
     <GestureHandlerRootView style={{flex: 1}}>
-      <NavigationContainer>
+      <NavigationContainer ref={navigationRef}>
         <StatusBar style='dark'/>
         <Stack.Navigator screenOptions={{
             headerShown: false,
@@ -84,6 +75,7 @@ const App = () => {
               <Stack.Screen name="EmailConfirmScreen" component={EmailConfirmScreen} />
               <Stack.Screen name="EnableNotificationsScreen" component={EnableNotificationsScreen} />
               <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             </>
           ) : store.token !== null && store.children.length > 0 ? (
             <>
@@ -98,6 +90,7 @@ const App = () => {
               <Stack.Screen name="TextToSpeech" component={TextToSpeech} />
               <Stack.Screen name="GameScreen" component={GameScreen} />
               <Stack.Screen name="TestScreen" component={SvgPathExtractor} />
+              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             </>
           ) : store.token !== null && store.children.length === 0 ? (
             <>

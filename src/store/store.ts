@@ -7,6 +7,7 @@ class Store {
 
     slides = null;
     attributes = null;
+    market = null;
     addchildui = null;
     loading = true;
     token = null;
@@ -33,11 +34,6 @@ class Store {
     async initializeStore() {
         await this.determineConnection()
         await this.loadData()
-        await this.loadSlides();
-        await this.loadAddChildUI();
-        await this.loadAttributes()
-        // await this.loadCategories()
-        // await this.loadDataGame1()
         // await this.loadMessages()
     }
 
@@ -49,7 +45,7 @@ class Store {
                     this.addchildui = request;
                 })
             } catch (error) {
-                
+                console.log(error)
             }
         }
     }
@@ -66,6 +62,72 @@ class Store {
             }
         }
     }
+
+    async loadMarket() {
+        if(this.connectionState) {
+            try {
+                const request = await api.getMarketCategories(this.token);
+                runInAction(() => {
+                    this.market = request.map((market: any) => ({
+                        ...market,
+                        items: [],
+                    }));
+                });
+
+                await this.loadMarketItems()
+            } catch (error) {
+                console.log(error)
+            }
+        }
+    }
+
+    async loadMarketItems() {
+        if (this.connectionState) {
+            try {
+                const marketItemsPromises = this.market.map(async (category: any) => {
+                    try {
+                        const response = await api.getMarketItems({ id: category.id });
+    
+                        // Обработка каждого элемента в items для парсинга animation
+                        const parsedItemsPromises = response.map(async (item: any) => {
+                            try {
+                                if (item.animation) {
+                                    const animationResponse = await fetch(item.animation);
+                                    const animationJson = await animationResponse.json();
+                                    return { ...item, animation: animationJson }; // Заменяем поле animation
+                                }
+                                return item;
+                            } catch (error) {
+                                console.log(`Ошибка парсинга анимации для item ${item.id}:`, error);
+                                return { ...item, animation: null }; // Если ошибка, оставляем null
+                            }
+                        });
+    
+                        const parsedItems = await Promise.all(parsedItemsPromises);
+    
+                        return { id: category.id, items: parsedItems };
+                    } catch (error) {
+                        console.log(`Ошибка загрузки элементов для категории ${category.id}:`, error);
+                        return { id: category.id, items: [] };
+                    }
+                });
+    
+                const marketItems = await Promise.all(marketItemsPromises);
+    
+                runInAction(() => {
+                    marketItems.forEach(({ id, items }) => {
+                        const category = this.market.find((cat: any) => cat.id === id);
+                        if (category) {
+                            category.items = items; // Заменяем items для категории
+                        }
+                    });
+                });
+            } catch (error) {
+                console.log(error);
+            }
+        }
+    }
+    
 
     async loadAttributes() {
         if(this.connectionState) {
@@ -84,6 +146,10 @@ class Store {
         try {
             await this.loadDataFromStorageChildren()
             await this.loadDataFromStorageToken()
+            await this.loadMarket();
+            await this.loadSlides();
+            await this.loadAddChildUI();
+            await this.loadAttributes();
         } catch (error) {
             console.log(error)
         } finally {
@@ -289,7 +355,12 @@ class Store {
     async setPlayingChildId(id: any) {
         runInAction(() => {
             this.playingChildId = id;
-            console.log(this.playingChildId)
+        });
+    }
+
+    async setMarket(market: any) {
+        runInAction(() => {
+            this.market = market;
         });
     }
 

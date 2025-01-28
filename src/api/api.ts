@@ -120,6 +120,32 @@ class Api {
         return response.data
     }
 
+    async getMarketCategories(token: string) {
+        try {
+            const response = await axios.get(`${this.baseUrl}/market/categories`, {
+                headers: {
+                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                }
+            })
+            return response.data.data
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async getMarketItems(param: any) {
+        try {
+            const response = await axios.get(`${this.baseUrl}/market/categories/${param.id}/items`, {
+                headers: {
+                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                }
+            })
+            return response.data.data
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
     async getAttributes() {
         const response = await axios.get(`${this.baseUrl}/attributes`, {
             headers: {
@@ -145,6 +171,18 @@ class Api {
         } catch (error) {
             console.log(error.response.data)
             console.log(error.response.data.message)
+        }
+    }
+
+    async forgotPassword(email: string) {
+        try {
+            const response = await axios.post(`${this.baseUrl}/auth/forgot-password`, {
+                email: email
+            })
+            console.log(response.data)
+            return response.data
+        } catch (error) {
+            console.log(error)
         }
     }
 
@@ -338,4 +376,4 @@ class Api {
     }
 }
 
-module.exports = new Api();
+export default new Api();

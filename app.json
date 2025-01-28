@@ -8,11 +8,6 @@
     "icon": "./assets/icon.png",
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "ios": {
       "requireFullScreen": true,
       "supportsTablet": true,
@@ -32,6 +27,18 @@
         "expo-av",
         {
           "microphonePermission": "Allow MyWisy to access your microphone."
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#ACA5F6",
+          "image": "./assets/wisySplash.png",
+          "dark": {
+            "image": "./assets/wisySplash.png",
+            "backgroundColor": "#000000"
+          },
+          "imageWidth": "%100"
         }
       ],
       ["react-native-email-link"]

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { FlatList, Platform, TouchableOpacity, useWindowDimensions } from "react-native";
+import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
@@ -26,14 +26,16 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }
     }
 
     return (
-        <FlatList
-            data={gameoptions}
-            key={store.categories}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-        />
+        <View style={{width: windowWidth * (470 / 800), height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>
+            <FlatList
+                data={gameoptions}
+                key={store.categories}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+            />
+        </View>
     )
 }
 

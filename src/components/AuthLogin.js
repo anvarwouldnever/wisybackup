@@ -8,6 +8,7 @@ import api from '../api/api'
 import store from "../store/store";
 import { observer } from 'mobx-react-lite'
 import { openInbox, getEmailClients } from "react-native-email-link";
+import { useNavigation } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get('window');
 
@@ -35,9 +36,11 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
 
+    const navigation = useNavigation()
+
     const signIn = async() => {
         try {
-            setLoading(true)
+            setLoading(true);
             const requestStatus = await api.signIn(email, password)
             if (requestStatus === 'The email must be a valid email address.') {
                 setError('email')
@@ -79,7 +82,7 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
                         ''
                         }
                     <View style={{alignItems: 'center', width: width * 0.8666, height: height * (20 / 800)}}>
-                        <TouchableOpacity style={{alignItems: 'center', flexDirection: 'row', width: width * (280 / 360), height: height * (20 / 800)}}>
+                        <TouchableOpacity onPress={() => navigation.navigate("ForgotPassword")} style={{alignItems: 'center', flexDirection: 'row', width: width * (280 / 360), height: height * (20 / 800)}}>
                             <Text style={{color: '#555555', fontSize: height * (12 / 800), fontWeight: '600'}}>Forgot password?</Text>
                         </TouchableOpacity>
                     </View>

@@ -1,27 +1,112 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { View, ImageBackground, Platform, useWindowDimensions, StyleSheet, Image, Text, TouchableOpacity } from "react-native";
+import React, { useCallback, useState, useEffect } from "react";
+import { View, ImageBackground, useWindowDimensions, Platform, Text, Image, TouchableOpacity, ScrollView } from "react-native";
 import bgimage from '../images/BGimage.png'
 import * as ScreenOrientation from 'expo-screen-orientation';
-import mywisy from '../images/MyWisy-waving.png'
-import dog from '../images/Dog.png'
-import reload from '../images/tabler_reload.png'
 import GamesCollections from "../components/GamesList";
 import GameCategories from "../components/GameOptions";
-import tabler from '../images/tabler_device-gamepad.png';
-import building from '../images/tabler_building-store.png';
-import star from '../images/tabler_star-filled.png';
-import parent from '../images/tabler_accessible.png';
-import { useFocusEffect, useNavigation } from "@react-navigation/native";
-import store from "../store/store";
-import arrow from '../images/arrow-left.png';
+import { useFocusEffect } from "@react-navigation/native";
 import { observer } from "mobx-react-lite";
+import MarketCollections from "../components/Market/MarketCollections";
+import MarketCategories from "../components/Market/MarketCategories";
+import HeaderCollection from "./GamesScreen/HeaderCollection";
+import HeaderMenu from "./GamesScreen/HeaderMenu";
+import WisyPanel from "./GamesScreen/WisyPanel";
+import GoParent from "./GamesScreen/GoParent";
+import Back from "./GamesScreen/Back";
+import Stars from "./GamesScreen/Stars";
+import Modal from 'react-native-modal'
+import star from '../images/tabler_star-filled.png';
+import x from '../images/xConfirmModal.png'
+import galka from '../images/galkaConfirmModal.png'
+import store from "../store/store";
 
 const GamesScreen = () => {
 
-    const navigation = useNavigation();
     const [activeCategory, setActiveCategory] = useState(0);
-    const [subCollections, setSubCollections] = useState(null)
-    const [name, setName] = useState('')
+    const [subCollections, setSubCollections] = useState(null);
+    const [activeMarket, setActiveMarket] = useState(0);
+    const [marketCollections, setMarketCollections] = useState(null);
+    const [wisyLayout, setWisyLayout] = useState(null);
+    const [currentAnimation, setCurrentAnimation] = useState(0);
+    const [animationStart, setAnimationStart] = useState(false);
+    const [modal, setModal] = useState(false);
+    const [name, setName] = useState('');
+
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const ModalConfirm = () => {
+        return (
+            <Modal backdropOpacity={0.1} onBackdropPress={() => setModal(false)} isVisible={modal} style={{width: windowWidth * (268 / 800), height: Platform.isPad? windowWidth * (216 / 800) : windowHeight * (216 / 360), backgroundColor: 'white', borderRadius: 10, position: 'absolute', top: windowHeight * (40 / 360), left: windowWidth * (394 / 800), alignItems: 'center'}}>
+                <Text style={{fontWeight: '600', color: '#000000', fontSize: 24, textAlign: 'center', position: 'absolute', alignSelf: 'center', top: windowHeight * (30 / 360)}}>Please Confirm</Text>
+                <View style={{width: windowWidth * (63 / 800), height: windowHeight * (38 / 360), flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', alignSelf: 'center', top: windowHeight * (60 / 360)}}>
+                    <Image source={star} style={{width: windowWidth * (38 / 800), height: windowHeight * (38 / 360)}}/>
+                    <Text style={{color: '#000000', fontSize: 32, fontWeight: '600', textAlign: 'center', textAlignVertical: 'center'}}>
+                        {store?.market[0]?.items[currentAnimation]?.cost || '3'}
+                    </Text>
+                </View>
+                <View style={{width: windowWidth * (129 / 800), height: windowHeight * (53 / 360), position: 'absolute', alignSelf: 'center', bottom: windowHeight * (25 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <TouchableOpacity onPress={() => setModal(false)} style={{backgroundColor: '#E94343', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
+                        <Image source={x} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        setModal(false)
+                        store.setPlayingChildStars(-store.market[0]?.items[currentAnimation].cost);
+                        setAnimationStart(true)
+                    }} style={{backgroundColor: '#28B752', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
+                        <Image source={galka} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+        )
+    }
+
+    // useEffect(() => {
+    //     if (store.market) return;
+    //     console.log('ran')
+    //     const loadMarketData = async () => {
+    //       if (!store.connectionState) return;
+      
+    //       try {
+    //         const categories = await api.getMarketCategories(store.token);
+            
+    //         const marketItems = await Promise.all(categories.map(async (category) => {
+    //           try {
+    //             const response = await api.getMarketItems({ id: category.id });
+                
+    //             const parsedItems = await Promise.all(response.map(async (item) => {
+    //               if (item.animation) {
+    //                 try {
+    //                   const animationResponse = await fetch(item.animation);
+    //                   const animationJson = await animationResponse.json();
+    //                   return { ...item, animation: animationJson };
+    //                 } catch (error) {
+    //                   console.log(`Ошибка парсинга анимации для item ${item.id}:`, error);
+    //                   return { ...item, animation: null };
+    //                 }
+    //               }
+    //               return item;
+    //             }));
+      
+    //             return { id: category.id, items: parsedItems };
+    //           } catch (error) {
+    //             console.log(`Ошибка загрузки элементов для категории ${category.id}:`, error);
+    //             return { id: category.id, items: [] };
+    //           }
+    //         }));
+      
+    //         const updatedMarket = categories.map(category => {
+    //           const categoryItems = marketItems.find(item => item.id === category.id);
+    //           return categoryItems ? { ...category, items: categoryItems.items } : category;
+    //         });
+      
+    //         store.setMarket(updatedMarket);
+    //       } catch (error) {
+    //         console.log(error);
+    //       }
+    //     };
+      
+    //     loadMarketData();
+    //   }, []);
 
     useFocusEffect(
         useCallback(() => {
@@ -32,98 +117,26 @@ const GamesScreen = () => {
         }, [])
     );
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-
-
-    const HeaderCollection = () => {
-        return (
-            <View style={{flexDirection: 'row', alignItems: 'center', width: 'auto', justifyContent: 'space-between', position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (320 / 800)}}>
-                <TouchableOpacity onPress={() => setSubCollections(null)} style={{width: Platform.isPad? windowWidth * (72 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), backgroundColor: 'white', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
-                    <Image source={arrow} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360),}}/>
-                </TouchableOpacity>
-                <Text style={{fontWeight: '600', color: 'white', marginLeft: 20, fontSize: Platform.isPad? windowWidth * (20 / 800) : windowWidth * (20 / 800), textAlign: 'center', textAlignVertical: 'center', alignSelf: 'center'}}>
-                    {name}
-                </Text>
-            </View>
-        )
-    }
-
-    const HeaderMenu = () => {
-        return (
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F8F8', borderRadius: 100, padding: 8, width: Platform.isPad? windowWidth * (184 / 1194) : windowWidth * (100 / 800), height: Platform.isPad? windowWidth * (104 / 1194) : windowHeight * (56 / 360), position: 'absolute', top: windowHeight * (16 / 360), left: windowWidth * (320 / 800)}}>
-                <TouchableOpacity style={{borderRadius: 100, backgroundColor: '#504297', justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (72 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), borderColor: 'black'}}>
-                    <Image source={tabler} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), backgroundColor: '#504297', aspectRatio: 24 / 24}}/>
-                </TouchableOpacity>
-                <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', borderRadius: 100, width: Platform.isPad? windowWidth * (72 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowHeight * (68 / 834) : windowHeight * (40 / 360),}}>
-                    <Image source={building} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
-                </TouchableOpacity>
-            </View>
-        )
-    }
-
-    // Platform.isPad? windowWidth * (60 / 800) : windowHeight * (60 / 360)
-
     return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
             <ImageBackground source={bgimage} style={{flex: 1}}>
-            <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
-                <TouchableOpacity onPress={() => navigation.goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
-                    <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
-                        <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
-                    </View>
-                    <Image source={dog} style={{width: windowWidth * (48 / 800), height: windowHeight * (48 / 360), aspectRatio: 48 / 48}}/>
-                </TouchableOpacity>
-                <View style={{alignItems: 'center', position: 'absolute', bottom: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (10 / 360), left: Platform.isPad? 'auto' : windowWidth * (60 / 800), justifyContent: 'space-between', height: 'auto', gap: Platform.isPad? 20 : 0}}>
-                    <View style={{width: windowWidth * (192 / 800), height: 'auto'}}>
-                        <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
-                            <Text style={{fontWeight: '500', fontSize: windowWidth * (14 / 800)}}>
-                                Lorem ipsum dolor sit amet consectetur. Nulla dignsim malesuada . . .
-                            </Text>
-                        </View>
-                        <View style={styles.triangle}/>
-                        <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
-                            <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{width: windowWidth * (190 / 800), justifyContent: 'center', alignItems: 'center', height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360)}}>
-                        <Image source={mywisy} style={{width: Platform.isPad? windowWidth * (220 / 800) : 220, height: Platform.isPad? windowWidth * (220 / 800) : 220, aspectRatio: 220 / 220}}/>
-                    </View>
-                </View>
-            </View>
-                {subCollections != null? <HeaderCollection /> : <HeaderMenu />}
-                <View style={{backgroundColor: '#F8F8F833', gap: 4, justifyContent: 'center', flexDirection: 'row', padding: 8, alignItems: 'center', width: Platform.isPad? windowWidth * (113 / 1194) : windowWidth * (75 / 800), height: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}}>
-                    <Image source={star} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
-                    <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowHeight * (24 / 834) : windowWidth * (20 / 800), color: 'white', textAlign: 'center'}}>{store.playingChildId?.stars}</Text>
-                </View>
-                <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (736 / 800), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => { 
-                        setSubCollections(null)
-                        navigation.navigate('ParentsCaptchaScreen')
-                }}>
-                    <Image source={parent} style={{width: windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (24 / 800) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
-                </TouchableOpacity>
-                <View style={{width: windowWidth * (470 / 800), height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>
-                    <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>
-                </View>
-                <View style={{width: windowWidth * (480 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), position: 'absolute', top: Platform.isPad? windowHeight * (224 / 834) : windowHeight * (104 / 360), left: windowWidth * (320 / 800)}}>
-                    <GamesCollections activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>
-                </View>
+                <WisyPanel modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart} setWisyLayout={setWisyLayout}/>
+                {marketCollections != null &&
+                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} wisyLayout={wisyLayout} activeMarket={activeMarket}/>
+                }
+                <Back />
+                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
+                <Stars />
+                <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
+
+                {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
+
+                {marketCollections == null && <GamesCollections activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
+                {modal && <ModalConfirm />}
             </ImageBackground>
         </View>
     )
 }
-
-const styles = StyleSheet.create({
-    triangle: {
-        width: 0,
-        height: 0,
-        borderLeftWidth: 10, // Half of the desired width
-        borderRightWidth: 10, // Half of the desired width
-        borderTopWidth: 8, // Desired height
-        borderLeftColor: 'transparent',
-        borderRightColor: 'transparent',
-        borderTopColor: '#C4DF84',
-        alignSelf: 'center',
-    },
-});
 
 export default observer(GamesScreen);

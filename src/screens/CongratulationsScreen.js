@@ -1,6 +1,6 @@
-import React, { useRef, useEffect, useState , useMemo} from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { View, useWindowDimensions, Image, Text, TouchableOpacity, Platform } from 'react-native';
-import Animated, { BounceIn, FadeOut, withTiming, runOnJS, useSharedValue, useAnimatedStyle, withDelay, FadeIn, withSequence, withSpring } from 'react-native-reanimated';
+import Animated, { BounceIn, withTiming, runOnJS, useSharedValue, useAnimatedStyle, withDelay, FadeIn, withSequence, withSpring } from 'react-native-reanimated';
 import star from '../images/tabler_star-filled.png';
 import * as Haptics from 'expo-haptics'
 import StarsLottie from '../components/StarsLottie';
@@ -25,11 +25,9 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
         if (starsContainerRef.current) {
             starsContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
-                // Вычисляем центр компонента
                 const centerX = pageX + (width / 6);
                 const centerY = pageY - (height / 4);
         
-                // Устанавливаем центр в состояние
                 setStarsContainerLayout({ x: centerX, y: centerY });
         
                 // console.log({ centerX, centerY }); // Для отладки
