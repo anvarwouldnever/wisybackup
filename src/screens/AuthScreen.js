@@ -5,6 +5,7 @@ import AuthSignup from "../components/AuthSignup";
 import AuthLogin from "../components/AuthLogin";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from 'expo-screen-orientation';
+import store from "../store/store";
 
 const AuthScreen = ({ route }) => {
 
@@ -14,6 +15,8 @@ const AuthScreen = ({ route }) => {
         
         navigation.navigate('EmailConfirmScreen')
     }
+
+    // console.log(store.categories)
 
     const playersScreen = (players) => {
         navigation.navigate('ChoosePlayerScreen', {players: players})

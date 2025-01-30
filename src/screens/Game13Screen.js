@@ -55,7 +55,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             stop();
             setId(null)
             setThinking(true)
-            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time})
+            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token})
             if (response && response.stars && response.success) {
                 reset();
                 if (isFromAttributes) {

@@ -107,7 +107,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             const lead_time = getTime();
             stop();
             setThinking(true)
-            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, '', lead_time)
+            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, store.token, lead_time)
             return requestStatus    
         } catch (error) {
             console.log(error)   

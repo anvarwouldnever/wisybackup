@@ -175,38 +175,7 @@ export default Game6Screen;
                 {/* style={{position: 'absolute', top: svgOffset.top, left: svgOffset.left}} */}
                 {/* viewBox={`0 0 ${viewBoxWidth} ${viewBoxHeight}`} */}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                
 {/* <G id={'image'}>
                             <Path data-name="1" strokeWidth={0} stroke={'#ffffff'} d="m141.34,85.4c15.96,0,28.91-13.04,28.91-29.13s-12.94-29.13-28.91-29.13-28.91,13.04-28.91,29.13,12.94,29.13,28.91,29.13Z" fill="#dedbfb" />
                             <Path data-name="2" fill="#dedbfb" strokeWidth={0} stroke={'#ffffff'} d="m127.94,30.51c-2.09,1.13-4.05,2.5-5.78,4.1h-.15c-.17-2.77-3.21-13.56-10.86-21.05-1.14.49-2.42.69-3.76.51-3.83-.58-6.49-4.17-5.92-8.02.57-3.88,4.13-6.54,7.96-5.98,3.83.58,6.49,4.17,5.92,8.02,0,.09-.05.18-.07.29,7.41,6.98,11.26,16.42,12.67,22.14h0Z"/>

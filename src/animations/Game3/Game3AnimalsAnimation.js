@@ -10,6 +10,24 @@ const Game3AnimalsAnimation = ({ answer, id, images, setId }) => {
 
     const [key, setKey] = useState(0);
 
+    const [shuffledImages, setShuffledImages] = useState();
+    
+        // Shuffle function
+        const shuffleArray = (array) => {
+            let shuffledArray = [...array];
+            for (let i = shuffledArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]; // Swap elements
+            }
+            return shuffledArray;
+        };
+    
+        // Only shuffle once when component mounts
+        useEffect(() => {
+            const shuffled = shuffleArray(images);  // Assuming `images` is available
+            setShuffledImages(shuffled);
+        }, []);
+
     useEffect(() => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
     }, [images]);
@@ -66,7 +84,7 @@ const Game3AnimalsAnimation = ({ answer, id, images, setId }) => {
     return (
         <Animated.View key={key} entering={ZoomInEasyDown} style={{width: windowWidth * (664 / 800), height: windowHeight * (120 / 360), justifyContent: 'center', alignItems: 'center', flexDirection: 'row', alignSelf: 'center', position: 'absolute'}}>
             <FlatList 
-                data={images}
+                data={shuffledImages}
                 renderItem={renderItem}
                 horizontal
                 keyExtractor={(item, index) => index.toString()}

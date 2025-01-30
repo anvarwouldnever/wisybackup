@@ -9,22 +9,22 @@ import { toJS } from "mobx";
 import { observer } from 'mobx-react-lite';
 import RenderItem from './RenderItem';
 
-const MarketCollections = ({ activeMarket, wisyLayout, setCurrentAnimation, setModal, setAnimationStart }) => {
+const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAnimationStart }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const items = store?.market
 
         return (
-            <View style={{width: '100%', height: '100%', position: 'absolute'}}>
+            <View style={{position: 'absolute', top: windowHeight * (118 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800)}}>
                 <Animated.FlatList
                     entering={FadeInRight.duration(600).easing(Easing.out(Easing.cubic))}
                     key={store.market} 
                     data={items[0].items}
-                    renderItem={({ item, index }) => <RenderItem setCurrentAnimation={setCurrentAnimation} setModal={setModal} item={item} wisyLayout={wisyLayout} index={index} setAnimationStart={setAnimationStart}/>}
+                    renderItem={({ item, index }) => <RenderItem setCurrentAnimation={setCurrentAnimation} setModal={setModal} item={item} index={index} setAnimationStart={setAnimationStart}/>}
                     scrollEnabled
                     horizontal
-                    contentContainerStyle={{position: 'absolute', top: windowHeight * (118 / 360), left: windowWidth * (320 / 800), gap: 16}}
+                    contentContainerStyle={{ gap: 16 }}
                 />
             </View>
         )

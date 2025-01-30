@@ -2,6 +2,7 @@ import { TouchableOpacity, View, Image, Text, useWindowDimensions } from "react-
 import dog from '../images/Dog.png';
 import narrowdown from '../images/narrowdown.png';
 import store from "../store/store";
+import { SvgUri } from "react-native-svg";
 
 const Child = ({ setDropDown, dropDown }) => {
 
@@ -26,7 +27,30 @@ const Child = ({ setDropDown, dropDown }) => {
         return (
             <TouchableOpacity activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
                 <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800), justifyContent: 'space-between', borderRadius: 12, backgroundColor: '#F8F8F8', flexDirection: 'row', gap: windowWidth * (12 / 360), alignItems: 'center'}}>
-                    <Image source={dog} style={{width: windowHeight * (48 / 800), height: windowWidth * (48 / 800), aspectRatio: 48 / 48}}/>
+                    {(() => {
+                        const avatarObj = store.avatars.find(avatar => avatar.id === store.playingChildId.avatar_id);
+                        const avatarUrl = avatarObj ? avatarObj.image.url : dog;
+                        const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
+
+                        return isSvg ? (
+                            <SvgUri 
+                                uri={avatarUrl} 
+                                width={windowHeight * (48 / 800)} 
+                                height={windowWidth * (48 / 800)} 
+                                style={{ aspectRatio: 1 }} 
+                            />
+                        ) : (
+                            <Image 
+                                source={{ uri: avatarUrl }} 
+                                style={{
+                                    width: windowHeight * (48 / 800), 
+                                    height: windowWidth * (48 / 800), 
+                                    aspectRatio: 1,
+                                    resizeMode: 'contain'
+                                }} 
+                            />
+                        );
+                    })()}
                     <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
                         <View style={{width: windowWidth * (184 / 360), height: windowHeight * (20 / 800), flexDirection: 'row'}}>
                             <Text style={{fontWeight: '600', color: '#000000', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>{store.playingChildId.name}</Text>

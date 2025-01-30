@@ -27,12 +27,9 @@ const BottomTabs = ({ screen, setScreen }) => {
             }
     
             const svg = await response.text();
-            // console.log(svg);
     
-            // Регулярное выражение для извлечения всех <path>
             const pathRegex = /<path[^>]*d="([^"]*)"[^>]*>/g;
     
-            // Регулярное выражение для извлечения параметров <svg>
             const svgParamsRegex = /<svg[^>]*\s(width|height|viewBox|fill)="([^"]*)"/g;
     
             const paths: { d: string; [key: string]: string }[] = [];
@@ -56,20 +53,17 @@ const BottomTabs = ({ screen, setScreen }) => {
             return { paths, svgParams };
         } catch (error) {
             console.error('Ошибка загрузки SVG:', error);
-            return null; // Возвращаем null в случае ошибки
+            return null;
         }
     };
     
 
     const attributes = store.attributes
-    // console.log(attributes)
 
-    const RenderItem = async({ item }) => {
+    const renderItem = async({ item }) => {
 
         let isSvg = item.image.endsWith('.svg');
         const svg = await fetchSvg(item.image);
-
-        // console.log(svg.paths)
 
         return (
             <TouchableOpacity activeOpacity={1} onPress={() => setScreen(item)} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: screen.name === item.name? "#504297" : ""}}>
@@ -114,7 +108,7 @@ const BottomTabs = ({ screen, setScreen }) => {
             <View style={{width: 'auto', height: windowHeight * (56 / 800), justifyContent: 'space-between', padding: 8, alignItems: 'center', flexDirection: 'row', backgroundColor: '#F8F8F8', borderRadius: 100, gap: 10}}>
                 <FlatList 
                     data={attributes}
-                    renderItem={RenderItem}
+                    renderItem={renderItem}
                     keyExtractor={(item, index) => index.toString()}
                     scrollEnabled={false}
                     horizontal

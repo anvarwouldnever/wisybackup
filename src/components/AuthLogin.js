@@ -15,6 +15,7 @@ const { width, height } = Dimensions.get('window');
 const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
 
     // igor.khegay@avtech.uz
+    // anvartashpulatov2@gmail.com
 
     // const getClients = async() => {
     //     const clients = await getEmailClients();
@@ -26,8 +27,6 @@ const AuthLogin = ({ proceed, toggleOption, playersScreen }) => {
     
         if (supported) {
           await Linking.openURL(url);
-        } else {
-          Alert.alert('Ошибка', 'Невозможно открыть URL: ' + url);
         }
     };
 

@@ -30,8 +30,9 @@ const ParentsSettings = () => {
         }
     })
 
-    const logout = () => {
-        store.setToken(null)
+    const logout = async() => {
+        await store.setToken(null)
+        await store.setChildren(null)
         // setTimeout(() => {
         //     navigation.navigate('AuthScreen')
         // }, 100);

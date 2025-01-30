@@ -20,7 +20,7 @@ class Api {
         }
     }
 
-    async resetPassword(email: string, token: string, password: string) {
+    async changePassword(email: string, token: string, password: string) {
         // console.log(email, token, password);
         try {
             const response = await axios.post(`${this.baseUrl}/auth/change-password`, {
@@ -39,6 +39,23 @@ class Api {
         }
     }
 
+    async resetPassword(email: string, token: string, password: string, password_confirmatior: string) {
+        console.log(email, token, password, password_confirmatior)
+        try {
+            const response = await axios.post(`${this.baseUrl}/auth/reset-password`, {
+                email: email,
+                token: token,
+                password: password,
+                password_confirmation: password_confirmatior
+            })   
+            console.log(response.data)
+            return response.data
+        } catch (error) {
+            console.log(error)
+            return error.response.data.message
+        }
+    }
+
     async signIn(email: string, password: string) {
         try {
             const response = await axios.post(`${this.baseUrl}/auth/login`, {
@@ -47,17 +64,18 @@ class Api {
             })
             if (response.data.token) {
                 const token = response.data.token
-                const children = await this.getChildren()
-                // console.log(token) 
+                const children = await this.getChildren(token)
                 return { token, children }
             }
+            // console.log(response.data)
         } catch (error) {
-            // console.log(error.response.data.message)
+            console.log(error.response.data.message)
             return error.response.data.message
         }
     }
 
-    async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number) {
+    async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string) {
+        console.log(name, avatar, birthday, gender, engagement_time)
         try {
             const response = await axios.post(
                 `${this.baseUrl}/children`,
@@ -70,12 +88,13 @@ class Api {
                 },
                 {
                     headers: {
-                        Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                        Authorization: `Bearer ${token}`,
                     },
                 }
             );
+            console.log(response.data)
             if (response.status === 201) {
-                const children = await this.getChildren()
+                const children = await this.getChildren(token)
                 return children
             }
         } catch (error) { 
@@ -111,13 +130,19 @@ class Api {
         }
     }
 
-    async getChildren() {
-        const response = await axios.get(`${this.baseUrl}/children`, {
-            headers: {
-                Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
-            }
-        })
-        return response.data
+    async getChildren(token: string) {
+        console.log(`children ${token}`)
+        try {
+            const response = await axios.get(`${this.baseUrl}/children`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            return response.data
+        } catch (error) {
+            console.log(error.response.data)
+            console.log(error)   
+        }
     }
 
     async getMarketCategories(token: string) {
@@ -146,7 +171,37 @@ class Api {
         }
     }
 
-    async getAttributes() {
+    async getAvatars() {
+        try {
+            const response = await axios.get(`${this.baseUrl}/avatars`, {
+                headers: {
+                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                }
+            })
+            return response.data.data
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+    async purchaseItem(param) {
+        try {
+            const response = await axios.post(`${this.baseUrl}/market/purchase/${param.item_id}`, {
+                child_id: param.child_id,
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${param.token}`,
+                },
+            })
+            return response.data
+        } catch (error) {
+            console.log(error.response.data.message)
+            return error.response.data
+        }
+    }
+
+    async getAttributes(token: string) {
         const response = await axios.get(`${this.baseUrl}/attributes`, {
             headers: {
                 Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
@@ -159,7 +214,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/attributes/${param.attribute_id}`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${param.token}`,
                 },
                 params: {
                     child_id: param.child_id,
@@ -183,14 +238,16 @@ class Api {
             return response.data
         } catch (error) {
             console.log(error)
+            return error.response.data.message
         }
     }
 
-    async getCategories(data: any) {
+    async getCategories(token: string) {
+        console.log(`cats ${token}`)
         try {
             const response = await axios.get(`${this.baseUrl}/categories`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${token}`,
                 }
             })
             return response.data;
@@ -203,7 +260,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/collections`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${data.token}`,
                 },
                 params: {
                     category_id: data.id,
@@ -217,11 +274,10 @@ class Api {
     }
 
     async getSubCollections(data: any) {
-        // console.log({collection_id: data.id, child_id: data.child_id.id})
         try {
             const response = await axios.get(`${this.baseUrl}/sub-collections`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${data.token}`,
                 },
                 params: {
                     collection_id: data.id,
@@ -243,7 +299,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/tasks`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${id.token}`,
                 },
                 params: {
                     sub_collection_id: id.id
@@ -271,7 +327,7 @@ class Api {
 
             const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
                 },
             });
@@ -289,8 +345,8 @@ class Api {
     async sendMessage(message: any) {
         try {
             const data = new URLSearchParams();
-            data.append('api_key', 'ak-XYBLLTLZwjxI7Wwui8XTnTfnzXj_8f1NCgfHn4fAfPA');
-            data.append('conversation_id', 'cv-XTMVtDK2TYhRyj7R3ZTyuoJSNZd8XYPcuYqHMQAvkgw');
+            data.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
+            data.append('conversation_id', 'cv-l4Gj8MLOvOp-lASWEc49_j8kjKJ4R-UUHVMifv91xaA');
             data.append('language', 'ru');
             data.append('model', 'gpt-4o');
             data.append('conversational_memory_length', String(20));
@@ -311,14 +367,15 @@ class Api {
 
     async getMessages() {
         try {
-            const response = await axios.get('https://aimywisy.hostweb.uz/api/v1/conversation/messages', {
+            const response = await axios.get('https://aimywisy.hostweb.uz/api/v1/messages', {
                 params: {
-                    api_key: 'ak-XYBLLTLZwjxI7Wwui8XTnTfnzXj_8f1NCgfHn4fAfPA',
-                    conversation_id: 'cv-XTMVtDK2TYhRyj7R3ZTyuoJSNZd8XYPcuYqHMQAvkgw'
+                    api_key: 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA',
+                    conversation_id: 'cv-l4Gj8MLOvOp-lASWEc49_j8kjKJ4R-UUHVMifv91xaA'
                 }
             });
             return response.data;
         } catch (error) {
+            console.log(error)
             console.error(error.response.data);
         }
     }
@@ -335,7 +392,7 @@ class Api {
             },
             {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer ${params.token}`,
                     'X-localization': 'en'
                 },
             })
@@ -365,7 +422,7 @@ class Api {
 
                 const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
                     headers: {
-                        Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                        Authorization: `Bearer ${answer.token}`,
                         'Content-Type': 'application/x-www-form-urlencoded'
                     },
                 })

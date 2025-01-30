@@ -6,6 +6,7 @@ import api from '../api/api';
 class Store {
 
     slides = null;
+    avatars = null;
     attributes = null;
     market = null;
     addchildui = null;
@@ -19,13 +20,14 @@ class Store {
     categories = [];
     messages = [];
     language = 'en';
+    holdEmail = null;
 
     constructor() {
         makeAutoObservable(this);
         this.initializeStore();
 
         autorun(() => {
-            if (this.connectionState && this.playingChildId !== null) {
+            if (this.connectionState && this.playingChildId !== null && this.token !== null) {
                 this.loadCategories();
             }
         });
@@ -34,7 +36,7 @@ class Store {
     async initializeStore() {
         await this.determineConnection()
         await this.loadData()
-        // await this.loadMessages()
+        await this.loadMessages()
     }
 
     async loadAddChildUI() {
@@ -63,6 +65,19 @@ class Store {
         }
     }
 
+    async loadAvatars() {
+        if (this.connectionState) {
+            try {
+                const request = await api.getAvatars()
+                runInAction(() => {
+                    this.avatars = request;
+                })
+            } catch (error) {
+                
+            }
+        }
+    }
+
     async loadMarket() {
         if(this.connectionState) {
             try {
@@ -86,26 +101,10 @@ class Store {
             try {
                 const marketItemsPromises = this.market.map(async (category: any) => {
                     try {
-                        const response = await api.getMarketItems({ id: category.id });
+                        const response = await api.getMarketItems({ id: category.id, token: this.token });
     
-                        // Обработка каждого элемента в items для парсинга animation
-                        const parsedItemsPromises = response.map(async (item: any) => {
-                            try {
-                                if (item.animation) {
-                                    const animationResponse = await fetch(item.animation);
-                                    const animationJson = await animationResponse.json();
-                                    return { ...item, animation: animationJson }; // Заменяем поле animation
-                                }
-                                return item;
-                            } catch (error) {
-                                console.log(`Ошибка парсинга анимации для item ${item.id}:`, error);
-                                return { ...item, animation: null }; // Если ошибка, оставляем null
-                            }
-                        });
-    
-                        const parsedItems = await Promise.all(parsedItemsPromises);
-    
-                        return { id: category.id, items: parsedItems };
+                        // Просто возвращаем данные, не парся анимации
+                        return { id: category.id, items: response };
                     } catch (error) {
                         console.log(`Ошибка загрузки элементов для категории ${category.id}:`, error);
                         return { id: category.id, items: [] };
@@ -128,11 +127,11 @@ class Store {
         }
     }
     
-
+    
     async loadAttributes() {
         if(this.connectionState) {
             try {
-                const request = await api.getAttributes();
+                const request = await api.getAttributes(this.token);
                 runInAction(() => {
                     this.attributes = request;
                 })
@@ -144,12 +143,13 @@ class Store {
 
     async loadData() {
         try {
+            await this.loadDataFromStorageToken();
             await this.loadDataFromStorageChildren()
-            await this.loadDataFromStorageToken()
-            await this.loadMarket();
             await this.loadSlides();
             await this.loadAddChildUI();
+            await this.loadMarket();
             await this.loadAttributes();
+            await this.loadAvatars();
         } catch (error) {
             console.log(error)
         } finally {
@@ -169,8 +169,8 @@ class Store {
 
     async loadDataFromStorageChildren() {
         try {
-            if (this.connectionState) {
-                const children = await api.getChildren()
+            if (this.connectionState && this.token != null) {
+                const children = await api.getChildren(this.token)
                 this.setChildren(children.data)
             } else if (!this.connectionState) {
                 const children = await this.loadDataFromStorage('children');
@@ -186,7 +186,7 @@ class Store {
     async loadCategories() {
         if (this.connectionState) {
             try {
-                const request = await api.getCategories({ child_id: this.playingChildId });
+                const request = await api.getCategories(this.token);
     
                 // Сохраняем категории в `this.categories`
                 runInAction(() => {
@@ -209,16 +209,16 @@ class Store {
             try {
                 // Создаём массив запросов для загрузки коллекций по каждой категории
                 const collectionsRequests = this.categories.map(async (category) => {
-                    const collectionsResponse = await api.getCollections({ id: category.id, child_id: this.playingChildId });
+                    const collectionsResponse = await api.getCollections({ id: category.id, child_id: this.playingChildId, token: this.token });
     
                     // Загружаем подколлекции и задачи для каждой коллекции
                     const collectionsWithSubCollections = await Promise.allSettled(
                         collectionsResponse.data.map(async (collection) => {
-                            const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId });
+                            const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId, token: this.token });
     
                             const subCollectionsWithTasks = await Promise.allSettled(
                                 subCollectionsResponse.data.map(async (subCollection) => {
-                                    const tasksResponse = await api.getTasks({ id: subCollection.id });
+                                    const tasksResponse = await api.getTasks({ id: subCollection.id, token: this.token });
                                     return {
                                         ...subCollection,
                                         tasks: tasksResponse,
@@ -261,19 +261,24 @@ class Store {
     async loadMessages() {
         if (this.connectionState) {
             try {
-                const response = await api.getMessages()
-                const formattedMessages = response.flatMap(item => [
-                    { type: 'text', text: item.query, author: 'You' },
-                    { type: 'text', text: item.response, author: 'MyWisy' }
-                  ]);
+                const response = await api.getMessages();
+                let isYou = true; // Флаг для чередования авторов
+                
+                const formattedMessages = response.flatMap(item => {
+                    const author = isYou ? 'You' : 'MyWisy'; // Если isYou true, автор 'You', иначе 'MyWisy'
+                    isYou = !isYou; // Переключаем флаг для следующего сообщения
+                    return [{ type: 'text', text: item.content, author }];
+                });
+    
                 runInAction(() => {
-                    this.messages = formattedMessages.reverse()
-                })
+                    this.messages = formattedMessages.reverse(); // Реверсируем список сообщений
+                });
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
     }
+    
 
     async setMessages(message: any) {
         runInAction(() => {
@@ -392,6 +397,12 @@ class Store {
     async setLanguage(language: string) {
         runInAction(() => {
             this.language = language;
+        });
+    }
+
+    async setHoldEmail(email: string) {
+        runInAction(() => {
+            this.holdEmail = email;
         });
     }
 

@@ -13,3 +13,7 @@ const SplashScreen = () => {
 }
 
 export default SplashScreen;
+
+{/* <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1, alignItems: 'center', justifyContent: 'center'}}>
+            <Image source={splash} resizeMode='contain' style={{width: 250, height: 213}} />
+        </LinearGradient> */}

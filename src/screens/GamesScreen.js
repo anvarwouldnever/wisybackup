@@ -1,6 +1,6 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { View, ImageBackground, useWindowDimensions, Platform, Text, Image, TouchableOpacity, ScrollView } from "react-native";
-import bgimage from '../images/BGimage.png'
+import bgimage from '../images/BGimage.png';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesCollections from "../components/GamesList";
 import GameCategories from "../components/GameOptions";
@@ -14,11 +14,12 @@ import WisyPanel from "./GamesScreen/WisyPanel";
 import GoParent from "./GamesScreen/GoParent";
 import Back from "./GamesScreen/Back";
 import Stars from "./GamesScreen/Stars";
-import Modal from 'react-native-modal'
+import Modal from 'react-native-modal';
 import star from '../images/tabler_star-filled.png';
-import x from '../images/xConfirmModal.png'
+import x from '../images/xConfirmModal.png';
 import galka from '../images/galkaConfirmModal.png'
 import store from "../store/store";
+import api from "../api/api";
 
 const GamesScreen = () => {
 
@@ -26,13 +27,30 @@ const GamesScreen = () => {
     const [subCollections, setSubCollections] = useState(null);
     const [activeMarket, setActiveMarket] = useState(0);
     const [marketCollections, setMarketCollections] = useState(null);
-    const [wisyLayout, setWisyLayout] = useState(null);
-    const [currentAnimation, setCurrentAnimation] = useState(0);
+    const [currentAnimation, setCurrentAnimation] = useState({animation: null, cost: null, id: null});
     const [animationStart, setAnimationStart] = useState(false);
     const [modal, setModal] = useState(false);
     const [name, setName] = useState('');
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const purchaseItem = async() => {
+        try {
+            const purchase = await api.purchaseItem({child_id: store.playingChildId.id, item_id: currentAnimation?.id, token: store.token})
+            if (purchase.is_error) {
+                setModal(false);
+                setAnimationStart(false);
+                setCurrentAnimation(null)
+            } else {
+                setModal(false);
+                setAnimationStart(true);
+                store.setPlayingChildStars(-currentAnimation?.cost);
+
+            }
+        } catch (error) {
+            console.log(error)
+        }
+    }
 
     const ModalConfirm = () => {
         return (
@@ -40,19 +58,15 @@ const GamesScreen = () => {
                 <Text style={{fontWeight: '600', color: '#000000', fontSize: 24, textAlign: 'center', position: 'absolute', alignSelf: 'center', top: windowHeight * (30 / 360)}}>Please Confirm</Text>
                 <View style={{width: windowWidth * (63 / 800), height: windowHeight * (38 / 360), flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', alignSelf: 'center', top: windowHeight * (60 / 360)}}>
                     <Image source={star} style={{width: windowWidth * (38 / 800), height: windowHeight * (38 / 360)}}/>
-                    <Text style={{color: '#000000', fontSize: 32, fontWeight: '600', textAlign: 'center', textAlignVertical: 'center'}}>
-                        {store?.market[0]?.items[currentAnimation]?.cost || '3'}
+                    <Text style={{color: '#000000', fontSize: windowHeight * (32 / 360), fontWeight: '600', textAlign: 'center', textAlignVertical: 'center'}}>
+                        {currentAnimation?.cost}
                     </Text>
                 </View>
                 <View style={{width: windowWidth * (129 / 800), height: windowHeight * (53 / 360), position: 'absolute', alignSelf: 'center', bottom: windowHeight * (25 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
                     <TouchableOpacity onPress={() => setModal(false)} style={{backgroundColor: '#E94343', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
                         <Image source={x} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={() => {
-                        setModal(false)
-                        store.setPlayingChildStars(-store.market[0]?.items[currentAnimation].cost);
-                        setAnimationStart(true)
-                    }} style={{backgroundColor: '#28B752', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
+                    <TouchableOpacity onPress={() => purchaseItem()} style={{backgroundColor: '#28B752', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
                         <Image source={galka} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
                     </TouchableOpacity>
                 </View>
@@ -120,12 +134,12 @@ const GamesScreen = () => {
     return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
             <ImageBackground source={bgimage} style={{flex: 1}}>
-                <WisyPanel modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart} setWisyLayout={setWisyLayout}/>
+                <WisyPanel setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
                 {marketCollections != null &&
-                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} wisyLayout={wisyLayout} activeMarket={activeMarket}/>
+                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <Stars />
                 <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>

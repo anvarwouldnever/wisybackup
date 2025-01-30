@@ -1,45 +1,32 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions, UIManager, findNodeHandle } from "react-native";
 import mywisy from '../../images/MyWisy-waving.png'
 import reload from '../../images/tabler_reload.png'
 import LottieView from "lottie-react-native";
 import store from "../../store/store";
+import useLottieParser from "../../hooks/useLottieParser";
+import lot from '../../lotties/panda anim 2.json'
+import fetchAnimation from "./FetchLottie";
 
-const WisyPanel = ({ setWisyLayout, currentAnimation, animationStart, setAnimationStart, marketCollections, modal }) => {
+const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const containerRef = useRef(null);
-    const animationRef = useRef(null);
-
-    const items = store.market
+    const animationRef = useRef<LottieView>(null);
+    const [animation, setAnimation] = useState<any>(null);
 
     useEffect(() => {
-        console.log(animationStart)
-        if (modal) {
-            return animationRef?.current?.reset();
-        } 
-        if (marketCollections === null) {
-            return animationRef?.current?.reset();
-        }
         if (animationStart) {
-            animationRef.current?.reset();
-            setTimeout(() => {
-                animationRef?.current?.play();
-            }, 150);
-        } else if (!animationStart) {
-            animationRef?.current?.reset();
+            animationRef.current?.reset()
+            const func = async() => {
+                const animation = await fetchAnimation(currentAnimation?.animation)
+                setAnimation(animation)
+                setCurrentAnimation(null)
+            }
+            func()
+        } else {
+            animationRef.current?.reset()
         }
-    }, [animationStart, marketCollections, modal]);
-
-    const getAbsoluteLayout = () => {
-        if (containerRef.current) {
-            setTimeout(() => {
-                containerRef.current?.measure((x, y, width, height, pageX, pageY) => {
-                    setWisyLayout({pageX: pageX, pageY: pageY, width: width, height: height });
-                });
-            }, 1000);
-        }
-    };
+    }, [animationStart]);
     
     return (
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
@@ -55,22 +42,26 @@ const WisyPanel = ({ setWisyLayout, currentAnimation, animationStart, setAnimati
                             <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
                         </TouchableOpacity>
                     </View>
-                    {animationStart?
+                    {animation?
                     <LottieView
-                        // onAnimationFinish={() => {
-                        //     console.log('ran')
-                        //     setAnimationStart(false)
-                        // }}
+                        key={animation}
+                        onAnimationFinish={() => {
+                            setAnimation(null)
+                        }}
                         ref={animationRef}
-                        source={items[0]?.items[currentAnimation].animation}
+                        source={animation}
                         loop={false}
-                        autoPlay={false}
-                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360)}}
+                        autoPlay={true}
+                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
                     />
                     :
-                    <View ref={containerRef} onLayout={getAbsoluteLayout} style={{width: windowWidth * (190 / 800), justifyContent: 'center', alignItems: 'center', height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360)}}>
-                        <Image source={mywisy} style={{width: Platform.isPad? windowWidth * (220 / 800) : 220, height: Platform.isPad? windowWidth * (220 / 800) : 220, aspectRatio: 220 / 220}}/>
-                    </View>}
+                    <LottieView
+                        ref={animationRef}
+                        source={lot}
+                        loop={true}
+                        autoPlay={true}
+                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
+                    />}
                 </View>
             </View>
         )
@@ -91,3 +82,42 @@ const styles = StyleSheet.create({
 });
 
 export default WisyPanel;
+
+// const getAbsoluteLayout = () => {
+    //     if (containerRef.current) {
+    //         setTimeout(() => {
+    //             containerRef.current?.measure((x, y, width, height, pageX, pageY) => {
+    //                 setWisyLayout({pageX: pageX, pageY: pageY, width: width, height: height });
+    //             });
+    //         }, 1000);
+    //     }
+    // };
+
+    // useEffect(() => {
+    //     if (modal) {
+    //         return animationRef?.current?.reset();
+    //     } 
+    //     if (marketCollections === null) {
+    //         return animationRef?.current?.reset();
+    //     }
+    //     if (animationStart) {
+    //         animationRef.current?.reset();
+    //         setTimeout(() => {
+    //             animationRef?.current?.play();
+    //         }, 150);
+    //     } else if (!animationStart) {
+    //         animationRef?.current?.reset();
+    //     }
+    // }, [animationStart, marketCollections, modal]);
+
+    // const fetchAnimation = async(url: string) => {
+    //     try {
+    //         const response = await fetch(url);
+    //         if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
+            
+    //         const animationJson = await response.json();
+    //         return animationJson
+    //     } catch (error) {
+    //         console.log(error)
+    //     }
+    // };

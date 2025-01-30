@@ -33,6 +33,7 @@ const ChatScreen = () => {
     
         const messageType = item.type
         const isLastVoiceMessage = index === 0;
+        console.log(item)
     
         return (
             messageType === 'text' || messageType === 'thinking'? (
@@ -64,7 +65,7 @@ const ChatScreen = () => {
 
         try {
             const response = await api.sendMessage({ message: currentText });
-            await store.setMessages({type: 'text', text: response.response, author: 'MyWisy'});
+            await store.setMessages({type: 'text', text: response.message.content, author: 'MyWisy'});
             setTimeout(() => {
                 if (firstMessageRef.current) {
                     firstMessageRef.current.measure((x, y, width, height) => {

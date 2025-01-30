@@ -89,6 +89,7 @@ const ParentsSegments = ({ route }) => {
                             const attributes = await api.getAttributeByChild({
                                 attribute_id: id,
                                 child_id: store.playingChildId.id,
+                                token: store.token
                             });
                             setData(attributes);
                         } else {
@@ -101,15 +102,16 @@ const ParentsSegments = ({ route }) => {
                                 child_id: store.playingChildId.id,
                                 from: fromDate,
                                 to: toDate,
+                                token: store.token
                             });
                             setData(attributes);
                         }
                     
                 } else if (chosenPeriod === 'week') {
-                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: weekRange.startDate, to: weekRange.endDate})
+                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: weekRange.startDate, to: weekRange.endDate, token: store.token})
                     setData(attributes)
                 } else if (chosenPeriod === 'month') {
-                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: monthRange.startDate, to: monthRange.endDate})
+                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: monthRange.startDate, to: monthRange.endDate, token: store.token})
                     setData(attributes)
                 }
             } catch (error) {

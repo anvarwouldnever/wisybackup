@@ -36,6 +36,8 @@ import Game14Screen from './src/screens/Game14Screen';
 import LanguageScreen from './src/screens/LanguageScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import ForgotPassword from './src/components/ForgotPassword';
+import ResetPassword from './src/screens/ResetPassword';
+import ResettedPasswordScreen from './src/screens/ResettedPasswordScreen';
 
 const Stack = createStackNavigator();
 
@@ -45,14 +47,27 @@ const App = () => {
 
   const navigationRef = useRef(null);
 
-  if (url) {
-    const { queryParams } = Linking.parse(url);
-    console.log(queryParams);
-    if (store.token === null && queryParams?.token) {
-      store.setToken(queryParams.token);
-      navigationRef.current?.navigate('ChoosePlayerScreen');
-    }
-  }
+  useEffect(() => {
+    const handleDeepLink = async (url) => {
+      if (url) {
+        const { queryParams, path, hostname } = Linking.parse(url);
+        console.log(queryParams, hostname)
+        if (store.token === null && queryParams?.token && store.holdEmail !== null && hostname === 'reset-password') {
+          navigationRef.current?.navigate('ResetPassword', {token: queryParams.token});
+        } 
+        if (store.token === null && queryParams?.user_token && hostname === 'email-confirmation') {
+          await store.setToken(queryParams.user_token)
+        }
+      }
+    };
+    
+    Linking.getInitialURL().then(handleDeepLink);
+    const subscription = Linking.addEventListener('url', ({ url }) => handleDeepLink(url));
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   if (store.loading) {
     return <SplashScreen />
@@ -71,11 +86,11 @@ const App = () => {
               <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
               <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
               <Stack.Screen name="AuthScreen" component={LoginScreen} />
-              <Stack.Screen name="ChildParamsScreen" component={ChildParams} />
               <Stack.Screen name="EmailConfirmScreen" component={EmailConfirmScreen} />
               <Stack.Screen name="EnableNotificationsScreen" component={EnableNotificationsScreen} />
-              <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
               <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
+              <Stack.Screen name="ResetPassword" component={ResetPassword} />
+              <Stack.Screen name="ResettedPasswordScreen" component={ResettedPasswordScreen} />
             </>
           ) : store.token !== null && store.children.length > 0 ? (
             <>
@@ -90,7 +105,6 @@ const App = () => {
               <Stack.Screen name="TextToSpeech" component={TextToSpeech} />
               <Stack.Screen name="GameScreen" component={GameScreen} />
               <Stack.Screen name="TestScreen" component={SvgPathExtractor} />
-              <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             </>
           ) : store.token !== null && store.children.length === 0 ? (
             <>

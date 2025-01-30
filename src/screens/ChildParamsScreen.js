@@ -18,8 +18,14 @@ import store from "../store/store";
 const { width, height } = Dimensions.get('window');
 
 const ChildParams = () => {
+
+    const avatars = store.addchildui.avatars
+
+    const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)
     const [focusComponent, setFocusComponent] = useState('name')
+    const currentAvatar = avatars[currentIndex]?.id
+    // console.log(currentAvatar);
     const [options, setOptions] = useState({name: '', avatar: '1', age: '', gender: 0, engagement_time: 30})
     const [loading, setLoading] = useState(false)
     const navigation = useNavigation()
@@ -48,7 +54,7 @@ const ChildParams = () => {
     const addChild = async() => {
         try {
             setLoading(true)
-            const requestStatus = await api.addChild(options.name, options.avatar, options.age, options.gender, options.engagement_time)
+            const requestStatus = await api.addChild(options.name, `${currentAvatar}`, options.age, options.gender, options.engagement_time, store.token)
             await store.setChildren(requestStatus.data)
             if (requestStatus) {
                 navigation.navigate('LoaderScreen')
@@ -78,7 +84,7 @@ const ChildParams = () => {
                                 </Animated.View>
                                 : focusComponent === 'avatar'?
                                 <View style={{width: width, height: height * (360 / 800)}}>
-                                    <ChildAvatar /> 
+                                    <ChildAvatar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex}/> 
                                 </View>
                                 : focusComponent === 'gender'?
                                 <View style={{width: width * 0.8666, height: height * (244 / 800)}}>

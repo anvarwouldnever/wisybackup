@@ -38,7 +38,7 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
                                     newPassword.length <= 8 || !/[A-Z]/.test(newPassword) 
                                     ? () => {} 
                                     : () => {
-                                        const reset = api.resetPassword(store.email, store.token, newPassword);
+                                        const reset = api.changePassword(store.email, store.token, newPassword);
                                         console.log(reset);
                                         setModal(false);
                                         setPopUpModal(true);

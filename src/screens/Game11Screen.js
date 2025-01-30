@@ -137,7 +137,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             const image = await saveAndShareImage()
             // console.log(image)
             setThinking(true)
-            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time})
+            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token})
             // console.log(response)
             if (response && response.stars && response.success) {
                 reset()

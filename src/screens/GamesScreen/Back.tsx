@@ -2,6 +2,7 @@ import { TouchableOpacity, Platform, View, Text, Image, useWindowDimensions } fr
 import store from "../../store/store";
 import { useNavigation } from "@react-navigation/native";
 import dog from '../../images/Dog.png'
+import { SvgUri } from "react-native-svg";
 
 const Back = () => {
 
@@ -13,7 +14,28 @@ const Back = () => {
                 <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
                     <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
                 </View>
-                <Image source={dog} style={{width: windowWidth * (48 / 800), height: windowHeight * (48 / 360), aspectRatio: 48 / 48}}/>
+                {(() => {
+                    const avatarObj = store.avatars.find(avatar => avatar.id === store.playingChildId.avatar_id);
+                    const avatarUrl = avatarObj ? avatarObj.image.url : dog;
+                    const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
+
+                    return isSvg ? (
+                        <SvgUri 
+                            uri={avatarUrl} 
+                            width={windowWidth * (48 / 800)} 
+                            height={windowHeight * (48 / 360)}
+                        />
+                    ) : (
+                        <Image 
+                            source={{ uri: avatarUrl }} 
+                            style={{
+                                width: windowWidth * (48 / 800), 
+                                height: windowHeight * (48 / 360), 
+                                resizeMode: 'contain'
+                            }}
+                        />
+                    );
+                })()}
             </TouchableOpacity>
         )
     }

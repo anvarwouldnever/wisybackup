@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Image, Dimensions, View, Text, Platform } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, interpolate, SlideInRight, Extrapolation } from "react-native-reanimated";
 import store from "../store/store";
@@ -53,27 +53,15 @@ const RenderItem = ({ item, index, scrollX, lastIndex }) => {
     )
 }
 
-const ChildAvatar = () => {
+const ChildAvatar = ({ currentIndex, setCurrentIndex }) => {
  
     const [scrollX, setScrollX] = useState(0)
-    const [currentIndex, setCurrentIndex] = useState(0)
 
     const handleScroll = (event) => {
         const newScrollX = event.nativeEvent.contentOffset.x;
         setScrollX(newScrollX);
         setCurrentIndex(Math.floor(newScrollX / (AvatarWidth - Spacing)));
     };
-
-    // const avatars = [
-    //     {key: '1', image: dog},
-    //     {key: '2', image: rabbit},
-    //     {key: '3', image: cat},
-    //     {key: '4', image: girafe},
-    //     {key: '5', image: monkey},
-    //     {key: '6', image: koala},
-    //     {key: '7', image: owl},
-    //     {key: '8', image: lion}
-    // ]
 
     const avatars = store.addchildui.avatars
     const title = store.addchildui.choose_avatar_title
@@ -113,4 +101,4 @@ const ChildAvatar = () => {
     )
 }
 
-export default ChildAvatar
+export default ChildAvatar;

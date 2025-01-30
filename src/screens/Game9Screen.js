@@ -132,7 +132,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             const image = await saveAndShareImage()
             setId(null)
             setThinking(true)
-            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time})
+            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token})
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {

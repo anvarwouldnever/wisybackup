@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import Logo from './Logo';
 import { useNavigation } from '@react-navigation/native';
 import api from '../api/api';
+import store from '../store/store';
 
 const ForgotPassword = () => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -10,6 +11,7 @@ const ForgotPassword = () => {
 
     const [email, setEmail] = useState<string>('');
     const [isValidEmail, setIsValidEmail] = useState<boolean>(false);
+    const [error, setError] = useState<string>('')
 
     // anvartashpulatov2@gmail.com
 
@@ -27,7 +29,10 @@ const ForgotPassword = () => {
         try {
             const response = await api.forgotPassword(email);
             if (response.is_success) {
-                console.log('email sent');
+                await store.setHoldEmail(email);
+                navigation.navigate("EmailConfirmScreen")
+            } else {
+                setError(response)
             }
         } catch (error) {
             console.log(error);
@@ -55,15 +60,16 @@ const ForgotPassword = () => {
                         fontSize: windowHeight * (14 / 800),
                         fontWeight: '600',
                         marginTop: 30,
-                        borderColor: '#E5E5E5',
+                        borderColor: error != ''? 'red' : '#E5E5E5',
                         width: windowWidth * (312 / 360),
                         height: windowHeight * (56 / 800),
                         borderRadius: 100,
                         paddingHorizontal: 16
                     }}
                 />
+                {error != '' && <Text style={{textAlign: 'center', fontWeight: '600', color: 'red'}}>{error}</Text>}
                 <TouchableOpacity
-                    onPress={isValidEmail ? () => resetPassword() : undefined} // Блокируем вызов функции, если email невалидный
+                    onPress={isValidEmail ? () => resetPassword() : () => navigation.navigate("ResetPassword")} // Блокируем вызов функции, если email невалидный
                     style={{
                         backgroundColor: '#504297',
                         width: windowWidth * (312 / 360),

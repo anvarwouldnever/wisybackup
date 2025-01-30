@@ -10,6 +10,24 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) 
 
     const [key, setKey] = useState(0);
 
+    const [shuffledImages, setShuffledImages] = useState();
+        
+            // Shuffle function
+            const shuffleArray = (array) => {
+                let shuffledArray = [...array];
+                for (let i = shuffledArray.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]; // Swap elements
+                }
+                return shuffledArray;
+            };
+        
+            // Only shuffle once when component mounts
+            useEffect(() => {
+                const shuffled = shuffleArray(images);  // Assuming `images` is available
+                setShuffledImages(shuffled);
+            }, []);
+
     useEffect(() => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
     }, [images]);
@@ -74,7 +92,7 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) 
             ) : null}
             <View style={{ height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), alignItems: 'center' }}>
                 <FlatList 
-                    data={images}
+                    data={shuffledImages}
                     renderItem={renderItem}
                     horizontal={true}
                     keyExtractor={(item, index) => index.toString()}

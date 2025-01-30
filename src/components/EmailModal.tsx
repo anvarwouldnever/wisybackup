@@ -1,19 +1,24 @@
 import { View, Text, Modal, TouchableOpacity, Dimensions, Image, TouchableWithoutFeedback } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import google from '../images/google.png'
 import apple from '../images/apple.png'
 import narrow from '../images/narrowright-purple.png'
 import * as Linking from 'expo-linking';
+import { openInbox, getEmailClients } from "react-native-email-link";
 
 const EmailModal = ({ modal, setModal }) => {
 
     const { width, height } = Dimensions.get('window');
+    const [clients, setClients] = useState<any>()
 
-    const openGmailApp = () => {
-        const gmailUrl = 'googlegmail://';
-        Linking.openURL(gmailUrl)
-          .catch((err) => console.error('Failed to open Gmail:', err));
-    };
+    useEffect(() =>{
+        const getClients = async() => {
+            const clients = await getEmailClients();
+            console.log(clients)
+            setClients(clients)
+        }
+        getClients()
+    }, [])
 
     return (
         <Modal visible={modal} transparent={true} animationType='slide'>
@@ -25,12 +30,18 @@ const EmailModal = ({ modal, setModal }) => {
                             <View style={{width: width * (312 / 360), height: height * (164 / 800), justifyContent: 'space-between'}}>
                                 <Text style={{color: '#222222', fontWeight: '600', fontSize: 16, lineHeight: 24}}>Choose email provider</Text>
                                 <View style={{width: width * (312 / 360), height: height * (124 / 800), justifyContent: 'space-between', alignItems: 'center'}}>
-                                    <TouchableOpacity onPress={() => openGmailApp()} style={{width: width * (312 / 360), height: height * (56 / 800), borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: width * (16 / 360)}}>
+                                    <TouchableOpacity onPress={() => {
+                                        setModal(false)
+                                        openInbox({app: 'gmail'})
+                                    }} style={{width: width * (312 / 360), height: height * (56 / 800), borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: width * (16 / 360)}}>
                                         <Image style={{width: width * (24 / 360), height: height * (24 / 800)}} source={google}/>
                                         <Text style={{width: width * (216 / 360), fontSize: 14, lineHeight: 24, color: '#222222', fontWeight: '600'}}>Open Gmail</Text>
                                         <Image style={{width: width * (24 / 360), height: height * (24 / 800)}} source={narrow}/>
                                     </TouchableOpacity>
-                                    <TouchableOpacity style={{width: width * (312 / 360), height: height * (56 / 800), borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: width * (16 / 360)}}>
+                                    <TouchableOpacity onPress={() => { 
+                                        setModal(false)
+                                        openInbox({ app: clients[0]?.iOSAppName }) 
+                                    }} style={{width: width * (312 / 360), height: height * (56 / 800), borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: width * (16 / 360)}}>
                                         <Image style={{width: width * (24 / 360), height: height * (24 / 800)}} source={apple}/>
                                         <Text style={{width: width * (216 / 360), fontSize: 14, lineHeight: 24, color: '#222222', fontWeight: '600'}}>Open Mail</Text>
                                         <Image style={{width: width * (24 / 360), height: height * (24 / 800)}} source={narrow}/>
