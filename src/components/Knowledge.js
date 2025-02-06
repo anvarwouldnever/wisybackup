@@ -29,10 +29,10 @@ const Knowledge = ({ screen }) => {
                 <View style={{ backgroundColor: `${color}`, borderRadius: 10 }}>
                     {isSvg ? (
                         <SvgUri
-                            key={item.image}  // Используем уникальный ключ для каждого SVG
                             uri={item.image}
                             width={windowHeight * (48 / 800)}
                             height={windowHeight * (48 / 800)}
+                            stroke={`${color}`}
                         />
                     ) : (
                         <Image

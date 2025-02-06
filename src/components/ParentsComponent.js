@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, ScrollView, Image, TouchableOpacity, useWindowDimensions } from "react-native";
 import Knowledge from "./Knowledge";
-import Skills from "./Skills";
-import AttitudesValues from "./AttitudesValues";
 import winkingWisy from '../images/Winking.png';
+import { useNavigation } from "@react-navigation/native";
 
 const ParentsComponents = ({ screen }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions()
+    const navigation = useNavigation()
 
     const GetToKnowYourChild = () => {
         return (
@@ -18,7 +18,7 @@ const ParentsComponents = ({ screen }) => {
                         <Text style={{fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (20 / 800)}}>Get to know your child</Text>
                         <Text style={{fontWeight: '600', color: '#555555', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (40 / 800)}}>10 insights from your child’s activity in the last 7 days</Text>
                     </View>
-                    <TouchableOpacity style={{width: windowWidth * (96 / 360), height: windowHeight * (40 / 800), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
+                    <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")} style={{width: windowWidth * (96 / 360), height: windowHeight * (40 / 800), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
                         <Text style={{color: '#504297', fontWeight: '600', fontSize: windowHeight * (12 / 800)}}>Open chat</Text>
                     </TouchableOpacity>
                 </View>

@@ -7,6 +7,8 @@ import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio'
 import Game2Text1Animation from '../animations/Game2/Game2Text1Animation'
 import useTimer from '../hooks/useTimer'
+import speakingWisy from '../lotties/headv9.json'
+import LottieView from 'lottie-react-native'
 
 const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
 
@@ -116,6 +118,12 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {data && <Game5AnimalsAnimation id={id} thinking={thinking} answer={answer} animal={data.content.question_image} images={data.content.images} setId={setId}/>}
             <View style={{width: 'auto', height: Platform.isPad? windowWidth * (150 / 800) : 'auto', alignSelf: 'center', alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', bottom: 0, left: 0,}}>
                 <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
+                {/* <LottieView
+                    resizeMode='cover'
+                    source={speakingWisy} 
+                    style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}
+                    autoPlay={true}
+                /> */}
                 {text && text != '' && <View style={{marginBottom: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (70 / 800)}}>
                     <Game2Text1Animation text={text} thinking={thinking}/>
                 </View>}

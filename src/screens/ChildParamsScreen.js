@@ -19,7 +19,7 @@ const { width, height } = Dimensions.get('window');
 
 const ChildParams = () => {
 
-    const avatars = store.addchildui.avatars
+    const avatars = store?.addchildui?.avatars
 
     const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)

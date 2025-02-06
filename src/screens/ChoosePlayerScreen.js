@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, useWindowDimensions, Image, Platform, SafeAreaView, ScrollView } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, useWindowDimensions, Image, Platform, SafeAreaView, ScrollView, ImageBackground } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import rabbit from '../images/Rabbit.png'
@@ -9,6 +9,7 @@ import narrowleft from '../images/narrowleft-purple.png'
 import BackgroundMusic from '../components/BackgroundMusic';
 import Children from '../components/Children';
 import store from '../store/store';
+import bg from '../images/choosePlayer.png'
 
 const ChoosePlayerScreen = () => {
     const navigation = useNavigation();
@@ -26,7 +27,7 @@ const ChoosePlayerScreen = () => {
     );
 
     return (
-        <View style={styles.container}>
+        <ImageBackground source={bg} style={styles.container}>
             <BackgroundMusic />
             <View style={{width: Platform.isPad? 'auto' : 'auto', alignItems: 'center'}}>
                 <Children setChosenPlayerIndex={setChosenPlayerIndex} chosenPlayerIndex={chosenPlayerIndex} setChosenPlayer={setChosenPlayer}/>
@@ -39,7 +40,7 @@ const ChoosePlayerScreen = () => {
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), color: 'white'}}>Let's play</Text>
                 <Image source={narrow} style={{width: 24, height: 24, marginLeft: 10, aspectRatio: 24 / 24}}/>
             </TouchableOpacity>}
-        </View>
+        </ImageBackground>
     );
 };
 

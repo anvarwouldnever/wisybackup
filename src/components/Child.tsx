@@ -3,8 +3,11 @@ import dog from '../images/Dog.png';
 import narrowdown from '../images/narrowdown.png';
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
+import { observer } from "mobx-react-lite";
 
 const Child = ({ setDropDown, dropDown }) => {
+
+        const completedSubs = store.children.find(child => child.id === store.playingChildId.id)?.completed_sub_collections;
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         const calculateAge = (birthday) => {
@@ -57,7 +60,7 @@ const Child = ({ setDropDown, dropDown }) => {
                             <Text style={{color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>/ age {age}</Text>
                         </View>
                         <View style={{width: windowWidth * (184 / 360), flexDirection: 'row', height: windowHeight * (20 / 800)}}>
-                            <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>{store.playingChildId.completed_sub_collections}</Text>
+                            <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>{completedSubs}</Text>
                             <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>completed tasks</Text>
                         </View>
                     </View>
@@ -69,4 +72,4 @@ const Child = ({ setDropDown, dropDown }) => {
         )
     }
 
-export default Child;
+export default observer(Child);

@@ -1,10 +1,9 @@
 import { View, TouchableOpacity, Text, Image, useWindowDimensions, Platform, ImageBackground } from 'react-native'
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import store from '../store/store'
 import Game1Screen from './Game1Screen'
-import { useNavigation, useFocusEffect } from '@react-navigation/native'
-import * as ScreenOrientation from 'expo-screen-orientation';
-import Animated, { useAnimatedStyle, withTiming, withSpring, withSequence, useSharedValue } from 'react-native-reanimated'
+import { useNavigation } from '@react-navigation/native'
+import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import narrowleft from '../images/narrowleft-purple.png'
 import star from '../images/Star.png'
 import bg from '../images/bgg.png'
@@ -13,7 +12,6 @@ import Game3Screen from './Game3Screen'
 import Game4Screen from './Game4Screen'
 import Game6Screen from './Game6Screen'
 import Game2Screen from './Game2Screen'
-import TestScreen from './TestScreen'
 import Game8Screen from './Game8Screen'
 import Game9Screen from './Game9Screen'
 import Game10Screen from './Game10Screen'
@@ -22,41 +20,52 @@ import Game12Screen from './Game12Screen'
 import Game13Screen from './Game13Screen'
 import statStar from '../images/tabler_star-filled.png'
 import CongratulationsScreen from './CongratulationsScreen'
+import TestScreen from './TestScreen'
 
 const GameScreen = ({ route }) => {
 
-    const { tasks, onComplete, onCompleteTask, isFromAttributes } = route.params;
+    const { tasks, onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes } = route.params;
     const navigation = useNavigation();
     const [level, setLevel] = useState(0);
     const [taskLevel, setTaskLevel] = useState(0);
     const [stars, setStars] = useState(null)
-    const task = tasks[taskLevel]?.tasks
+    const [cameFromBreak, setCameFromBreak] = useState(isFromBreak);
+    const [isBreak, setIsBreak] = useState(false)
+    const task = tasks[taskLevel]?.tasks;
 
-    // useFocusEffect(
-    //     useCallback(() => {
-    //         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
-            
-    //         return () => {
-    //             ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP); // Восстановление ориентации при уходе с экрана
-    //         };
-    //     }, [])
-    // );
+    const ifCameFromBreak = breaks?.find(b => b.order === tasks[taskLevel]?.order);
+    const currentBreakContent = breaks?.find(b => b.order === tasks[taskLevel - 1]?.order);
 
+    // console.log(isFromBreak, tasks[taskLevel])
 
-    const incrementTaskLevel = () => { 
+    // console.log(isBreak)
+
+    // console.log(breaks)
+
+    // console.log(tasks[taskLevel]?.order, breaks?.map(b => b.order))
+
+    // console.log(breaks?.find(b => b.order === tasks[taskLevel - 1]?.order))
+
+    const incrementTaskLevel = () => {
         setTaskLevel(prev => {
             if (prev + 1 >= tasks?.length) {
-                return prev;
+                return navigation.goBack();
+            } else if(breaks?.find(b => b.order === tasks[taskLevel]?.order) && !cameFromBreak && !isBreak) {
+                console.log('break')
+                setIsBreak(true)
+                return prev + 1;
             }
+            setIsBreak(false);
+            setCameFromBreak(false);
             return prev + 1;
         });
     };
 
     const incrementLevel = () => { 
         setLevel(prev => {
-            if (prev + 1 >= tasks?.length) {
+            if (prev + 1 > tasks?.length) {
                 console.log("Нет больше задач.");
-                return navigation.goBack();
+                return prev;
             }
             return 0;
         });
@@ -236,6 +245,9 @@ const GameScreen = ({ route }) => {
 
     return (
         <View style={{flex: 1}}>
+            {!isFromAttributes && (cameFromBreak || isBreak)? 
+            <TestScreen anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/> 
+            :
             <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, width: windowWidth, height: windowHeight, justifyContent: 'space-between'}}>
             {
                 task && task[level] && task[level].type ? (
@@ -268,8 +280,31 @@ const GameScreen = ({ route }) => {
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}
             </ImageBackground>
+            }
         </View>
     )
 }
 
 export default GameScreen;
+
+
+// const ordrs = breaks?.map(b => b.order)
+    // const [orders, setOrders] = useState(ordrs)
+
+    // // console.log(breaks, order, orders)
+
+    // const matchIndex = breaks?.findIndex(b => b.order === order + taskLevel);
+    // // console.log(orders.includes(order + taskLevel))
+
+    // const skipBreak = () => {
+    //     if (taskLevel + 1 >= tasks?.length) return navigation.goBack();
+    //     const targetOrder = order + taskLevel;
+    //     const orderIndex = orders.indexOf(targetOrder);
+    
+    //     if (orderIndex !== -1) {
+    //         const updatedOrders = [...orders];
+    //         updatedOrders.splice(orderIndex, 1);
+            
+    //         setOrders(updatedOrders);
+    //     }
+    // };

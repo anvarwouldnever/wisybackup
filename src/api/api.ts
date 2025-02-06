@@ -3,7 +3,7 @@ import store from "../store/store";
 
 class Api {
 
-    baseUrl = 'https://tapimywisy.hostweb.uz/api/v1/app';
+    baseUrl = 'https://apimywisy.hostweb.uz/api/v1/app';
 
     async signUp(email: string, password: string) {
         try {
@@ -32,10 +32,10 @@ class Api {
                 },
             }
         )
-            console.log(response.data)
+            // console.log(response.data)
             return response.data;
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -51,7 +51,7 @@ class Api {
             console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
             return error.response.data.message
         }
     }
@@ -112,7 +112,7 @@ class Api {
             })
             return response.data;
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -126,12 +126,12 @@ class Api {
             })
             return response.data.data;
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
     async getChildren(token: string) {
-        console.log(`children ${token}`)
+        // console.log(`children ${token}`)
         try {
             const response = await axios.get(`${this.baseUrl}/children`, {
                 headers: {
@@ -141,7 +141,7 @@ class Api {
             return response.data
         } catch (error) {
             console.log(error.response.data)
-            console.log(error)   
+            console.log(error.response.data)   
         }
     }
 
@@ -154,7 +154,7 @@ class Api {
             })
             return response.data.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -167,7 +167,7 @@ class Api {
             })
             return response.data.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -180,7 +180,7 @@ class Api {
             })
             return response.data.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -237,7 +237,7 @@ class Api {
             console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
             return error.response.data.message
         }
     }
@@ -252,7 +252,7 @@ class Api {
             })
             return response.data;
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data)
         }
     }
 
@@ -269,11 +269,12 @@ class Api {
             })
             return response.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data.message)
         }
     }
 
     async getSubCollections(data: any) {
+
         try {
             const response = await axios.get(`${this.baseUrl}/sub-collections`, {
                 headers: {
@@ -288,10 +289,12 @@ class Api {
             // for (let index = 0; index < response.data.data.length; index++) {
             //     console.log(response.data.data[index].attributes)
             // }
-
+            
+            // console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error)
+            console.log(error.response)
+            console.log(error.response.data.message)
         }
     }
 
@@ -307,7 +310,7 @@ class Api {
             })
             return response.data.data
         } catch (error) {
-            console.log(error.response.data.message)
+            console.log(error.response.data)
         }
     }
     
@@ -339,6 +342,37 @@ class Api {
             if (error.response.data.message) {
                 return "Lai ierakstītu atbildi, turi mikrofona pogu."
             }
+        }
+    }
+
+    async TextToSpeechFormAi(text: string) {
+        try {
+            const params = new URLSearchParams();
+            params.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
+            params.append('text', `${text}`);
+            // params.append('out_lang', 'en');
+            // params.append('save_audio', 'false');
+            // params.append('tts_model', 'tts-1');
+            // params.append('speed', '1');
+            // params.append('voice', 'echo');
+            // params.append('play_sound', 'false');
+            params.append('compress_audio', 'true');
+            params.append('audio_format', 'mp3');
+    
+            const response = await axios.post(
+                'https://aimywisy.hostweb.uz/api/v1/speech/generate',
+                params,
+                {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }
+            );
+    
+            return response.data;
+        } catch (error) {
+            console.log(error.response);
+            console.log(error.response?.data);
         }
     }
 
@@ -375,7 +409,7 @@ class Api {
             });
             return response.data;
         } catch (error) {
-            console.log(error)
+            console.log(error.response.data);
             console.error(error.response.data);
         }
     }

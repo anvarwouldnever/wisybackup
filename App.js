@@ -39,19 +39,24 @@ import ForgotPassword from './src/components/ForgotPassword';
 import ResetPassword from './src/screens/ResetPassword';
 import ResettedPasswordScreen from './src/screens/ResettedPasswordScreen';
 
-const Stack = createStackNavigator();
+const Stack = createStackNavigator()
 
 const App = () => {
+
+  // AsyncStorage.clear()
+
+  // igor.khegay@avtech.uz
 
   const url = Linking.useURL();
 
   const navigationRef = useRef(null);
 
+  console.log(store.playingChildId?.id, store.token)
+
   useEffect(() => {
     const handleDeepLink = async (url) => {
       if (url) {
         const { queryParams, path, hostname } = Linking.parse(url);
-        console.log(queryParams, hostname)
         if (store.token === null && queryParams?.token && store.holdEmail !== null && hostname === 'reset-password') {
           navigationRef.current?.navigate('ResetPassword', {token: queryParams.token});
         } 

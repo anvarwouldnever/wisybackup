@@ -1,6 +1,7 @@
 import { View, Platform, Text, Image, useWindowDimensions } from "react-native";
 import store from "../../store/store";
 import star from '../../images/tabler_star-filled.png';
+import { observer } from "mobx-react-lite";
 
 const Stars = () => {
 
@@ -14,4 +15,4 @@ const Stars = () => {
         )
     }
 
-export default Stars
+export default observer(Stars);

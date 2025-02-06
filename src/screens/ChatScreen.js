@@ -19,21 +19,11 @@ const ChatScreen = () => {
     const [text, setText] = useState('')
     const flatListRef = useRef(null);
     const firstMessageRef = useRef(null);
-
-    const renderItem = ({ item }) => {
-        return (
-            <TouchableOpacity activeOpacity={0.6} style={{marginRight: windowWidth * (16 / 932), width: windowWidth * (264 / 360), height: windowHeight * (60 / 800), paddingHorizontal: windowWidth * (8 / 360), paddingVertical: windowHeight * (16 / 932), gap: windowWidth * (4 / 360), borderRadius: 8, backgroundColor: '#F0F0F0'}}>
-                <Text style={{fontWeight: '600', fontSize: windowHeight * (12 / 800), color: '#222222', lineHeight: windowHeight * (20 / 800)}}>{item.header}</Text>
-                <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800)}}>{item.text}</Text>
-            </TouchableOpacity>
-        )
-    }
     
     const renderItemMessage = ({ item, index }) => {
     
         const messageType = item.type
         const isLastVoiceMessage = index === 0;
-        console.log(item)
     
         return (
             messageType === 'text' || messageType === 'thinking'? (
@@ -49,14 +39,13 @@ const ChatScreen = () => {
     }
 
     const [recs, setRecs] = useState([
-        {header: 'Lorem ipsum', text: 'Lorem ipsum dolor sit amet consectetur'},
-        {header: 'Lorem ipsum', text: 'Lorem ipsum dolor sit amet consectetur'},
-        {header: 'Lorem ipsum', text: 'Lorem ipsum dolor sit amet consectetur'},
+        {header: 'I’m interested in summary of the previous week.'},
+        {header: 'How did my child perform this week?'},
+        {header: 'Which areas my child could improve on?'},
+        {header: 'How much time my child spent learning this week?'},
     ])
     
-    const sendMessage = async() => {
-        const currentText = text
-        setText('')
+    const sendMessage = async(currentText) => {
         await store.setMessages({type: 'text', text: currentText, author: 'You'});
         Keyboard.dismiss();
         setTimeout(async() => {
@@ -80,6 +69,17 @@ const ChatScreen = () => {
             console.log('Ошибка при отправке сообщения:', error);
         }
     };
+
+    const renderItem = ({ item }) => {
+
+        return (
+            <TouchableOpacity onPress={() => {
+                sendMessage(item.header)
+            }} activeOpacity={0.6} style={{marginRight: windowWidth * (16 / 932), width: windowWidth * (264 / 360), height: windowHeight * (60 / 800), paddingHorizontal: windowWidth * (10 / 360), paddingVertical: windowHeight * (16 / 932), gap: windowWidth * (4 / 360), borderRadius: 8, backgroundColor: '#F0F0F0', justifyContent: 'center'}}>
+                <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#222222'}}>{item.header}</Text>
+            </TouchableOpacity>
+        )
+    }
 
 
     return (
@@ -120,7 +120,10 @@ const ChatScreen = () => {
                     />
                     {text === ''? <ChatMicroAnimation text={text} /> 
                     : 
-                    <TouchableOpacity onPress={() => sendMessage()} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
+                    <TouchableOpacity onPress={() => {
+                        sendMessage(text)
+                        setText('')
+                    }} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
                         <Image source={arrow} style={{width: windowWidth * (10 / 360), height: windowHeight * (15 / 800), aspectRatio: 10 / 15}}/>
                     </TouchableOpacity>}
                 </View>

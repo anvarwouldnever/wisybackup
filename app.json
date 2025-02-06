@@ -5,7 +5,7 @@
     "slug": "wisy",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/wisyIcon.png",
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
     "ios": {
@@ -33,12 +33,12 @@
         "expo-splash-screen",
         {
           "backgroundColor": "#ACA5F6",
-          "image": "./assets/wisySplash.png",
+          "image": "./assets/ebloWisy.png",
           "dark": {
-            "image": "./assets/wisySplash.png",
-            "backgroundColor": "#000000"
+            "image": "./assets/ebloWisy.png",
+            "backgroundColor": "#ACA5F6"
           },
-          "imageWidth": "%100"
+          "imageWidth": 250
         }
       ],
       ["react-native-email-link"]

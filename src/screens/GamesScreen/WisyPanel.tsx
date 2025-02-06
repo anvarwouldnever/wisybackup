@@ -7,12 +7,44 @@ import store from "../../store/store";
 import useLottieParser from "../../hooks/useLottieParser";
 import lot from '../../lotties/panda anim 2.json'
 import fetchAnimation from "./FetchLottie";
+import api from "../../api/api";
+import { playSound } from "../../hooks/usePlayBase64Audio";
+import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 
-const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation }) => {
+const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation, text, setText }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const animationRef = useRef<LottieView>(null);
     const [animation, setAnimation] = useState<any>(null);
+
+    useEffect(() => {
+        if (marketCollections) {
+            const func = async() => {
+                try {
+                    const sound = await api.TextToSpeechFormAi('You can use your earned stars to surprise me')
+                    setText('You can use your earned stars to surprise me')
+                    console.log(sound)
+                    playSound(sound?.audio_data)
+                } catch (error) {
+                    // console.log(error)
+                }
+            }
+            func()
+        }
+    }, [marketCollections])
+
+    useEffect(() => {
+        const func = async() => {
+            try {
+                const sound = await api.TextToSpeechFormAi('Are you ready to learn something new today')
+                playSound(sound?.audio_data)
+                setText('Are you ready to learn something new today?')
+            } catch (error) {
+                // console.log(error)
+            }
+        }
+        func()
+    }, [])
 
     useEffect(() => {
         if (animationStart) {
@@ -21,27 +53,30 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                 const animation = await fetchAnimation(currentAnimation?.animation)
                 setAnimation(animation)
                 setCurrentAnimation(null)
+                const sound = await api.TextToSpeechFormAi('Yummy! Thank you')
+                setText('Yummy! Thank you')
+                playSound(sound?.audio_data)
             }
             func()
         } else {
-            animationRef.current?.reset()
+            if (marketCollections) animationRef.current?.reset()
         }
     }, [animationStart]);
     
     return (
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
                 <View style={{alignItems: 'center', position: 'absolute', bottom: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (10 / 360), left: Platform.isPad? 'auto' : windowWidth * (60 / 800), justifyContent: 'space-between', height: 'auto', gap: Platform.isPad? 20 : 0}}>
-                    <View style={{width: windowWidth * (192 / 800), height: 'auto'}}>
+                    {text && <Animated.View key={text} entering={ZoomInEasyDown} style={{width: windowWidth * (192 / 800), height: 'auto'}}>
                         <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
                             <Text style={{fontWeight: '500', fontSize: windowWidth * (14 / 800)}}>
-                                Lorem ipsum dolor sit amet consectetur. Nulla dignsim malesuada . . .
+                                {text}
                             </Text>
                         </View>
                         <View style={styles.triangle}/>
-                        <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
+                        {/* <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
                             <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
-                        </TouchableOpacity>
-                    </View>
+                        </TouchableOpacity> */}
+                    </Animated.View>}
                     {animation?
                     <LottieView
                         key={animation}
@@ -56,6 +91,9 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                     />
                     :
                     <LottieView
+                        onAnimationLoaded={() => {
+                            animationRef.current?.play()
+                        }}
                         ref={animationRef}
                         source={lot}
                         loop={true}

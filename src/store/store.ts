@@ -2,6 +2,7 @@ import { autorun, makeAutoObservable, runInAction } from "mobx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from '@react-native-community/netinfo';
 import api from '../api/api';
+import useSvgParser from "../hooks/useSvgParser";
 
 class Store {
 
@@ -15,6 +16,7 @@ class Store {
     children = [];
     playingChildId = null;
     musicPlaying = true;
+    breakMusicPlaying = false;
     microOn = false;
     connectionState = false;
     categories = [];
@@ -129,17 +131,30 @@ class Store {
     
     
     async loadAttributes() {
-        if(this.connectionState) {
+        if (this.connectionState) {
             try {
                 const request = await api.getAttributes(this.token);
+    
+                // Асинхронно загружаем и парсим SVG для каждого элемента с .svg
+                const parsedAttributes = await Promise.all(
+                    request.map(async (item) => {
+                        if (item.image.endsWith('.svg')) {
+                            const parsedSvg = await useSvgParser(item.image);
+                            return { ...item, svgData: parsedSvg };
+                        }
+                        return item; // Оставляем без изменений, если не SVG
+                    })
+                );
+    
                 runInAction(() => {
-                    this.attributes = request;
-                })
+                    this.attributes = parsedAttributes;
+                });
             } catch (error) {
-                console.log(error)
+                console.log(error);
             }
         }
     }
+    
 
     async loadData() {
         try {
@@ -228,7 +243,8 @@ class Store {
 
                             return {
                                 ...collection,
-                                available_sub_collections: subCollectionsResponse.available_sub_collections,
+                                breaks: subCollectionsResponse?.dynamicBreakGroups,
+                                available_sub_collections: subCollectionsResponse?.available_sub_collections,
                                 sub_collections: subCollectionsWithTasks
                                     .filter(result => result.status === 'fulfilled')
                                     .map(result => result.value),
@@ -385,6 +401,12 @@ class Store {
     async setPlayingMusic(bool: boolean) {
         runInAction(() => {
             this.musicPlaying = bool;
+        });
+    }
+
+    async setBreakPlayingMusic(bool: boolean) {
+        runInAction(() => {
+            this.breakMusicPlaying = bool;
         });
     }
 

@@ -116,7 +116,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     return (
         <View style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, justifyContent: 'center'}}>
-            {data && <Game2Animals1Animation id={id} text={text} answer={answer} images={data.content.images} animal={data.content.title} setId={setId}/>}
+            {data && <Game2Animals1Animation id={id} text={text} answer={answer} images={data.content.images} animal={data.content.title} setId={setId} audio={data.content.question_audio}/>}
             <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', position: 'absolute', bottom: 0, left: 0, flexDirection: 'row'}}>
                 <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
                 {text && text != '' && <Game2Text1Animation text={text} thinking={thinking}/>} 

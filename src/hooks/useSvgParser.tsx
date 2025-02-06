@@ -1,30 +1,40 @@
-import { useEffect, useState } from 'react';
+const useSvgParser = async (uri: string) => {
+    try {
+        const response = await fetch(uri);
 
-const useSvgParser = (uri) => {
-    const [svgContent, setSvgContent] = useState(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+        if (!response.ok) {
+            throw new Error(`Ошибка загрузки SVG: ${response.status} ${response.statusText}`);
+        }
 
-    useEffect(() => {
-        const fetchSvg = async () => {
-            try {
-                const response = await fetch(uri);
-                if (!response.ok) {
-                    throw new Error(`Ошибка загрузки: ${response.status}`);
-                }
-                const svg = await response.text();
-                setSvgContent(svg);
-            } catch (err) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+        const svg = await response.text();
+
+        const pathRegex = /<path[^>]*d="([^"]*)"[^>]*>/g;
+
+        const svgParamsRegex = /<svg[^>]*\s(width|height|viewBox|fill)="([^"]*)"/g;
+
+        const paths: { d: string; [key: string]: string }[] = [];
+        let pathMatch;
+        while ((pathMatch = pathRegex.exec(svg)) !== null) {
+            const pathAttributes = {};
+            const attributeRegex = /(\w+)="([^"]*)"/g;
+            let attrMatch;
+            while ((attrMatch = attributeRegex.exec(pathMatch[0])) !== null) {
+                pathAttributes[attrMatch[1]] = attrMatch[2];
             }
-        };
+            paths.push(pathAttributes);
+        }
 
-        fetchSvg();
-    }, [uri]);
+        const svgParams: { [key: string]: string } = {};
+        let match;
+        while ((match = svgParamsRegex.exec(svg)) !== null) {
+            svgParams[match[1]] = match[2];
+        }
 
-    return { svgContent, loading, error };
+        return { paths, svgParams };
+    } catch (error) {
+        console.error('Ошибка загрузки SVG:', error);
+        return null;
+    }
 };
 
 export default useSvgParser;

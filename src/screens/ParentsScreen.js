@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform, FlatList } from "react-native";
 import ParentsCancel from "../components/ParentsCancel";
 import dog from '../images/Dog.png';
@@ -22,6 +22,10 @@ const ParentsScreen = () => {
     const [dropDown, setDropDown] = useState();
 
     const handleScreenChange = useCallback((newScreen) => setScreen(newScreen), []);
+
+    useEffect(() => {
+        store.loadDataFromStorageChildren();
+    }, [])
 
     return (
         <SafeAreaView style={{flex: 1, alignItems: 'center', gap: 15, backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>

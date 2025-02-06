@@ -11,7 +11,7 @@ import heart from '../images/heart.png';
 import heartActive from '../images/heartActive.png';
 import { useNavigation } from "@react-navigation/native";
 import store from "../store/store";
-import { SvgUri, Svg, Path } from "react-native-svg";
+import { Svg, Path } from "react-native-svg";
 
 const BottomTabs = ({ screen, setScreen }) => {
 
@@ -60,10 +60,10 @@ const BottomTabs = ({ screen, setScreen }) => {
 
     const attributes = store.attributes
 
-    const renderItem = async({ item }) => {
+    const renderItem = ({ item }) => {
 
         let isSvg = item.image.endsWith('.svg');
-        const svg = await fetchSvg(item.image);
+        const svg = item?.svgData
 
         return (
             <TouchableOpacity activeOpacity={1} onPress={() => setScreen(item)} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: screen.name === item.name? "#504297" : ""}}>
@@ -90,7 +90,7 @@ const BottomTabs = ({ screen, setScreen }) => {
                     </Svg>
                 ) : (
                     <Image
-                        source={item.image} // Условный выбор изображения
+                        source={{ uri: item.image }} // Условный выбор изображения
                         style={{
                             width: windowWidth * (24 / 360),
                             height: windowHeight * (24 / 800),
