@@ -22,12 +22,17 @@ import api from '../api/api';
 
 const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions()
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    // console.log('render');
+    const [seconds, setSeconds] = useState<number>();
 
     useEffect(() => {
+        setSeconds(anyBreak?.dynamic_breaks?.reduce((sum: any, item: any) => sum + (item.duration || 0), 0));
+
         return () => {
-            store.setBreakPlayingMusic(false)
-            store.setPlayingMusic(true)
+            store.setBreakPlayingMusic(false);
+            store.setPlayingMusic(true);
         };
       }, []);
 
@@ -40,8 +45,6 @@ const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
     const [textOrder, setTextOrder] = useState(0)
 
     const [textPos, setTextPos] = useState<string>();
-
-    const [seconds, setSeconds] = useState<number>();
 
     const formatTime = (sec: number) => {
         const minutes = Math.floor(sec / 60);
@@ -64,10 +67,14 @@ const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
     }
 
     useEffect(() => {
+        if (seconds == 0) return incrementTaskLevel();
+    }, [seconds])
+
+    useEffect(() => {
         const fetchJSON = async () => {
             try {
                 const currentBreak = anyBreak?.dynamic_breaks[animationsOrder];
-                if (!currentBreak) return incrementTaskLevel();
+                if (!currentBreak) return;
     
                 const animationData = await fetchAnimation(currentBreak?.animation);
                 setAnimation(animationData);
@@ -78,7 +85,9 @@ const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
                     animationRef.current?.play();
                 }, 1);
 
-                setSeconds(currentBreak?.duration)
+                setTimeout(() => {
+                    setAnimationOrders(prev => prev + 1);
+                }, currentBreak?.duration * 1000);
             } catch (error) {
                 console.log(error);
             }
@@ -87,12 +96,6 @@ const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
         fetchJSON();
 
     }, [animationsOrder]);
-
-    useEffect(() => {
-        if (seconds === 0) {
-            setAnimationOrders(prev => prev + 1);
-        }
-    }, [seconds])
 
     useEffect(() => {
         const currentText = anyBreak?.dynamic_breaks[animationsOrder]?.speeches[textOrder]
@@ -107,7 +110,7 @@ const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
             func(currentText?.speech)
         }, currentText?.time * 1000);
 
-    }, [animationsOrder, textOrder])
+    }, [animationsOrder, textOrder]);
 
 
     return (

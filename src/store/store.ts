@@ -23,6 +23,7 @@ class Store {
     messages = [];
     language = 'en';
     holdEmail = null;
+    playinVoiceMessageId = null;
 
     constructor() {
         makeAutoObservable(this);
@@ -31,6 +32,7 @@ class Store {
         autorun(() => {
             if (this.connectionState && this.playingChildId !== null && this.token !== null) {
                 this.loadCategories();
+                this.loadMessages()
             }
         });
     }
@@ -38,7 +40,6 @@ class Store {
     async initializeStore() {
         await this.determineConnection()
         await this.loadData()
-        await this.loadMessages()
     }
 
     async loadAddChildUI() {
@@ -252,20 +253,17 @@ class Store {
                         })
                     );
     
-                    // Возвращаем коллекции для текущей категории
                     return collectionsWithSubCollections
                         .filter(result => result.status === 'fulfilled')
                         .map(result => result.value);
                 });
     
-                // Ждём завершения всех запросов
                 const allCollectionsResults = await Promise.all(collectionsRequests);
     
-                // Обновляем `collections` в каждой категории
                 runInAction(() => {
                     this.categories = this.categories.map((category, index) => ({
                         ...category,
-                        collections: allCollectionsResults[index], // Привязываем коллекции к категории
+                        collections: allCollectionsResults[index],
                     }));
                 });
             } catch (error) {
@@ -277,14 +275,14 @@ class Store {
     async loadMessages() {
         if (this.connectionState) {
             try {
-                const response = await api.getMessages();
-                let isYou = true; // Флаг для чередования авторов
-                
-                const formattedMessages = response.flatMap(item => {
-                    const author = isYou ? 'You' : 'MyWisy'; // Если isYou true, автор 'You', иначе 'MyWisy'
-                    isYou = !isYou; // Переключаем флаг для следующего сообщения
-                    return [{ type: 'text', text: item.content, author }];
-                });
+                const response = await api.getMessages(this.playingChildId.id, this.token);
+                // console.log(response)
+    
+                const formattedMessages = response.data.map(item => ({
+                    type: 'text',
+                    text: item.content,
+                    author: item.is_from_bot ? 'MyWisy' : 'You' // Используем is_from_bot для определения автора
+                }));
     
                 runInAction(() => {
                     this.messages = formattedMessages.reverse(); // Реверсируем список сообщений
@@ -382,6 +380,18 @@ class Store {
     async setMarket(market: any) {
         runInAction(() => {
             this.market = market;
+        });
+    }
+
+    async setPlayingVoiceMessageId(id: any) {
+        runInAction(() => {
+            this.playinVoiceMessageId = id;
+        });
+    }
+
+    async stopAllPlayingVoiceMessages() {
+        runInAction(() => {
+            this.playinVoiceMessageId = null;
         });
     }
 

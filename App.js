@@ -39,11 +39,11 @@ import ForgotPassword from './src/components/ForgotPassword';
 import ResetPassword from './src/screens/ResetPassword';
 import ResettedPasswordScreen from './src/screens/ResettedPasswordScreen';
 
-const Stack = createStackNavigator()
+const Stack = createStackNavigator();
 
 const App = () => {
 
-  // AsyncStorage.clear()
+  // AsyncStorage.clear();
 
   // igor.khegay@avtech.uz
 
@@ -51,7 +51,7 @@ const App = () => {
 
   const navigationRef = useRef(null);
 
-  console.log(store.playingChildId?.id, store.token)
+  // console.log(store.children)
 
   useEffect(() => {
     const handleDeepLink = async (url) => {

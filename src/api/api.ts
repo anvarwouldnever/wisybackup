@@ -12,7 +12,7 @@ class Api {
                 password: password
             })
             if (response.data.is_success) {
-                console.log(response.data)
+                // console.log(response.data)
                 return true
             }
         } catch (error) {
@@ -75,7 +75,7 @@ class Api {
     }
 
     async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string) {
-        console.log(name, avatar, birthday, gender, engagement_time)
+        // console.log(name, avatar, birthday, gender, engagement_time)
         try {
             const response = await axios.post(
                 `${this.baseUrl}/children`,
@@ -98,7 +98,7 @@ class Api {
                 return children
             }
         } catch (error) { 
-            console.log(error.response.data.message)
+            console.log(error.response.data)
         }
     }
 
@@ -106,7 +106,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/sign-up-settings`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
                     "X-localization": 'en'
                 }
             })
@@ -120,7 +120,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/onboardings`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
                     "X-localization": 'en'
                 }
             })
@@ -149,7 +149,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
                 }
             })
             return response.data.data
@@ -162,7 +162,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories/${param.id}/items`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
                 }
             })
             return response.data.data
@@ -175,7 +175,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/avatars`, {
                 headers: {
-                    Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
                 }
             })
             return response.data.data
@@ -204,7 +204,7 @@ class Api {
     async getAttributes(token: string) {
         const response = await axios.get(`${this.baseUrl}/attributes`, {
             headers: {
-                Authorization: `Bearer 226|COejlHeehtyv7i4F3hlhJ6QKCm1D5ddxN57VF38yd6dd67a1`,
+                Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
             }
         })
         return response.data.data
@@ -243,7 +243,7 @@ class Api {
     }
 
     async getCategories(token: string) {
-        console.log(`cats ${token}`)
+        // console.log(`cats ${token}`)
         try {
             const response = await axios.get(`${this.baseUrl}/categories`, {
                 headers: {
@@ -316,7 +316,7 @@ class Api {
     
     async answerTask(task_id: string, attempt: string, voice: any, child_id: string, token: string, lead_time: number) {
         try {
-            console.log(lead_time);
+            // console.log(lead_time);
             const formData = new FormData();
             formData.append('task_id', task_id);
             formData.append('attempt', attempt);
@@ -376,41 +376,69 @@ class Api {
         }
     }
 
-    async sendMessage(message: any) {
+    async sendMessage(data: any) {
+        // console.log(child_id, token)
         try {
-            const data = new URLSearchParams();
-            data.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
-            data.append('conversation_id', 'cv-l4Gj8MLOvOp-lASWEc49_j8kjKJ4R-UUHVMifv91xaA');
-            data.append('language', 'ru');
-            data.append('model', 'gpt-4o');
-            data.append('conversational_memory_length', String(20));
+            const formData = new FormData();
 
-            data.append('message', message.message);
+            if (data.isText) {
+                formData.append('child_id', data.child_id);
+                formData.append('message', data.message);
 
-            const response = await axios.post('https://aimywisy.hostweb.uz/api/v1/conversation/talk', data, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-            })
+                try {
+                    const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
+                        headers: {
+                            Authorization: `Bearer ${data.token}`,
+                            'Content-Type': 'multipart/form-data', // Указываем правильный тип контента
+                        },
+                    });
+                    return response.data;
+                } catch (error) {
+                    console.log(error)
+                }
+            } else if(!data.isText) {
+                formData.append('child_id', data.child_id);
+                formData.append('audio', {
+                    uri: data.audio,
+                    type: 'audio/m4a',
+                    name: 'voice-recording.m4a',
+                });
 
-            return response.data
+                try {
+                    const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
+                        headers: {
+                            Authorization: `Bearer ${data.token}`,
+                            'Content-Type': 'multipart/form-data', // Указываем правильный тип контента
+                        },
+                    });
+            
+                    return response.data;
+                } catch (error) {
+                    console.log(error)
+                }
+            }
+
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error)
+            console.log(error.response?.data?.message);
         }
     }
 
-    async getMessages() {
+    async getMessages(child_id: any, token: any) {
+        // console.log(child_id, token)
         try {
-            const response = await axios.get('https://aimywisy.hostweb.uz/api/v1/messages', {
+            const response = await axios.get(`${this.baseUrl}/conversation`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
                 params: {
-                    api_key: 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA',
-                    conversation_id: 'cv-l4Gj8MLOvOp-lASWEc49_j8kjKJ4R-UUHVMifv91xaA'
+                    child_id: child_id
                 }
             });
+            // console.log(response.data)
             return response.data;
         } catch (error) {
-            console.log(error.response.data);
-            console.error(error.response.data);
+            console.log(error.response.data.message);
         }
     }
 

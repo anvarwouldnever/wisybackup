@@ -26,7 +26,7 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswer
         setMicroOn(false)
         const uri = await stopRecording()
         const requestStatus = await sendAnswer(uri)
-        console.log(requestStatus)
+        // console.log(requestStatus)
         playSound(requestStatus?.sound)
         if (requestStatus.to_next && requestStatus.success) {
             return correctAnswer(requestStatus?.hint, requestStatus?.stars)
