@@ -1,68 +1,59 @@
 import { Audio } from 'expo-av';
 import store from '../store/store';
 import { Platform } from 'react-native';
-import { autorun } from 'mobx';
 
 let currentSound: Audio.Sound | null = null;
 
-export const playSound = async (base64: string) => {
-  if (!base64) return;
+export const playSound = async (source: string): Promise<void> => {
+  if (!source || typeof source !== 'string' || source.trim() === '') return;
 
   try {
     store.setPlayingMusic(false);
 
-    // Если есть ранее запущенный звук, выгружаем его перед запуском нового
     if (currentSound) {
       await currentSound.unloadAsync();
       currentSound = null;
     }
 
     const sound = new Audio.Sound();
-    await sound.loadAsync({ uri: `data:audio/mp3;base64,${base64}` });
+    const isBase64 = source.startsWith('/9j') || source.length > 1000; 
+
+    await sound.loadAsync({
+      uri: isBase64 ? `data:audio/mp3;base64,${source}` : source,
+    });
+
     await sound.setVolumeAsync(1.0);
     await sound.playAsync();
 
-    currentSound = sound; // Запоминаем текущий звук
+    currentSound = sound;
 
-    sound.setOnPlaybackStatusUpdate(async (status) => {
-      if (status.didJustFinish) {
-        console.log(store.breakMusicPlaying)
-        if (store.breakMusicPlaying) {
-          return; 
-        } else {
-          store.setPlayingMusic(true);
+    return new Promise<void>((resolve) => {
+      sound.setOnPlaybackStatusUpdate(async (status) => {
+        if (status.didJustFinish) {
+          if (!store.breakMusicPlaying) {
+            store.setPlayingMusic(true);
+          }
           await sound.unloadAsync();
+          if (currentSound === sound) {
+            currentSound = null;
+          }
+          resolve(); 
         }
-        if (currentSound === sound) {
-          currentSound = null;
-        }
-      }
+      });
     });
   } catch (error) {
     console.error('Ошибка при воспроизведении звука:', error);
-    if (store.breakMusicPlaying) {
-      return
-    } else {
+    if (!store.breakMusicPlaying) {
       store.setPlayingMusic(true);
     }
+    throw error; 
   } finally {
     if (Platform.OS === 'android') {
       setTimeout(() => {
-        if (store.breakMusicPlaying) {
-          return
-        } else {
+        if (!store.breakMusicPlaying) {
           store.setPlayingMusic(true);
         }
       }, 3000);
     }
   }
 };
-
-autorun(() => {
-  if (store.breakMusicPlaying && currentSound) {
-    currentSound.stopAsync();
-    currentSound.unloadAsync();
-    currentSound = null;
-    store.setPlayingMusic(false);
-  }
-});

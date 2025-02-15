@@ -20,39 +20,35 @@ import Game12Screen from './Game12Screen'
 import Game13Screen from './Game13Screen'
 import statStar from '../images/tabler_star-filled.png'
 import CongratulationsScreen from './CongratulationsScreen'
-import TestScreen from './TestScreen'
+import TestScreen from './TestScreen' 
+import BreakScreen from './BreakScreen'
+import Game16Screen from './Game16Screen'
 
 const GameScreen = ({ route }) => {
 
     const { tasks, onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes } = route.params;
     const navigation = useNavigation();
-    const [level, setLevel] = useState(0);
     const [taskLevel, setTaskLevel] = useState(0);
-    const [stars, setStars] = useState(null)
+    const [level, setLevel] = useState(tasks[taskLevel]?.current_task_id_index);
+    const [stars, setStars] = useState(null);
+    const [earnedStars, setEarnedStars] = useState(null);
     const [cameFromBreak, setCameFromBreak] = useState(isFromBreak);
-    const [isBreak, setIsBreak] = useState(false)
+    const [isBreak, setIsBreak] = useState(false);
     const task = tasks[taskLevel]?.tasks;
+
+    useEffect(() => {
+        setLevel(tasks[taskLevel]?.current_task_id_index)
+    }, [taskLevel])
 
     const ifCameFromBreak = breaks?.find(b => b.order === tasks[taskLevel]?.order);
     const currentBreakContent = breaks?.find(b => b.order === tasks[taskLevel - 1]?.order);
-
-    // console.log(isFromBreak, tasks[taskLevel])
-
-    // console.log(isBreak)
-
-    // console.log(breaks)
-
-    // console.log(tasks[taskLevel]?.order, breaks?.map(b => b.order))
-
-    // console.log(breaks?.find(b => b.order === tasks[taskLevel - 1]?.order))
 
     const incrementTaskLevel = () => {
         setTaskLevel(prev => {
             if (prev + 1 >= tasks?.length) {
                 return navigation.goBack();
             } else if(breaks?.find(b => b.order === tasks[taskLevel]?.order) && !cameFromBreak && !isBreak) {
-                console.log('break')
-                setIsBreak(true)
+                setIsBreak(true);
                 return prev + 1;
             }
             setIsBreak(false);
@@ -65,88 +61,105 @@ const GameScreen = ({ route }) => {
         setLevel(prev => {
             if (prev + 1 > tasks?.length) {
                 console.log("Нет больше задач.");
-                return prev;
+                return 0;
             }
             return 0;
         });
     };
+
+    // tasks.forEach(parentTask => {
+    //     parentTask.tasks.forEach(childTask => {
+    //         console.log(childTask?.type);
+    //         console.log(childTask?.content?.sub_type);
+    //     });
+    // });
+
+    // if (task[level]?.type === 'text_single_choice') {
+    //     console.log(task[level])
+    // }
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const RenderVoiceGame = () => {
         // done
         return (    
-            <Game1Screen setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel} isFromAttributes={isFromAttributes}/>
+            <Game1Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithImageGame = () => {
         // done
         return (
-            <Game5Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game5Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderSimpleGame = () => {
         // done
         return (
-            <Game3Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game3Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithAudio = () => {
         // done
         return (
-            <Game4Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game4Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithTitleGame = () => {
         // done
         return (
-            <Game2Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game2Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenSimpleGame = () => {
         // done
         return (
-            <Game8Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game8Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenRepeatGame = () => {
         // done
         return (
-            <Game10Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game10Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenCountingGame = () => {
         // done
         return (
-            <Game9Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game9Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenWordGame = () => {
         // done
         return (
-            <Game11Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game11Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceSimpleGame = () => {
         // done
         return (
-            <Game13Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game13Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceWithAudioGame = () => {
         // done
         return (
-            <Game12Screen setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game12Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+        )
+    }
+
+    const RenderTextSingleChoiceWithTitleImageGame = () => {
+        return (
+            <Game16Screen setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -154,7 +167,7 @@ const GameScreen = ({ route }) => {
         const [data, setData] = useState(null);
     
         useEffect(() => {
-            const svgData = task[level]?.content.svg
+            const svgData = task[level]?.content.svg;
             
             if (svgData) {
                 function parseSVG() {
@@ -210,7 +223,6 @@ const GameScreen = ({ route }) => {
             width: withTiming(progressWidth, { duration: 300 }),
         };
     });
-    
 
     const BackButton = () => {
         return (
@@ -241,12 +253,10 @@ const GameScreen = ({ route }) => {
         )
     }
 
-    // console.log(task[level])
-
     return (
         <View style={{flex: 1}}>
             {!isFromAttributes && (cameFromBreak || isBreak)? 
-            <TestScreen anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/> 
+            <BreakScreen anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/> 
             :
             <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, width: windowWidth, height: windowHeight, justifyContent: 'space-between'}}>
             {
@@ -271,11 +281,14 @@ const GameScreen = ({ route }) => {
                     <RenderHandWrittenWordGame /> :
                     task[level].type === 'puzzle'?
                     <RenderPuzzleGame /> :
-                    task[level].type === 'text_single_choice' && task[level].content.options[0].audio === null && task[level].content.options[0].text != ""?
+                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
+                    <RenderTextSingleChoiceWithTitleImageGame /> :
+                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_title' && task[level]?.content?.options[0]?.audio === null && task[level].content.options[0].text != ""?
                     <RenderTextSingleChoiceSimpleGame /> : 
-                    task[level].type === 'text_single_choice' && task[level].content.options[0].audio != null || task[level].content.options[0].text.includes(" ")?
-                    <RenderTextSingleChoiceWithAudioGame /> : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
-                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_title' &&  task[level]?.content?.options[0]?.audio != null || task[level]?.content?.options[0]?.text.includes(" ")?
+                    <RenderTextSingleChoiceWithAudioGame /> : 
+                    <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                ) : <CongratulationsScreen setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
             }
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}

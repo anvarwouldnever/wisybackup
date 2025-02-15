@@ -15,26 +15,49 @@ import { useFocusEffect } from '@react-navigation/native'
 import * as ScreenOrientation from 'expo-screen-orientation';
 import useTimer from '../hooks/useTimer';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
+import { playSound } from '../hooks/usePlayBase64Audio';
 
-const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes }) => {
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars }) => {
 
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
+                                        const func = async () => {
+                                            try {
+                                                await playSound(data?.content?.speech);
+                                            } catch (error) {
+                                                console.error("Ошибка при воспроизведении звука:", error);
+                                            } finally {
+                                                setText(null);
+                                            }
+                                        };
+                                    
+                                        func();
+                                    }, [data?.content?.speech]);
+                                
+                                    const playVoice = async (sound) => {
+                                        try {
+                                            await playSound(sound);
+                                        } catch (error) {
+                                            console.error("Ошибка при воспроизведении звука:", error);
+                                        } finally {
+                                            setText(null);
+                                        }
+                                    };
+
+    useEffect(() => {
     
-        start(); // Ваш метод, выполняющий начальную логику
+        start();
     
         return () => {
-            reset(); // Ваш метод, выполняющий очистку при размонтировании компонента
+            reset();
         };
     }, []);
     
 
-    // console.log(data)
-
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-    const [text, setText] = useState(null);
+    const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [image, setImage] = useState(1);
     const [thinking, setThinking] = useState(false);
@@ -125,7 +148,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                         <Game3TextAnimation text={text} thinking={thinking}/>
                     </View>
                     <View style={{position: 'absolute', bottom: 0, right: 0}}>
-                        {!thinking && <MicroAnimation lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
+                        {!thinking && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
                     </View>
             </View>
         </View>

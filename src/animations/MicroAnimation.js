@@ -8,7 +8,7 @@ import { useAudioRecorder } from "../hooks/useAudioRecorder";
 import { playSound } from "../hooks/usePlayBase64Audio";
 import store from "../store/store";
 
-const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswerToNext, incorrectAnswer, setText }) => {
+const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswerToNext, incorrectAnswer, setText, playVoice }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [microOn, setMicroOn] = useState(false)
     const { startRecording, stopRecording } = useAudioRecorder()
@@ -26,8 +26,7 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswer
         setMicroOn(false)
         const uri = await stopRecording()
         const requestStatus = await sendAnswer(uri)
-        // console.log(requestStatus)
-        playSound(requestStatus?.sound)
+        playVoice(requestStatus?.sound)
         if (requestStatus.to_next && requestStatus.success) {
             return correctAnswer(requestStatus?.hint, requestStatus?.stars)
         } 

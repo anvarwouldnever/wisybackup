@@ -21,47 +21,38 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     const navigation = useNavigation();
 
     const func = async() => {
-        const messages = [
-            "You will love these games",
-            "Good choice",
-            "Let's learn together"
-        ];
-        
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    
         try {
-            const sound = await api.TextToSpeechFormAi(randomMessage);
-            setText(randomMessage)
-            // console.log(sound);
-            playSound(sound?.audio_data);
+            const sound = await api.getSpeech('enter_subcollections_screen');
+            setText(sound[0]?.text)
+            playSound(sound[0]?.audio);
         } catch (error) {
             console.log(error);
         }
     };
 
-    const func2 = async() => {
-        const messages = [
-            "Do you want to explore another topic?",
-            "I like this topic, what about you?",
-        ];
+    // const func2 = async() => {
+    //     const messages = [
+    //         "Do you want to explore another topic?",
+    //         "I like this topic, what about you?",
+    //     ];
         
-        const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    //     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
     
-        try {
-            const sound = await api.TextToSpeechFormAi(randomMessage);
-            setText(randomMessage)
-            // console.log(sound);
-            playSound(sound?.audio_data);
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    //     try {
+    //         const sound = await api.TextToSpeechFormAi(randomMessage);
+    //         setText(randomMessage)
+    //         // console.log(sound);
+    //         playSound(sound?.audio_data);
+    //     } catch (error) {
+    //         console.log(error);
+    //     }
+    // };
 
     const func3 = async() => {
-    
         try {
-            const sound = await api.TextToSpeechFormAi('Lets finish the previous games first');
-            playSound(sound?.audio_data);
+            const sound = await api.getSpeech('locked_subcollection_attempt');
+            playSound(sound[0]?.audio);
+            setText(sound[0]?.text)
         } catch (error) {
             console.log(error);
         }
@@ -71,22 +62,11 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     const availableSubCollections = collections? collections[collectionIndex]?.available_sub_collections : [];
 
     const handleGameCompletion = (id, starId, earnedStars) => {
-        const complete = (starId, earnedStars) => {
-            setSubCollections((prevSubCollections) =>
-                prevSubCollections.map((subCollection) =>
-                    subCollection.id === starId
-                        ? {
-                              ...subCollection,
-                              stars: {
-                                  ...subCollection.stars,
-                                  earned: earnedStars,
-                              },
-                          }
-                        : subCollection
-                )
-            );
-        };
-        complete(starId, earnedStars);
+        const subCollection = subCollections.find(sub => sub.id === starId);
+        if (subCollection) {
+            subCollection.stars.earned += earnedStars;
+        }
+
         store.completeGame(activeCategory, id, starId, earnedStars, collectionIndex);
     };
 
@@ -104,6 +84,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         };
     
         completeTask(id, nextTaskId);
+        store.completeTask(activeCategory, collectionIndex, id, nextTaskId)
     };
 
     const renderCollections = ({ item, index }) => {
@@ -184,16 +165,16 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 const tasksArray = subCollections
                     .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
                     .map(item => {
-                        const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
-                        const tasksWithoutNextId = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
+                        const currentTaskIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
             
-                        const tasks = tasksWithoutNextId.map((task, index) => ({
+                        const tasks = item.tasks.map((task, index) => ({
                             ...task,
-                            next_task_id: tasksWithoutNextId[index + 1]?.id || null, // Следующий ID или null для последнего объекта
+                            next_task_id: item.tasks[index + 1]?.id || null, // Следующий ID или null для последнего объекта
                         }));
             
                         return {
                             tasks,
+                            current_task_id_index: currentTaskIndex !== -1 ? currentTaskIndex : 0, // Сохраняем индекс current_task_id
                             id: item.id,
                             order: item?.order_column
                         };
@@ -201,15 +182,13 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
             
                 const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
                 return tasksArray.slice(clickedIndex);
-            };
+            };            
             
         return (
                 <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.exp))} style={{ width: 'auto', height: 'auto' }}>
-                <TouchableOpacity 
-                    onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))
-                        ? () => {
+                <TouchableOpacity
+                    onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
-                            
                             navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 
                         : () => func3()}
@@ -334,12 +313,11 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         )
     };
     
-
     return (
         <View style={{width: windowWidth * (480 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), position: 'absolute', top: Platform.isPad? windowHeight * (224 / 834) : windowHeight * (104 / 360), left: windowWidth * (320 / 800)}}>
             <FlatList
                 horizontal
-                key={store.categories}
+                key={[store.categories, subCollections]}
                 data={subCollections || collections}
                 renderItem={subCollections ? (props) => renderSubCollections({ ...props, onComplete: handleGameCompletion, onCompleteTask: handleTaskCompletion }) : renderCollections}
                 keyExtractor={(item, index) => md5.hex_md5(`${item?.id}_${item?.image}`)}
@@ -373,7 +351,29 @@ export default observer(GamesCollections);
 //         console.log(updatedSubCollections[2]);
 
 
+// const prepareTasksArray = (itemId) => {
+//     const tasksArray = subCollections
+//         .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
+//         .map(item => {
+//             const startIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+//             const tasksWithoutNextId = startIndex !== -1 ? item.tasks.slice(startIndex) : [];
 
+//             const tasks = tasksWithoutNextId.map((task, index) => ({
+//                 ...task,
+//                 index: 0,
+//                 next_task_id: tasksWithoutNextId[index + 1]?.id || null, // Следующий ID или null для последнего объекта
+//             }));
+
+//             return {
+//                 tasks,
+//                 id: item.id,
+//                 order: item?.order_column
+//             };
+//         });
+
+//     const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
+//     return tasksArray.slice(clickedIndex);
+// };
 
 
 

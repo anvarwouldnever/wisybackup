@@ -13,16 +13,40 @@ import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio';
 import useTimer from '../hooks/useTimer';
 
-const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
+const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [text, setText] = useState(data.question);
+    const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null)
     const sound = useRef(new Audio.Sound());
 
     const { getTime, start, stop, reset } = useTimer();
+
+    useEffect(() => {
+                                        const func = async () => {
+                                            try {
+                                                await playSound(data?.content?.speech);
+                                            } catch (error) {
+                                                console.error("Ошибка при воспроизведении звука:", error);
+                                            } finally {
+                                                setText(null);
+                                            }
+                                        };
+                                    
+                                        func();
+                                    }, [data?.content?.speech]);
+                                
+                                    const playVoice = async (sound) => {
+                                        try {
+                                            await playSound(sound);
+                                        } catch (error) {
+                                            console.error("Ошибка при воспроизведении звука:", error);
+                                        } finally {
+                                            setText(null);
+                                        }
+                                    };
 
     useEffect(() => {
         start();
@@ -85,6 +109,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setId(null)
             setThinking(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token})
+            playVoice(response?.sound)
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {
@@ -94,9 +119,10 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         }
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
-                playSound(response?.sound)
+                
                 setTimeout(() => {
-                    setStars(response.stars)
+                    setStars(response?.stars);
+                    setEarnedStars(response?.stars - response?.old_stars)
                     setLevel(prev => prev + 1);
                 }, 1500);
             }
@@ -109,9 +135,10 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         }
                 setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
-                playSound(response?.sound)
+                
                 setTimeout(() => {
-                    setStars(response.stars)
+                    setStars(response?.stars);
+                    setEarnedStars(response?.stars - response?.old_stars)
                     setLevel(prev => prev + 1);
                 }, 1500);
             }
@@ -120,7 +147,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
-                playSound(response.sound)
+                
                 setAttempt('2')
             } else if(response && response.success) {
                 reset()
@@ -131,7 +158,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         }
                 setId({id: answer, result: 'correct'})
                 setText(response.hint)
-                playSound(response.sound)
+                
                 setTimeout(() => {
                     setLevel(prev => prev + 1);
                     setAttempt('1');
@@ -159,8 +186,6 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }
 
     const RenderGame12Component = () => {
-
-        const options = [{text: 'It helps to fly'}, {text: 'It is necessary for eating'}, {text: 'It encourages thinking'}]
 
         return (
             <View style={{width: windowWidth * (440 / 800), height: Platform.isPad? windowWidth * (208 / 800) : windowHeight * (208 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>

@@ -1,187 +1,171 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions, Platform, Image, ImageBackground } from 'react-native';
-import { Calendar } from 'react-native-calendars';
-import moment from 'moment';
-import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
-import { LinearGradient } from 'expo-linear-gradient';
-import LottieView from 'lottie-react-native';
-import flapCheta from '../lotties/I flap my wings like a bird-F.json'
-import lot from '../lotties/sit on chair-F.json'
-import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
-import { useNavigation } from '@react-navigation/native';
-import narrowleft from '../images/narrowleft-purple.png'
-import clock from '../images/CLOCK.png'
-import TimerLayout from '../components/TimerBreakLayout';
-import BackButton from '../components/BackBreakButton';
-import store from '../store/store'
-import { SvgUri } from 'react-native-svg'
-import fetchAnimation from './GamesScreen/FetchLottie';
-import UseMP3Player from '../hooks/useMP3Player';
-import { newPlaySound, stopCurrentSoundBlya } from '../hooks/newPlaySound';
-import api from '../api/api';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, useWindowDimensions, Image, Text, TouchableOpacity, Platform } from 'react-native';
+import Animated, { BounceIn, withTiming, runOnJS, useSharedValue, useAnimatedStyle, withDelay, FadeIn, withSequence, withSpring } from 'react-native-reanimated';
+import star from '../images/tabler_star-filled.png';
+import * as Haptics from 'expo-haptics'
+import StarsLottie from '../components/StarsLottie';
+import ConfettiLottie from '../components/ConfettiLottie';
+import StarStats from '../components/StarStats';
+import store from '../store/store';
+import Timer from '../components/Timer';
+import reload from '../images/succscreenreload.png'
 
-const TestScreen = ({ anyBreak, incrementTaskLevel }) => {
-
+const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes }) => {
+    
+    const stars = Array.from({ length: parseInt(starsText, 10) }, (_, index) => ({
+        id: index + 1,
+    }));
+    
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const [numStars, setNumStars] = useState(0)
+    const [starsContainerLayout, setStarsContainerLayout] = useState({})
 
-    // console.log('render');
-    const [seconds, setSeconds] = useState<number>();
+    const starsContainerRef = useRef(null);
 
     useEffect(() => {
-        setSeconds(anyBreak?.dynamic_breaks?.reduce((sum: any, item: any) => sum + (item.duration || 0), 0));
+
+        if (starsContainerRef.current) {
+            starsContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
+                const centerX = pageX + (width / 6);
+                const centerY = pageY - (height / 4);
+        
+                setStarsContainerLayout({ x: centerX, y: centerY });
+        
+                // console.log({ centerX, centerY }); // Для отладки
+            });
+        }
 
         return () => {
-            store.setBreakPlayingMusic(false);
-            store.setPlayingMusic(true);
+            store.setPlayingChildStars(stars.length);
         };
-      }, []);
+    }, []);    
 
-    const animationRef = useRef<LottieView>();
+    const [layoutCaptured, setLayoutCaptured] = useState();
 
-    const [animation, setAnimation] = useState(null);
-    const [animationsOrder, setAnimationOrders] = useState(0);
-
-    const [text, setText] = useState<string>(null);
-    const [textOrder, setTextOrder] = useState(0)
-
-    const [textPos, setTextPos] = useState<string>();
-
-    const formatTime = (sec: number) => {
-        const minutes = Math.floor(sec / 60);
-        const remainingSeconds = sec % 60;
-        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    };
-
-    const func = async(text: string) => {
-        try {
-            if (text) {
-                await newPlaySound(text);
-                setTimeout(() => {
-                    setText(null)
-                    setTextOrder(prev => prev + 1)
-                }, 2500);
-            }
-        } catch (error) {
-            console.log(error)
+    useEffect(() => {
+        
+        if (isFromAttributes) {
+            store.loadCategories()
+        } else {
+            
         }
+
+        const timeoutId = setTimeout(() => {
+            
+        }, 6500);
+    
+        return () => {
+            clearTimeout(timeoutId);
+        };
+    }, [])
+
+    const complete = () => {
+        setTaskLevel();
+        setLevel();
+    }
+
+    const starsContainerOpacity = useSharedValue(1) 
+
+    const animatedValues = useRef(stars.map(() => ({
+        x: useSharedValue(starsContainerLayout?.x),
+        y: useSharedValue(starsContainerLayout?.y)
+    })));
+
+    useEffect(() => {
+        if (starsContainerLayout) {
+            animatedValues.current.forEach((value) => {
+                value.x.value = starsContainerLayout.x;
+                value.y.value = starsContainerLayout.y;
+            });
+        }
+    }, [starsContainerLayout]);
+
+    const Nums = () => {
+        setNumStars(prev => prev + 1)
     }
 
     useEffect(() => {
-        if (seconds == 0) return incrementTaskLevel();
-    }, [seconds])
-
-    useEffect(() => {
-        const fetchJSON = async () => {
-            try {
-                const currentBreak = anyBreak?.dynamic_breaks[animationsOrder];
-                if (!currentBreak) return;
-    
-                const animationData = await fetchAnimation(currentBreak?.animation);
-                setAnimation(animationData);
-                setTextOrder(0);
-    
-                setTimeout(() => {
-                    animationRef.current?.reset();
-                    animationRef.current?.play();
-                }, 1);
-
-                setTimeout(() => {
-                    setAnimationOrders(prev => prev + 1);
-                }, currentBreak?.duration * 1000);
-            } catch (error) {
-                console.log(error);
-            }
-        };
-    
-        fetchJSON();
-
-    }, [animationsOrder]);
-
-    useEffect(() => {
-        const currentText = anyBreak?.dynamic_breaks[animationsOrder]?.speeches[textOrder]
-
-        if (textOrder > anyBreak?.dynamic_breaks[animationsOrder]?.speeches.length) {
-            return;
+        if (layoutCaptured) {
+            stars.forEach((star, index) => {
+                const delay = (index * 200);
+                const delayTimer = setTimeout(() => {
+                    starsContainerOpacity.value = withTiming(0, { duration: 500 });
+                    animatedValues.current[index].y.value = withTiming(layoutCaptured.y, { duration: 600 });
+                    animatedValues.current[index].x.value = withTiming(layoutCaptured.x + 30, { duration: 600 }, () => {
+                        runOnJS(Nums)()
+                    });
+                }, delay);
+                return () => clearTimeout(delayTimer);
+            });
         }
+    }, [layoutCaptured]);
 
-        setTextPos(currentText?.position)
-        setTimeout(() => {
-            setText(currentText?.text)
-            func(currentText?.speech)
-        }, currentText?.time * 1000);
+    const animatedStyles = animatedValues?.current?.map(({ x, y }) => {
+        return useAnimatedStyle(() => ({
+            left: x?.value,
+            top: y?.value,
+        }));
+    });
 
-    }, [animationsOrder, textOrder]);
-
+    const starsContainerStyle = useAnimatedStyle(() => ({
+        opacity: starsContainerOpacity.value,
+    }));
 
     return (
-        <ImageBackground style={{flex: 1, justifyContent: 'center'}} source={{ uri: anyBreak?.background }}>
-            <UseMP3Player url={anyBreak?.music}/>
-            <BackButton />
-                {text && <Animated.View key={text} entering={ZoomInEasyDown} style={{
-                position: 'absolute',
-                padding: 12,
-                backgroundColor: '#FFFFFF',
-                borderRadius: 16,
-                borderBottomLeftRadius: ['left_top', 'left_center', 'left_bottom'].includes(textPos) ? 16 : 0,
-                borderBottomRightRadius: ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? 16 : 0,
-                left: ['left_top', 'left_center', 'left_bottom'].includes(textPos) ? windowWidth * (130 / 800) :
-                        ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? windowWidth * (600 / 800) : windowWidth * (100 / 800),
-                top: textPos == 'left_top' ? windowHeight * (60 / 360) :
-                        textPos == 'left_center' ? windowHeight * (100 / 360) :
-                        textPos == 'left_bottom' ? windowHeight * (140 / 360) : 'auto'
+        <View style={{ flex: 1, flexDirection: 'column' }}>
+            <ConfettiLottie />
+            <Animated.View entering={BounceIn.delay(800).duration(700)}
+                style={{
+                    top: Platform.isPad? windowHeight * (80 / 360) : windowHeight * (40 / 360),
+                    position: 'absolute',
+                    backgroundColor: 'white',
+                    width: windowWidth * (260 / 800),
+                    height: Platform.isPad? windowWidth * (250 / 800) : windowHeight * (250 / 360),
+                    alignSelf: 'center',
+                    borderRadius: 20,
+                    flexDirection: 'row',
                 }}
-                >
-                    <Text>{text}</Text>
+            >
+                <StarsLottie stars={stars}/>
+                {stars.length > 0 && <Animated.View ref={starsContainerRef} entering={BounceIn.delay(1700).duration(800).springify(400)} style={[starsContainerStyle, {width: windowWidth * (75 / 800), height: windowHeight * (40 / 360), backgroundColor: '#B3ABDB', position: 'absolute', borderRadius: 100, alignSelf: 'flex-end', gap: 1, top: Platform.isPad? '30%' : '35%', right: -40, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 10}]}>
+                    <Text style={{fontWeight: '600', color: 'white', fontSize: windowWidth * (23 / 800), textAlign: 'center', alignSelf: 'flex-end'}}>+{`${stars.length}`}</Text>
                 </Animated.View>}
-                {animation && <LottieView
-                    loop={true}
-                    ref={animationRef}
-                    source={animation}
-                    style={{width: windowWidth * (315 / 800), height: windowHeight * (315 / 360), position: 'absolute', alignSelf: 'center'}}
-                />}
-                <TimerLayout animation={animation} formatTime={formatTime} seconds={seconds} setSeconds={setSeconds}/>
-        </ImageBackground>
-    )
-}
+                <View style={{width: windowWidth * (212 / 800), height: Platform.isPad? windowWidth * (60 / 800) : windowHeight * (60 / 360), position: 'absolute', alignSelf: 'center', left: '10%', justifyContent: 'space-between', padding: 4}}>
+                    <Text style={{fontSize: windowWidth * (20 / 800), fontWeight: '600', color: '#222222', alignSelf: 'center'}}>Congratulations!</Text>
+                    {stars.length > 0 && <Text style={{fontSize: windowWidth * (14 / 800), fontWeight: '400', color: '#222222', alignSelf: 'center'}}>You’ve just earned {`${stars.length}`} stars!!</Text>}
+                </View>
+                <TouchableOpacity style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#504297', position: 'absolute', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '10%', justifyContent: 'center', alignItems: 'center'}}>
+                    <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360)}}/>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => complete()} style={{width: windowWidth * (163 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), position: 'absolute', backgroundColor: '#504297', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '30%', paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between'}}>
+                    <Text style={{fontSize: windowWidth * (12 / 800), fontWeight: '600', color: 'white', alignSelf: 'center'}}>Continue</Text>
+                    <Timer />
+                </TouchableOpacity>
+            </Animated.View>
+            {stars.map((item, index) => {
+                return (
+                    <Animated.Image
+                        key={index}
+                        entering={FadeIn.delay(1700)}
+                        source={star}
+                        style={[animatedStyles[index],
+                            {
+                                width: Platform.isPad? windowHeight * (20 / 360) : windowWidth * (20 / 800),
+                                height: Platform.isPad? windowHeight * (20 / 800) : windowHeight * (20 / 360),
+                                resizeMode: 'contain',
+                                alignSelf: 'center',
+                                position: 'absolute',
+                            },
+                        ]}
+                />
+                )})}
+                <StarStats 
+                    numStars={numStars}
+                    layoutCaptured={layoutCaptured}
+                    setLayoutCaptured={setLayoutCaptured}
+                />
+        </View>
+    );
+};
 
-export default TestScreen;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-{/* <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
-                <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
-                {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
-            </View> */}
-
-    //         const navigation = useNavigation()
-
-    // const [seconds, setSeconds] = useState(0);
-
-    // useEffect(() => {
-    //     const interval = setInterval(() => {
-    //         setSeconds(prev => prev + 1);
-    //     }, 1000);
-
-    //     return () => clearInterval(interval);
-    // }, []);
-
-    // const formatTime = (sec: number) => {
-    //     const minutes = Math.floor(sec / 60);
-    //     const remainingSeconds = sec % 60;
-    //     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-    // };
+export default CongratulationsScreen;;

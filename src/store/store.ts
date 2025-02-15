@@ -25,6 +25,7 @@ class Store {
     holdEmail = null;
     playinVoiceMessageId = null;
 
+
     constructor() {
         makeAutoObservable(this);
         this.initializeStore();
@@ -215,7 +216,7 @@ class Store {
                 // Загружаем коллекции для каждой категории
                 await this.loadCollections();
             } catch (error) {
-                console.log(error);
+                console.log(error.response.data);
             }
         }
     }
@@ -267,7 +268,7 @@ class Store {
                     }));
                 });
             } catch (error) {
-                console.log(error);
+                console.log(error.response.data.message);
             }
         }
     }
@@ -344,7 +345,7 @@ class Store {
                 
                 if (subCollection) {
                     runInAction(() => {
-                        subCollection.stars.earned = earnedStars;
+                        subCollection.stars.earned += earnedStars;
                     });
                     break;
                 }
@@ -356,6 +357,22 @@ class Store {
     
         } catch (error) {
             console.error("Ошибка завершения игры:", error);
+        }
+    }
+    
+    async completeTask(categoryId: any, collectionId: any, sub_collectionId: any, nextTaskId: any) {
+        // console.log(categoryId, collectionId, sub_collectionId, nextTaskId)
+        try {
+                runInAction(() => {
+                    const subCollection = this.categories[categoryId]?.collections[collectionId]?.sub_collections.find(sub => sub.id === sub_collectionId);
+                    
+                    if (subCollection) {
+                        subCollection.current_task_id = nextTaskId ?? subCollection.tasks[0]?.id;
+                    }
+                });
+            
+        } catch (error) {
+            console.error("Ошибка завершения таска:", error);
         }
     }
 
@@ -423,6 +440,12 @@ class Store {
     async setMicroOn(bool: boolean) {
         runInAction(() => {
             this.microOn = bool;
+        });
+    }
+
+    async setCatsChanged(bool: boolean) {
+        runInAction(() => {
+            this.categoriesChanged = bool;
         });
     }
 

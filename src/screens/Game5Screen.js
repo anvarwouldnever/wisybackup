@@ -7,18 +7,40 @@ import api from '../api/api'
 import { playSound } from '../hooks/usePlayBase64Audio'
 import Game2Text1Animation from '../animations/Game2/Game2Text1Animation'
 import useTimer from '../hooks/useTimer'
-import speakingWisy from '../lotties/headv9.json'
-import LottieView from 'lottie-react-native'
 
-const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes }) => {
+const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [text, setText] = useState(data.content.wisy_question)
+    const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1')
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
     const { getTime, start, stop, reset } = useTimer();
+
+    useEffect(() => {
+            const func = async () => {
+                try {
+                    await playSound(data?.content?.speech);
+                } catch (error) {
+                    console.error("Ошибка при воспроизведении звука:", error);
+                } finally {
+                    setText(null);
+                }
+            };
+        
+            func();
+        }, [data?.content?.speech]);
+    
+        const playVoice = async (sound) => {
+            try {
+                await playSound(sound);
+            } catch (error) {
+                console.error("Ошибка при воспроизведении звука:", error);
+            } finally {
+                setText(null);
+            }
+        };
 
     useEffect(() => {
         start();
@@ -38,7 +60,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             setId(null)
             setThinking(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token})
-            
+            playVoice(response?.sound)
             if (response && response.stars && response.success) {
                 reset();
                 if (isFromAttributes) {
@@ -47,10 +69,11 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
                 setText(response?.hint)
-                playSound(response?.sound)
+                
                 setId({id: answer, result: 'correct'})
                 setTimeout(() => {
-                    setStars(response.stars)
+                    setStars(response?.stars);
+                    setEarnedStars(response?.stars - response?.old_stars)
                     setLevel(prev => prev + 1);
                 }, 1500);
             }
@@ -63,10 +86,11 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         }
                 vibrate()
                 setText(response?.hint)
-                playSound(response?.sound)
+                
                 setId({id: answer, result: 'wrong'})
                 setTimeout(() => {
-                    setStars(response.stars)
+                    setStars(response?.stars);
+                    setEarnedStars(response?.stars - response?.old_stars)
                     setLevel(prev => prev + 1);
                 }, 1500);
             }
@@ -75,7 +99,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
-                playSound(response.sound)
+                
                 setAttempt('2');
             } else if(response && response.success) {
                 reset();
@@ -85,7 +109,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
                 setText(response.hint)
-                playSound(response.sound)
+                
                 setId({id: answer, result: 'correct'})
                 setTimeout(() => {
                     setLevel(prev => prev + 1);

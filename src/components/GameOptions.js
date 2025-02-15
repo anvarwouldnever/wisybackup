@@ -1,17 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View, Image } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
+import api from "../api/api";
+import { playSound } from "../hooks/usePlayBase64Audio";
 
-const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }) => {
+const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, setText }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const gameoptions = store?.categories
 
-    // windowWidth * (104 / 1194)
-    // windowHeight * (104 / 834)
+    const isFirstRender = useRef(true);
+
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return; // Пропускаем первый рендер
+        }
+
+        const func = async () => {
+            try {
+                const sound = await api.getSpeech('switch_category');
+                playSound(sound[0]?.audio);
+                setText(sound[0]?.text);
+            } catch (error) {
+                console.log(error);
+            }
+        };
+        
+        func();
+    }, [activeCategory]);
 
     const renderItem = ({ item, index }) => {
 

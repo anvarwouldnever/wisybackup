@@ -7,7 +7,6 @@ import x from '../../images/wrongX.png'
 
 const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    console.log(animal)
 
     const [key, setKey] = useState(0);
 

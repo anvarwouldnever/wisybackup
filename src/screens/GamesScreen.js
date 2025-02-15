@@ -46,12 +46,12 @@ const GamesScreen = () => {
                     <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {subCollections != null && marketCollections == null? <HeaderCollection setText={setText} setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <Stars />
                 <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
 
-                {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
+                {marketCollections == null && <GameCategories setText={setText} activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
 
                 {marketCollections == null && <GamesCollections setText={setText} activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
                 {modal && <ModalConfirm setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation}/>}

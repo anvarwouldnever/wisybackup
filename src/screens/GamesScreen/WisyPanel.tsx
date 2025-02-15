@@ -21,12 +21,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
         if (marketCollections) {
             const func = async() => {
                 try {
-                    const sound = await api.TextToSpeechFormAi('You can use your earned stars to surprise me')
-                    setText('You can use your earned stars to surprise me')
-                    console.log(sound)
-                    playSound(sound?.audio_data)
+                    const sound = await api.getSpeech('open_market')
+                    playSound(sound[0]?.audio)
+                    setText(sound[0]?.text)
                 } catch (error) {
-                    // console.log(error)
+                    console.log(error)
                 }
             }
             func()
@@ -36,11 +35,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
     useEffect(() => {
         const func = async() => {
             try {
-                const sound = await api.TextToSpeechFormAi('Are you ready to learn something new today')
-                playSound(sound?.audio_data)
-                setText('Are you ready to learn something new today?')
+                const sound = await api.getSpeech('enter_collections_screen')
+                playSound(sound[0]?.audio)
+                setText(sound[0]?.text)
             } catch (error) {
-                // console.log(error)
+                console.log(error)
             }
         }
         func()
@@ -51,11 +50,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
             animationRef.current?.reset()
             const func = async() => {
                 const animation = await fetchAnimation(currentAnimation?.animation)
-                setAnimation(animation)
-                setCurrentAnimation(null)
-                const sound = await api.TextToSpeechFormAi('Yummy! Thank you')
-                setText('Yummy! Thank you')
-                playSound(sound?.audio_data)
+                setAnimation(animation);
+                setCurrentAnimation(null);
+                const sound = await api.getSpeech('market_item_purchase');
+                setText(sound[0]?.text);
+                playSound(sound[0]?.audio);
             }
             func()
         } else {

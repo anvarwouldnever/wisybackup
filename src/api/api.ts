@@ -16,7 +16,7 @@ class Api {
                 return true
             }
         } catch (error) {
-            return error.response.data.message;
+            return error?.response?.data?.message;
         }
     }
 
@@ -40,7 +40,7 @@ class Api {
     }
 
     async resetPassword(email: string, token: string, password: string, password_confirmatior: string) {
-        console.log(email, token, password, password_confirmatior)
+        // console.log(email, token, password, password_confirmatior)
         try {
             const response = await axios.post(`${this.baseUrl}/auth/reset-password`, {
                 email: email,
@@ -92,7 +92,7 @@ class Api {
                     },
                 }
             );
-            console.log(response.data)
+            // console.log(response.data)
             if (response.status === 201) {
                 const children = await this.getChildren(token)
                 return children
@@ -269,7 +269,7 @@ class Api {
             })
             return response.data
         } catch (error) {
-            console.log(error.response.data.message)
+            console.log(error.response.data)
         }
     }
 
@@ -293,8 +293,7 @@ class Api {
             // console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error.response)
-            console.log(error.response.data.message)
+            console.log(error.response.data)
         }
     }
 
@@ -310,7 +309,7 @@ class Api {
             })
             return response.data.data
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error.response.data.message)
         }
     }
     
@@ -345,34 +344,47 @@ class Api {
         }
     }
 
-    async TextToSpeechFormAi(text: string) {
+    // async TextToSpeechFormAi(text: string) {
+    //     try {
+    //         const params = new URLSearchParams();
+    //         params.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
+    //         params.append('text', `${text}`);
+    //         // params.append('out_lang', 'en');
+    //         // params.append('save_audio', 'false');
+    //         // params.append('tts_model', 'tts-1');
+    //         // params.append('speed', '1');
+    //         // params.append('voice', 'echo');
+    //         // params.append('play_sound', 'false');
+    //         params.append('compress_audio', 'true');
+    //         params.append('audio_format', 'mp3');
+    
+    //         const response = await axios.post(
+    //             'https://aimywisy.hostweb.uz/api/v1/speech/generate',
+    //             params,
+    //             {
+    //                 headers: {
+    //                     'Content-Type': 'application/x-www-form-urlencoded'
+    //                 }
+    //             }
+    //         );
+    
+    //         return response.data;
+    //     } catch (error) {
+    //         console.log(error.response);
+    //         console.log(error.response?.data);
+    //     }
+    // }
+
+    async getSpeech(name: any) {
         try {
-            const params = new URLSearchParams();
-            params.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
-            params.append('text', `${text}`);
-            // params.append('out_lang', 'en');
-            // params.append('save_audio', 'false');
-            // params.append('tts_model', 'tts-1');
-            // params.append('speed', '1');
-            // params.append('voice', 'echo');
-            // params.append('play_sound', 'false');
-            params.append('compress_audio', 'true');
-            params.append('audio_format', 'mp3');
-    
-            const response = await axios.post(
-                'https://aimywisy.hostweb.uz/api/v1/speech/generate',
-                params,
-                {
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
-                    }
+            const response = await axios.get(`${this.baseUrl}/speeches`, {
+                params: {
+                    category: name
                 }
-            );
-    
-            return response.data;
+            })
+            return response.data?.data;
         } catch (error) {
-            console.log(error.response);
-            console.log(error.response?.data);
+            console.log(error)
         }
     }
 
@@ -458,9 +470,10 @@ class Api {
                     'X-localization': 'en'
                 },
             })
+            console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error.response.data.message)
+            console.log(error.response.data)
         }
     }
 
