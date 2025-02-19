@@ -10,13 +10,17 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 const LanguageScreen = () => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [chosenLang, setChosenLang] = useState(null)
-    const navigation = useNavigation()
+    const [chosenLang, setChosenLang] = useState(null);
+    const navigation = useNavigation();
 
-    const setLanguage = (language, tag) => {
-        setChosenLang(language);
-        store.setLanguage(tag)
-    };
+    // const setLanguage = (language, tag) => {
+    //     setChosenLang(language);
+    // };
+
+    const func = async() => {
+        await store.setLanguage(chosenLang?.tag)
+        navigation.navigate("WelcomeScreen")
+    }
 
     useFocusEffect(
         useCallback(() => {
@@ -28,18 +32,13 @@ const LanguageScreen = () => {
     );
 
     const langs = [
-        { name: "English", tag: "en" },  // Уже указан
-        { name: "Latvian", tag: "lv" },  // Уже указан
-        { name: "Spanish", tag: "es" },  // Испанский
-        { name: "French", tag: "fr" },   // Французский
-        { name: "Russian", tag: "ru" },  // Уже указан
-        { name: "Swedish", tag: "sv" },  // Шведский
-        { name: "Danish", tag: "da" },   // Датский
+        { name: "English", tag: "en" },
+        { name: "Latvian", tag: "lv" }
     ];
 
     const renderItem = ({ item }) => {
         return (
-            <TouchableOpacity activeOpacity={0.5} onPress={() => setLanguage(item.name, item.tag)} style={{borderWidth: 1, opacity: chosenLang === null? 1 : chosenLang === item.name? 1 : 0.5, borderColor: chosenLang === null? '#E5E5E5' : chosenLang === item.name? '#22222' : '#E5E5E5', width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', justifyContent: 'center', alignSelf: 'center', borderRadius: 100}}>
+            <TouchableOpacity activeOpacity={0.5} onPress={() => setChosenLang(item)} style={{borderWidth: 1, opacity: chosenLang === null? 1 : chosenLang.name === item.name? 1 : 0.5, borderColor: chosenLang === null? '#E5E5E5' : chosenLang.name === item.name? '#22222' : '#E5E5E5', width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', justifyContent: 'center', alignSelf: 'center', borderRadius: 100}}>
                 <Text style={{fontSize: windowWidth * (14 / 360), color: '#222222', fontWeight: '600'}}>{item.name}</Text>
             </TouchableOpacity>
         )
@@ -60,8 +59,8 @@ const LanguageScreen = () => {
                         contentContainerStyle={{alignSelf: 'center', gap: windowHeight * (12 / 800)}}
                     />
                 </View>
-                <TouchableOpacity onPress={chosenLang === null? () => {return} : () => navigation.navigate("WelcomeScreen")} style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignSelf: 'center', borderRadius: 100, opacity: chosenLang === null? 0.5 : 1, backgroundColor: '#504297', justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{fontSize: windowWidth * (14 / 360), color: 'white', fontWeight: '600'}}>{translations[store.language]?.continue ?? "Continue"}</Text>
+                <TouchableOpacity onPress={chosenLang === null? () => {return} : () => func()} style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignSelf: 'center', borderRadius: 100, opacity: chosenLang === null? 0.5 : 1, backgroundColor: '#504297', justifyContent: 'center', alignItems: 'center'}}>
+                    <Text style={{fontSize: windowWidth * (14 / 360), color: 'white', fontWeight: '600'}}>{translations[chosenLang?.tag]?.continue ?? "Continue"}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>

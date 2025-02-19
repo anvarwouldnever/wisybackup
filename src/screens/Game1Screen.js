@@ -16,34 +16,35 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import useTimer from '../hooks/useTimer';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { playSound } from '../hooks/usePlayBase64Audio';
+import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars }) => {
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio }) => {
 
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
-                                        const func = async () => {
-                                            try {
-                                                await playSound(data?.content?.speech);
-                                            } catch (error) {
-                                                console.error("Ошибка при воспроизведении звука:", error);
-                                            } finally {
-                                                setText(null);
-                                            }
-                                        };
+        const func = async () => {
+            try {
+                await playSound(data?.content?.speech);
+            } catch (error) {
+                console.error("Ошибка при воспроизведении звука:", error);
+            } finally {
+                setText(null);
+            }
+        };
                                     
-                                        func();
-                                    }, [data?.content?.speech]);
+        func();
+    }, [data?.content?.speech]);
                                 
-                                    const playVoice = async (sound) => {
-                                        try {
-                                            await playSound(sound);
-                                        } catch (error) {
-                                            console.error("Ошибка при воспроизведении звука:", error);
-                                        } finally {
-                                            setText(null);
-                                        }
-                                    };
+    const playVoice = async (sound) => {
+        try {
+            await playSound(sound);
+        } catch (error) {
+            console.error("Ошибка при воспроизведении звука:", error);
+        } finally {
+            setText(null);
+        }
+    };
 
     useEffect(() => {
     
@@ -130,7 +131,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             const lead_time = getTime();
             stop();
             setThinking(true)
-            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, store.token, lead_time)
+            const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, store.token, lead_time, store.language)
             return requestStatus    
         } catch (error) {
             console.log(error)   

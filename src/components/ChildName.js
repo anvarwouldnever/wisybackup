@@ -19,7 +19,7 @@ const ChildName = ({ setKeyboardActive, setOptions, options }) => {
                 style={{fontWeight: '600', fontSize: height * (14 / 800), textAlign: 'center', borderRadius: 100, width: width * 0.8666, height: height * (56 / 800), borderColor: '#E5E5E5', borderWidth: 1, padding: height * (16 / 800)}}
                 onFocus={() => setKeyboardActive(true)}
                 keyboardAppearance='dark'
-                placeholder={store.addchildui.child_name_placeholder}
+                placeholder={store?.addchildui?.child_name_placeholder}
                 placeholderTextColor={'#B1B1B1'}
                 onEndEditing={() => setKeyboardActive(false)}
                 onChangeText={(text) => setOptions(prevOptions => ({

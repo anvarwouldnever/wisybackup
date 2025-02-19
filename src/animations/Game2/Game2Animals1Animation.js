@@ -7,9 +7,14 @@ import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 import speaker from '../../images/tabler_speakerphone.png'
 import { playSound } from "../../hooks/usePlayBase64Audio";
+import { newPlaySound } from "../../hooks/newPlaySound";
+import store from "../../store/store";
+import { Audio } from "expo-av";
+import { playSound2 } from "../../hooks/usePlaySound2";
 
 const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    console.log(audio)
 
     const [key, setKey] = useState(0);
 
@@ -87,13 +92,13 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
                     <View style={{minWidth: windowWidth * (78 / 800), maxWidth: windowWidth * (500 / 800), height: windowHeight * (40 / 360), padding: windowHeight * (12 / 360), borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{color: id?.result == 'correct'? '#222222' : id?.result == 'wrong'? 'white' : '#222222', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), fontWeight: '500', textAlign: 'center'}}>{animal}</Text>
                     </View>
-                    <TouchableOpacity onPress={() => playSound(audio)} style={{minWidth: windowWidth * (46 / 800), maxWidth: windowWidth * (40 / 800), backgroundColor: '#B3ABDB', alignItems: 'center', justifyContent: 'center', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0}}>
+                    <TouchableOpacity onPress={() => playSound2(audio)} style={{minWidth: windowWidth * (46 / 800), maxWidth: windowWidth * (40 / 800), backgroundColor: '#B3ABDB', alignItems: 'center', justifyContent: 'center', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0}}>
                         <Image source={speaker} style={{width: windowWidth * (24 / 800), height:  windowWidth * (24 / 800)}}/>
                     </TouchableOpacity>  
                 </View>
                 :
                 <View style={{backgroundColor: 'white', borderRadius: 100,}}>
-                    <View style={{width: windowWidth * (192 / 800), padding: windowHeight * (12 / 360), borderRadius: 100, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{maxWidth: windowWidth * (500 / 800), minWidth: windowWidth * (192 / 800), padding: windowHeight * (12 / 360), borderRadius: 100, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{color: id?.result == 'correct'? '#222222' : id?.result == 'wrong'? 'white' : '#222222', fontSize: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (20 / 360), fontWeight: '500', textAlign: 'center'}}>{animal}</Text>
                     </View> 
                 </View>}

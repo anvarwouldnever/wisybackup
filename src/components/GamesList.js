@@ -14,7 +14,7 @@ import api from "../api/api";
 import { playSound } from "../hooks/usePlayBase64Audio";
 import md5 from 'react-native-md5';
 
-const GamesCollections = ({ setSubCollections, subCollections, setName, activeCategory, setText }) => {
+const GamesCollections = ({ setSubCollections, subCollections, setName, activeCategory, setText, wisySpeaking, setWisySpeaking }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [collectionIndex, setCollectionIndex] = useState(0);
@@ -22,11 +22,14 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
     const func = async() => {
         try {
-            const sound = await api.getSpeech('enter_subcollections_screen');
+            setWisySpeaking(true)
+            const sound = await api.getSpeech('enter_subcollections_screen', store.language);
             setText(sound[0]?.text)
-            playSound(sound[0]?.audio);
+            await playSound(sound[0]?.audio);
         } catch (error) {
             console.log(error);
+        } finally {
+            setWisySpeaking(false)
         }
     };
 
@@ -50,11 +53,14 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
     const func3 = async() => {
         try {
-            const sound = await api.getSpeech('locked_subcollection_attempt');
-            playSound(sound[0]?.audio);
+            setWisySpeaking(true)
+            const sound = await api.getSpeech('locked_subcollection_attempt', store.language);
             setText(sound[0]?.text)
+            await playSound(sound[0]?.audio);
         } catch (error) {
             console.log(error);
+        } finally {
+            setWisySpeaking(false)
         }
     };
 
@@ -189,7 +195,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 <TouchableOpacity
                     onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
+                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, introAudio: item?.intro_speech_audio, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 
                         : () => func3()}
                     style={{

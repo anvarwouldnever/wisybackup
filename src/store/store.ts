@@ -1,4 +1,4 @@
-import { autorun, makeAutoObservable, runInAction } from "mobx";
+import { autorun, makeAutoObservable, runInAction, reaction } from "mobx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from '@react-native-community/netinfo';
 import api from '../api/api';
@@ -21,32 +21,94 @@ class Store {
     connectionState = false;
     categories = [];
     messages = [];
-    language = 'en';
+    language = null;
     holdEmail = null;
     playinVoiceMessageId = null;
-
+    voiceInstructions = true;
 
     constructor() {
         makeAutoObservable(this);
         this.initializeStore();
 
-        autorun(() => {
-            if (this.connectionState && this.playingChildId !== null && this.token !== null) {
-                this.loadCategories();
-                this.loadMessages()
+        reaction(
+            () => this.language,
+            async () => {
+                const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+                if (this.language !== null) {
+                    console.log('ran reaction')
+                    if (this.connectionState && this.playingChildId !== null && this.token !== null) {
+                        console.log("ran collections inside lang reaction");
+                        await this.loadAttributes();
+                        await delay(1000)
+                        await this.loadCategories();
+                        await delay(7000);
+                    }
+    
+                    await this.loadMarket();
+                    await delay(2000);
+    
+                    await this.loadSlides();
+                    await delay(2000);
+    
+                    await this.loadAddChildUI();
+                    await delay(2000);
+                }
             }
-        });
+        );
+
+        reaction(
+            () => ({
+              connectionState: this.connectionState,
+              playingChildId: this.playingChildId,
+              token: this.token
+            }),
+            async ({ connectionState, playingChildId, token }) => {
+              if (connectionState && playingChildId !== null && token !== null) {
+                console.log("ran collections reaction");
+                await this.loadCategories();
+                await this.loadMessages();
+                await this.loadAttributes();
+              }
+            }
+          );
+
+        // autorun(() => {
+        //     if (this.connectionState && this.playingChildId !== null && this.token !== null) {
+        //         console.log('ran autorun')
+        //         this.loadCategories();
+        //         this.loadMessages();
+        //     }
+        // });
     }
 
     async initializeStore() {
-        await this.determineConnection()
-        await this.loadData()
+        console.log('init');
+        await this.determineConnection();
+        await this.loadData();
+    }
+
+    async loadData() {
+        try {
+            console.log('ran default load')
+            await this.loadDataFromStorageToken();
+            await this.loadDataFromStorageLanguage();
+            await this.loadDataFromStorageChildren();
+            await this.loadDataFromStorageVoiceInstructions();
+            await this.loadAvatars();
+        } catch (error) {
+            console.log(error)
+        } finally {
+            runInAction(() => {
+                this.loading = false; 
+            });
+        }
     }
 
     async loadAddChildUI() {
         if (this.connectionState) {
             try {
-                const request = await api.getAddChildUI()
+                const request = await api.getAddChildUI(this.language)
                 runInAction(() => {
                     this.addchildui = request;
                 })
@@ -59,7 +121,7 @@ class Store {
     async loadSlides() {
         if (this.connectionState) {
             try {
-                const request = await api.getSlides()
+                const request = await api.getSlides(this.language)
                 runInAction(() => {
                     this.slides = request;
                 })
@@ -77,7 +139,7 @@ class Store {
                     this.avatars = request;
                 })
             } catch (error) {
-                
+                console.log(error)
             }
         }
     }
@@ -85,7 +147,7 @@ class Store {
     async loadMarket() {
         if(this.connectionState) {
             try {
-                const request = await api.getMarketCategories(this.token);
+                const request = await api.getMarketCategories(this.token, this.language);
                 runInAction(() => {
                     this.market = request.map((market: any) => ({
                         ...market,
@@ -105,7 +167,7 @@ class Store {
             try {
                 const marketItemsPromises = this.market.map(async (category: any) => {
                     try {
-                        const response = await api.getMarketItems({ id: category.id, token: this.token });
+                        const response = await api.getMarketItems({ id: category.id, token: this.token, lang: this.language });
     
                         // Просто возвращаем данные, не парся анимации
                         return { id: category.id, items: response };
@@ -135,7 +197,7 @@ class Store {
     async loadAttributes() {
         if (this.connectionState) {
             try {
-                const request = await api.getAttributes(this.token);
+                const request = await api.getAttributes(this.token, this.language);
     
                 // Асинхронно загружаем и парсим SVG для каждого элемента с .svg
                 const parsedAttributes = await Promise.all(
@@ -156,25 +218,6 @@ class Store {
             }
         }
     }
-    
-
-    async loadData() {
-        try {
-            await this.loadDataFromStorageToken();
-            await this.loadDataFromStorageChildren()
-            await this.loadSlides();
-            await this.loadAddChildUI();
-            await this.loadMarket();
-            await this.loadAttributes();
-            await this.loadAvatars();
-        } catch (error) {
-            console.log(error)
-        } finally {
-            runInAction(() => {
-                this.loading = false 
-            });
-        }
-    }
 
     async loadDataFromStorageToken() {
         const usertoken = await this.loadDataFromStorage('token');
@@ -184,10 +227,32 @@ class Store {
         return this.token
     }
 
+    async loadDataFromStorageLanguage() {
+        const lang = await this.loadDataFromStorage('lang');
+        console.log(lang)
+        runInAction(() => {
+            if (lang) {
+                this.language = lang
+            }
+        });
+        return this.language;
+    }
+
+    async loadDataFromStorageVoiceInstructions() {
+        const voice = await this.loadDataFromStorage('voiceInstruction');
+        console.log(voice)
+        runInAction(() => {
+            if (voice !== null && voice !== undefined) {
+                this.voiceInstructions = voice
+            }
+        });
+        return this.voiceInstructions
+    }
+
     async loadDataFromStorageChildren() {
         try {
             if (this.connectionState && this.token != null) {
-                const children = await api.getChildren(this.token)
+                const children = await api.getChildren(this.token, this.language)
                 this.setChildren(children.data)
             } else if (!this.connectionState) {
                 const children = await this.loadDataFromStorage('children');
@@ -201,9 +266,10 @@ class Store {
     }
 
     async loadCategories() {
+        console.log('ran cats solo')
         if (this.connectionState) {
             try {
-                const request = await api.getCategories(this.token);
+                const request = await api.getCategories(this.token, this.language);
     
                 // Сохраняем категории в `this.categories`
                 runInAction(() => {
@@ -226,16 +292,16 @@ class Store {
             try {
                 // Создаём массив запросов для загрузки коллекций по каждой категории
                 const collectionsRequests = this.categories.map(async (category) => {
-                    const collectionsResponse = await api.getCollections({ id: category.id, child_id: this.playingChildId, token: this.token });
+                    const collectionsResponse = await api.getCollections({ id: category.id, child_id: this.playingChildId, token: this.token, lang: this.language });
     
                     // Загружаем подколлекции и задачи для каждой коллекции
                     const collectionsWithSubCollections = await Promise.allSettled(
                         collectionsResponse.data.map(async (collection) => {
-                            const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId, token: this.token });
+                            const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId, token: this.token, lang: this.language });
     
                             const subCollectionsWithTasks = await Promise.allSettled(
                                 subCollectionsResponse.data.map(async (subCollection) => {
-                                    const tasksResponse = await api.getTasks({ id: subCollection.id, token: this.token });
+                                    const tasksResponse = await api.getTasks({ id: subCollection.id, token: this.token}, this.language );
                                     return {
                                         ...subCollection,
                                         tasks: tasksResponse,
@@ -276,7 +342,7 @@ class Store {
     async loadMessages() {
         if (this.connectionState) {
             try {
-                const response = await api.getMessages(this.playingChildId.id, this.token);
+                const response = await api.getMessages(this.playingChildId.id, this.token, this.language );
                 // console.log(response)
     
                 const formattedMessages = response.data.map(item => ({
@@ -382,9 +448,19 @@ class Store {
         })
         if (token !== null) {
             await AsyncStorage.setItem('token', JSON.stringify(token));
-            //console.log(token)
         } else {
             await AsyncStorage.removeItem('token');
+        }
+    }
+
+    async setLanguage(language: string) {
+        runInAction(() => {
+            this.language = language;
+        });
+        if (language !== null) {
+            await AsyncStorage.setItem('lang', JSON.stringify(language));
+        } else {
+            await AsyncStorage.removeItem('lang');
         }
     }
 
@@ -443,16 +519,15 @@ class Store {
         });
     }
 
-    async setCatsChanged(bool: boolean) {
+    async setVoiceInstructions(bool: boolean) {
         runInAction(() => {
-            this.categoriesChanged = bool;
+            this.voiceInstructions = bool;
         });
-    }
-
-    async setLanguage(language: string) {
-        runInAction(() => {
-            this.language = language;
-        });
+        if (bool !== null) {
+            await AsyncStorage.setItem('voiceInstruction', JSON.stringify(bool));
+        } else {
+            await AsyncStorage.removeItem('voiceInstruction');
+        }
     }
 
     async setHoldEmail(email: string) {

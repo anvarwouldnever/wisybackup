@@ -3,19 +3,23 @@ import { View, TouchableOpacity, Image, Text, useWindowDimensions, Platform } fr
 import arrow from '../../images/arrow-left.png';
 import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
+import store from "../../store/store";
 
-const HeaderCollection = ({ setSubCollections, name, setText }) => {
+const HeaderCollection = ({ setSubCollections, name, setText, setWisySpeaking }) => {
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const func = async() => {
             setSubCollections(null);
             try {
-                const response = await api.getSpeech('enter_collections_screen')
-                playSound(response[0]?.audio)
+                setWisySpeaking(true)
+                const response = await api.getSpeech('enter_collections_screen', store.language)
                 setText(response[0]?.text)
+                await playSound(response[0]?.audio)
             } catch (error) {
                 console.log(error)
+            } finally {
+                setWisySpeaking(false)
             }
         }
 

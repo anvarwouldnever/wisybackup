@@ -14,6 +14,7 @@ import ChatMicroAnimation from "../animations/ChatMicroAnimation";
 import ChatFlatlist from "./Chat/ChatFlatlist";
 import ChatRecsFlatlist from "./Chat/ChatRecsFlatlist";
 import SendInput from "./Chat/SendInput";
+import translations from "../../localization";
 
 const ChatScreen = () => {
 
@@ -32,7 +33,7 @@ const ChatScreen = () => {
         }, 500);
 
         try {
-            const response = await api.sendMessage({child_id: store.playingChildId.id, message: currentText, token: store.token, isText: true});
+            const response = await api.sendMessage({child_id: store.playingChildId.id, message: currentText, token: store.token, isText: true, lang: store.language});
             await store.setMessages({type: 'text', text: response?.data?.content, author: 'MyWisy'});
             setTimeout(() => {
                 if (firstMessageRef?.current) {
@@ -63,7 +64,7 @@ const ChatScreen = () => {
             <View style={{gap: windowWidth * (4 / 360), width: windowWidth * (328 / 360), height: windowHeight * (75 / 932), backgroundColor: 'white', flexDirection: 'row', alignItems: 'flex-end', position: 'absolute', top: 0}}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{flexDirection: 'row', alignItems: 'center'}}>
                     <Image source={narrowleft} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
-                    <Text style={{fontWeight: '600', color: '#222222', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 2}}>Back</Text>
+                    <Text style={{fontWeight: '600', color: '#222222', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 2}}>{translations?.[store.language]?.back}</Text>
                 </TouchableOpacity>
             </View>
         </View>

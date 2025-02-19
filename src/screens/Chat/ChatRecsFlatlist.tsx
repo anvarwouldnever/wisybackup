@@ -1,16 +1,22 @@
 import { View, Text, FlatList, useWindowDimensions, TouchableOpacity,  } from 'react-native'
 import React, { useState } from 'react'
+import store from '../../store/store';
 
 const ChatRecsFlatlist = ({ sendMessage }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-    const [recs, setRecs] = useState([
-            {header: 'I’m interested in summary of the previous week.'},
-            {header: 'How did my child perform this week?'},
-            {header: 'Which areas my child could improve on?'},
-            {header: 'How much time my child spent learning this week?'},
-        ])
+    const recs = store.language === 'lv' ? [
+        { header: 'Es vēlos iepriekšējās nedēļas kopsavilkumu.' },
+        { header: 'Kā mans bērns šonedēļ ir veicies?' },
+        { header: 'Kuras jomas manam bērnam būtu jāuzlabo?' },
+        { header: 'Cik daudz laika mans bērns šonedēļ pavadīja mācoties?' }
+    ] : [
+        { header: 'I’m interested in summary of the previous week.' },
+        { header: 'How did my child perform this week?' },
+        { header: 'Which areas my child could improve on?' },
+        { header: 'How much time my child spent learning this week?' }
+    ];
 
         const renderItem = ({ item }) => {
         

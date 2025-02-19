@@ -10,8 +10,10 @@ import fetchAnimation from "./FetchLottie";
 import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
+import standingWisy from '../../lotties/standingWisy.json'
+import speakingAndStanding from '../../lotties/speakingAndStanding.json'
 
-const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation, text, setText }) => {
+const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation, text, setText, wisySpeaking, setWisySpeaking }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const animationRef = useRef<LottieView>(null);
@@ -21,7 +23,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
         if (marketCollections) {
             const func = async() => {
                 try {
-                    const sound = await api.getSpeech('open_market')
+                    const sound = await api.getSpeech('open_market', store.language)
                     playSound(sound[0]?.audio)
                     setText(sound[0]?.text)
                 } catch (error) {
@@ -33,13 +35,26 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
     }, [marketCollections])
 
     useEffect(() => {
+        if (wisySpeaking) {
+            setTimeout(() => {
+                animationRef.current?.play()
+            }, 1);
+        } else {
+            animationRef.current?.reset()
+        }
+    }, [wisySpeaking])
+
+    useEffect(() => {
         const func = async() => {
             try {
-                const sound = await api.getSpeech('enter_collections_screen')
-                playSound(sound[0]?.audio)
+                setWisySpeaking(true)
+                const sound = await api.getSpeech('enter_collections_screen', store.language)
                 setText(sound[0]?.text)
+                await playSound(sound[0]?.audio)
             } catch (error) {
                 console.log(error)
+            } finally {
+                setWisySpeaking(false)
             }
         }
         func()
@@ -52,7 +67,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                 const animation = await fetchAnimation(currentAnimation?.animation)
                 setAnimation(animation);
                 setCurrentAnimation(null);
-                const sound = await api.getSpeech('market_item_purchase');
+                const sound = await api.getSpeech('market_item_purchase', store.language);
                 setText(sound[0]?.text);
                 playSound(sound[0]?.audio);
             }
@@ -89,12 +104,33 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                         style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
                     />
                     :
+                    marketCollections?
                     <LottieView
                         onAnimationLoaded={() => {
                             animationRef.current?.play()
                         }}
                         ref={animationRef}
                         source={lot}
+                        loop={true}
+                        autoPlay={true}
+                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
+                    />
+                    :
+                    !marketCollections && wisySpeaking?
+                    <LottieView
+                        ref={animationRef}
+                        source={speakingAndStanding}
+                        loop={true}
+                        autoPlay={true}
+                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
+                    />
+                    :
+                    <LottieView
+                        onAnimationLoaded={() => {
+                            animationRef.current?.play()
+                        }}
+                        ref={animationRef}
+                        source={standingWisy}
                         loop={true}
                         autoPlay={true}
                         style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}

@@ -13,8 +13,11 @@ import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import api from '../api/api'
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
+import LottieView from 'lottie-react-native'
+import speakingWisy from '../lotties/headv9.json'
+import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars }) => {
+const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio }) => {
 
     // console.log(data.content.second_image, data.content.first_image)
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -29,29 +32,53 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
+    const [wisySpeaking, setWisySpeaking] = useState(false)
+        const lottieRef = useRef(null);
+    
+        useEffect(() => {
+            if (wisySpeaking) {
+                setTimeout(() => {
+                    lottieRef.current?.play();
+                }, 1);
+            } else {
+                lottieRef.current?.reset();
+            }
+        }, [wisySpeaking]);
+
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
-                    const func = async () => {
-                        try {
-                            await playSound(data?.content?.speech);
-                        } catch (error) {
-                            console.error("Ошибка при воспроизведении звука:", error);
-                        } finally {
-                            setText(null);
-                        }
-                    };
-                
-                    func();
-                }, [data?.content?.speech]);
+            const introPlay = async() => {
+                try {
+                    await playSoundWithoutStopping(introAudio)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    try {
+                        setText(data?.content?.question)
+                        setWisySpeaking(true);
+                        await playSound(data?.content?.speech);
+                    } catch (error) {
+                        console.error("cОшибка при воспроизведении звука:", error);
+                    } finally {
+                        setText(null);
+                        setWisySpeaking(false)
+                    }
+                }
+            }
+    
+            introPlay()
+        }, [data?.content?.speech]);
             
                 const playVoice = async (sound) => {
                     try {
+                        setWisySpeaking(true)
                         await playSound(sound);
                     } catch (error) {
                         console.error("Ошибка при воспроизведении звука:", error);
                     } finally {
                         setText(null);
+                        setWisySpeaking(false)
                     }
                 };
 
@@ -133,7 +160,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             setId(null)
             const image = await saveAndShareImage()
             setThinking(true)
-            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token})
+            const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token, lang: store.language})
             playVoice(response?.sound)
             if (response && response.stars && response.success) {
                 reset()
@@ -249,7 +276,18 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             </View>}
             <View style={{width: windowWidth * (730 / 800), height: Platform.isPad? windowWidth * (64 / 800) : 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', bottom: 0}}>
                 <View style={{width: 'auto', height: Platform.isPad? windowWidth * (150 / 800) : windowWidth * (85 / 800), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
-                    <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
+                    <LottieView
+                        ref={lottieRef}
+                        resizeMode="cover"
+                        source={speakingWisy}
+                        style={{
+                            width: windowWidth * (64 / 800),
+                            height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
+                            aspectRatio: 64 / 64,
+                        }}
+                        autoPlay={false}
+                        loop={true}
+                    />
                     <Game3TextAnimation text={text} thinking={thinking}/>
                 </View>
                 {tutorial && <TouchableOpacity onPress={() => setTutorial(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>

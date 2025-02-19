@@ -7,6 +7,7 @@ import EmailModal from '../components/EmailModal';
 import store from '../store/store';
 import api from '../api/api';
 import image from '../images/noti-img 2 (1).png';
+import translations from '../../localization';
 
 const EmailConfirmScreen = () => {
 
@@ -88,7 +89,7 @@ const EmailConfirmScreen = () => {
               height: height * (28 / 800),
             }}
           >
-            Follow instructions to proceed
+            {translations?.[store.language]?.followInstructions}
           </Text>
           <Text
             style={{
@@ -101,8 +102,7 @@ const EmailConfirmScreen = () => {
               textAlign: 'center',
             }}
           >
-            There’s a link sent to your email address. Please open it on this
-            device.
+            {translations?.[store.language]?.thereIsALink}
           </Text>
         </View>
       </View>
@@ -137,7 +137,7 @@ const EmailConfirmScreen = () => {
               lineHeight: height * (24 / 800),
             }}
           >
-            Open inbox
+            {translations?.[store.language]?.openInbox}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -163,8 +163,8 @@ const EmailConfirmScreen = () => {
             }}
           >
             {isButtonDisabled
-              ? `Resend code in 00:${timer.toString().padStart(2, '0')}`
-              : 'Resend code'}
+              ? `${translations?.[store.language]?.resendCodeIn} 00:${timer.toString().padStart(2, '0')}`
+              : `${translations?.[store.language]?.resendCode}`}
           </Text>
         </TouchableOpacity>
       </View>

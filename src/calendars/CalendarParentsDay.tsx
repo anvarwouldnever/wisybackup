@@ -1,7 +1,56 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
-import { Calendar } from 'react-native-calendars';
+import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
+import store from '../store/store';
+import translations from '../../localization';
+import { observer } from 'mobx-react-lite';
+
+LocaleConfig.locales['lv'] = {
+    monthNames: [
+      'Janvāris',
+      'Februāris',
+      'Marts',
+      'Aprīlis',
+      'Maijs',
+      'Jūnijs',
+      'Jūlijs',
+      'Augusts',
+      'Septembris',
+      'Oktobris',
+      'Novembris',
+      'Decembris'
+    ],
+    monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jūn.', 'Jūl.', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dec.'],
+    dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
+    dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
+    today: "Šodien"
+  };
+  
+  // Локаль для английского языка
+  LocaleConfig.locales['en'] = {
+    monthNames: [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
+    ],
+    monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
+    dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+    dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
+    today: "Today"
+  };
+  
+  // Устанавливаем дефолтный язык как латышский (или английский)
+  LocaleConfig.defaultLocale = store.language;
 
 const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
     const [selectedDate, setSelectedDate] = useState(null);
@@ -58,6 +107,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                         selectedColor: '#504297',
                     },
                 }}
+                locale={store.language}
             />
             <View
                 style={{
@@ -89,7 +139,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                             fontWeight: '400',
                         }}
                     >
-                        Cancel
+                        {translations?.[store.language]?.cancel}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -109,7 +159,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                             fontWeight: '600',
                         }}
                     >
-                        Done
+                        {translations?.[store.language]?.done}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -117,4 +167,4 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
     );
 };
 
-export default CalendarParentsDay;
+export default observer(CalendarParentsDay);

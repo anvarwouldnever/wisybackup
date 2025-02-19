@@ -2,6 +2,8 @@ import { View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, Ke
 import React from 'react'
 import ChatMicroAnimation from '../../animations/ChatMicroAnimation';
 import arrow from '../../images/arrowupblack.png'
+import translations from '../../../localization';
+import store from '../../store/store';
 
 const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMessageRef }) => {
 
@@ -11,7 +13,7 @@ const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMes
         <View style={{width: windowWidth * (328 / 360), height: windowHeight * (40 / 800), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
                     <TextInput 
                         style={{borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, width: windowWidth * (280 / 360), paddingHorizontal: windowHeight * (16 / 800), paddingVertical: windowHeight * (8 / 800), fontSize: windowHeight * (14 / 800)}}
-                        placeholder="Message"
+                        placeholder={translations?.[store.language]?.message}
                         placeholderTextColor={'#B1B1B1'}
                         onChangeText={(text) => setText(text)}
                         keyboardAppearance="dark"

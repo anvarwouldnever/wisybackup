@@ -56,7 +56,7 @@ const BottomTabs = ({ screen, setScreen }) => {
             return null;
         }
     };
-    
+
 
     const attributes = store.attributes
 
@@ -98,7 +98,6 @@ const BottomTabs = ({ screen, setScreen }) => {
                         }}
                     />
                 )}
-                {/* <Image source={screen === item.name? brainActive : brain} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/> */}
             </TouchableOpacity>
         )
     }
@@ -114,7 +113,7 @@ const BottomTabs = ({ screen, setScreen }) => {
                     horizontal
                 />
                 <TouchableOpacity activeOpacity={1} onPress={() => setScreen('Settings')} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800)}}>
-                    <Image source={screen === 'Settings'? settingsActive : settings} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
+                    <Image source={screen === 'Settings' || screen === 'Lang'? settingsActive : settings} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
                 </TouchableOpacity>
             </View>
             <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: windowWidth * (112 / 360), height: windowHeight * (56 / 800), gap: windowHeight * (8 / 800), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>

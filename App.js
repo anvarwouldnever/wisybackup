@@ -51,7 +51,7 @@ const App = () => {
 
   const navigationRef = useRef(null);
 
-  // console.log(store.children)
+  // console.log(store.language)
 
   useEffect(() => {
     const handleDeepLink = async (url) => {

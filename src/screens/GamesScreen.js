@@ -28,6 +28,7 @@ const GamesScreen = () => {
     const [modal, setModal] = useState(false);
     const [name, setName] = useState('');
     const [text, setText] = useState(null);
+    const [wisySpeaking, setWisySpeaking] = useState(false);
 
     useFocusEffect(
         useCallback(() => {
@@ -41,19 +42,19 @@ const GamesScreen = () => {
     return (
         <View style={{flex: 1, backgroundColor: 'white'}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
-                <WisyPanel setText={setText} text={text} setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
+                <WisyPanel wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} text={text} setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
                 {marketCollections != null &&
-                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
+                    <MarketCollections wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {subCollections != null && marketCollections == null? <HeaderCollection setText={setText} setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {subCollections != null && marketCollections == null? <HeaderCollection wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} setSubCollections={setSubCollections} name={name}/> : <HeaderMenu wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <Stars />
                 <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
 
-                {marketCollections == null && <GameCategories setText={setText} activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
+                {marketCollections == null && <GameCategories wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
 
-                {marketCollections == null && <GamesCollections setText={setText} activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
+                {marketCollections == null && <GamesCollections wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
                 {modal && <ModalConfirm setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation}/>}
             </LinearGradient>
         </View>

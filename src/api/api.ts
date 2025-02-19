@@ -35,7 +35,7 @@ class Api {
             // console.log(response.data)
             return response.data;
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error.response?.data)
         }
     }
 
@@ -56,15 +56,15 @@ class Api {
         }
     }
 
-    async signIn(email: string, password: string) {
+    async signIn(email: string, password: string, lang: string) {
         try {
             const response = await axios.post(`${this.baseUrl}/auth/login`, {
                 email: email,
                 password: password
             })
             if (response.data.token) {
-                const token = response.data.token
-                const children = await this.getChildren(token)
+                const token = response.data?.token
+                const children = await this.getChildren(token, lang)
                 return { token, children }
             }
             // console.log(response.data)
@@ -74,7 +74,7 @@ class Api {
         }
     }
 
-    async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string) {
+    async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string, lang: string) {
         // console.log(name, avatar, birthday, gender, engagement_time)
         try {
             const response = await axios.post(
@@ -94,7 +94,7 @@ class Api {
             );
             // console.log(response.data)
             if (response.status === 201) {
-                const children = await this.getChildren(token)
+                const children = await this.getChildren(token, lang)
                 return children
             }
         } catch (error) { 
@@ -102,12 +102,12 @@ class Api {
         }
     }
 
-    async getAddChildUI() {
+    async getAddChildUI(lang: string) {
         try {
             const response = await axios.get(`${this.baseUrl}/sign-up-settings`, {
                 headers: {
                     Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
-                    "X-localization": 'en'
+                    "X-localization": `${lang}`
                 }
             })
             return response.data;
@@ -116,12 +116,12 @@ class Api {
         }
     }
 
-    async getSlides() {
+    async getSlides(lang: string) {
         try {
             const response = await axios.get(`${this.baseUrl}/onboardings`, {
                 headers: {
                     Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
-                    "X-localization": 'en'
+                    "X-localization": `${lang}`
                 }
             })
             return response.data.data;
@@ -130,12 +130,13 @@ class Api {
         }
     }
 
-    async getChildren(token: string) {
+    async getChildren(token: string, lang: string) {
         // console.log(`children ${token}`)
         try {
             const response = await axios.get(`${this.baseUrl}/children`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "X-localization": `${lang}`
                 }
             })
             return response.data
@@ -145,11 +146,12 @@ class Api {
         }
     }
 
-    async getMarketCategories(token: string) {
+    async getMarketCategories(token: string, lang: string) {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    "X-localization": `${lang}`
                 }
             })
             return response.data.data
@@ -162,7 +164,8 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories/${param.id}/items`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
+                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    "X-localization": `${param.lang}`
                 }
             })
             return response.data.data
@@ -178,7 +181,7 @@ class Api {
                     Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
                 }
             })
-            return response.data.data
+            return response.data?.data
         } catch (error) {
             console.log(error.response.data)
         }
@@ -192,6 +195,7 @@ class Api {
             {
                 headers: {
                     Authorization: `Bearer ${param.token}`,
+                    "X-localization": `${param.lang}`
                 },
             })
             return response.data
@@ -201,10 +205,11 @@ class Api {
         }
     }
 
-    async getAttributes(token: string) {
+    async getAttributes(token: string, lang: string) {
         const response = await axios.get(`${this.baseUrl}/attributes`, {
             headers: {
-                Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                Authorization: `Bearer ${token}`,
+                "X-localization": `${lang}`
             }
         })
         return response.data.data
@@ -215,6 +220,7 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/attributes/${param.attribute_id}`, {
                 headers: {
                     Authorization: `Bearer ${param.token}`,
+                    "X-localization": `${param.lang}`
                 },
                 params: {
                     child_id: param.child_id,
@@ -242,12 +248,13 @@ class Api {
         }
     }
 
-    async getCategories(token: string) {
+    async getCategories(token: string, lang: string) {
         // console.log(`cats ${token}`)
         try {
             const response = await axios.get(`${this.baseUrl}/categories`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "X-localization": `${lang}`
                 }
             })
             return response.data;
@@ -261,6 +268,7 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/collections`, {
                 headers: {
                     Authorization: `Bearer ${data.token}`,
+                    "X-localization": `${data.lang}`
                 },
                 params: {
                     category_id: data.id,
@@ -279,6 +287,7 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/sub-collections`, {
                 headers: {
                     Authorization: `Bearer ${data.token}`,
+                    "X-localization": `${data.lang}`
                 },
                 params: {
                     collection_id: data.id,
@@ -297,11 +306,12 @@ class Api {
         }
     }
 
-    async getTasks(id: any) {
+    async getTasks(id: any, lang: string) {
         try {
             const response = await axios.get(`${this.baseUrl}/tasks`, {
                 headers: {
                     Authorization: `Bearer ${id.token}`,
+                    "X-localization": `${lang}`
                 },
                 params: {
                     sub_collection_id: id.id
@@ -313,7 +323,7 @@ class Api {
         }
     }
     
-    async answerTask(task_id: string, attempt: string, voice: any, child_id: string, token: string, lead_time: number) {
+    async answerTask(task_id: string, attempt: string, voice: any, child_id: string, token: string, lead_time: number, lang: string) {
         try {
             // console.log(lead_time);
             const formData = new FormData();
@@ -331,6 +341,7 @@ class Api {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     'Content-Type': 'multipart/form-data',
+                    "X-localization": `${lang}`
                 },
             });
             // console.log(response.data)
@@ -344,43 +355,15 @@ class Api {
         }
     }
 
-    // async TextToSpeechFormAi(text: string) {
-    //     try {
-    //         const params = new URLSearchParams();
-    //         params.append('api_key', 'ak-2-DRN5CzKtytffPo0e2j6z5yNhTa-72wdpUYP_oR-HA');
-    //         params.append('text', `${text}`);
-    //         // params.append('out_lang', 'en');
-    //         // params.append('save_audio', 'false');
-    //         // params.append('tts_model', 'tts-1');
-    //         // params.append('speed', '1');
-    //         // params.append('voice', 'echo');
-    //         // params.append('play_sound', 'false');
-    //         params.append('compress_audio', 'true');
-    //         params.append('audio_format', 'mp3');
-    
-    //         const response = await axios.post(
-    //             'https://aimywisy.hostweb.uz/api/v1/speech/generate',
-    //             params,
-    //             {
-    //                 headers: {
-    //                     'Content-Type': 'application/x-www-form-urlencoded'
-    //                 }
-    //             }
-    //         );
-    
-    //         return response.data;
-    //     } catch (error) {
-    //         console.log(error.response);
-    //         console.log(error.response?.data);
-    //     }
-    // }
-
-    async getSpeech(name: any) {
+    async getSpeech(name: any, lang: any) {
         try {
             const response = await axios.get(`${this.baseUrl}/speeches`, {
                 params: {
                     category: name
-                }
+                },
+                headers: {
+                    "X-localization": `${lang}` // Указываем правильный тип контента
+                },
             })
             return response.data?.data;
         } catch (error) {
@@ -401,7 +384,8 @@ class Api {
                     const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
                         headers: {
                             Authorization: `Bearer ${data.token}`,
-                            'Content-Type': 'multipart/form-data', // Указываем правильный тип контента
+                            'Content-Type': 'multipart/form-data',
+                            "X-localization": `${data?.lang}` // Указываем правильный тип контента
                         },
                     });
                     return response.data;
@@ -420,7 +404,8 @@ class Api {
                     const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
                         headers: {
                             Authorization: `Bearer ${data.token}`,
-                            'Content-Type': 'multipart/form-data', // Указываем правильный тип контента
+                            'Content-Type': 'multipart/form-data',
+                            "X-localization": `${data?.lang}` // Указываем правильный тип контента
                         },
                     });
             
@@ -436,12 +421,13 @@ class Api {
         }
     }
 
-    async getMessages(child_id: any, token: any) {
+    async getMessages(child_id: any, token: any, lang: string) {
         // console.log(child_id, token)
         try {
             const response = await axios.get(`${this.baseUrl}/conversation`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    "X-localization": `${lang}`
                 },
                 params: {
                     child_id: child_id
@@ -467,7 +453,7 @@ class Api {
             {
                 headers: {
                     Authorization: `Bearer ${params.token}`,
-                    'X-localization': 'en'
+                    "X-localization": `${params.lang}`
                 },
             })
             console.log(response.data)
@@ -498,7 +484,8 @@ class Api {
                 const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
                     headers: {
                         Authorization: `Bearer ${answer.token}`,
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        "X-localization": `${answer.lang}`
                     },
                 })
                 return response.data

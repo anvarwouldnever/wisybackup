@@ -9,6 +9,7 @@ import StarStats from '../components/StarStats';
 import store from '../store/store';
 import Timer from '../components/Timer';
 import reload from '../images/succscreenreload.png'
+import translations from '../../localization';
 
 const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText }) => {
     
@@ -142,14 +143,14 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                     <Text style={{fontWeight: '600', color: 'white', fontSize: windowWidth * (23 / 800), textAlign: 'center', alignSelf: 'flex-end'}}>+{`${earnedStars.length}`}</Text>
                 </Animated.View>}
                 <View style={{width: windowWidth * (212 / 800), height: Platform.isPad? windowWidth * (60 / 800) : windowHeight * (60 / 360), position: 'absolute', alignSelf: 'center', left: '10%', justifyContent: 'space-between', padding: 4}}>
-                    <Text style={{fontSize: windowWidth * (20 / 800), fontWeight: '600', color: '#222222', alignSelf: 'center'}}>{stars.length == 0? 'Try Again' : stars.length == 1? 'You Can Do Better' : stars.length == 2? 'So Close' : stars.length == 3? 'Perfect' : 'Congratulations!'}</Text>
-                    <Text style={{fontSize: windowWidth * (14 / 800), fontWeight: '400', color: '#222222', alignSelf: 'center', textAlign: 'center', marginTop: 10}}>{stars.length == 0? 'You earned 0 stars. Keep practicing' : stars.length == 1? 'You only earned 1 star. I know you can do better!' : stars.length == 2? 'You earned 2 stars! Just a little more effort!' : stars.length == 3? 'You earned 3 stars, keep it up!' : 'Congratulations!'}</Text>
+                    <Text style={{fontSize: windowWidth * (20 / 800), fontWeight: '600', color: '#222222', alignSelf: 'center'}}>{stars.length == 0 && store?.language === 'lv'? 'Mēģini vēlreiz' : stars.length == 1 && store?.language === 'en'? 'Try Again' : stars.length == 1 && store?.language === 'lv'? 'Tu vari labāk' : stars.length == 1 && store?.language === 'en'? 'You Can Do Better' : stars.length == 2 && store.language === 'lv'? "Mēģini vēlreiz" : stars.length == 2 && store.language === 'en'? 'So Close' : stars.length == 3 && store.language === 'lv'? 'Perfekti' : stars.length == 3 && store.language === 'en'? 'Perfect' : 'Congratulations!'}</Text>
+                    <Text style={{fontSize: windowWidth * (14 / 800), fontWeight: '400', color: '#222222', alignSelf: 'center', textAlign: 'center', marginTop: 10}}>{stars.length == 0 && store?.language === 'lv'? 'Tu ieguvi 0 zvaigznes. Turpini trenēties!' : stars.length == 0 && store?.language === 'en'? 'You earned 0 stars. Keep practicing' : stars.length == 1 && store.language === 'lv'? 'Tu ieguvi tikai 1 zvaigzni. Zinu, ka vari labāk!' : stars.length == 1 && store.language === 'en'? 'You only earned 1 star. I know you can do better!' : stars.length == 2 && store.language === 'lv'? 'Tu ieguvi 2 zvaigznes! Vēl mazliet piepūles!' : stars.length == 2 && store.language === 'en'? 'You earned 2 stars! Just a little more effort!' : stars.length == 3 && store.language === 'lv'? 'Tu ieguvi 3 zvaigznes, turpini tāpat!' : stars.length == 3 && store.language === 'en'? 'You earned 3 stars, keep it up!' : 'Congratulations!'}</Text>
                 </View>
-                <TouchableOpacity onPress={() => replay()} style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#504297', position: 'absolute', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '10%', justifyContent: 'center', alignItems: 'center'}}>
+                <TouchableOpacity onPress={() => replay()} style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#B3ABDB', position: 'absolute', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '10%', justifyContent: 'center', alignItems: 'center'}}>
                     <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360)}}/>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => complete()} style={{width: windowWidth * (163 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), position: 'absolute', backgroundColor: '#504297', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '30%', paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: windowWidth * (12 / 800), fontWeight: '600', color: 'white', alignSelf: 'center'}}>Continue</Text>
+                    <Text style={{fontSize: windowWidth * (12 / 800), fontWeight: '600', color: 'white', alignSelf: 'center'}}>{translations?.[store.language]?.continue}</Text>
                     <Timer />
                 </TouchableOpacity>
             </Animated.View>

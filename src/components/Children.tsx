@@ -23,8 +23,8 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
   
     return (
         <ScrollView showsHorizontalScrollIndicator={false} horizontal contentContainerStyle={{flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, alignSelf: 'center', alignItems: 'center', width: 'auto', height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), gap: 32}}>
-                    {store.children && store.children.map((player, index) => {
-                        const avatarObj = store.avatars.find(avatar => avatar.id === player.avatar_id);
+                    {store?.children && store?.children?.map((player, index) => {
+                        const avatarObj = store?.avatars?.find(avatar => avatar.id === player.avatar_id);
                         const avatarImage = avatarObj ? avatarObj.image : rabbit;
 
                         const avatarUrl = typeof avatarImage === 'string' ? avatarImage : avatarImage?.url; 

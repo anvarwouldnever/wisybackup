@@ -11,8 +11,12 @@ import x from '../images/wrongX.png'
 import useTimer from '../hooks/useTimer'
 import { SvgUri } from 'react-native-svg'
 import speaker from '../images/tabler_speakerphone.png'
+import { playSound2 } from '../hooks/usePlaySound2'
+import LottieView from 'lottie-react-native'
+import speakingWisy from '../lotties/headv9.json'
+import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars }) => {
+const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
@@ -20,26 +24,50 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
-    useEffect(() => {
-        const func = async () => {
-            try {
-                await playSound(data?.content?.speech);
-            } catch (error) {
-                console.error("Ошибка при воспроизведении звука:", error);
-            } finally {
-                setText(null);
+    const [wisySpeaking, setWisySpeaking] = useState(false)
+        const lottieRef = useRef(null);
+    
+        useEffect(() => {
+            if (wisySpeaking) {
+                setTimeout(() => {
+                    lottieRef.current?.play();
+                }, 1);
+            } else {
+                lottieRef.current?.reset();
             }
-        };
-                                    
-        func();
-    }, [data?.content?.speech]);
+        }, [wisySpeaking]);
+
+    useEffect(() => {
+            const introPlay = async() => {
+                try {
+                    await playSoundWithoutStopping(introAudio)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    try {
+                        setText(data?.content?.question)
+                        setWisySpeaking(true);
+                        await playSound(data?.content?.speech);
+                    } catch (error) {
+                        console.error("cОшибка при воспроизведении звука:", error);
+                    } finally {
+                        setText(null);
+                        setWisySpeaking(false)
+                    }
+                }
+            }
+    
+            introPlay()
+        }, [data?.content?.speech]);
                                 
     const playVoice = async (sound) => {
         try {
+            setWisySpeaking(true)
             await playSound(sound);
         } catch (error) {
             console.error("Ошибка при воспроизведении звука:", error);
         } finally {
+            setWisySpeaking(false)
             setText(null);
         }
     }
@@ -90,7 +118,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             stop();
             setId(null)
             setThinking(true)
-            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token})
+            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
             playVoice(response?.sound)
             if (response && response.stars && response.success) {
                 reset();
@@ -239,7 +267,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                         {option.text}
                                     </Text>
                                 </TouchableOpacity>
-                                <TouchableOpacity onPress={() => playSound(option.audio)} style={{width: windowWidth * (46 / 800), height: Platform.isPad ? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#B3ABDB', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, justifyContent: 'center', alignItems: 'center'}}>
+                                <TouchableOpacity onPress={() => playSound2(option.audio)} style={{width: windowWidth * (46 / 800), height: Platform.isPad ? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#B3ABDB', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, justifyContent: 'center', alignItems: 'center'}}>
                                     <Image source={speaker} style={{width: windowWidth * (24 / 800), height:  windowWidth * (24 / 800)}}/>
                                 </TouchableOpacity>
                             </View>
@@ -254,7 +282,18 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         <Animated.View entering={ZoomInEasyDown} style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center'}}>
             <RenderGame13Component />
             <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
-                <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/>
+                <LottieView
+                    ref={lottieRef}
+                    resizeMode="cover"
+                    source={speakingWisy}
+                    style={{
+                        width: windowWidth * (64 / 800),
+                        height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
+                        aspectRatio: 64 / 64,
+                    }}
+                    autoPlay={false}
+                    loop={true}
+                />
                 <Game3TextAnimation text={text} thinking={thinking}/>
             </View>
         </Animated.View>

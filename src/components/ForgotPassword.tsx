@@ -4,6 +4,7 @@ import Logo from './Logo';
 import { useNavigation } from '@react-navigation/native';
 import api from '../api/api';
 import store from '../store/store';
+import translations from '../../localization';
 
 const ForgotPassword = () => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -46,15 +47,15 @@ const ForgotPassword = () => {
             </View>
             <View style={{ gap: windowHeight * (20 / 800), position: 'absolute', alignSelf: 'center' }}>
                 <View style={{ width: windowWidth * (312 / 360), height: windowHeight * (88 / 800), justifyContent: 'space-between' }}>
-                    <Text style={{ fontWeight: '600', color: '#222222', fontSize: windowHeight * (20 / 800), textAlign: 'center' }}>Forgot your password?</Text>
+                    <Text style={{ fontWeight: '600', color: '#222222', fontSize: windowHeight * (20 / 800), textAlign: 'center' }}>{translations?.[store.language]?.forgotUrPassword}?</Text>
                     <Text style={{ fontWeight: '400', color: '#555555', fontSize: windowHeight * (14 / 800), textAlign: 'center', lineHeight: windowHeight * (24 / 800) }}>
-                        Enter your email address and we will send you instructions to reset your password
+                        {translations?.[store.language]?.enterYourEmailAddressAnd}
                     </Text>
                 </View>
                 <TextInput
                     onChangeText={handleEmailChange}
                     placeholderTextColor={"#B1B1B1"}
-                    placeholder='Email address'
+                    placeholder={translations?.[store.language]?.emailAddress}
                     style={{
                         borderWidth: 1,
                         fontSize: windowHeight * (14 / 800),
@@ -81,12 +82,12 @@ const ForgotPassword = () => {
                     }}
                 >
                     <Text style={{ fontWeight: '600', color: '#FFFFFF', fontSize: windowHeight * (14 / 800), textAlign: 'center' }}>
-                        Send
+                        {translations?.[store.language]?.send}
                     </Text>
                 </TouchableOpacity>
                 <View style={{ width: windowWidth * (312 / 360), height: windowHeight * (20 / 800), flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
-                    <Text style={{ color: '#555555', fontWeight: '600', fontSize: windowHeight * (12 / 800), textAlign: 'center' }}>Back to</Text>
-                    <Text onPress={() => navigation.goBack()} style={{ color: '#504297', fontWeight: '600', fontSize: windowHeight * (12 / 800), textAlign: 'center' }}>Log in</Text>
+                    <Text style={{ color: '#555555', fontWeight: '600', fontSize: windowHeight * (12 / 800), textAlign: 'center' }}>{translations?.[store.language]?.backTo}</Text>
+                    <Text onPress={() => navigation.goBack()} style={{ color: '#504297', fontWeight: '600', fontSize: windowHeight * (12 / 800), textAlign: 'center' }}>{translations?.[store.language]?.login}</Text>
                 </View>
             </View>
         </SafeAreaView>

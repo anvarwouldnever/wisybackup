@@ -5,6 +5,7 @@ import narrowdown from '../images/narrowdown.png';
 import narrowup from '../images/narrowup.png';
 import Modal from 'react-native-modal'
 import { SvgUri } from "react-native-svg";
+import translations from "../../localization";
 
 const DropDownModal = ({ setDropDown, dropDown }) => {
 
@@ -86,7 +87,7 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                                 {item.name}
                             </Text>
                             <Text style={{ color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5 }}>
-                                / age {age}
+                                / {translations?.[store.language].age} {age}
                             </Text>
                         </View>
                         <View style={{ width: windowWidth * (184 / 360), flexDirection: 'row', height: windowHeight * (20 / 800) }}>
@@ -94,7 +95,7 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                                 {item.completed_sub_collections}
                             </Text>
                             <Text style={{ fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800), marginLeft: 5 }}>
-                                completed tasks
+                            {translations?.[store.language]?.completedTasks}
                             </Text>
                         </View>
                     </View>

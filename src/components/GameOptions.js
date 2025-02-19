@@ -6,7 +6,7 @@ import { observer } from "mobx-react-lite";
 import api from "../api/api";
 import { playSound } from "../hooks/usePlayBase64Audio";
 
-const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, setText }) => {
+const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, setText, setWisySpeaking, wisySpeaking }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -17,16 +17,19 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
     useEffect(() => {
         if (isFirstRender.current) {
             isFirstRender.current = false;
-            return; // Пропускаем первый рендер
+            return;
         }
 
         const func = async () => {
             try {
-                const sound = await api.getSpeech('switch_category');
-                playSound(sound[0]?.audio);
+                setWisySpeaking(true);
+                const sound = await api.getSpeech('switch_category', store.language);
                 setText(sound[0]?.text);
+                await playSound(sound[0]?.audio);
             } catch (error) {
                 console.log(error);
+            } finally {
+                setWisySpeaking(false)
             }
         };
         

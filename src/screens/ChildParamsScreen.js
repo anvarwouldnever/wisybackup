@@ -24,8 +24,8 @@ const ChildParams = () => {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)
     const [focusComponent, setFocusComponent] = useState('name')
-    const currentAvatar = avatars[currentIndex]?.id
-    // console.log(currentAvatar);
+    const currentAvatar = avatars?.[currentIndex]?.id ?? null
+    
     const [options, setOptions] = useState({name: '', avatar: '1', age: '', gender: 0, engagement_time: 30})
     const [loading, setLoading] = useState(false)
     const navigation = useNavigation()

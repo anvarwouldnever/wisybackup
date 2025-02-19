@@ -7,6 +7,8 @@ import * as Linking from 'expo-linking';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import store from "../store/store";
+import translations from "../../localization";
+import { observer } from "mobx-react-lite";
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,7 +32,7 @@ const WelcomeScreen = () => {
                 <SlideShow onPageChange={setCurrentIndex}/>
             </View>
             <View style={styles.paginationContainer}>
-                {store.slides.map((_, index) => (
+                {store?.slides?.map((_, index) => (
                     <View
                         key={index}
                         style={[styles.paginationDot, {backgroundColor: currentIndex === index ? '#504297' : '#E5E5E5'}]}
@@ -42,13 +44,13 @@ const WelcomeScreen = () => {
                     onPress={() => navigation.navigate('AuthScreen', {authOption: 'signup'})}
                     style={styles.signUpButton}
                 >
-                    <Text style={styles.buttonText}>Sign Up</Text>
+                    <Text style={styles.buttonText}>{translations?.[store.language]?.signup}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={() => navigation.navigate('AuthScreen', {authOption: 'login'})}
                     style={styles.logInButton}
                 >
-                    <Text style={styles.logInButtonText}>Log in</Text>
+                    <Text style={styles.logInButtonText}>{translations?.[store.language]?.login}</Text>
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -118,4 +120,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default WelcomeScreen;
+export default observer(WelcomeScreen);
