@@ -22,14 +22,14 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
     const func = async() => {
         try {
-            setWisySpeaking(true)
+            setWisySpeaking(true);
             const sound = await api.getSpeech('enter_subcollections_screen', store.language);
             setText(sound[0]?.text)
             await playSound(sound[0]?.audio);
         } catch (error) {
             console.log(error);
         } finally {
-            setWisySpeaking(false)
+            setWisySpeaking(false);
         }
     };
 
@@ -169,7 +169,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
             const prepareTasksArray = (itemId) => {
                 const tasksArray = subCollections
-                    .filter(item => item.tasks?.length > 0) // Фильтруем только те, у которых есть задачи
+                    .filter(item => item.tasks?.length > 0)
                     .map(item => {
                         const currentTaskIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
             
@@ -195,7 +195,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 <TouchableOpacity
                     onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, introAudio: item?.intro_speech_audio, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
+                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, introAudio: item?.intro_speech_audio, introText: item?.intro_speech, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 
                         : () => func3()}
                     style={{

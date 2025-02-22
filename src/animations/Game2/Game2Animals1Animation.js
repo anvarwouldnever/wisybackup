@@ -14,7 +14,7 @@ import { playSound2 } from "../../hooks/usePlaySound2";
 
 const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    console.log(audio)
+    // console.log(audio)
 
     const [key, setKey] = useState(0);
 

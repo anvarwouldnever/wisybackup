@@ -1,5 +1,5 @@
 import { View, Image, Platform, useWindowDimensions, Vibration } from 'react-native'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef, useMemo } from 'react'
 import wisy from '../images/pandaHead.png'
 import Game4TextAnimation from '../animations/Game4/Game4TextAnimation'
 import Game4AnimalsAnimation from '../animations/Game4/Game4AnimalsAnimation'
@@ -12,16 +12,16 @@ import LottieView from 'lottie-react-native'
 import speakingWisy from '../lotties/headv9.json'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio }) => {
+const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, level, introTaskIndex }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [text, setText] = useState(data?.content?.question)
-    const [attempt, setAttempt] = useState('1')
+    const [text, setText] = useState(data?.content?.question);
+    const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
 
-    const [wisySpeaking, setWisySpeaking] = useState(false)
-        const lottieRef = useRef(null);
+    const [wisySpeaking, setWisySpeaking] = useState(false);
+    const lottieRef = useRef(null);
     
         useEffect(() => {
             if (wisySpeaking) {
@@ -45,7 +45,11 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     useEffect(() => {
             const introPlay = async() => {
                 try {
-                    await playSoundWithoutStopping(introAudio)
+                    if (level === introTaskIndex) {
+                        setWisySpeaking(true);
+                        setText(introText);
+                        await playSoundWithoutStopping(introAudio);
+                    }
                 } catch (error) {
                     console.log(error)
                 } finally {

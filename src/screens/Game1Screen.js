@@ -18,7 +18,7 @@ import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { playSound } from '../hooks/usePlayBase64Audio';
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio }) => {
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText }) => {
 
     const { getTime, start, stop, reset } = useTimer();
 

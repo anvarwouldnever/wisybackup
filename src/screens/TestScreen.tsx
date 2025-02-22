@@ -1,171 +1,345 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { View, useWindowDimensions, Image, Text, TouchableOpacity, Platform } from 'react-native';
-import Animated, { BounceIn, withTiming, runOnJS, useSharedValue, useAnimatedStyle, withDelay, FadeIn, withSequence, withSpring } from 'react-native-reanimated';
-import star from '../images/tabler_star-filled.png';
-import * as Haptics from 'expo-haptics'
-import StarsLottie from '../components/StarsLottie';
-import ConfettiLottie from '../components/ConfettiLottie';
-import StarStats from '../components/StarStats';
-import store from '../store/store';
-import Timer from '../components/Timer';
-import reload from '../images/succscreenreload.png'
+import React, { useState, useRef, useEffect } from "react";
+import { View, useWindowDimensions } from "react-native";
+import Svg, { Line, Path } from "react-native-svg";
+import { GestureDetector, Gesture } from "react-native-gesture-handler";
+import Animated, { useSharedValue, useAnimatedProps, runOnJS } from "react-native-reanimated";
 
-const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes }) => {
-    
-    const stars = Array.from({ length: parseInt(starsText, 10) }, (_, index) => ({
-        id: index + 1,
-    }));
-    
+const AnimatedLine = Animated.createAnimatedComponent(Line);
+
+const TestScreen = () => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [numStars, setNumStars] = useState(0)
-    const [starsContainerLayout, setStarsContainerLayout] = useState({})
+    const [lines, setLines] = useState([]);
+    const [isDrawing, setIsDrawing] = useState<boolean>(false);    
 
-    const starsContainerRef = useRef(null);
+    const lineStartX = useSharedValue(0);
+    const lineStartY = useSharedValue(0);
+    const lineEndX = useSharedValue(0);
+    const lineEndY = useSharedValue(0);
 
-    useEffect(() => {
+    const mainContainerOffset = { top: 24 };
 
-        if (starsContainerRef.current) {
-            starsContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
-                const centerX = pageX + (width / 6);
-                const centerY = pageY - (height / 4);
-        
-                setStarsContainerLayout({ x: centerX, y: centerY });
-        
-                // console.log({ centerX, centerY }); // Для отладки
-            });
-        }
-
-        return () => {
-            store.setPlayingChildStars(stars.length);
-        };
-    }, []);    
-
-    const [layoutCaptured, setLayoutCaptured] = useState();
-
-    useEffect(() => {
-        
-        if (isFromAttributes) {
-            store.loadCategories()
-        } else {
-            
-        }
-
-        const timeoutId = setTimeout(() => {
-            
-        }, 6500);
-    
-        return () => {
-            clearTimeout(timeoutId);
-        };
-    }, [])
-
-    const complete = () => {
-        setTaskLevel();
-        setLevel();
-    }
-
-    const starsContainerOpacity = useSharedValue(1) 
-
-    const animatedValues = useRef(stars.map(() => ({
-        x: useSharedValue(starsContainerLayout?.x),
-        y: useSharedValue(starsContainerLayout?.y)
-    })));
-
-    useEffect(() => {
-        if (starsContainerLayout) {
-            animatedValues.current.forEach((value) => {
-                value.x.value = starsContainerLayout.x;
-                value.y.value = starsContainerLayout.y;
-            });
-        }
-    }, [starsContainerLayout]);
-
-    const Nums = () => {
-        setNumStars(prev => prev + 1)
-    }
-
-    useEffect(() => {
-        if (layoutCaptured) {
-            stars.forEach((star, index) => {
-                const delay = (index * 200);
-                const delayTimer = setTimeout(() => {
-                    starsContainerOpacity.value = withTiming(0, { duration: 500 });
-                    animatedValues.current[index].y.value = withTiming(layoutCaptured.y, { duration: 600 });
-                    animatedValues.current[index].x.value = withTiming(layoutCaptured.x + 30, { duration: 600 }, () => {
-                        runOnJS(Nums)()
-                    });
-                }, delay);
-                return () => clearTimeout(delayTimer);
-            });
-        }
-    }, [layoutCaptured]);
-
-    const animatedStyles = animatedValues?.current?.map(({ x, y }) => {
-        return useAnimatedStyle(() => ({
-            left: x?.value,
-            top: y?.value,
-        }));
-    });
-
-    const starsContainerStyle = useAnimatedStyle(() => ({
-        opacity: starsContainerOpacity.value,
+    const animatedProps = useAnimatedProps(() => ({
+        x1: lineStartX.value,
+        y1: lineStartY.value,
+        x2: lineEndX.value,
+        y2: lineEndY.value,
     }));
 
-    return (
-        <View style={{ flex: 1, flexDirection: 'column' }}>
-            <ConfettiLottie />
-            <Animated.View entering={BounceIn.delay(800).duration(700)}
+    
+    const answers = [
+        { key: "1" },
+        { key: "2" },
+        { key: "3" },
+    ];
+
+    const images = [
+        { key: "1" },
+        { key: "2" },
+        { key: "3" },
+        { key: "4" },
+        { key: "5" },
+    ];
+
+    const addCurvedLine = (data) => {
+        setIsDrawing(false);
+        setLines((prev) => [...prev, data]);
+    };
+
+    const Lines = () => {
+        return (
+            <Svg
                 style={{
-                    top: Platform.isPad? windowHeight * (80 / 360) : windowHeight * (40 / 360),
-                    position: 'absolute',
-                    backgroundColor: 'white',
-                    width: windowWidth * (260 / 800),
-                    height: Platform.isPad? windowWidth * (250 / 800) : windowHeight * (250 / 360),
-                    alignSelf: 'center',
-                    borderRadius: 20,
-                    flexDirection: 'row',
+                position: "absolute",
+                width: "100%",
+                height: "100%",
                 }}
             >
-                <StarsLottie stars={stars}/>
-                {stars.length > 0 && <Animated.View ref={starsContainerRef} entering={BounceIn.delay(1700).duration(800).springify(400)} style={[starsContainerStyle, {width: windowWidth * (75 / 800), height: windowHeight * (40 / 360), backgroundColor: '#B3ABDB', position: 'absolute', borderRadius: 100, alignSelf: 'flex-end', gap: 1, top: Platform.isPad? '30%' : '35%', right: -40, flexDirection: 'column', justifyContent: 'center', paddingHorizontal: 10}]}>
-                    <Text style={{fontWeight: '600', color: 'white', fontSize: windowWidth * (23 / 800), textAlign: 'center', alignSelf: 'flex-end'}}>+{`${stars.length}`}</Text>
-                </Animated.View>}
-                <View style={{width: windowWidth * (212 / 800), height: Platform.isPad? windowWidth * (60 / 800) : windowHeight * (60 / 360), position: 'absolute', alignSelf: 'center', left: '10%', justifyContent: 'space-between', padding: 4}}>
-                    <Text style={{fontSize: windowWidth * (20 / 800), fontWeight: '600', color: '#222222', alignSelf: 'center'}}>Congratulations!</Text>
-                    {stars.length > 0 && <Text style={{fontSize: windowWidth * (14 / 800), fontWeight: '400', color: '#222222', alignSelf: 'center'}}>You’ve just earned {`${stars.length}`} stars!!</Text>}
-                </View>
-                <TouchableOpacity style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#504297', position: 'absolute', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '10%', justifyContent: 'center', alignItems: 'center'}}>
-                    <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360)}}/>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => complete()} style={{width: windowWidth * (163 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), position: 'absolute', backgroundColor: '#504297', bottom: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360), borderRadius: 100, alignSelf: 'center', left: '30%', paddingHorizontal: 16, flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <Text style={{fontSize: windowWidth * (12 / 800), fontWeight: '600', color: 'white', alignSelf: 'center'}}>Continue</Text>
-                    <Timer />
-                </TouchableOpacity>
-            </Animated.View>
-            {stars.map((item, index) => {
-                return (
-                    <Animated.Image
+                {lines.map((line, index) => {
+                const dx = line.x2 - line.x1;
+                const dy = line.y2 - line.y1;
+                const slope = Math.abs(dy / (dx || 1)); // Проверяем наклон, избегая деления на 0
+
+                if (slope < 0.1) {
+                    return (
+                    <Line
                         key={index}
-                        entering={FadeIn.delay(1700)}
-                        source={star}
-                        style={[animatedStyles[index],
-                            {
-                                width: Platform.isPad? windowHeight * (20 / 360) : windowWidth * (20 / 800),
-                                height: Platform.isPad? windowHeight * (20 / 800) : windowHeight * (20 / 360),
-                                resizeMode: 'contain',
-                                alignSelf: 'center',
-                                position: 'absolute',
-                            },
-                        ]}
-                />
-                )})}
-                <StarStats 
-                    numStars={numStars}
-                    layoutCaptured={layoutCaptured}
-                    setLayoutCaptured={setLayoutCaptured}
-                />
+                        x1={line.x1}
+                        y1={line.y1}
+                        x2={line.x2}
+                        y2={line.y2}
+                        stroke="#504297"
+                        strokeWidth="2"
+                    />
+                    );
+                }
+
+                // Чем больше уклон (вверх или вниз), тем сильнее изгибаем линию
+                const curveFactor = Math.min(Math.abs(dy) * 0.5, 100);
+                const controlX1 = line.x1 + dx * 0.5;
+                const controlY1 = line.y1 - Math.sign(dy) * curveFactor;
+                const controlX2 = line.x1 + dx * 0.5;
+                const controlY2 = line.y2 + Math.sign(dy) * curveFactor;
+
+                const pathData = `M ${line.x1},${line.y1} C ${controlX1},${controlY1} ${controlX2},${controlY2} ${line.x2},${line.y2}`;
+
+                return <Path key={index} d={pathData} stroke="#504297" strokeWidth="2" fill="none" />;
+                })}
+
+
+                {isDrawing && <AnimatedLine onResponderMove={(_) => {}} animatedProps={animatedProps} stroke={"#504297"} strokeWidth="2" />}
+            </Svg>
+        )
+    }
+    
+    const imageRefs = useRef(new Map()); // Для хранения ref каждого элемента
+    const imageLayouts = useSharedValue([]);
+
+    const answersRefs = useRef(new Map()); // Храним ref для каждого элемента
+    const answersLayouts = useSharedValue([]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            const layouts = [];
+            imageRefs.current.forEach((view, key) => {
+                if (view) {
+                    view.measure((x, y, width, height, pageX, pageY) => {
+                        layouts.push({ key, x: pageX, y: pageY, width, height });
+                        if (layouts.length === images.length) {
+                            imageLayouts.value = layouts;
+                        }
+                        
+                    });
+                }
+            });
+        }, 200);
+    }, [images]);
+
+    useEffect(() => {
+        setTimeout(() => {
+            const layouts = [];
+            answersRefs.current.forEach((view, key) => {
+                if (view) {
+                    view.measure((x, y, width, height, pageX, pageY) => {
+                        layouts.push({ key, x: pageX, y: pageY, width, height });
+                        if (layouts.length === answers.length) {
+                            answersLayouts.value = layouts;
+                        }
+                        // console.log(layouts)
+                    });
+                }
+            });
+        }, 200);
+    }, [answers]);
+
+
+    const isPointInsideImage = (x, y) => {
+        'worklet';
+        const adjustedX = x + 30; // Учитываем смещение по X
+        const adjustedY = y + mainContainerOffset.top; // Учитываем смещение по Y
+        const totalImages = imageLayouts.value.length;
+    
+        let rightSideThreshold = 0; // Сколько последних элементов считать правыми
+    
+        if (totalImages === 5) {
+            rightSideThreshold = 2;
+        } else if (totalImages === 6) {
+            rightSideThreshold = 3;
+        } else if (totalImages <= 4) {
+            rightSideThreshold = 0; // Нет правых элементов
+        }
+    
+        for (let i = 0; i < totalImages; i++) {
+            const image = imageLayouts.value[i];
+    
+            if (
+                adjustedX >= image.x &&
+                adjustedX <= image.x + image.width &&
+                adjustedY >= image.y &&
+                adjustedY <= image.y + image.height
+            ) {
+                const isRightSide = i >= totalImages - rightSideThreshold; // Проверяем, правый ли элемент
+    
+                return {
+                    inside: true,
+                    newX: isRightSide ? image.x - 30 : image.x + image.width - 30, 
+                    newY: image.y + image.height / 2 - mainContainerOffset.top,
+                    targetIndex: i
+                };
+            }
+        }
+        return { inside: false };
+    };
+    
+
+    return (
+        <View style={{top: mainContainerOffset.top, width: windowWidth - 60, height: windowHeight - 60, position: "absolute", alignItems: "center"}}>
+            <Lines />
+
+            <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
+                <View style={{width: windowWidth * (80 / 800), height: windowHeight * (312 / 360), alignItems: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, justifyContent: 'center', flexDirection: 'column'}}>
+                    {(images.length === 4 || images.length === 3 ? images : images.length === 5 || images.length === 6 ? images.slice(0, 3) : []).map((item, index) => {
+                        
+                        return (
+                            <View 
+                                ref={(view) => imageRefs.current.set(item.key, view)}
+                                onLayout={() => {}}
+                                key={index} 
+                                style={{ 
+                                    width: images.length === 4 || images.length === 3 ? windowWidth * (69 / 800) :  windowWidth * (80 / 800), 
+                                    height: images.length === 4 || images.length === 3 ? windowHeight * (69 / 360) : windowHeight * (80 / 360), 
+                                    backgroundColor: 'white', 
+                                    borderRadius: 10 
+                                }}
+                            />
+                        )
+                        
+                    })}
+                </View>
+                <View style={{width: windowWidth * (160 / 800), height: windowHeight * (300 / 360), alignItems: 'center', justifyContent: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, flexDirection: 'column', overflow: 'visible'}}>
+                    {answers.map((item, index) => {
+        
+                        const gesture = Gesture.Pan()
+                            .onBegin((event) => {
+                                runOnJS(setIsDrawing)(true);
+                                lineStartX.value = event.absoluteX - 30;
+                                lineStartY.value = event.absoluteY - mainContainerOffset.top;
+                                lineEndX.value = event.absoluteX - 30;
+                                lineEndY.value = event.absoluteY - mainContainerOffset.top;
+                            })
+                            .onUpdate((event) => {
+                                lineEndX.value = event.absoluteX - 30
+                                lineEndY.value = event.absoluteY - mainContainerOffset.top
+                            })
+                            .onEnd((event) => {
+                                const { inside, newX, newY, targetIndex } = isPointInsideImage(lineEndX.value, lineEndY.value);
+                                
+                                if (inside) {
+                                    const answer = answersLayouts.value.find(a => a.key === item.key);
+                                    if (answer) {
+                                        // Определяем, является ли конечный квадрат правым
+                                        const totalImages = imageLayouts.value.length;
+                                        let rightSideThreshold = 0;
+                            
+                                        if (totalImages === 5) {
+                                            rightSideThreshold = 2;
+                                        } else if (totalImages === 6) {
+                                            rightSideThreshold = 3;
+                                        }
+                            
+                                        const isTargetRightSide = targetIndex >= totalImages - rightSideThreshold;
+                            
+                                        // Устанавливаем начальную точку в зависимости от конечного квадрата
+                                        lineStartX.value = isTargetRightSide ? answer.x + answer.width - 30 : answer.x - 30;
+                                        lineStartY.value = answer.y + answer.height / 2 - mainContainerOffset.top;
+                                    }
+                            
+                                    runOnJS(addCurvedLine)({
+                                        x1: lineStartX.value,
+                                        y1: lineStartY.value,
+                                        x2: newX,
+                                        y2: newY,
+                                    });
+                                } else {
+                                    lineStartX.value = 0;
+                                    lineStartY.value = 0;
+                                    lineEndX.value = 0;
+                                    lineEndY.value = 0;
+                                }
+                            });
+                            
+                        
+                            return (
+                                <GestureDetector key={item.key} gesture={gesture}>
+                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'white', borderRadius: 10}}>
+                                                        
+                                    </View>
+                                </GestureDetector>
+                            )
+                    })}
+                </View>
+                {images.length === 4 || images.length === 3 ? null : <View style={{width: windowWidth * (80 / 800), height: windowHeight * (272 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column'}}>
+                    {images.length === 4 || images.length === 3 ? null : (
+                        <View 
+                            style={{ 
+                                width: windowWidth * (80 / 800), 
+                                height: windowHeight * (272 / 360),
+                                justifyContent: 'center',
+                                alignItems: 'center', 
+                                gap: 16, 
+                                flexDirection: 'column' 
+                            }}
+                        >
+                            {(images.length === 5 || images.length === 6 ? images.slice(3) : []).map((item, index) => (
+                                <View 
+                                    ref={(view) => imageRefs.current.set(item.key, view)}
+                                    onLayout={() => {}}
+                                    key={index} 
+                                    style={{ 
+                                        width: windowWidth * (80 / 800), 
+                                        height: windowHeight * (80 / 360), 
+                                        backgroundColor: 'white', 
+                                        borderRadius: 10 
+                                    }}
+                                />
+                            ))}
+                        </View>
+                    )}
+                </View>}
+            </View>
+            {/* <Lines /> */}
         </View>
     );
 };
 
-export default CongratulationsScreen;;
+export default TestScreen;
+
+
+// const Render3images = () => {
+//     return (
+//         <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
+//             <View style={{width: windowWidth * (80 / 800), height: windowHeight * (272 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column'}}>
+//                                     {images.map((item, index) => {
+//                                         return (
+//                                             <View key={index} style={{width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: 'white', borderRadius: 10}}>
+                    
+//                                             </View>
+//                                         )
+//                                     })}
+//             </View>
+//             <View style={{width: windowWidth * (160 / 800), height: windowHeight * (300 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column', overflow: 'visible'}}>
+//                 {images.map((item, index) => {
+    
+//                                         const gesture = Gesture.Pan()
+//                                             .onBegin((event) => {
+//                                                 runOnJS(setIsDrawing)(true);
+//                                                 lineStartX.value = event.absoluteX - 30;
+//                                                 lineStartY.value = event.absoluteY - mainContainerOffset.top;
+//                                                 lineEndX.value = event.absoluteX - 30;
+//                                                 lineEndY.value = event.absoluteY - mainContainerOffset.top;
+//                                             })
+//                                             .onUpdate((event) => {
+//                                                 lineEndX.value = event.absoluteX - 30
+//                                                 lineEndY.value = event.absoluteY - mainContainerOffset.top
+//                                             })
+//                                             .onEnd((event) => {
+//                                                 runOnJS(addCurvedLine)({
+//                                                     x1: lineStartX.value,
+//                                                     y1: lineStartY.value,
+//                                                     x2: lineEndX.value,
+//                                                     y2: lineEndY.value,
+//                                                 });
+//                                             })
+                    
+//                                         return (
+//                                             <GestureDetector key={item.key} gesture={gesture}>
+//                                                 <View style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'white', borderRadius: 10}}>
+                                                    
+//                                                 </View>
+//                                             </GestureDetector>
+//                                         )
+//                                     })}
+//             </View>
+            
+//         </View>
+//     )
+// }

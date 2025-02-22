@@ -53,7 +53,7 @@ const Game14Screen = () => {
                             <View style={{width: windowWidth * (80 / 800), height: windowHeight * (272 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column'}}>
                                 {images.map((item, index) => {
                                     return (
-                                        <View key={index} style={{width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: 'white', backgroundColor: 'white', borderRadius: 10}}>
+                                        <View key={index} style={{width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: 'white', borderRadius: 10}}>
                 
                                         </View>
                                     )
@@ -99,7 +99,7 @@ const Game14Screen = () => {
                             <View style={{width: windowWidth * (80 / 800), height: windowHeight * (272 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column'}}>
                                 {images.map((item, index) => {
                                     return (
-                                        <View key={index} style={{width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: 'white', backgroundColor: 'white', borderRadius: 10}}>
+                                        <View key={index} style={{width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: 'white', borderRadius: 10}}>
                 
                                         </View>
                                     )

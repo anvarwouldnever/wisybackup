@@ -20,7 +20,7 @@ import Game12Screen from './Game12Screen'
 import Game13Screen from './Game13Screen'
 import statStar from '../images/tabler_star-filled.png'
 import CongratulationsScreen from './CongratulationsScreen'
-import TestScreen from './TestScreen' 
+import TestScreen from './TestScreen'
 import BreakScreen from './BreakScreen'
 import Game16Screen from './Game16Screen'
 import translations from '../../localization'
@@ -28,7 +28,7 @@ import { playSound2 } from '../hooks/usePlaySound2'
 
 const GameScreen = ({ route }) => {
 
-    const { tasks, onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, introAudio } = route.params;
+    const { tasks, onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, introAudio, introText } = route.params;
     const navigation = useNavigation();
     const [taskLevel, setTaskLevel] = useState(0);
     const [level, setLevel] = useState(tasks[taskLevel]?.current_task_id_index);
@@ -36,7 +36,11 @@ const GameScreen = ({ route }) => {
     const [earnedStars, setEarnedStars] = useState(null);
     const [cameFromBreak, setCameFromBreak] = useState(isFromBreak);
     const [isBreak, setIsBreak] = useState(false);
+    const [introTaskIndex, setIntroTaskIndex] = useState(tasks[taskLevel]?.current_task_id_index);
     const task = tasks[taskLevel]?.tasks;
+
+    // console.log(level);
+    // console.log(introTaskIndex)
 
     useEffect(() => {
         setLevel(tasks[taskLevel]?.current_task_id_index)
@@ -85,83 +89,83 @@ const GameScreen = ({ route }) => {
     const RenderVoiceGame = () => {
         // done
         return (    
-            <Game1Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel} isFromAttributes={isFromAttributes}/>
+            <Game1Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} setLevel={setLevel} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithImageGame = () => {
         // done
         return (
-            <Game5Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game5Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderSimpleGame = () => {
         // done
         return (
-            <Game3Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game3Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderWithAudio = () => {
-        // done
+        // <Game4Screen level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         return (
-            <Game4Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <TestScreen />
         )
     }
 
     const RenderWithTitleGame = () => {
         // done
         return (
-            <Game2Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game2Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenSimpleGame = () => {
         // done
         return (
-            <Game8Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game8Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenRepeatGame = () => {
         // done
         return (
-            <Game10Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game10Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenCountingGame = () => {
         // done
         return (
-            <Game9Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game9Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenWordGame = () => {
         // done
         return (
-            <Game11Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game11Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceSimpleGame = () => {
         // done
         return (
-            <Game13Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game13Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceWithAudioGame = () => {
         // done
         return (
-            <Game12Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game12Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderTextSingleChoiceWithTitleImageGame = () => {
         return (
-            <Game16Screen introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game16Screen introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 

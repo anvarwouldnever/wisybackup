@@ -18,7 +18,7 @@ import LottieView from 'lottie-react-native'
 import speakingWisy from '../lotties/headv9.json'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio}) => {
+const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText }) => {
 
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
@@ -53,6 +53,8 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     useEffect(() => {
             const introPlay = async() => {
                 try {
+                    setWisySpeaking(true);
+                    setText(introText);
                     await playSoundWithoutStopping(introAudio)
                 } catch (error) {
                     console.log(error)

@@ -28,9 +28,8 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId }) => {
         return shuffledArray;
     };
 
-    // Only shuffle once when component mounts
     useEffect(() => {
-        const shuffled = shuffleArray(images);  // Assuming `images` is available
+        const shuffled = shuffleArray(images); 
         setShuffledImages(shuffled);
     }, []);  //
     

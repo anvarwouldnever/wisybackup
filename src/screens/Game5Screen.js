@@ -12,17 +12,15 @@ import LottieView from 'lottie-react-native'
 import { playSound2 } from '../hooks/usePlaySound2'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 
-const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio }) => {
+const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(null);
-    const [attempt, setAttempt] = useState('1')
+    const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
-    const [wisySpeaking, setWisySpeaking] = useState(false)
+    const [wisySpeaking, setWisySpeaking] = useState(false);
     const lottieRef = useRef(null);
-
-    // console.log(data);
 
     useEffect(() => {
         if (wisySpeaking) {
@@ -39,19 +37,20 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     useEffect(() => {
         const introPlay = async() => {
             try {
-                await playSoundWithoutStopping(introAudio)
+                setWisySpeaking(true);
+                setText(introText);
+                await playSoundWithoutStopping(introAudio);
             } catch (error) {
-                console.log(error)
+                console.log(error);
             } finally {
                 try {
-                    setText(data?.content?.question)
-                    setWisySpeaking(true);
+                    setText(data?.content?.question);
                     await playSound(data?.content?.speech);
                 } catch (error) {
                     console.error("cОшибка при воспроизведении звука:", error);
                 } finally {
                     setText(null);
-                    setWisySpeaking(false)
+                    setWisySpeaking(false);
                 }
             }
         }
@@ -67,7 +66,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             console.error("Ошибка при воспроизведении звука:", error);
         } finally {
             setText(null);
-            setWisySpeaking(false)
+            setWisySpeaking(false);
         }
     };
 
@@ -137,8 +136,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
-                setText(response.hint)
-                
+                setText(response.hint);
                 setId({id: answer, result: 'correct'})
                 setTimeout(() => {
                     setLevel(prev => prev + 1);
@@ -162,7 +160,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         } catch (error) {
             console.log(error)
         } finally {
-            setThinking(false)
+            setThinking(false);
         }
     }
 
