@@ -32,7 +32,7 @@ export const playSound = async (source: string): Promise<void> => {
     return new Promise<void>((resolve) => {
       sound.setOnPlaybackStatusUpdate(async (status) => {
         if (status?.didJustFinish) {
-          if (!store.breakMusicPlaying && store.voiceInstructions) {
+          if (!store.breakMusicPlaying) {
             store.setPlayingMusic(true);
           }
           await sound.unloadAsync();

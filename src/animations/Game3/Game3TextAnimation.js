@@ -22,10 +22,10 @@ const Game3TextAnimation = ({ text, thinking }) => {
 
     return (
         <Animated.View
-            key={[text, thinking]}
+            key={[text]}
             entering={ZoomInEasyDown}
             style={{
-                width: !thinking? 'auto' : windowWidth * (130 / 800),
+                width: !thinking || text? 'auto' : windowWidth * (130 / 800),
                 height: 'auto',
                 alignSelf: 'flex-start',
                 backgroundColor: thinking? '#C4DF84' : text? '#C4DF84' : 'transparent',
@@ -36,7 +36,7 @@ const Game3TextAnimation = ({ text, thinking }) => {
                 marginLeft: 10
             }}
         >
-            {!thinking? <Text
+            {!thinking || text? <Text
                 style={{
                     fontWeight: '400',
                     fontSize: Platform.isPad ? windowWidth * (12 / 800) : windowHeight * (12 / 360),

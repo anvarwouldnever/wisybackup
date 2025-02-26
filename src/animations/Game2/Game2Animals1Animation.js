@@ -12,7 +12,7 @@ import store from "../../store/store";
 import { Audio } from "expo-av";
 import { playSound2 } from "../../hooks/usePlaySound2";
 
-const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
+const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, setLock }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     // console.log(audio)
 
@@ -20,19 +20,19 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
 
     const [shuffledImages, setShuffledImages] = useState();
     
-        const shuffleArray = (array) => {
+    const shuffleArray = (array) => {
             let shuffledArray = [...array];
             for (let i = shuffledArray.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [shuffledArray[i], shuffledArray[j]] = [shuffledArray[j], shuffledArray[i]]; // Swap elements
             }
             return shuffledArray;
-        };
+    };
     
-        useEffect(() => {
+    useEffect(() => {
             const shuffled = shuffleArray(images);  // Assuming `images` is available
             setShuffledImages(shuffled);
-        }, []);
+    }, []);
 
     useEffect(() => {
         setKey(prevKey => prevKey + 1); // Change key on animal or images update
@@ -61,13 +61,13 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio }) => {
     
         return (
             <View style={{backgroundColor: 'white', width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10,}}>
-                <TouchableOpacity activeOpacity={1} onPress={() => {
+                <TouchableOpacity activeOpacity={1} onPress={!lock? () => {
                         answer({ answer: item.id })
                         if (timeoutRef.current) {
                             clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
                         }
                         setId(null)
-                    }} style={{
+                    } : () => {return}} style={{
                     borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white',  
                     width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                     justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white',

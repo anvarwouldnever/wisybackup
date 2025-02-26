@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) => {
+const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId, lock }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const [key, setKey] = useState(0);
@@ -57,7 +57,7 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId }) 
     
         return (
             <View style={{backgroundColor: 'white', width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10,}}>
-                <TouchableOpacity onPress={thinking? () => {return} : () => {
+                <TouchableOpacity onPress={lock? () => {return} : () => {
                         answer({ answer: item.id })
                         if (timeoutRef.current) {
                             clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен

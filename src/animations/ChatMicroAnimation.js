@@ -59,7 +59,7 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
                 }, 500);
 
                 try {
-                    const response = await api.sendMessage({ child_id: store.playingChildId.id, audio: uri, token: store.token, isText: false });
+                    const response = await api.sendMessage({ child_id: store.playingChildId.id, audio: uri, token: store.token, isText: false, lang: store.language });
                     await store.setMessages({ type: 'text', text: response?.data?.content, author: 'MyWisy' });
 
                     setTimeout(() => {

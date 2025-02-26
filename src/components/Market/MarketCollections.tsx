@@ -18,7 +18,7 @@ const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAni
         return (
             <View style={{position: 'absolute', top: windowHeight * (118 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800)}}>
                 <Animated.FlatList
-                    entering={FadeInRight.duration(600).easing(Easing.out(Easing.cubic))}
+                    entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
                     key={store.market} 
                     data={items[0].items}
                     renderItem={({ item, index }) => <RenderItem setCurrentAnimation={setCurrentAnimation} setModal={setModal} item={item} index={index} setAnimationStart={setAnimationStart}/>}

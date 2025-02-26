@@ -6,7 +6,7 @@ import { SvgUri } from 'react-native-svg';
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Game3AnimalsAnimation = ({ answer, id, images, setId }) => {
+const Game3AnimalsAnimation = ({ answer, id, images, setId, lock }) => {
 
     const [key, setKey] = useState(0);
 
@@ -57,7 +57,7 @@ const Game3AnimalsAnimation = ({ answer, id, images, setId }) => {
     
         return (
             <View style={{backgroundColor: 'white', width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10,}}>
-                <TouchableOpacity onPress={() => {
+                <TouchableOpacity onPress={lock? () => {return} : () => {
                     answer({ answer: item.id })
                     if (timeoutRef.current) {
                         clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен

@@ -1,23 +1,18 @@
 import { View, Text, FlatList, Image, useWindowDimensions, Button, TouchableOpacity, Platform } from 'react-native'
 import React, { useRef, useState } from 'react'
-import image1 from '../images/game8tutorial1.png'
-import image2 from '../images/game8tutorial2.png'
-import image3 from '../images/game8tutorial3.png'
-import image4 from '../images/game8tutorial4.png'
-import image5 from '../images/game8tutorial5.png'
 import arrow from '../images/arrow-right.png'
 import arrow1 from '../images/arrow-left.png'
 
-const Game8Tutorial = () => {
+const Game8Tutorial = ({ tutorials }) => {
 
     const { width, height } = useWindowDimensions();
-    const data = [image1, image2, image3, image4, image5]
+    const data = tutorials ?? []
     const [currentIndex, setCurrentIndex] = useState(0);
     const flatListRef = useRef(null);
 
     const renderItem = ({ item }) => {
         return (
-            <Image source={item} style={{width: width * (430 / 800), height: height * (272 / 360), resizeMode: 'contain'}}/>
+            <Image source={{ uri: item?.url }} style={{width: width * (430 / 800), height: height * (272 / 360), resizeMode: 'contain'}}/>
         )
     }
 

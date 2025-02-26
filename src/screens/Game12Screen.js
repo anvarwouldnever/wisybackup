@@ -15,8 +15,9 @@ import useTimer from '../hooks/useTimer';
 import LottieView from 'lottie-react-native'
 import speakingWisy from '../lotties/headv9.json'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
+import Game8Tutorial from '../components/Game8Tutorial';
 
-const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText }) => {
+const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
@@ -24,17 +25,19 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null)
     const sound = useRef(new Audio.Sound());
-
+    const [lock, setLock] = useState(false);
     const [wisySpeaking, setWisySpeaking] = useState(false)
         const lottieRef = useRef(null);
     
         useEffect(() => {
             if (wisySpeaking) {
                 setTimeout(() => {
-                    lottieRef.current?.play();
+                    lottieRef.current?.play(180, 0);
                 }, 1);
             } else {
-                lottieRef.current?.reset();
+                setTimeout(() => {
+                    lottieRef.current?.reset();
+                }, 1);
             }
         }, [wisySpeaking]);
 
@@ -43,27 +46,33 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     useEffect(() => {
             const introPlay = async() => {
                 try {
-                    setWisySpeaking(true);
-                    setText(introText);
-                    await playSoundWithoutStopping(introAudio)
+                    setLock(true)
+                    if (level === introTaskIndex && introAudio && (!tutorialShow || tutorials == 0)) {
+                                            setWisySpeaking(true);
+                                            setText(introText);
+                                            await playSoundWithoutStopping(introAudio);
+                                        }
                 } catch (error) {
                     console.log(error)
                 } finally {
                     try {
-                        setText(data?.content?.question)
-                        setWisySpeaking(true);
-                        await playSound(data?.content?.speech);
+                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                                                    setText(data?.content?.question)
+                                                    setWisySpeaking(true);
+                                                    await playSound(data?.content?.speech);
+                                                }
                     } catch (error) {
                         console.error("cОшибка при воспроизведении звука:", error);
                     } finally {
                         setText(null);
                         setWisySpeaking(false)
+                        setLock(false)
                     }
                 }
             }
     
             introPlay()
-        }, [data?.content?.speech]);
+        }, [data?.content?.speech, tutorialShow]);
                                 
                                     const playVoice = async (sound) => {
                                         try {
@@ -74,6 +83,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                         } finally {
                                             setText(null);
                                             setWisySpeaking(false)
+                                            setLock(false)
                                         }
                                     };
 
@@ -137,8 +147,8 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             stop();
             setId(null)
             setThinking(true)
+            setLock(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
-            playVoice(response?.sound)
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {
@@ -148,12 +158,23 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         }
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
-                
-                setTimeout(() => {
-                    setStars(response?.stars);
-                    setEarnedStars(response?.stars - response?.old_stars)
-                    setLevel(prev => prev + 1);
-                }, 1500);
+
+                try {
+                    setWisySpeaking(true)
+                    await playSound(response?.sound)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false);
+                    setTimeout(() => {
+                        setStars(response?.stars);
+                        setEarnedStars(response?.stars - response?.old_stars)
+                        setLevel(prev => prev + 1);
+                        setLock(false)
+                    }, 1500);
+                }
+                return;
             }
             else if (response && response.stars && !response.success) {
                 reset()
@@ -165,18 +186,29 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
                 
-                setTimeout(() => {
-                    setStars(response?.stars);
-                    setEarnedStars(response?.stars - response?.old_stars)
-                    setLevel(prev => prev + 1);
-                }, 1500);
+                try {
+                    setWisySpeaking(true)
+                    await playSound(response?.sound)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false);
+                    setTimeout(() => {
+                        setStars(response?.stars);
+                        setEarnedStars(response?.stars - response?.old_stars)
+                        setLevel(prev => prev + 1);
+                        setLock(false)
+                    }, 1500);
+                }
+                return;
             }
             else if (response && !response.success && !response.to_next) {
                 start();
                 setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
-                
+                playVoice(response?.sound)
                 setAttempt('2')
             } else if(response && response.success) {
                 reset()
@@ -187,11 +219,21 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         }
                 setId({id: answer, result: 'correct'})
                 setText(response.hint)
-                
-                setTimeout(() => {
-                    setLevel(prev => prev + 1);
-                    setAttempt('1');
-                }, 1500);
+
+                try {
+                    setWisySpeaking(true)
+                    await playSound(response?.sound)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false);
+                    setTimeout(() => {
+                        setLevel(prev => prev + 1);
+                        setAttempt('1');
+                        setLock(false)
+                    }, 1500);
+                }
             } else if(response && !response.success && response.to_next) {
                 reset()
                 if (isFromAttributes) {
@@ -202,13 +244,24 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
-                setTimeout(() => {
-                    setLevel(prev => prev + 1);
-                    setAttempt('1');
-                }, 1500);
+                try {
+                    setWisySpeaking(true)
+                    await playSound(response?.sound)
+                } catch (error) {
+                    console.log(error)
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false);
+                    setTimeout(() => {
+                        setLevel(prev => prev + 1);
+                        setAttempt('1');
+                        setLock(false)
+                    }, 1500);
+                }
             }
         } catch (error) {
             console.log(error)
+            setLock(false)
         } finally {
             setThinking(false)
         }
@@ -227,7 +280,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         return (
                             <View key={index} style={{width: windowWidth * (440 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', borderRadius: 100}}>
                                 <View style={{backgroundColor: 'white', borderRadius: 100, borderTopLeftRadius: 100, borderBottomLeftRadius: 100, borderTopRightRadius: option.audio === null? 100 : 0, borderBottomRightRadius: option.audio === null? 100 : 0}}>
-                                <TouchableOpacity onPress={!thinking? () => {
+                                <TouchableOpacity onPress={!lock? () => {
                                     answer({ answer: option.id })
                                     if (timeoutRef.current) {
                                         clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
@@ -253,8 +306,11 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     return (
         <Animated.View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center', backgroundColor: 'transparent', alignItems: Platform.isPad? 'center' : ''}}>
-            <RenderGame12Component />
-            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+                <Game8Tutorial tutorials={tutorials}/>
+            </View>}
+            {(!tutorialShow || tutorials == 0) && <RenderGame12Component />}
+            {(!tutorialShow || tutorials == 0) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -268,7 +324,12 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     loop={true}
                 />
                 <Game3TextAnimation text={text} thinking={thinking}/>
-            </View>
+            </View>}
+            {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+                                                                    <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
+                                                                      Skip
+                                                                    </Text>
+                                                                </TouchableOpacity>}
         </Animated.View>
     )
 }

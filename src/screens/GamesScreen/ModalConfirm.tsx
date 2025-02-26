@@ -13,7 +13,7 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation }) 
 
     const purchaseItem = async() => {
             try {
-                const purchase = await api.purchaseItem({child_id: store.playingChildId.id, item_id: currentAnimation?.id, token: store.token})
+                // const purchase = await api.purchaseItem({child_id: store.playingChildId.id, item_id: currentAnimation?.id, token: store.token, lang: store.language})
                 // if (purchase.is_error) {
                 //     setModal(false);
                 //     setAnimationStart(false);

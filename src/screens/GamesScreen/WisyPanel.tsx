@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions, UIManager, findNodeHandle } from "react-native";
 import mywisy from '../../images/MyWisy-waving.png'
 import reload from '../../images/tabler_reload.png'
@@ -12,6 +12,7 @@ import { playSound } from "../../hooks/usePlayBase64Audio";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import standingWisy from '../../lotties/standingWisy.json'
 import speakingAndStanding from '../../lotties/speakingAndStanding.json'
+import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json'
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal, setCurrentAnimation, text, setText, wisySpeaking, setWisySpeaking }) => {
         
@@ -19,20 +20,32 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
     const animationRef = useRef<LottieView>(null);
     const [animation, setAnimation] = useState<any>(null);
 
+    const func = async (name: string) => {
+        try {
+            setWisySpeaking(true);
+            const sound = await api.getSpeech(name, store.language);
+            
+            if (sound.length > 0) {
+                const randomIndex = Math.floor(Math.random() * sound.length);
+                setText(sound[randomIndex]?.text);
+                await playSound(sound[randomIndex]?.audio);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setWisySpeaking(false);
+        }
+    };
+
     useEffect(() => {
         if (marketCollections) {
-            const func = async() => {
-                try {
-                    const sound = await api.getSpeech('open_market', store.language)
-                    playSound(sound[0]?.audio)
-                    setText(sound[0]?.text)
-                } catch (error) {
-                    console.log(error)
-                }
-            }
-            func()
+            func('open_market')
         }
-    }, [marketCollections])
+    }, [marketCollections]);
+
+    useEffect(() => {
+        func('enter_collections_screen')
+    }, []);
 
     useEffect(() => {
         if (wisySpeaking) {
@@ -40,25 +53,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                 animationRef.current?.play()
             }, 1);
         } else {
-            animationRef.current?.reset()
+            setTimeout(() => {
+                animationRef.current?.reset()
+            }, 1);
         }
-    }, [wisySpeaking])
-
-    useEffect(() => {
-        const func = async() => {
-            try {
-                setWisySpeaking(true)
-                const sound = await api.getSpeech('enter_collections_screen', store.language)
-                setText(sound[0]?.text)
-                await playSound(sound[0]?.audio)
-            } catch (error) {
-                console.log(error)
-            } finally {
-                setWisySpeaking(false)
-            }
-        }
-        func()
-    }, [])
+    }, [wisySpeaking]);
 
     useEffect(() => {
         if (animationStart) {
@@ -75,7 +74,42 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
         } else {
             if (marketCollections) animationRef.current?.reset()
         }
-    }, [animationStart]);
+    }, [animationStart]); 
+
+    const animationProps = useMemo(() => {
+        if (animation) {
+            return {
+                source: animation,
+                loop: false,
+                onAnimationFinish: () => setAnimation(null),
+            };
+        } 
+        if (marketCollections && wisySpeaking) {
+            return {
+                source: speakingWisyMarket,
+                loop: true,
+                onAnimationLoaded: () => animationRef.current?.play(),
+            };
+        } 
+        if (marketCollections && !wisySpeaking) {
+            return {
+                source: lot,
+                loop: true,
+                onAnimationLoaded: () => animationRef.current?.play(),
+            };
+        } 
+        if (!marketCollections && wisySpeaking) {
+            return {
+                source: speakingAndStanding,
+                loop: true,
+            };
+        }
+        return {
+            source: standingWisy,
+            loop: true,
+            onAnimationLoaded: () => animationRef.current?.play(),
+        };
+    }, [animation, marketCollections, wisySpeaking]);
     
     return (
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
@@ -91,50 +125,17 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                             <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
                         </TouchableOpacity> */}
                     </Animated.View>}
-                    {animation?
                     <LottieView
-                        key={animation}
-                        onAnimationFinish={() => {
-                            setAnimation(null)
+                        key={animation} // Если animation сменится, пересоздастся компонент
+                        ref={animationRef}
+                        {...animationProps} // Передаём все нужные пропсы
+                        autoPlay={true}
+                        style={{
+                            width: windowWidth * (190 / 800),
+                            height: Platform.isPad ? windowWidth * (190 / 800) : windowHeight * (190 / 360),
+                            transform: [{ scale: 1.3 }]
                         }}
-                        ref={animationRef}
-                        source={animation}
-                        loop={false}
-                        autoPlay={true}
-                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
                     />
-                    :
-                    marketCollections?
-                    <LottieView
-                        onAnimationLoaded={() => {
-                            animationRef.current?.play()
-                        }}
-                        ref={animationRef}
-                        source={lot}
-                        loop={true}
-                        autoPlay={true}
-                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
-                    />
-                    :
-                    !marketCollections && wisySpeaking?
-                    <LottieView
-                        ref={animationRef}
-                        source={speakingAndStanding}
-                        loop={true}
-                        autoPlay={true}
-                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
-                    />
-                    :
-                    <LottieView
-                        onAnimationLoaded={() => {
-                            animationRef.current?.play()
-                        }}
-                        ref={animationRef}
-                        source={standingWisy}
-                        loop={true}
-                        autoPlay={true}
-                        style={{width: windowWidth * (190 / 800), height: Platform.isPad? windowWidth * (190 / 800) : windowHeight * (190 / 360), transform: [{scale: 1.3}]}}
-                    />}
                 </View>
             </View>
         )

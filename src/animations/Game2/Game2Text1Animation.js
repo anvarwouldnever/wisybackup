@@ -22,10 +22,10 @@ const Game2TextAnimation = ({ text, thinking }) => {
 
     return (
         <Animated.View
-            key={[text, thinking]} // Обновляем key при изменении текста, чтобы принудить перерисовку и анимацию
+            key={[text]} // Обновляем key при изменении текста, чтобы принудить перерисовку и анимацию
             entering={ZoomInEasyDown}
             style={{
-                width: !thinking? 'auto' : windowWidth * (130 / 800),
+                width: !thinking || text? 'auto' : windowWidth * (130 / 800),
                 height: 'auto',
                 alignSelf: 'flex-start',
                 backgroundColor: '#C4DF84',
@@ -37,7 +37,7 @@ const Game2TextAnimation = ({ text, thinking }) => {
                 // borderWidth: 1
             }}
         >
-            {!thinking? <Text
+            {!thinking || text? <Text
                 style={{
                     fontWeight: '400',
                     fontSize: Platform.isPad ? windowWidth * (12 / 800) : windowHeight * (12 / 360),

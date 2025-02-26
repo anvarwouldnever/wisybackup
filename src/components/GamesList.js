@@ -33,24 +33,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         }
     };
 
-    // const func2 = async() => {
-    //     const messages = [
-    //         "Do you want to explore another topic?",
-    //         "I like this topic, what about you?",
-    //     ];
-        
-    //     const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-    
-    //     try {
-    //         const sound = await api.TextToSpeechFormAi(randomMessage);
-    //         setText(randomMessage)
-    //         // console.log(sound);
-    //         playSound(sound?.audio_data);
-    //     } catch (error) {
-    //         console.log(error);
-    //     }
-    // };
-
     const func3 = async() => {
         try {
             setWisySpeaking(true)
@@ -126,7 +108,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
           };
           
         return (
-            <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.cubic))} style={{width: 'auto', height: 'auto'}}>
+            <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{width: 'auto', height: 'auto'}}>
                     <TouchableOpacity onPress={() => {
                         setCollectionIndex(index);
                         const subs = arr()
@@ -157,8 +139,6 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
     const renderSubCollections = ({ item, onComplete, onCompleteTask, index }) => {
 
-        // console.log(item)
-
         const { image } = item;
         const isSvg = typeof image === 'string' && image.endsWith('.svg');
 
@@ -177,12 +157,15 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                             ...task,
                             next_task_id: item.tasks[index + 1]?.id || null, // Следующий ID или null для последнего объекта
                         }));
-            
+
                         return {
                             tasks,
                             current_task_id_index: currentTaskIndex !== -1 ? currentTaskIndex : 0, // Сохраняем индекс current_task_id
                             id: item.id,
-                            order: item?.order_column
+                            order: item?.order_column,
+                            introAudio: item?.intro_speech_audio,
+                            introText: item?.intro_speech,
+                            tutorials: item?.tutorials
                         };
                     });
             
@@ -190,12 +173,14 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 return tasksArray.slice(clickedIndex);
             };            
             
+            // introAudio: item?.intro_speech_audio, introText: item?.intro_speech, tutorials: item?.tutorials,
+
         return (
-                <Animated.View entering={FadeInRight.duration(600).easing(Easing.out(Easing.exp))} style={{ width: 'auto', height: 'auto' }}>
+                <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: 'auto', height: 'auto' }}>
                 <TouchableOpacity
                     onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, introAudio: item?.intro_speech_audio, introText: item?.intro_speech, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
+                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 
                         : () => func3()}
                     style={{

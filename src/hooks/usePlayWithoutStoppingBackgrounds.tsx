@@ -8,7 +8,9 @@ export const playSoundWithoutStopping = async (source: string): Promise<void> =>
   if (!source || typeof source !== 'string' || source.trim() === '') return;
 
   try {
-    store.setPlayingMusic(false);
+    if (store.voiceInstructions) {
+      store.setPlayingMusic(false);
+    }
     
     if (currentSound) {
       await currentSound.unloadAsync();
@@ -22,7 +24,7 @@ export const playSoundWithoutStopping = async (source: string): Promise<void> =>
       uri: isBase64 ? `data:audio/mp3;base64,${source}` : source,
     });
 
-    await sound.setVolumeAsync(1.0);
+    await sound.setVolumeAsync(store.voiceInstructions? 1.0 : 0);
     await sound.playAsync();
 
     currentSound = sound;

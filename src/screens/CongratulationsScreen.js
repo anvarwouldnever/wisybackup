@@ -11,7 +11,7 @@ import Timer from '../components/Timer';
 import reload from '../images/succscreenreload.png'
 import translations from '../../localization';
 
-const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText }) => {
+const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex }) => {
     
     console.log(earnedStarsText, starsText)
 
@@ -69,6 +69,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
     const replay = () => {
         setLevel();
+        setIntroTaskIndex(null);
     }
 
     const complete = () => {

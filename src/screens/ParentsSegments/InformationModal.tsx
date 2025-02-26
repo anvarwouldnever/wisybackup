@@ -28,6 +28,8 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
             id: modalData.id,
             tasks: filteredTasks,
         };
+
+        console.log(dataForGameScreen)
     
         return (
             <Modal backdropOpacity={0.3} onBackdropPress={() => setInformationModal(false)} style={{bottom: 0, alignItems: 'center', borderRadius: 24, position: 'absolute', width: '100%', height: windowHeight * (230 / 800), backgroundColor: 'white', alignSelf: 'center'}} isVisible={informationModal} animationIn={'slideInUp'} animationOut={'slideOutDown'}>
@@ -43,10 +45,10 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
                         <Text style={{color: '#555555', fontWeight: '500', fontSize: 12}}>{modalData?.mistakes} mistakes</Text>
                     </View>
                     <TouchableOpacity onPress={async() => {
-                        setInformationModal(false)
-                        navigation.navigate('GameScreen', {tasks: [dataForGameScreen], isFromAttributes: true})
-                        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
-                        }} 
+                            setInformationModal(false)
+                            navigation.navigate('GameScreen', {tasks: [dataForGameScreen], isFromAttributes: true})
+                            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
+                            }} 
                         style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), backgroundColor: '#504297', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{fontWeight: '600', fontSize: 14, color: '#FFFFFF'}}>Open game</Text>
                     </TouchableOpacity>
@@ -56,3 +58,9 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
     }
 
 export default InformationModal;
+
+// onPress={async() => {
+//     setInformationModal(false)
+//     navigation.navigate('GameScreen', {tasks: [dataForGameScreen], isFromAttributes: true})
+//     await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT)
+//     }} 
