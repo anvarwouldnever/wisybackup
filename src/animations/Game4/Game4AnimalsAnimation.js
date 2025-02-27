@@ -9,7 +9,7 @@ import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import galochka from '../../images/galochka.png'
 import x from '../../images/wrongX.png'
 
-const Game4AnimalsAnimation = ({ answer, id, audio, images, setId }) => {
+const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const sound = React.useRef(new Audio.Sound());
@@ -85,7 +85,7 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId }) => {
     
         return (
             <View style={{backgroundColor: 'white', width: windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10,}}>
-                <TouchableOpacity onPress={() => {
+                <TouchableOpacity onPress={lock? () => {return} : () => {
                     answer({ answer: item.id })
                     if (timeoutRef.current) {
                         clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен

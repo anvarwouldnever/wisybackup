@@ -25,6 +25,8 @@ import BreakScreen from './BreakScreen'
 import Game16Screen from './Game16Screen'
 import translations from '../../localization'
 import { playSound2 } from '../hooks/usePlaySound2'
+import Game14Screen from './Game14Screen'
+import { toJS } from "mobx";
 
 const GameScreen = ({ route }) => {
 
@@ -43,6 +45,8 @@ const GameScreen = ({ route }) => {
     let introAudio = tasks[taskLevel]?.introAudio
     let introText = tasks[taskLevel]?.introText
     let tutorials = tasks[taskLevel]?.tutorials
+
+    // console.log(task[level].type, task[level]?.content?.sub_type)
 
     useEffect(() => {
         if (!isFromAttributes) {
@@ -75,6 +79,20 @@ const GameScreen = ({ route }) => {
             }
             return 0;
         });
+    };
+
+    const shuffleArray = (task) => {
+        if (!task) return null;
+    
+        const taskCopy = JSON.parse(JSON.stringify(toJS(task))); // Глубокая копия
+    
+        if (!Array.isArray(taskCopy?.content?.pairs)) {
+            return taskCopy;
+        }
+    
+        taskCopy.content.pairs = taskCopy.content.pairs.sort(() => Math.random() - 0.5);
+    
+        return taskCopy;
     };
 
     // tasks.forEach(parentTask => {
@@ -114,7 +132,7 @@ const GameScreen = ({ route }) => {
     const RenderWithAudio = () => {
         // <Game4Screen level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         return (
-            <TestScreen />
+            <Game4Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -164,6 +182,13 @@ const GameScreen = ({ route }) => {
         // done
         return (
             <Game12Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+        )
+    }
+
+    const RenderObjectMatchingTextGame = () => {
+        
+        return (
+            <Game14Screen data={task[level]} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -289,6 +314,8 @@ const GameScreen = ({ route }) => {
                     <RenderHandWrittenCountingGame /> :
                     task[level].type === 'handwritten' && task[level].content.sub_type === 'word'?
                     <RenderHandWrittenWordGame /> :
+                    task[level].type === 'object_matching' && task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image'?
+                    <RenderObjectMatchingTextGame /> :
                     task[level].type === 'puzzle'?
                     <RenderPuzzleGame /> :
                     task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
@@ -297,8 +324,8 @@ const GameScreen = ({ route }) => {
                     <RenderTextSingleChoiceSimpleGame /> : 
                     task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_title' &&  task[level]?.content?.options[0]?.audio != null || task[level]?.content?.options[0]?.text.includes(" ")?
                     <RenderTextSingleChoiceWithAudioGame /> : 
-                    <CongratulationsScreen setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
-                ) : <CongratulationsScreen setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                    <CongratulationsScreen setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                ) : <CongratulationsScreen setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
             }
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}
