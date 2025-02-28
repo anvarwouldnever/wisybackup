@@ -25,7 +25,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
     const [lock, setLock] = useState(false);   
-    const [wisySpeaking, setWisySpeaking] = useState(false)
+    const [wisySpeaking, setWisySpeaking] = useState(false);
     const lottieRef = useRef(null);
     
         useEffect(() => {
@@ -43,7 +43,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     useEffect(() => {
             const introPlay = async() => {
                 try {
-                    setLock(false)
+                    setLock(true)
                     if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
                                             setWisySpeaking(true);
                                             setText(introText);
@@ -63,7 +63,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     } finally {
                         setText(null);
                         setWisySpeaking(false)
-                        setLock(true)
+                        setLock(false)
                     }
                 }
             }

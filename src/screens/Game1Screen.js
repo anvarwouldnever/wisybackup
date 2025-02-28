@@ -20,11 +20,9 @@ import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgro
 import speakingWisy from '../lotties/headv9.json'
 import LottieView from 'lottie-react-native';
 
-const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level }) => {    
+const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {    
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-
-    // console.log(data)
 
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
@@ -63,35 +61,35 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         };
 
     useEffect(() => {
-            const introPlay = async() => {
+        const introPlay = async() => {
+            try {
+                setLock(true)
+                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                    setWisySpeaking(true);
+                    setText(introText);
+                    await playSoundWithoutStopping(introAudio);
+                }
+            } catch (error) {
+                console.log(error);
+            } finally {
                 try {
-                    setLock(true)
-                    if (level === introTaskIndex) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                        setText(data?.content?.question)
                         setWisySpeaking(true);
-                        setText(introText);
-                        await playSoundWithoutStopping(introAudio);
+                        await playSound(data?.content?.speech);
                     }
                 } catch (error) {
-                    console.log(error);
+                    console.error("cОшибка при воспроизведении звука:", error);
                 } finally {
-                    try {
-                        if (data?.content?.question || data?.content?.speech) {
-                                                    setText(data?.content?.question)
-                                                    setWisySpeaking(true);
-                                                    await playSound(data?.content?.speech);
-                                                }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false);
-                        setLock(false)
-                    }
+                    setText(null);
+                    setWisySpeaking(false);
+                    setLock(false)
                 }
             }
+        }
     
-            introPlay()
-        }, [data?.content?.speech]);
+        introPlay()
+    }, [data?.content?.speech, tutorialShow]);
 
     useEffect(() => {
         start();
@@ -218,7 +216,10 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     return (
         <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50}}>
             <View source={bg} style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingTop: 50, justifyContent: Platform.isPad? 'center' : ''}}>
-                {data && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
+                {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+                    <Game8Tutorial tutorials={tutorials}/>
+                </View>}
+                {data && (!tutorialShow || tutorials == 0) && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
                     <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (90 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
                         <LottieView
                             ref={lottieRef}
@@ -234,9 +235,14 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                         />
                         <Game3TextAnimation text={text} thinking={thinking}/>
                     </View>
-                    <View style={{position: 'absolute', bottom: 0, right: 0}}>
+                    {(!tutorialShow || tutorials == 0) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
                         {!lock && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
-                    </View>
+                    </View>}
+                    {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+                        <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
+                            Skip
+                        </Text>
+                    </TouchableOpacity>} 
             </View>
         </View>
     );

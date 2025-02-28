@@ -1,4 +1,4 @@
-import { View, Image, Platform, useWindowDimensions, Vibration } from 'react-native'
+import { View, Image, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import wisy from '../images/pandaHead.png'
 import Game5AnimalsAnimation from '../animations/Game5/Game5AnimalsAnimation'

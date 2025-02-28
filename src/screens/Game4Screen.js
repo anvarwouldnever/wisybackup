@@ -1,4 +1,4 @@
-import { View, Image, Platform, useWindowDimensions, Vibration } from 'react-native'
+import { View, Image, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text } from 'react-native'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import wisy from '../images/pandaHead.png'
 import Game4TextAnimation from '../animations/Game4/Game4TextAnimation'
@@ -179,7 +179,6 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             setLock(false)
         } finally {
             setThinking(false)
-            setLock(false)
         }
     }
 

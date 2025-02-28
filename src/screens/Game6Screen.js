@@ -4,9 +4,9 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedProps, useAnimatedStyle, runOnJS } from 'react-native-reanimated';
 import Svg, { Path, G } from 'react-native-svg';
 
-const Game6Screen = ({ data }) => {
+const AnimatedPath = Animated.createAnimatedComponent(Path)
 
-    const AnimatedPath = Animated.createAnimatedComponent(Path)
+const Game6Screen = ({ data }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -141,19 +141,23 @@ const Game6Screen = ({ data }) => {
                                     ],
                                 }));
 
+                                const animatedStyle = useAnimatedStyle(() => ({
+                                    transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
+                                }));
+
                                 return (
                                     <GestureDetector key={index} gesture={panGesture}>
                                         <G>
                                             <Path
                                                 d={path.d}
                                                 fill={path.fill}
-                                                disabled={false}
+                                                onResponderMove={(_) => {}}
                                             />
                                             {!dragged && <AnimatedPath
                                                 d={path.d}
                                                 fill={path.fill}
                                                 animatedProps={animatedProps}
-                                                disabled={false}
+                                                onResponderMove={(_) => {}}
                                             />}
                                         </G>
                                     </GestureDetector>

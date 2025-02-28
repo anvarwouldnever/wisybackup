@@ -22,7 +22,8 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     
     const [lines, setLines] = useState([]);
     const [answered, setAnswered] = useState([])
-    const [isDrawing, setIsDrawing] = useState<boolean>(false);    
+    const [isDrawing, setIsDrawing] = useState<boolean>(false);  
+    const [wrongObject, setWrongObject] = useState()  
 
     const lineStartX = useSharedValue(0);
     const lineStartY = useSharedValue(0);
@@ -82,19 +83,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     
             introPlay()
         }, [data?.content?.speech, tutorialShow]);
-                                
-    const playVoice = async (sound) => {
-        try {
-            setWisySpeaking(true)
-            await playSound(sound);
-        } catch (error) {
-            console.error("Ошибка при воспроизведении звука:", error);
-        } finally {
-            setWisySpeaking(false)
-            setText(null);
-            setLock(false)
-        }
-    }
 
     useEffect(() => {
         if (!text) return;
@@ -210,7 +198,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         if (layouts.length === images.length) {
                             imageLayouts.value = layouts;
                         }
-                        
                     });
                 }
             });
@@ -235,12 +222,13 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const answer = async({ answer }) => {
         try {
+            // console.log(answer)
             const lead_time = getTime();
             stop();
             setId(null)
             setThinking(true)
             setLock(true)
-            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: false, lead_time: lead_time, token: store.token, lang: store.language})
+            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {
@@ -356,9 +344,12 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setLock(false)
         } finally {
             setThinking(false)
-            setLock(false)
         }
-    }
+    };
+
+    const addToAnswered = (key) => {
+        setAnswered((prev) => [...prev, key]);
+    };
 
     const isPointInsideImage = (x, y, key) => {
         'worklet';
@@ -385,20 +376,32 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 adjustedY >= image.y &&
                 adjustedY <= image.y + image.height
             ) {
-                if (image.key !== key) {
-                    runOnJS(answer)({ answer: "false" });
-                    return { inside: false };
-                }
-
                 const isRightSide = i >= totalImages - rightSideThreshold; // Проверяем, правый ли элемент
                 const isCorrect = image.key === key;
+
+                if (image.key !== key) {
+                    if (answered.includes(image.key)) {
+                        return { inside: false }
+                    }
+                    runOnJS(answer)({ answer: false });
+                    runOnJS(setWrongObject)(key)
+                    return {
+                        inside: true,
+                        newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
+                        newY: image.y + image.height / 2 - mainContainerOffset.top,
+                        targetIndex: i,
+                        color: isCorrect ? '#ADD64D' : '#D81616',
+                    }; 
+                }
+
+                runOnJS(addToAnswered)(key);
     
                 return {
                     inside: true,
                     newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
                     newY: image.y + image.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#000000', // Цвет в зависимости от совпадения
+                    color: isCorrect ? '#ADD64D' : '#D81616',
                 };
             }
         }
@@ -411,26 +414,39 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         const adjustedY = y + mainContainerOffset.top;  
         
         for (let i = 0; i < answersLayouts.value.length; i++) {
-            const answer = answersLayouts.value[i];
+            const answerLayout = answersLayouts.value[i];
     
             if (
-                adjustedX >= answer.x &&
-                adjustedX <= answer.x + answer.width &&
-                adjustedY >= answer.y &&
-                adjustedY <= answer.y + answer.height
+                adjustedX >= answerLayout.x &&
+                adjustedX <= answerLayout.x + answerLayout.width &&
+                adjustedY >= answerLayout.y &&
+                adjustedY <= answerLayout.y + answerLayout.height
             ) {
-                if (answer.key !== key) {
-                    runOnJS(answer)({ answer: "false" });
-                    return { inside: false };
-                }  
+                const isCorrect = answerLayout.key === key;
 
-                const isCorrect = answer.key === key;
+                if (answerLayout.key !== key) {
+                    if (answered.includes(answerLayout.key)) {
+                        return { inside: false }
+                    }
+                    runOnJS(answer)({ answer: false });
+                    runOnJS(setWrongObject)(answerLayout.key)
+
+                    return {
+                        inside: true,
+                        newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
+                        newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                        targetIndex: i,
+                        color: isCorrect ? '#ADD64D' : '#D81616',
+                    };
+                }  
+                
+                runOnJS(addToAnswered)(key);
                 return {
                     inside: true,
-                    newX: answer.x + answer.width - 30, // Правая граница объекта
-                    newY: answer.y + answer.height / 2 - mainContainerOffset.top,
+                    newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
+                    newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#000000', // Цвет в зависимости от совпадения
+                    color: isCorrect ? '#ADD64D' : '#D81616',
                 };
             }
         }
@@ -439,46 +455,69 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const isPointInsideAnswerLeft = (x, y, key) => {
         'worklet';
-        const adjustedX = x + 30; // Учитываем смещение по X
+        const adjustedX = x + 30;
         const adjustedY = y + mainContainerOffset.top;
     
         for (let i = 0; i < answersLayouts.value.length; i++) {
-            const answer = answersLayouts.value[i];
+            const answerLayout = answersLayouts.value[i];
     
             if (
-                adjustedX >= answer.x &&
-                adjustedX <= answer.x + answer.width &&
-                adjustedY >= answer.y &&
-                adjustedY <= answer.y + answer.height
+                adjustedX >= answerLayout.x &&
+                adjustedX <= answerLayout.x + answerLayout.width &&
+                adjustedY >= answerLayout.y &&
+                adjustedY <= answerLayout.y + answerLayout.height
             ) {
-                if (answer.key !== key) {
-                    runOnJS(answer)({ answer: "false" });
-                    return { inside: false };
+                const isCorrect = answerLayout.key === key;
+
+                if (answerLayout.key !== key) {
+                    if (answered.includes(answerLayout.key)) {
+                        return { inside: false }
+                    }
+                    runOnJS(answer)({ answer: false });
+                    runOnJS(setWrongObject)(answerLayout.key)
+                    return {
+                        inside: true,
+                        newX: answerLayout.x - 30,
+                        newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                        targetIndex: i,
+                        color: isCorrect ? '#ADD64D' : '#D81616',
+                    };
                 }  
 
-                const isCorrect = answer.key === key;
-    
+                runOnJS(addToAnswered)(key);
                 return {
                     inside: true,
-                    newX: answer.x - 30, // Левая граница объекта
-                    newY: answer.y + answer.height / 2 - mainContainerOffset.top,
+                    newX: answerLayout.x - 30,
+                    newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#000000', // Цвет в зависимости от совпадения
+                    color: isCorrect ? '#ADD64D' : '#D81616',
                 };
             }
         }
         return { inside: false };
     };    
 
-    const addToAnswered = (key) => {
-        setAnswered((prev) => [...prev, key]);
-    };
-
     useEffect(() => {
         if (answered.length === images.length) {
-            answer({ answer: "true" })
+            answer({ answer: true })
         }
     }, [answered])
+
+    const playVoice = async (sound) => {
+        try {
+            setWisySpeaking(true);
+            await playSound(sound);
+        } catch (error) {
+            console.error("Ошибка при воспроизведении звука:", error);
+        } finally {
+            setWisySpeaking(false);
+            setText(null);
+            setLines(prevLines => prevLines.slice(0, -1));
+            setWrongObject(null)
+
+            setLock(false);
+        }
+    };
     
     return (
         <View style={{top: mainContainerOffset.top, width: windowWidth - 60, height: windowHeight - 60, position: "absolute", alignItems: "center"}}>
@@ -511,10 +550,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             let { inside, newX, newY, targetIndex, color } = isPointInsideAnswerLeft(lineEndX.value, lineEndY.value, item.key);
                         
                             if (inside) {
-
-                                if (!answered.includes(item.key)) {
-                                    runOnJS(addToAnswered)(item.key); // Вызываем функцию добавления
-                                }
                                 
                                 const startObject = imageLayouts.value.find(a => a.key === item.key);
                                 if (startObject) {
@@ -573,10 +608,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 
                                 if (inside) {
                                     
-                                    if (!answered.includes(item.key)) {
-                                        runOnJS(addToAnswered)(item.key); // Вызываем функцию добавления
-                                    }
-                                    
                                     const answer = answersLayouts.value.find(a => a.key === item.key);
                                     if (answer) {
                                         const totalImages = imageLayouts.value.length;
@@ -613,17 +644,17 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 <GestureDetector key={item.key} gesture={gesture}>
                                     {type == 'text'? 
                                         <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', justifyContent: 'space-between'}}>
-                                            <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
+                                            <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
                                                 <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360)}}>{item?.text}</Text>
                                             </View>
-                                            <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={answered.includes(item.key)? black : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
+                                            <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={answered.includes(item.key) || wrongObject == item.key? black : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
                                             </TouchableOpacity>
-                                        </View> 
+                                        </View>
                                     :
                                     type == 'image' &&
-                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : 'white', borderWidth: 2}}>
-                                        <View style={{width: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), height: images.length === 4? windowHeight * (69 / 360) : windowHeight * (96 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : 'white', borderRadius: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderWidth: 2}}>
+                                        <View style={{width: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), height: images.length === 4? windowHeight * (69 / 360) : windowHeight * (96 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : wrongObject == item.key? '#D816164D' : 'white', borderRadius: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                                             <Image source={{ uri: item?.image }} style={{width: windowWidth * (80 / 800), height: windowHeight * (81 / 360)}}/>
                                         </View> 
                                     </View>   
@@ -665,10 +696,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                     let { inside, newX, newY, targetIndex, color } = isPointInsideAnsweRight(lineEndX.value, lineEndY.value, item.key);
                                 
                                     if (inside) {
-
-                                        if (!answered.includes(item.key)) {
-                                            runOnJS(addToAnswered)(item.key); // Вызываем функцию добавления
-                                        } 
 
                                         const answer = imageLayouts.value.find(a => a.key === item.key);
                                         if (answer) {

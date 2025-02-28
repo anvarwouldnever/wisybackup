@@ -179,7 +179,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                 <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: 'auto', height: 'auto' }}>
                 <TouchableOpacity
                     // (task != null && (item.tasks?.length > 0 || item?.isBreak))? 
-                    onPress={true? () => {
+                    onPress={(task != null && (item.tasks?.length > 0 || item?.isBreak))? () => {
                             const filteredTasksArray = prepareTasksArray(item.id);
                             navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
                         } 

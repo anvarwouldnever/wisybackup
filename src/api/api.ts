@@ -442,6 +442,7 @@ class Api {
 
     async answerTaskSC(params: any) {
         try {
+            // console.log(params)
             const response = await axios.post(`${this.baseUrl}/tasks/answer`, 
             {
                 task_id: params.task_id,
