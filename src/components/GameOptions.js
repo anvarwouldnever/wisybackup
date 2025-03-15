@@ -24,8 +24,11 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
             try {
                 setWisySpeaking(true);
                 const sound = await api.getSpeech('switch_category', store.language);
-                setText(sound[0]?.text);
-                await playSound(sound[0]?.audio);
+                if (sound.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * sound.length);
+                    setText(sound[randomIndex]?.text);
+                    await playSound(sound[randomIndex]?.audio);
+                }
             } catch (error) {
                 console.log(error);
             } finally {
@@ -46,11 +49,11 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
             <TouchableOpacity onPress={() => {
                     setActiveCategory(index);
                     setSubCollections(null)
-                }} style={{marginRight: 8, width: Platform.isPad? windowWidth * (128 / 1194) : windowWidth * (64 / 800), alignItems: 'center', justifyContent: 'center', height: Platform.isPad? windowHeight * (128 / 834) : windowHeight * (64 / 360), borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: activeCategory === index? 'white' : '#F8F8F833'}}>
+                }} style={{marginRight: 8, width: Platform.isPad? windowWidth * (128 / 1194) : windowHeight * (64 / 360), alignItems: 'center', justifyContent: 'center', height: Platform.isPad? windowHeight * (128 / 834) : windowHeight * (64 / 360), borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: activeCategory === index? 'white' : '#F8F8F833'}}>
                 {isSvg?
-                    <SvgUri width={Platform.isPad? windowWidth * (96 / 1194) : windowWidth * (48 / 800)} height={Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360)} uri={item?.image?.url} style={{backgroundColor: '#F8F8F833', borderRadius: 100}}/> 
+                    <SvgUri width={Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360)} height={Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360)} uri={item?.image?.url} style={{backgroundColor: '#F8F8F833', borderRadius: 100}}/> 
                 :
-                    <Image source={{ uri: item?.image?.url }} style={{ width: Platform.isPad? windowWidth * (96 / 1194) : windowWidth * (48 / 800), height: Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360), backgroundColor: '#F8F8F833', borderRadius: 100 }}/>
+                    <Image source={{ uri: item?.image?.url }} style={{ width: Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360), height: Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360), backgroundColor: '#F8F8F833', borderRadius: 100 }}/>
                 }
             </TouchableOpacity>
         )

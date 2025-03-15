@@ -34,21 +34,21 @@ const Game3AnimalsAnimation = ({ answer, id, images, setId, lock }) => {
 
     const timeoutRef = useRef(null);
     
-        useEffect(() => {
-            if (id?.id && id?.result) {
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                }
-                timeoutRef.current = setTimeout(() => {
-                    setId(null);
-                }, 2500);
-            }
-            return () => {
-                if (timeoutRef.current) {
-                    clearTimeout(timeoutRef.current);
-                }
-            };
-        }, [id, setId]);
+        // useEffect(() => {
+        //     if (id?.id && id?.result) {
+        //         if (timeoutRef.current) {
+        //             clearTimeout(timeoutRef.current);
+        //         }
+        //         timeoutRef.current = setTimeout(() => {
+        //             setId(null);
+        //         }, 2500);
+        //     }
+        //     return () => {
+        //         if (timeoutRef.current) {
+        //             clearTimeout(timeoutRef.current);
+        //         }
+        //     };
+        // }, [id, setId]);
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 

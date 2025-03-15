@@ -24,7 +24,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-    // console.log('render');
+    // console.log(anyBreak);
     const [seconds, setSeconds] = useState<number>();
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, useWindowDimensions, PanResponder, Image, TouchableOpacity, Platform, Vibration } from 'react-native';
+import { View, Text, useWindowDimensions, PanResponder, Image, TouchableOpacity, Platform, Vibration, Share } from 'react-native';
 import Svg, { Polyline } from 'react-native-svg';
 import lion from '../images/pig.png'
 import speaker from '../images/speaker2.png'
@@ -29,74 +29,87 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const word = `${data?.content?.word}`.split('');
 
-    const viewShotRef = useRef(null);
-
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
     const [lock, setLock] = useState(false);
     const [wisySpeaking, setWisySpeaking] = useState(false)
-        const lottieRef = useRef(null);
     
-        useEffect(() => {
-            if (wisySpeaking) {
-                setTimeout(() => {
-                    lottieRef.current?.play(180, 0);
-                }, 1);
-            } else {
+    const lottieRef = useRef(null);
+    const timeoutRef = useRef(null);
+    const viewShotRef = useRef(null);
+    
+    useEffect(() => {
+        if (wisySpeaking) {
+            setTimeout(() => {
+                lottieRef.current?.play(180, 0);
+            }, 1);
+        } else {
+            setTimeout(() => {
                 lottieRef.current?.reset();
-            }
-        }, [wisySpeaking]);
+            }, 1);
+        }
+    }, [wisySpeaking]);
 
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
-            const introPlay = async() => {
+        const introPlay = async() => {
+            try {
+                setLock(true)
+                if (level === introTaskIndex && introAudio && introText && (!tutorialShow || tutorials.length == 0)) {
+                    console.log('ran')
+                    setWisySpeaking(true);
+                    setText(introText);
+                    await playSoundWithoutStopping(introAudio);
+                }
+            } catch (error) {
+                console.log(error)
+            } finally {
                 try {
-                    setLock(true)
-                    if (level === introTaskIndex && introAudio && (!tutorialShow || tutorials == 0)) {
-                                            setWisySpeaking(true);
-                                            setText(introText);
-                                            await playSoundWithoutStopping(introAudio);
-                                        }
-                } catch (error) {
-                    console.log(error)
-                } finally {
-                    try {
-                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                            setText(data?.content?.question)
-                            setWisySpeaking(true);
-                            await playSound(data?.content?.speech);
-                        }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false)
-                        setLock(false)
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials.length == 0)) {
+                        setText(data?.content?.question)
+                        setWisySpeaking(true);
+                        await playSound(data?.content?.speech);
                     }
+                } catch (error) {
+                    console.error("cОшибка при воспроизведении звука:", error);
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false)
+                    setLock(false)
                 }
             }
-    
-            introPlay()
-        }, [data?.content?.speech, tutorialShow]);
-                        
-                            const playVoice = async (sound) => {
-                                try {
-                                    setWisySpeaking(true)
-                                    await playSound(sound);
-                                } catch (error) {
-                                    console.error("Ошибка при воспроизведении звука:", error);
-                                } finally {
-                                    setText(null);
-                                    setWisySpeaking(false)
-                                    setLock(false)
-                                }
-                            };
+        }
 
-    useEffect(() => {
-        
+        introPlay()
+    }, [data?.content?.speech, tutorialShow]);
+                        
+    const playVoice = async (sound) => {
+        try {
+            setWisySpeaking(true)
+            await playSound(sound);
+        } catch (error) {
+            console.error("Ошибка при воспроизведении звука:", error);
+        } finally {
+            setText(null);
+            setWisySpeaking(false)
+            if (sound) {
+                setId(null)
+                setLock(false)
+                setLines([])
+            } else {
+                setTimeout(() => {
+                    setId(null)
+                    setLock(false)
+                    setLines([])
+                }, 1500);
+            }
+        }
+    };
+
+    useEffect(() => {   
         start();
         return () => {
             reset();
@@ -108,29 +121,27 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             sound.current.unloadAsync();
         };
     }, [])
-
-    const timeoutRef = useRef(null);
                         
-                            useEffect(() => {
-                                if (id?.id && id?.result) {
-                                    if (timeoutRef.current) {
-                                        clearTimeout(timeoutRef.current);
-                                    }
-                                    timeoutRef.current = setTimeout(() => {
-                                        setId(null);
-                                        setLines([]);
-                                    }, 2500);
-                                }
-                                return () => {
-                                    if (timeoutRef.current) {
-                                        clearTimeout(timeoutRef.current);
-                                    }
-                                };
-                            }, [id]);
+    // useEffect(() => {
+    //     if (id?.id && id?.result) {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //         timeoutRef.current = setTimeout(() => {
+    //             setId(null);
+    //             setLines([]);
+    //         }, 2500);
+    //     }
+    //     return () => {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //     };
+    // }, [id]);
     
     const vibrate = () => {
-                Vibration.vibrate(500);
-            };
+        Vibration.vibrate(500);
+    };
 
     const voice = async () => {
         try {
@@ -204,10 +215,10 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: data.id, result: 'correct'})
                 setText(response?.hint)
                 
@@ -219,11 +230,24 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
+                    // if (response?.sound) {
+                    //     setId(null)
+                    //     setLock(false)
+                    //     setLines([])
+                    // } else {
+                    //     setTimeout(() => {
+                    //         setId(null)
+                    //         setLock(false)
+                    //         setLines([])
+                    //     }, 1500);
+                    // }
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
-                        setLock(false)
+                        setId(null);
+                        setLock(false);
+                        setLines([]);
                     }, 1500);
                 }
                 return;
@@ -231,10 +255,10 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             else if (response && response.stars && !response.success) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response?.hint)
@@ -247,11 +271,24 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
+                    // if (response?.sound) {
+                    //     setId(null)
+                    //     setLock(false)
+                    //     setLines([])
+                    // } else {
+                    //     setTimeout(() => {
+                    //         setId(null)
+                    //         setLock(false)
+                    //         setLines([])
+                    //     }, 1500);
+                    // }
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
+                        setId(null)
                         setLock(false)
+                        setLines([])
                     }, 1500);
                 }
                 return;
@@ -266,13 +303,13 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             } else if(response && response.success) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: data.id, result: 'correct'})
                 setText(response.hint)
-                
+
                 try {
                     setWisySpeaking(true)
                     await playSound(response?.sound)
@@ -281,19 +318,29 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
+                    if (sound) {
+                        setId(null)
+                        setLock(false)
+                        setLines([])
+                    } else {
+                        setTimeout(() => {
+                            setId(null)
+                            setLock(false)
+                            setLines([])
+                        }, 1500);
+                    }
                     setTimeout(() => {
                         setLevel(prev => prev + 1);
                         setAttempt('1');
-                        setLock(false)
                     }, 1500);
                 }
             } else if(response && !response.success && response.to_next) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
@@ -305,14 +352,28 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
+                    // if (sound) {
+                    //     setId(null)
+                    //     setLock(false)
+                    //     setLines([])
+                    // } else {
+                    //     setTimeout(() => {
+                    //         setId(null)
+                    //         setLock(false)
+                    //         setLines([])
+                    //     }, 1500);
+                    // }
                     setTimeout(() => {
                         setLevel(prev => prev + 1);
                         setAttempt('1');
+                        setId(null)
                         setLock(false)
+                        setLines([])
                     }, 1500);
                 }
             }
         } catch (error) {
+            console.log(error)
             setLock(false)
         } finally {
             setThinking(false)
@@ -323,10 +384,10 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     return (
         <View style={{ position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
-            {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {(!tutorialShow || tutorials == 0) && <View style={{ minWidth: windowWidth * (320 / 800), height: Platform.isPad? windowWidth * (260 / 800) : windowHeight * (260 / 360), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between', position: 'absolute'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{ minWidth: windowWidth * (320 / 800), height: Platform.isPad? windowWidth * (260 / 800) : windowHeight * (260 / 360), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between', position: 'absolute'}}>
                 <View style={{ width: windowWidth * (244 / 800), height: Platform.isPad? windowWidth * (140 / 800) : windowHeight * (140 / 360), backgroundColor: '#FFFFFF', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
                 {data.content.image.endsWith(".svg") ? <SvgUri uri={data.content.image} width={windowWidth * (108 / 800)} height={Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)} /> : <Image source={{ uri: data.content.image }} style={{width: windowWidth * (108 / 800), height: Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)}}/>}
                     <TouchableOpacity onPress={() => voice()} style={{width: windowWidth * (64 / 800), borderWidth: 1, height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
@@ -372,7 +433,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     })}
                 </View>
             </View>}
-            {(!tutorialShow || tutorials == 0) && <View style={{width: 'auto', position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: 'auto', position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -387,7 +448,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 />
                 <Game3TextAnimation text={text} thinking={thinking}/>
             </View>}
-            {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+            {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                                             <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
                                               Skip
                                             </Text>

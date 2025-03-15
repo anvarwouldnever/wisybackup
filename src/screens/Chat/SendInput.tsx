@@ -18,10 +18,12 @@ const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMes
                         onChangeText={(text) => setText(text)}
                         keyboardAppearance="dark"
                         value={text}
+                        // onPress={() => setKeyboardActive(true)}
                     />
                     {text === ''? <ChatMicroAnimation text={text} thinking={thinking} flatListRef={flatListRef} firstMessageRef={firstMessageRef}/> 
                     : 
                     <TouchableOpacity disabled={thinking} onPress={() => {
+                        // setKeyboardActive(false)
                         Keyboard.dismiss();
                         sendMessage(text);
                         setText('');

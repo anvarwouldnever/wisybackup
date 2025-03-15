@@ -1,5 +1,5 @@
-import React, { useState, useRef } from "react";
-import { FlatList, Image, Keyboard, KeyboardAvoidingView, Text, TextInput, TouchableOpacity, View, useWindowDimensions } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { FlatList, Image, Keyboard, KeyboardAvoidingView, Platform, Text, TextInput, TouchableOpacity, View, useWindowDimensions, Dimensions } from "react-native";
 import narrowleft from '../images/tablerleft.png'
 import { useNavigation } from "@react-navigation/native";
 import wisypfp from '../images/wisypfp.png'
@@ -24,6 +24,8 @@ const ChatScreen = () => {
     const [thinking, setThinking] = useState(false);
     const flatListRef = useRef(null);
     const firstMessageRef = useRef(null);
+
+    // const [keyboardActive, setKeyboardActive] = useState(false);
     
     const sendMessage = async(currentText) => {
         setThinking(true)
@@ -54,12 +56,14 @@ const ChatScreen = () => {
 
     return (
         <View style={{flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}>
-            <KeyboardAvoidingView style={{gap: windowWidth * (12 / 360)}} behavior='position' keyboardVerticalOffset={10}>
-                <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), marginTop: windowHeight * (20 / 800)}}>
+            <KeyboardAvoidingView style={{gap: windowWidth * (12 / 360)}} behavior='position' keyboardVerticalOffset={Platform.OS == 'android'? 10 : 0}>
+                <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), marginTop: windowHeight * (20 / 800), alignSelf: 'center'}}>
                     <ChatFlatlist flatListRef={flatListRef} firstMessageRef={firstMessageRef}/>
-                    <ChatRecsFlatlist sendMessage={sendMessage}/>
                 </View>
-                <SendInput text={text} thinking={thinking} sendMessage={sendMessage} setText={setText} firstMessageRef={firstMessageRef} flatListRef={flatListRef}/>
+                <View style={{width: windowWidth * (328 / 360), gap: 16, alignSelf: 'center', alignItems: 'center', marginBottom: Platform.OS === 'android'? 0 : windowHeight * (30 / 800)}}>
+                    <ChatRecsFlatlist sendMessage={sendMessage}/>
+                    <SendInput text={text} thinking={thinking} sendMessage={sendMessage} setText={setText} firstMessageRef={firstMessageRef} flatListRef={flatListRef}/>
+                </View>
             </KeyboardAvoidingView>
             <View style={{gap: windowWidth * (4 / 360), width: windowWidth * (328 / 360), height: windowHeight * (75 / 932), backgroundColor: 'white', flexDirection: 'row', alignItems: 'flex-end', position: 'absolute', top: 0}}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={{flexDirection: 'row', alignItems: 'center'}}>

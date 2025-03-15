@@ -34,21 +34,21 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId, lo
 
     const timeoutRef = useRef(null);
     
-        useEffect(() => {
-                if (id?.id && id?.result) {
-                    if (timeoutRef.current) {
-                        clearTimeout(timeoutRef.current);
-                    }
-                    timeoutRef.current = setTimeout(() => {
-                        setId(null);
-                    }, 2500);
-                }
-                return () => {
-                    if (timeoutRef.current) {
-                        clearTimeout(timeoutRef.current);
-                    }
-                };
-            }, [id, setId]);
+        // useEffect(() => {
+        //         if (id?.id && id?.result) {
+        //             if (timeoutRef.current) {
+        //                 clearTimeout(timeoutRef.current);
+        //             }
+        //             timeoutRef.current = setTimeout(() => {
+        //                 setId(null);
+        //             }, 2500);
+        //         }
+        //         return () => {
+        //             if (timeoutRef.current) {
+        //                 clearTimeout(timeoutRef.current);
+        //             }
+        //         };
+        //     }, [id, setId]);
 
     const isAnimalSvg = animal && animal.endsWith('.svg');
 
@@ -80,14 +80,16 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId, lo
             </View>
         );
     };
+
+    // console.log(animal)
     
     return (
         <Animated.View key={key} entering={ZoomInEasyDown} style={{ width: windowWidth * (528 / 800), height: Platform.isPad? windowWidth * (312 / 800) : windowHeight * (312 / 360), alignSelf: 'center', alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between' }}>
             {animal ? (
                 isAnimalSvg ? (
-                    <SvgUri uri={animal} style={{ width: windowWidth * (244 / 800), height: windowHeight * (152 / 360) }} />
+                    <SvgUri uri={animal} style={{ width: windowWidth * (244 / 800), height: windowHeight * (152 / 360), borderWidth: 3, borderColor: 'white', borderRadius: 16, resizeMode: 'cover' }}/>
                 ) : (
-                    <Image source={{ uri: animal }} style={{ width: windowWidth * (244 / 800), height: Platform.isPad? windowWidth * (152 / 800) : windowHeight * (152 / 360), resizeMode: 'contain' }} />
+                    <Image source={{ uri: animal }} style={{ width: windowWidth * (244 / 800), height: Platform.isPad? windowWidth * (152 / 800) : windowHeight * (152 / 360), resizeMode: 'cover', borderWidth: 3, borderColor: 'white', borderRadius: 16 }} />
                 )
             ) : null}
             <View style={{ height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), alignItems: 'center' }}>

@@ -22,14 +22,14 @@ const Back = () => {
                     return isSvg ? (
                         <SvgUri 
                             uri={avatarUrl} 
-                            width={windowWidth * (48 / 800)} 
+                            width={windowHeight * (48 / 360)} 
                             height={windowHeight * (48 / 360)}
                         />
                     ) : (
                         <Image 
                             source={{ uri: avatarUrl }} 
                             style={{
-                                width: windowWidth * (48 / 800), 
+                                width: windowHeight * (48 / 360), 
                                 height: windowHeight * (48 / 360), 
                                 resizeMode: 'contain'
                             }}

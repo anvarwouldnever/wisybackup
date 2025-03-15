@@ -20,12 +20,17 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
     const [collectionIndex, setCollectionIndex] = useState(0);
     const navigation = useNavigation();
 
+    // console.log(subCollections)
+
     const func = async() => {
         try {
             setWisySpeaking(true);
             const sound = await api.getSpeech('enter_subcollections_screen', store.language);
-            setText(sound[0]?.text)
-            await playSound(sound[0]?.audio);
+            if (sound.length > 0) {
+                const randomIndex = Math.floor(Math.random() * sound.length);
+                setText(sound[randomIndex]?.text);
+                await playSound(sound[randomIndex]?.audio);
+            }
         } catch (error) {
             console.log(error);
         } finally {
@@ -37,8 +42,11 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         try {
             setWisySpeaking(true)
             const sound = await api.getSpeech('locked_subcollection_attempt', store.language);
-            setText(sound[0]?.text)
-            await playSound(sound[0]?.audio);
+            if (sound.length > 0) {
+                const randomIndex = Math.floor(Math.random() * sound.length);
+                setText(sound[randomIndex]?.text);
+                await playSound(sound[randomIndex]?.audio);
+            }
         } catch (error) {
             console.log(error);
         } finally {
@@ -115,7 +123,7 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                         setSubCollections(subs)
                         setName(item.name);
                         func()
-                    }} style={{backgroundColor: 'white', borderRadius: 12, width: Platform.isPad? windowWidth * (306 / 1194) :  windowWidth * (136 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F'}}>
+                    }} style={{backgroundColor: 'white', borderRadius: 12, width: Platform.isPad? windowWidth * (306 / 1194) :  windowHeight * (136 / 360), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F'}}>
                         <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (20 / 1194) : windowHeight * (12 / 360), textAlign: 'center', width: '100%', height: 'auto', color: 'black', position: 'absolute', top: Platform.isPad? windowHeight * (12 / 360) : 12}}>{item.name}</Text>
                         <View style={{width: '100%', position: 'absolute', borderColor: 'white', borderWidth: 1, opacity: 0.12, top: 35}}/>
                         <Image source={{uri: item.image.url}} style={{width: Platform.isPad? windowWidth * (256 / 1194) : windowWidth * (135 / 800), height: Platform.isPad? windowWidth * (224 / 1194) : windowHeight * (82 / 360), alignSelf: 'center', position: 'absolute', top: Platform.isPad? windowHeight * (70 / 800) : windowHeight * (35 / 360), resizeMode: 'contain'}} resizeMode='contain' resizeMethod='scale' />
@@ -141,6 +149,8 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
 
         const { image } = item;
         const isSvg = typeof image === 'string' && image.endsWith('.svg');
+
+        // console.log(item)
 
         const task = 
             Array.isArray(availableSubCollections) && availableSubCollections.includes(item.id)
@@ -187,7 +197,8 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                     style={{
                         backgroundColor: '#D8F6FF33', 
                         borderRadius: 12, 
-                        width: Platform.isPad? windowWidth * (306 / 1194) :  windowWidth * (136 / 800), height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), 
+                        width: Platform.isPad? windowWidth * (306 / 1194) : windowHeight * (136 / 360), 
+                        height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), 
                         marginRight: 20,  
                         borderWidth: 1, 
                         borderColor: '#FFFFFF1F',

@@ -67,8 +67,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                 setAnimation(animation);
                 setCurrentAnimation(null);
                 const sound = await api.getSpeech('market_item_purchase', store.language);
-                setText(sound[0]?.text);
-                playSound(sound[0]?.audio);
+                if (sound.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * sound.length);
+                    setText(sound[randomIndex]?.text);
+                    playSound(sound[randomIndex]?.audio);
+                }
             }
             func()
         } else {

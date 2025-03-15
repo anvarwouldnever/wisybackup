@@ -99,8 +99,8 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
     return (
         <Animated.View style={[animatedMicro]}>
-            <TouchableOpacity disabled={thinking} onPressIn={PressIn} onPressOut={PressOut} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
-                <Image source={microimg} style={{width: windowWidth * (13 / 360), height: windowHeight * (22 / 800)}}/>
+            <TouchableOpacity disabled={thinking} onPressIn={PressIn} onPressOut={PressOut} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
+                <Image source={microimg} style={{width: windowHeight * (13 / 800), height: windowHeight * (22 / 800)}}/>
             </TouchableOpacity> 
         </Animated.View>
     )

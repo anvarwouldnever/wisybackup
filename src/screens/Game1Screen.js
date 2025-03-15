@@ -1,23 +1,23 @@
 import { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, ImageBackground, Text, useWindowDimensions, TouchableOpacity, Image, Platform, Vibration } from 'react-native';
 import bg from '../images/bg.png'
-import narrowleft from '../images/narrowleft-purple.png'
-import wisy from '../images/pandaHead.png'
-import star from '../images/Star.png'
+import narrowleft from '../images/narrowleft-purple.png';
+import wisy from '../images/pandaHead.png';
+import star from '../images/Star.png';
 import { useNavigation } from '@react-navigation/native';
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
 import Game1TextAnimation from '../animations/Game1/Game1TextAnimations';
 import MicroAnimation from '../animations/MicroAnimation';
-import api from '../api/api'
+import api from '../api/api';
 import TaskComponent from '../components/TaskComponent';
 import store from '../store/store';
-import { useFocusEffect } from '@react-navigation/native'
+import { useFocusEffect } from '@react-navigation/native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import useTimer from '../hooks/useTimer';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { playSound } from '../hooks/usePlayBase64Audio';
-import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
-import speakingWisy from '../lotties/headv9.json'
+import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds';
+import speakingWisy from '../lotties/headv9.json';
 import LottieView from 'lottie-react-native';
 
 const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {    
@@ -33,19 +33,19 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     const { getTime, start, stop, reset } = useTimer();
 
     const [wisySpeaking, setWisySpeaking] = useState(false)
-            const lottieRef = useRef(null);
+    const lottieRef = useRef(null);
         
-            useEffect(() => {
-                if (wisySpeaking) {
-                    setTimeout(() => {
-                        lottieRef.current?.play(180, 0);
-                    }, 1);
-                } else {
-                    setTimeout(() => {
-                        lottieRef.current?.reset();
-                    }, 1);
-                }
-            }, [wisySpeaking]);
+    useEffect(() => {
+        if (wisySpeaking) {
+            setTimeout(() => {
+                lottieRef.current?.play(180, 0);
+            }, 1);
+        } else {
+            setTimeout(() => {
+                lottieRef.current?.reset();
+            }, 1);
+        }
+    }, [wisySpeaking]);
                                 
     const playVoice = async (sound) => {
             try {
@@ -55,8 +55,8 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                 console.error("Ошибка при воспроизведении звука:", error);
             } finally {
                 setText(null);
-                setWisySpeaking(false)
-                setLock(false)
+                setWisySpeaking(false);
+                setLock(false);
             }
         };
 
@@ -216,10 +216,10 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     return (
         <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50}}>
             <View source={bg} style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingTop: 50, justifyContent: Platform.isPad? 'center' : ''}}>
-                {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+                {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                     <Game8Tutorial tutorials={tutorials}/>
                 </View>}
-                {data && (!tutorialShow || tutorials == 0) && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
+                {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
                     <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (90 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
                         <LottieView
                             ref={lottieRef}
@@ -235,16 +235,16 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                         />
                         <Game3TextAnimation text={text} thinking={thinking}/>
                     </View>
-                    {(!tutorialShow || tutorials == 0) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
+                    {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
                         {!lock && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
-                    </View>}
-                    {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+                    </View>}                          
+                    {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                         <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
                             Skip
                         </Text>
                     </TouchableOpacity>} 
             </View>
-        </View>
+        </View>                                                                                                                                                                             
     );
 }
 

@@ -15,18 +15,18 @@ const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, in
                     setCurrentAnimation({animation: item.animation, cost: item.cost, id: item.id})
                     setAnimationStart(false)
                     setModal(true)
-                }} style={{width: windowWidth * (136 / 800), height: windowHeight * (176 / 360), padding: 12, justifyContent: 'space-between', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', alignSelf: 'center', position: 'relative' }}>
+                }} style={{width: windowHeight * (136 / 360), height: windowHeight * (176 / 360), padding: 12, justifyContent: 'space-between', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', alignSelf: 'center', position: 'relative' }}>
                     {isSvg ? (
                         <SvgUri
                             uri={item.image}
-                            width={windowWidth * (112 / 800)}
+                            width={windowHeight * (112 / 360)}
                             height={windowHeight * (112 / 360)}
                         />
                     ) : (
                         <Image
                             source={{ uri: item.image }}
                             style={{
-                                width: windowWidth * (112 / 800),
+                                width: windowHeight * (112 / 360),
                                 height: windowHeight * (112 / 360),
                                 resizeMode: 'contain',
                             }}

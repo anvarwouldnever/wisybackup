@@ -25,6 +25,7 @@ const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAni
                     scrollEnabled
                     horizontal
                     contentContainerStyle={{ gap: 16 }}
+                    showsHorizontalScrollIndicator={false}
                 />
             </View>
         )

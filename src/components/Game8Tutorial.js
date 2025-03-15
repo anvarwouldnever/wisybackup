@@ -12,7 +12,7 @@ const Game8Tutorial = ({ tutorials }) => {
     const renderItem = ({ item }) => {
 
         return (
-            <Image source={{ uri: item?.url }} style={{ width: width * (430 / 800), height: height * (272 / 360), resizeMode: 'contain' }} />
+            <Image source={{ uri: item?.url }} style={{ width: width * (430 / 800), height: height * (272 / 360), resizeMode: 'contain', backgroundColor: 'white' }} />
         )
     };
 
@@ -35,7 +35,7 @@ const Game8Tutorial = ({ tutorials }) => {
             <TouchableOpacity
                 activeOpacity={currentIndex === 0 ? 0 : 1}
                 style={{
-                    width: width * (40 / 800),
+                    width: height * (40 / 360),
                     height: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     borderRadius: 100,
                     backgroundColor: 'white',
@@ -50,19 +50,20 @@ const Game8Tutorial = ({ tutorials }) => {
 
             <View
                 style={{
-                    width: width * (464 / 800),
-                    height: Platform.isPad ? width * (272 / 800) : height * (272 / 360),
+                    width: width * (471 / 800),
+                    height: width * (272 / 800),
                     backgroundColor: 'white',
                     alignItems: 'center',
-                    padding: 20,
+                    padding: width * (20 / 800),
                     borderRadius: 16,
+                    justifyContent: 'center'
                 }}
             >
                 <FlatList
                     ref={flatListRef}
                     data={data}
                     horizontal
-                    contentContainerStyle={{ alignItems: 'center' }}
+                    contentContainerStyle={{ alignItems: 'center'}}
                     keyExtractor={(item, index) => index.toString()}
                     renderItem={renderItem}
                     pagingEnabled
@@ -77,7 +78,7 @@ const Game8Tutorial = ({ tutorials }) => {
             <TouchableOpacity
                 activeOpacity={currentIndex === data.length - 1 ? 0 : 1}
                 style={{
-                    width: width * (40 / 800),
+                    width: height * (40 / 360),
                     height: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     borderRadius: 100,
                     backgroundColor: 'white',

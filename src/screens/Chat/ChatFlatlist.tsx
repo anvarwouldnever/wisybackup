@@ -36,7 +36,7 @@ const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
     }
 
     return (
-        <View style={{width: windowWidth * (328 / 360), height: windowHeight * (565 / 800), alignSelf: 'center', borderColor: 'red'}}>
+        <View style={{width: windowWidth * (328 / 360), height: 'auto', alignSelf: 'center'}}>
             <FlatList
                 ref={flatListRef}
                 data={store.messages}

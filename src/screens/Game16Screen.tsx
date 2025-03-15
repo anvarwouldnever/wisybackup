@@ -26,50 +26,55 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [id, setId] = useState(null);
     const [lock, setLock] = useState(false);   
     const [wisySpeaking, setWisySpeaking] = useState(false);
+
+    const timeoutRef = useRef(null);
     const lottieRef = useRef(null);
+
+    const animal = data?.content?.image?.url
+    const isAnimalSvg = data?.content?.image?.url && data?.content?.image?.url.endsWith('.svg');
     
-        useEffect(() => {
-            if (wisySpeaking) {
-                setTimeout(() => {
-                    lottieRef.current?.play(180, 0);
-                }, 1);
-            } else {
-                setTimeout(() => {
-                    lottieRef.current?.reset();
-                }, 1);
-            }
-        }, [wisySpeaking]);
+    useEffect(() => {
+        if (wisySpeaking) {
+            setTimeout(() => {
+                lottieRef.current?.play(180, 0);
+            }, 1);
+        } else {
+            setTimeout(() => {
+                lottieRef.current?.reset();
+            }, 1);
+        }
+    }, [wisySpeaking]);
 
     useEffect(() => {
-            const introPlay = async() => {
+        const introPlay = async() => {
+            try {
+                setLock(true)
+                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                    setWisySpeaking(true);
+                    setText(introText);
+                    await playSoundWithoutStopping(introAudio);
+                }
+            } catch (error) {
+                console.log(error)
+            } finally {
                 try {
-                    setLock(true)
-                    if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
-                                            setWisySpeaking(true);
-                                            setText(introText);
-                                            await playSoundWithoutStopping(introAudio);
-                                        }
-                } catch (error) {
-                    console.log(error)
-                } finally {
-                    try {
-                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                                                    setText(data?.content?.question)
-                                                    setWisySpeaking(true);
-                                                    await playSound(data?.content?.speech);
-                                                }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false)
-                        setLock(false)
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                        setText(data?.content?.question)
+                        setWisySpeaking(true);
+                        await playSound(data?.content?.speech);
                     }
+                } catch (error) {
+                    console.error("cОшибка при воспроизведении звука:", error);
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false)
+                    setLock(false)
                 }
             }
-    
-            introPlay()
-        }, [data?.content?.speech, tutorialShow]);
+        }
+
+        introPlay()
+    }, [data?.content?.speech, tutorialShow]);
                                 
     const playVoice = async (sound) => {
         try {
@@ -80,7 +85,15 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } finally {
             setWisySpeaking(false)
             setText(null);
-            setLock(false)
+            if (sound) {
+                setLock(false)
+                setId(null);
+            } else {
+                setTimeout(() => {
+                    setLock(false)
+                    setId(null);
+                }, 1000);
+            }
         }
     }
 
@@ -105,8 +118,6 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const vibrate = () => {
         Vibration.vibrate(500);
     };
-
-    const timeoutRef = useRef(null);
                                 
     useEffect(() => {
         if (id?.id && id?.result) {
@@ -135,10 +146,10 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             if (response && response.stars && response.success) {
                 reset();
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
                 
@@ -155,17 +166,18 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
                         setLock(false)
-                    }, 1500);
+                        setId(null);
+                    }, 1000);
                 }
                 return;
             }
             else if (response && response.stars && !response.success) {
                 reset();
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response?.hint)
@@ -178,12 +190,14 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
+                    setId(null);
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
                         setLock(false)
-                    }, 1500);
+                        setId(null);
+                    }, 1000);
                 }
                 return;
             }
@@ -197,10 +211,10 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             } else if(response && response.success) {
                 reset();
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'correct'})
                 setText(response.hint)
 
@@ -216,15 +230,16 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLevel(prev => prev + 1);
                         setAttempt('1');
                         setLock(false)
-                    }, 1500);
+                        setId(null);
+                    }, 1000);
                 }
             } else if(response && !response.success && response.to_next) {
                 reset();
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
@@ -240,7 +255,8 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLevel(prev => prev + 1);
                         setAttempt('1');
                         setLock(false)
-                    }, 1500);
+                        setId(null);
+                    }, 1000);
                 }
             }
         } catch (error) {
@@ -250,19 +266,17 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setThinking(false)
         }
     }
-    const animal = data?.content?.image?.url
-    const isAnimalSvg = data?.content?.image?.url && data?.content?.image?.url.endsWith('.svg');
 
     const RenderGame13Component = () => {
 
         return (
             <View style={{width: windowWidth * (392 / 800), height: windowHeight * (280 / 360), flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', alignSelf: 'center'}}>
-                <View style={{backgroundColor: '', borderRadius: 10, width: 'auto', height: 'auto'}}>
+                <View style={{backgroundColor: 'white', borderRadius: 10, width: 'auto', height: 'auto'}}>
                     {animal ? (
                         isAnimalSvg ? (
                             <SvgUri uri={animal} style={{ width: windowWidth * (176 / 800), height: windowHeight * (176 / 360)}} />
                             ) : (
-                            <Image source={{ uri: animal }} style={{ width: windowWidth * (176 / 800), height: Platform.isPad? windowWidth * (176 / 800) : windowHeight * (176 / 360), resizeMode: 'contain' }} />
+                            <Image source={{ uri: animal }} style={{ width: windowWidth * (176 / 800), height: Platform.isPad? windowWidth * (176 / 800) : windowHeight * (176 / 360), resizeMode: 'cover', borderWidth: 2, borderColor: 'white', borderRadius: 10, aspectRatio: 1 }} />
                         )
                     ) : null}
                 </View>
@@ -335,11 +349,11 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     return (
         <Animated.View entering={ZoomInEasyDown} style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center'}}>
-            {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {(!tutorialShow || tutorials == 0) && <RenderGame13Component />}
-            {(!tutorialShow || tutorials == 0) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderGame13Component />}
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -354,7 +368,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 />
                 <Game3TextAnimation text={text} thinking={thinking}/>
             </View>}
-            {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+            {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                                                                                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
                                                                                   Skip
                                                                                 </Text>

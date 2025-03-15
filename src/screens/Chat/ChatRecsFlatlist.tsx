@@ -30,16 +30,17 @@ const ChatRecsFlatlist = ({ sendMessage }) => {
             }
 
     return (
-        <View style={{width: windowWidth, height: windowHeight * (60 / 800), position: 'absolute', bottom: 15}}>
+        <View style={{width: windowWidth, height: windowHeight * (60 / 800)}}>
             <FlatList 
                 data={recs}
                 renderItem={renderItem}
                 keyExtractor={(item, index) => index.toString()}
                 horizontal={true}
                 showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{marginLeft: windowWidth * (45 / 932)}}
             />
         </View>
     )
 }
 
-export default ChatRecsFlatlist
+export default ChatRecsFlatlist;

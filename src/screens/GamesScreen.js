@@ -30,6 +30,8 @@ const GamesScreen = () => {
     const [text, setText] = useState(null);
     const [wisySpeaking, setWisySpeaking] = useState(false);
 
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
     useFocusEffect(
         useCallback(() => {
             async function changeScreenOrientation() {
@@ -49,8 +51,10 @@ const GamesScreen = () => {
                 <Back />
                 {subCollections != null && marketCollections == null? <HeaderCollection wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} setSubCollections={setSubCollections} name={name}/> : <HeaderMenu wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
-                <Stars />
-                <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
+                <View style={{top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', flexDirection: 'row', gap: 7}}>
+                    <Stars />
+                    <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
+                </View>
 
                 {marketCollections == null && <GameCategories wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
 

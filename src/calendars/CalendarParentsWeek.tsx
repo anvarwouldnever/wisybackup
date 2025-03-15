@@ -5,54 +5,56 @@ import moment from 'moment';
 import { format } from 'date-fns';
 import store from '../store/store';
 import { observer } from 'mobx-react-lite';
-
-LocaleConfig.locales['lv'] = {
-    monthNames: [
-      'Janvāris',
-      'Februāris',
-      'Marts',
-      'Aprīlis',
-      'Maijs',
-      'Jūnijs',
-      'Jūlijs',
-      'Augusts',
-      'Septembris',
-      'Oktobris',
-      'Novembris',
-      'Decembris'
-    ],
-    monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jūn.', 'Jūl.', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dec.'],
-    dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
-    dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
-    today: "Šodien"
-  };
-  
-  // Локаль для английского языка
-  LocaleConfig.locales['en'] = {
-    monthNames: [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December'
-    ],
-    monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
-    dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
-    dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
-    today: "Today"
-  };
-  
-  // Устанавливаем дефолтный язык как латышский (или английский)
-  LocaleConfig.defaultLocale = store.language;
+import translations from '../../localization';
 
 const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
+
+    LocaleConfig.locales['lv'] = {
+        monthNames: [
+          'Janvāris',
+          'Februāris',
+          'Marts',
+          'Aprīlis',
+          'Maijs',
+          'Jūnijs',
+          'Jūlijs',
+          'Augusts',
+          'Septembris',
+          'Oktobris',
+          'Novembris',
+          'Decembris'
+        ],
+        monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jūn.', 'Jūl.', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dec.'],
+        dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
+        dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
+        today: "Šodien"
+      };
+      
+      // Локаль для английского языка
+      LocaleConfig.locales['en'] = {
+        monthNames: [
+          'January',
+          'February',
+          'March',
+          'April',
+          'May',
+          'June',
+          'July',
+          'August',
+          'September',
+          'October',
+          'November',
+          'December'
+        ],
+        monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
+        dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+        dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
+        today: "Today"
+      };
+      
+      // Устанавливаем дефолтный язык как латышский (или английский)
+      LocaleConfig.defaultLocale = store.language;
+
     const [markedDates, setMarkedDates] = useState({});
     const { height, width } = useWindowDimensions();
 
@@ -173,7 +175,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                             fontWeight: '400',
                         }}
                     >
-                        Cancel
+                        {translations?.[store.language]?.cancel}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -193,7 +195,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                             fontWeight: '600',
                         }}
                     >
-                        Done
+                        {translations?.[store.language]?.done}
                     </Text>
                 </TouchableOpacity>
             </View>

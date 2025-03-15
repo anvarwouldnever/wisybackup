@@ -59,7 +59,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                                     {isSvg ? (
                                         <SvgUri 
                                             uri={avatarUrl} 
-                                            width={Platform.isPad ? windowHeight * (96 / 360) : windowWidth * (96 / 800)}
+                                            width={Platform.isPad ? windowHeight * (96 / 360) : windowHeight * (96 / 360)}
                                             height={Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360)}
                                         />
                                     ) : (

@@ -46,35 +46,35 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, [])
 
     useEffect(() => {
-            const introPlay = async() => {
+        const introPlay = async() => {
+            try {
+                setLock(true)
+                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                    setWisySpeaking(true);
+                    setText(introText);
+                    await playSoundWithoutStopping(introAudio);
+                }
+            } catch (error) {
+                console.log(error)
+            } finally {
                 try {
-                    setLock(true)
-                    if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                        setText(data?.content?.question)
                         setWisySpeaking(true);
-                        setText(introText);
-                        await playSoundWithoutStopping(introAudio);
+                        await playSound(data?.content?.speech);
                     }
                 } catch (error) {
-                    console.log(error)
+                    console.error("cОшибка при воспроизведении звука:", error);
                 } finally {
-                    try {
-                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                            setText(data?.content?.question)
-                            setWisySpeaking(true);
-                            await playSound(data?.content?.speech);
-                        }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false);
-                        setLock(false);
-                    }
+                    setText(null);
+                    setWisySpeaking(false);
+                    setLock(false);
                 }
             }
-    
-            introPlay()
-        }, [data?.content?.speech, tutorialShow]);
+        }
+
+        introPlay()
+    }, [data?.content?.speech, tutorialShow]);
 
     const playVoice = async (sound) => {
         try {
@@ -85,7 +85,15 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         } finally {
             setText(null);
             setWisySpeaking(false)
-            setLock(false);
+            if (sound) {
+                setLock(false)
+                setId(null);
+            } else {
+                setTimeout(() => {
+                    setLock(false)
+                    setId(null);
+                }, 1000);
+            }
         }
     };
 
@@ -123,6 +131,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
                         setLock(false);
+                        setId(null);
                     }, 1000);
                 }
                 return;
@@ -151,6 +160,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setEarnedStars(response?.stars - response?.old_stars)
                         setLevel(prev => prev + 1);
                         setLock(false);
+                        setId(null);
                     }, 1000);
                 }
                 return;
@@ -183,6 +193,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setAttempt('1');
                         setLock(false);
+                        setId(null);
                     }, 1000);
                 }
             } else if(response && !response.success && response.to_next) {
@@ -207,6 +218,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setAttempt('1');
                         setLock(false);
+                        setId(null);
                     }, 1000);
                 }
             }
@@ -220,10 +232,10 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     return (
         <View style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, justifyContent: 'center'}}>
-            {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {data && (!tutorialShow || tutorials == 0) && <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio}/>}
+            {data && (!tutorialShow || tutorials.length == 0 || isFromAttributes) && <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio}/>}
             <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', position: 'absolute', bottom: 0, left: 0, flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
@@ -239,7 +251,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 />
                 {text && text != '' && <Game2Text1Animation text={text} thinking={thinking}/>}
             </View>
-            {tutorialShow && tutorials.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+            {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
                     Skip
                 </Text>

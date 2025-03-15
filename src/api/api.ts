@@ -282,7 +282,7 @@ class Api {
     }
 
     async getSubCollections(data: any) {
-
+        
         try {
             const response = await axios.get(`${this.baseUrl}/sub-collections`, {
                 headers: {
@@ -295,11 +295,6 @@ class Api {
                 }
             })
 
-            // for (let index = 0; index < response.data.data.length; index++) {
-            //     console.log(response.data.data[index].attributes)
-            // }
-            
-            // console.log(response.data)
             return response.data
         } catch (error) {
             console.log(error.response.data)
@@ -412,6 +407,7 @@ class Api {
                     return response.data;
                 } catch (error) {
                     console.log(error)
+                    console.log(error.response.data.message)
                 }
             }
 
@@ -464,9 +460,35 @@ class Api {
         }
     }
 
+    async answerTaskObjectMatching(params: any) {
+        try {
+            // console.log(params)
+            const response = await axios.post(`${this.baseUrl}/tasks/answer`, 
+            {
+                task_id: params.task_id,
+                attempt: params.attempt,
+                child_id: params.child_id,
+                success: params.success,
+                lead_time: params.lead_time,
+                pair_id: params.pair_id,
+                target_pair_id: params.target_pair_id
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${params.token}`,
+                    "X-localization": `${params.lang}`
+                },
+            })
+            console.log(response.data)
+            return response.data
+        } catch (error) {
+            console.log(error.response.data)
+        }
+    }
+
     async answerHandWritten(answer: any) {
         try {
-                // console.log(answer.images)
+                console.log(answer.images[0])
                 const formData = new FormData();
                 formData.append('task_id', `${answer.task_id}`);
                 formData.append('attempt', `${answer.attempt}`);
@@ -474,24 +496,18 @@ class Api {
                 formData.append('lead_time', `${answer.lead_time}`);
                 formData.append('images[0]', answer.images[0]);
 
-                // answer.images.forEach((image: any, index: number) => {
-                //     formData.append(`images[${index}]`, {
-                //         uri: image.uri,       // URI изображения
-                //         name: `image_${index}.png`, // Имя файла
-                //         type: 'image/png',    // MIME-тип файла
-                //     });
-                // });
-
                 const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
                     headers: {
                         Authorization: `Bearer ${answer.token}`,
-                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'Content-Type': 'multipart/form-data',
                         "X-localization": `${answer.lang}`
                     },
                 })
+                // console.log(response.data)
                 return response.data
         } catch (error) {
-            console.log(error.response)
+            console.log(error)
+            console.log(error.response.data)
         }
     }
 }

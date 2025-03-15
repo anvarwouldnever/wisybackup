@@ -12,19 +12,21 @@ import Game3TextAnimation from "../animations/Game3/Game3TextAnimation";
 import LottieView from "lottie-react-native";
 import speakingWisy from '../lotties/headv9.json'
 import Game8Tutorial from "../components/Game8Tutorial";
-import black from '../images/tabler_speakerphone2.png'
+import black from '../images/tabler_speakerphone2.png';
 import api from "../api/api";
 import store from "../store/store";
+import blackRed from '../images/darkRedSpeaker.png'
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
 const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
     const [lines, setLines] = useState([]);
-    const [answered, setAnswered] = useState([])
+    const [answers, setAnswers] = useState([]);
+    const [answered, setAnswered] = useState([]);
     const [isDrawing, setIsDrawing] = useState<boolean>(false);  
-    const [wrongObject, setWrongObject] = useState()  
-
+    const [wrongObject, setWrongObject] = useState();  
+    
     const lineStartX = useSharedValue(0);
     const lineStartY = useSharedValue(0);
     const lineEndX = useSharedValue(0);
@@ -38,20 +40,28 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
     const [lock, setLock] = useState(false);   
-    const [wisySpeaking, setWisySpeaking] = useState(false)
+    const [wisySpeaking, setWisySpeaking] = useState(false);
+
+    const timeoutRef = useRef(null);
     const lottieRef = useRef(null);
+
+    const imageRefs = useRef(new Map());
+    const imageLayouts = useSharedValue([]);
+
+    const answersRefs = useRef(new Map());
+    const answersLayouts = useSharedValue([]);
     
-        useEffect(() => {
-            if (wisySpeaking) {
-                setTimeout(() => {
-                    lottieRef.current?.play(180, 0);
-                }, 1);
-            } else {
-                setTimeout(() => {
-                    lottieRef.current?.reset();
-                }, 1);
-            }
-        }, [wisySpeaking]);
+    useEffect(() => {
+        if (wisySpeaking) {
+            setTimeout(() => {
+                lottieRef.current?.play(180, 0);
+            }, 1);
+        } else {
+            setTimeout(() => {
+                lottieRef.current?.reset();
+            }, 1);
+        }
+    }, [wisySpeaking]);
 
     useEffect(() => {
             const introPlay = async() => {
@@ -100,13 +110,11 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         return () => {
             reset();
         }
-    }, [])
+    }, []);
 
     const vibrate = () => {
         Vibration.vibrate(500);
     };
-
-    const timeoutRef = useRef(null);
                                 
     useEffect(() => {
         if (id?.id && id?.result) {
@@ -169,8 +177,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         ...item,
         key: String(index + 1),
     }));
-
-    const [answers, setAnswers] = useState([])
     
     useEffect(() => {
         if (answers.length === 0) { // Только первый раз перемешиваем
@@ -181,12 +187,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             );
         }
     }, [images]);
-    
-    const imageRefs = useRef(new Map());
-    const imageLayouts = useSharedValue([]);
-
-    const answersRefs = useRef(new Map());
-    const answersLayouts = useSharedValue([]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -220,23 +220,20 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }, 1000);
     }, [answers]);
 
-    const answer = async({ answer }) => {
+    const answer = async(params) => {
         try {
-            // console.log(answer)
             const lead_time = getTime();
             stop();
-            setId(null)
             setThinking(true)
             setLock(true)
-            const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
+            const response = await api.answerTaskObjectMatching({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, success: params.answer, lead_time: lead_time, token: store.token, lang: store.language, pair_id: params.pair_id, target_pair_id: params.target_pair_id})
             if (response && response.stars && response.success) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
-                setId({id: answer, result: 'correct'})
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setText(response?.hint)
 
                 try {
@@ -293,10 +290,10 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             } else if(response && response.success) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'correct'})
                 setText(response.hint)
 
@@ -317,10 +314,10 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             } else if(response && !response.success && response.to_next) {
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
-                        } else {
-                            onCompleteTask(subCollectionId, data.next_task_id)
-                        }
+                    store.loadCategories();
+                } else {
+                    onCompleteTask(subCollectionId, data.next_task_id)
+                }
                 setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
@@ -379,18 +376,20 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 const isRightSide = i >= totalImages - rightSideThreshold; // Проверяем, правый ли элемент
                 const isCorrect = image.key === key;
 
+                const originalImage = images.find(img => img.key === image.key);
+
                 if (image.key !== key) {
                     if (answered.includes(image.key)) {
                         return { inside: false }
                     }
-                    runOnJS(answer)({ answer: false });
+                    runOnJS(answer)({ answer: false, pair_id: originalImage?.id, target_pair_id: originalImage?.target_pair?.id });
                     runOnJS(setWrongObject)(key)
                     return {
                         inside: true,
                         newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
                         newY: image.y + image.height / 2 - mainContainerOffset.top,
                         targetIndex: i,
-                        color: isCorrect ? '#ADD64D' : '#D81616',
+                        color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     }; 
                 }
 
@@ -401,14 +400,14 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
                     newY: image.y + image.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#D81616',
+                    color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };
             }
         }
         return { inside: false };
     };
        
-    const isPointInsideAnsweRight = (x, y, key) => {
+    const isPointInsideAnsweRight = (x, y, key, id) => {
         'worklet';
         const adjustedX = x + 30; // Учитываем смещение по X
         const adjustedY = y + mainContainerOffset.top;  
@@ -422,13 +421,15 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 adjustedY >= answerLayout.y &&
                 adjustedY <= answerLayout.y + answerLayout.height
             ) {
+                const originalAnswer = answers.find(ans => ans.key === answerLayout.key);
+                
                 const isCorrect = answerLayout.key === key;
 
                 if (answerLayout.key !== key) {
                     if (answered.includes(answerLayout.key)) {
                         return { inside: false }
                     }
-                    runOnJS(answer)({ answer: false });
+                    runOnJS(answer)({ answer: false, pair_id: id, target_pair_id: originalAnswer?.id });
                     runOnJS(setWrongObject)(answerLayout.key)
 
                     return {
@@ -436,7 +437,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
                         newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                         targetIndex: i,
-                        color: isCorrect ? '#ADD64D' : '#D81616',
+                        color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     };
                 }  
                 
@@ -446,14 +447,14 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
                     newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#D81616',
+                    color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };
             }
         }
         return { inside: false };
     };
 
-    const isPointInsideAnswerLeft = (x, y, key) => {
+    const isPointInsideAnswerLeft = (x, y, key, id) => {
         'worklet';
         const adjustedX = x + 30;
         const adjustedY = y + mainContainerOffset.top;
@@ -467,20 +468,21 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 adjustedY >= answerLayout.y &&
                 adjustedY <= answerLayout.y + answerLayout.height
             ) {
+                const originalAnswer = answers.find(ans => ans.key === answerLayout.key);
                 const isCorrect = answerLayout.key === key;
 
                 if (answerLayout.key !== key) {
                     if (answered.includes(answerLayout.key)) {
                         return { inside: false }
                     }
-                    runOnJS(answer)({ answer: false });
+                    runOnJS(answer)({ answer: false, pair_id: id, target_pair_id: originalAnswer?.id });
                     runOnJS(setWrongObject)(answerLayout.key)
                     return {
                         inside: true,
                         newX: answerLayout.x - 30,
                         newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                         targetIndex: i,
-                        color: isCorrect ? '#ADD64D' : '#D81616',
+                        color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     };
                 }  
 
@@ -490,7 +492,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     newX: answerLayout.x - 30,
                     newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
                     targetIndex: i,
-                    color: isCorrect ? '#ADD64D' : '#D81616',
+                    color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };
             }
         }
@@ -514,7 +516,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setText(null);
             setLines(prevLines => prevLines.slice(0, -1));
             setWrongObject(null)
-
             setLock(false);
         }
     };
@@ -523,13 +524,15 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         <View style={{top: mainContainerOffset.top, width: windowWidth - 60, height: windowHeight - 60, position: "absolute", alignItems: "center"}}>
             <Lines />
 
-            {tutorialShow && tutorials.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
 
-            {(!tutorialShow || tutorials == 0) && <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
                 <View style={{width: windowWidth * (80 / 800), height: windowHeight * (312 / 360), alignItems: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, justifyContent: 'center', flexDirection: 'column'}}>
                     {(images.length === 4 || images.length === 3 ? images : images.length === 5 || images.length === 6 ? images.slice(0, 3) : []).map((item, index) => {
+
+                        // console.log(item?.id, item?.target_pair?.id)
 
                         const gesture = Gesture.Pan()
                         .onBegin((event) => {
@@ -547,7 +550,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         })
                         .onEnd((event) => {
                             if (lock || answered.includes(item.key)) return;
-                            let { inside, newX, newY, targetIndex, color } = isPointInsideAnswerLeft(lineEndX.value, lineEndY.value, item.key);
+                            let { inside, newX, newY, targetIndex, color } = isPointInsideAnswerLeft(lineEndX.value, lineEndY.value, item.key, item?.id);
                         
                             if (inside) {
                                 
@@ -644,11 +647,11 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 <GestureDetector key={item.key} gesture={gesture}>
                                     {type == 'text'? 
                                         <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', justifyContent: 'space-between'}}>
-                                            <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
+                                            <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
                                                 <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360)}}>{item?.text}</Text>
                                             </View>
-                                            <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
-                                                <Image source={answered.includes(item.key) || wrongObject == item.key? black : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
+                                            <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={answered.includes(item.key)? black : wrongObject == item.key? blackRed : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
                                             </TouchableOpacity>
                                         </View>
                                     :
@@ -693,7 +696,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 })
                                 .onEnd((event) => {
                                     if (lock || answered.includes(item.key)) return;
-                                    let { inside, newX, newY, targetIndex, color } = isPointInsideAnsweRight(lineEndX.value, lineEndY.value, item.key);
+                                    let { inside, newX, newY, targetIndex, color } = isPointInsideAnsweRight(lineEndX.value, lineEndY.value, item.key, item?.id);
                                 
                                     if (inside) {
 
@@ -732,7 +735,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     )}
                 </View>}
             </View>}
-            {(!tutorialShow || tutorials == 0) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -747,22 +750,18 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 />
                 <Game3TextAnimation text={text} thinking={thinking}/>
             </View>}
-            {tutorialShow && tutorials.length > 0 && 
+            {tutorialShow && tutorials?.length > 0 && 
             <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
                     Skip
                 </Text>
             </TouchableOpacity>}
-
             {/* <Lines /> */}
         </View>
     );
 };
 
 export default Game14Screen;
-
-
-
 
 {/* <View style={{position: 'absolute', left: 30, top: 150}}>
                 <Button title="Добавить" onPress={() => setCurve(prev => prev + 0.1)}/>
