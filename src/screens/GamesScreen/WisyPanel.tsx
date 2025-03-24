@@ -84,7 +84,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
             return {
                 source: animation,
                 loop: false,
-                onAnimationFinish: () => setAnimation(null),
+                onAnimationLoaded: () => animationRef.current?.play(),
             };
         } 
         if (marketCollections && wisySpeaking) {
@@ -124,18 +124,20 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, modal,
                             </Text>
                         </View>
                         <View style={styles.triangle}/>
-                        {/* <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
+                        <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
                             <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
-                        </TouchableOpacity> */}
+                        </TouchableOpacity>
                     </Animated.View>}
                     <LottieView
-                        key={animation} // Если animation сменится, пересоздастся компонент
+                        key={animation}
                         ref={animationRef}
-                        {...animationProps} // Передаём все нужные пропсы
-                        autoPlay={true}
+                        {...animationProps}
+                        autoPlay={false}
+                        enableMergePathsAndroidForKitKatAndAbove={false}
+                        hardwareAccelerationAndroid={false}
                         style={{
-                            width: windowWidth * (190 / 800),
-                            height: Platform.isPad ? windowWidth * (190 / 800) : windowHeight * (190 / 360),
+                            minWidth: windowWidth * (190 / 800),
+                            minHeight: Platform.isPad ? windowWidth * (190 / 800) : windowHeight * (190 / 360),
                             transform: [{ scale: 1.3 }]
                         }}
                     />
@@ -159,42 +161,3 @@ const styles = StyleSheet.create({
 });
 
 export default WisyPanel;
-
-// const getAbsoluteLayout = () => {
-    //     if (containerRef.current) {
-    //         setTimeout(() => {
-    //             containerRef.current?.measure((x, y, width, height, pageX, pageY) => {
-    //                 setWisyLayout({pageX: pageX, pageY: pageY, width: width, height: height });
-    //             });
-    //         }, 1000);
-    //     }
-    // };
-
-    // useEffect(() => {
-    //     if (modal) {
-    //         return animationRef?.current?.reset();
-    //     } 
-    //     if (marketCollections === null) {
-    //         return animationRef?.current?.reset();
-    //     }
-    //     if (animationStart) {
-    //         animationRef.current?.reset();
-    //         setTimeout(() => {
-    //             animationRef?.current?.play();
-    //         }, 150);
-    //     } else if (!animationStart) {
-    //         animationRef?.current?.reset();
-    //     }
-    // }, [animationStart, marketCollections, modal]);
-
-    // const fetchAnimation = async(url: string) => {
-    //     try {
-    //         const response = await fetch(url);
-    //         if (!response.ok) throw new Error(`Ошибка загрузки: ${response.status}`);
-            
-    //         const animationJson = await response.json();
-    //         return animationJson
-    //     } catch (error) {
-    //         console.log(error)
-    //     }
-    // };

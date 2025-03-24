@@ -81,7 +81,7 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <NavigationContainer ref={navigationRef}>
-        <StatusBar style='dark'/>
+        <StatusBar translucent={true} backgroundColor="transparent" style="light" hidden={true}/>
         <Stack.Navigator screenOptions={{
             headerShown: false,
             ...TransitionPresets.ModalSlideFromBottomIOS

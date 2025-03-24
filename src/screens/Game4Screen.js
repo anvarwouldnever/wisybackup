@@ -1,4 +1,4 @@
-import { View, Image, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text } from 'react-native'
+import { View, Image, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text, Dimensions } from 'react-native'
 import React, { useState, useEffect, useRef, useMemo } from 'react'
 import wisy from '../images/pandaHead.png'
 import Game4TextAnimation from '../animations/Game4/Game4TextAnimation'
@@ -15,7 +15,7 @@ import Game8Tutorial from '../components/Game8Tutorial'
 
 const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, level, introTaskIndex, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);

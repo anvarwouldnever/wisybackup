@@ -158,13 +158,15 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 uri={item.url} 
                 width={windowWidth * (64 / 800)} 
                 height={Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360)} 
+                style={{borderRadius: 10}}
             />
         ) : (
             <Image 
                 source={{ uri: item.url }} 
                 style={{ 
                     width: windowWidth * (64 / 800), 
-                    height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360) 
+                    height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360),
+                    borderRadius: 10
                 }} 
                 resizeMode="contain" 
             />
@@ -374,7 +376,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{alignItems: 'center', width: windowWidth * (602 / 800), height: Platform.isPad? windowWidth * (239 / 800) : windowHeight * (239 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>
-                <View style={{width: windowWidth * (602 / 800), height: Platform.isPad? windowWidth * (84 / 800) : windowHeight * (84 / 360), alignItems: 'center'}}>
+                <View style={{width: windowWidth * (602 / 800), height: Platform.isPad? windowWidth * (84 / 800) : windowHeight * (84 / 360), alignItems: 'center', borderRadius: 10, overflow: 'hidden'}}>
                     <FlatList 
                         data={images}
                         renderItem={renderItem}

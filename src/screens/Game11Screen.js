@@ -399,12 +399,12 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         const isUnknown = letter === '*';
 
                         return (
-                            <View key={index} style={{ width: windowWidth * (96 / 800), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
+                            <View key={index} style={{ width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
                                 {isUnknown ? (
                                     <ViewShot ref={viewShotRef} style={{borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? "#ADD64D" : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: 10, borderWidth: 2}} options={{ format: 'png', quality: 1 }}>  
                                         <View
                                             {...panResponder.panHandlers}
-                                            style={{ backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (94 / 800), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 8}}
+                                            style={{ backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 8}}
                                         >
                                             <Svg height='100%' width='100%'>
                                             {lines.map((line, index) => (

@@ -1,7 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { Image, View, useWindowDimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
-import Animated, { useSharedValue, useAnimatedStyle, runOnJS, FadeIn, Easing, LinearTransition, withSpring, withDelay } from 'react-native-reanimated';
+import Animated, { useSharedValue, useAnimatedStyle, runOnJS, FadeIn, Easing, LinearTransition, withSpring, withDelay, FadingTransition, EntryExitTransition, SequencedTransition } from 'react-native-reanimated';
 import petux from '../images/petux.png';
 import cow from '../images/cow.png';
 import lion from '../images/lionGame2.png';
@@ -160,8 +160,8 @@ const TestScreen = () => {
                                 }
                                 source={item.draggedUri}
                                 style={{
-                                    width: windowWidth * (64 / 800),
-                                    height: windowHeight * (64 / 360),
+                                    width: windowWidth * (120 / 800),
+                                    height: windowHeight * (120 / 360),
                                     position: 'absolute',
                                     alignSelf: 'center',
                                 }}

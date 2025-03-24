@@ -41,8 +41,6 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
 
     const renderItem = ({ item, index }) => {
 
-        // console.log(item.image?.url)
-
         const isSvg = item?.image?.url.endsWith(".svg")
 
         return (
@@ -60,7 +58,7 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
     }
 
     return (
-        <View style={{width: windowWidth * (470 / 800), height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>
+        <View style={{width: 'auto', height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>
             <FlatList
                 data={gameoptions}
                 key={store.categories}

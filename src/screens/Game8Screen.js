@@ -317,11 +317,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (592 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
-                {data.content.first_image.endsWith(".svg") ? <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} /> : <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}/>}
+                {data.content.first_image.endsWith(".svg") ? <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> : <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
                 <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>{data.content.operation === 'addition'? '+' : ''}</Text>
-                {data.content.second_image.endsWith(".svg") ? <SvgUri uri={data.content.second_image} width={ windowWidth * (136 / 800)} height={windowHeight * (136 / 360)} /> : <Image source={{uri: data.content.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}/>}
+                {data.content.second_image.endsWith(".svg") ? <SvgUri uri={data.content.second_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> : <Image source={{uri: data.content.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
                 <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>=</Text>
-              
+
                 <ViewShot ref={viewShotRef} style={{borderRadius: 10, backgroundColor: 'white'}} options={{ format: 'png', quality: 1 }}>  
                     <View
                         {...panResponder.panHandlers}

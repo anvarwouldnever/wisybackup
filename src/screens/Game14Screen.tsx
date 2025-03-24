@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Button, TouchableOpacity, Text, View, useWindowDimensions, Image, Vibration, Platform } from "react-native";
+import { Button, TouchableOpacity, Text, View, useWindowDimensions, Image, Vibration, Platform, Dimensions } from "react-native";
 import Svg, { Line, Path } from "react-native-svg";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedProps, runOnJS } from "react-native-reanimated";
@@ -16,10 +16,13 @@ import black from '../images/tabler_speakerphone2.png';
 import api from "../api/api";
 import store from "../store/store";
 import blackRed from '../images/darkRedSpeaker.png'
+import * as Haptics from 'expo-haptics'
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
 const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
+    
+    // console.log(data?.content?.pairs[0]?.target_pair)
     
     const [lines, setLines] = useState([]);
     const [answers, setAnswers] = useState([]);
@@ -34,7 +37,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const mainContainerOffset = { top: 24 };
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -346,6 +349,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const addToAnswered = (key) => {
         setAnswered((prev) => [...prev, key]);
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
     };
 
     const isPointInsideImage = (x, y, key) => {
@@ -556,7 +560,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 
                                 const startObject = imageLayouts.value.find(a => a.key === item.key);
                                 if (startObject) {
-                                    lineStartX.value = startObject.x + startObject.width - 30; // Правая граница начального объекта
+                                    lineStartX.value = startObject.x + startObject.width - 30;
                                     lineStartY.value = startObject.y + startObject.height / 2 - mainContainerOffset.top;
                                 }
                         

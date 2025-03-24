@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { View, ImageBackground, useWindowDimensions, Platform, Text, Image, TouchableOpacity, ScrollView } from "react-native";
+import { View, Dimensions } from "react-native";
 import bgimage from '../images/BGimage.png';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesCollections from "../components/GamesList";
@@ -30,7 +30,7 @@ const GamesScreen = () => {
     const [text, setText] = useState(null);
     const [wisySpeaking, setWisySpeaking] = useState(false);
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
 
     useFocusEffect(
         useCallback(() => {
@@ -42,7 +42,7 @@ const GamesScreen = () => {
     );
 
     return (
-        <View style={{flex: 1, backgroundColor: 'white'}}>
+        <View style={{flex: 1, backgroundColor: 'black'}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
                 <WisyPanel wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} text={text} setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
                 {marketCollections != null &&

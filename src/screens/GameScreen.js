@@ -27,6 +27,7 @@ import translations from '../../localization'
 import { playSound2 } from '../hooks/usePlaySound2'
 import Game14Screen from './Game14Screen'
 import { toJS } from "mobx";
+import Game17Screen from './Game17Screen'
 
 const GameScreen = ({ route }) => {
 
@@ -46,7 +47,7 @@ const GameScreen = ({ route }) => {
     let introText = tasks[taskLevel]?.introText
     let tutorials = tasks[taskLevel]?.tutorials
 
-    // console.log(tasks[taskLevel]?.order)
+    // console.log(task[level]?.content?.sub_type)
 
     useEffect(() => {
         if (!isFromAttributes) {
@@ -130,7 +131,7 @@ const GameScreen = ({ route }) => {
     const RenderWithAudio = () => {
         // <Game4Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         return (
-            <TestScreen />
+            <Game4Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -185,6 +186,12 @@ const GameScreen = ({ route }) => {
     const RenderTextSingleChoiceWithTitleImageGame = () => {
         return (
             <Game16Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+        )
+    }
+
+    const RenderDragAndDropGame = () => {
+        return (
+            <Game17Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -283,7 +290,7 @@ const GameScreen = ({ route }) => {
             {!isFromAttributes && (cameFromBreak || isBreak)? 
             <BreakScreen anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/> 
             :
-            <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, width: windowWidth, height: windowHeight, justifyContent: 'space-between'}}>
+            <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}}>
             {
                 task && task[level] && task[level].type ? (
                     task[level].type === 'voice_input' ?  
@@ -304,10 +311,12 @@ const GameScreen = ({ route }) => {
                     <RenderHandWrittenCountingGame /> :
                     task[level].type === 'handwritten' && task[level].content.sub_type === 'word'?
                     <RenderHandWrittenWordGame /> :
-                    task[level].type === 'object_matching' && task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image'?
+                    task[level].type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
                     <RenderObjectMatchingTextGame /> :
                     task[level].type === 'puzzle'?
                     <RenderPuzzleGame /> :
+                    task[level].type === 'drag_and_drop' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
+                    <RenderDragAndDropGame /> :
                     task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
                     <RenderTextSingleChoiceWithTitleImageGame /> :
                     task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_title' && task[level]?.content?.options[0]?.audio === null && task[level].content.options[0].text != ""?

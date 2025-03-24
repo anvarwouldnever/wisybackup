@@ -1,4 +1,4 @@
-import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform } from 'react-native'
+import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform, Dimensions } from 'react-native'
 import React, { useEffect, useState, useRef } from 'react'
 import passedimg from '../../images/gamepassed.png';
 import speaker from '../../images/speaker2.png'
@@ -11,7 +11,7 @@ import x from '../../images/wrongX.png'
 
 const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
     const sound = React.useRef(new Audio.Sound());
 
     const [key, setKey] = useState(0);

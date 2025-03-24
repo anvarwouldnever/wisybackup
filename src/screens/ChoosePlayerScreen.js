@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Text, View, StyleSheet, TouchableOpacity, useWindowDimensions, Image, Platform, SafeAreaView, ScrollView, ImageBackground } from 'react-native';
+import { Text, View, StyleSheet, TouchableOpacity, useWindowDimensions, Dimensions, Image, Platform, SafeAreaView, ScrollView, ImageBackground } from 'react-native';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import rabbit from '../images/Rabbit.png'
@@ -13,7 +13,7 @@ import bg from '../images/choosePlayer.png'
 
 const ChoosePlayerScreen = () => {
     const navigation = useNavigation();
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
     const [chosenPlayerIndex, setChosenPlayerIndex] = useState(null);
     const [chosenPlayer, setChosenPlayer] = useState()
 
@@ -29,7 +29,7 @@ const ChoosePlayerScreen = () => {
     return (
         <ImageBackground source={bg} style={styles.container}>
             <BackgroundMusic />
-            <View style={{width: Platform.isPad? 'auto' : 'auto', alignItems: 'center'}}>
+            <View style={{flex: 1, alignItems: 'center', borderColor: 'red'}}>
                 <Children setChosenPlayerIndex={setChosenPlayerIndex} chosenPlayerIndex={chosenPlayerIndex} setChosenPlayer={setChosenPlayer}/>
             </View>
             {chosenPlayerIndex != null && <TouchableOpacity onPress={() => {
