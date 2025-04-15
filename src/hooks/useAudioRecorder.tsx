@@ -8,7 +8,7 @@ export const useAudioRecorder = () => {
         try {
             if (recording) {
                 console.warn('Recording already in progress, stopping previous one...');
-                await stopRecording(); // Останавливаем прошлую запись
+                await stopRecording();
             }
 
             const permission = await Audio.requestPermissionsAsync();

@@ -15,8 +15,8 @@ const Back = () => {
                     <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
                 </View>
                 {(() => {
-                    const avatarObj = store.avatars.find(avatar => avatar.id === store.playingChildId.avatar_id);
-                    const avatarUrl = avatarObj ? avatarObj.image.url : dog;
+                    const avatarObj = store.avatars?.find(avatar => avatar.id === store.playingChildId?.avatar_id);
+                    const avatarUrl = avatarObj ? avatarObj.image?.url : dog;
                     const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 
                     return isSvg ? (

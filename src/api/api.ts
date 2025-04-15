@@ -21,7 +21,6 @@ class Api {
     }
 
     async changePassword(email: string, token: string, password: string) {
-        // console.log(email, token, password);
         try {
             const response = await axios.post(`${this.baseUrl}/auth/change-password`, {
                 password: password
@@ -35,7 +34,7 @@ class Api {
             // console.log(response.data)
             return response.data;
         } catch (error) {
-            console.log(error.response?.data)
+            console.log(error?.response?.data)
         }
     }
 
@@ -48,11 +47,11 @@ class Api {
                 password: password,
                 password_confirmation: password_confirmatior
             })   
-            console.log(response.data)
-            return response.data
+            console.log(response?.data)
+            return response?.data 
         } catch (error) {
             console.log(error.response.data)
-            return error.response.data.message
+            return error?.response?.data?.message
         }
     }
 
@@ -69,8 +68,8 @@ class Api {
             }
             // console.log(response.data)
         } catch (error) {
-            console.log(error.response.data.message)
-            return error.response.data.message
+            console.log(error?.response?.data?.message)
+            return error?.response?.data?.message
         }
     }
 
@@ -92,13 +91,12 @@ class Api {
                     },
                 }
             );
-            // console.log(response.data)
             if (response.status === 201) {
                 const children = await this.getChildren(token, lang)
                 return children
             }
         } catch (error) { 
-            console.log(error.response.data)
+            console.log(error?.response?.data)
         }
     }
 
@@ -141,7 +139,6 @@ class Api {
             })
             return response.data
         } catch (error) {
-            console.log(error.response.data)
             console.log(error.response.data)   
         }
     }
@@ -183,7 +180,8 @@ class Api {
             })
             return response.data?.data
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
+            throw error
         }
     }
 
@@ -259,7 +257,8 @@ class Api {
             })
             return response.data;
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
+            throw error
         }
     }
 
@@ -277,7 +276,8 @@ class Api {
             })
             return response.data
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
+            throw error
         }
     }
 
@@ -297,7 +297,8 @@ class Api {
 
             return response.data
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
+            throw error
         }
     }
 
@@ -312,9 +313,12 @@ class Api {
                     sub_collection_id: id.id
                 }
             })
-            return response.data.data
+            return response?.data?.data
         } catch (error) {
-            console.log(error.response.data.message)
+            console.log(id?.id, "tasks");
+            console.log(error?.response?.data);
+            console.log(error?.response?.data?.message);
+            throw error
         }
     }
     
@@ -342,11 +346,9 @@ class Api {
             // console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error.response.data)
-            console.log(error.response.data.message)
-            if (error.response.data.message) {
-                return "Lai ierakstītu atbildi, turi mikrofona pogu."
-            }
+            console.log(error)
+            console.log(error?.response?.data?.message)
+            throw error
         }
     }
 
@@ -363,60 +365,45 @@ class Api {
             return response.data?.data;
         } catch (error) {
             console.log(error)
+            throw error
         }
     }
 
-    async sendMessage(data: any) {
-        // console.log(child_id, token)
+    async sendMessage(data) {
         try {
             const formData = new FormData();
-
+            formData.append('child_id', data.child_id);
+    
+            // Добавляем текущую дату в формате YYYY-MM-DD
+            const currentDate = new Date().toISOString().split('T')[0]; 
+            formData.append('time_data', currentDate);
+    
             if (data.isText) {
-                formData.append('child_id', data.child_id);
                 formData.append('message', data.message);
-
-                try {
-                    const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
-                        headers: {
-                            Authorization: `Bearer ${data.token}`,
-                            'Content-Type': 'multipart/form-data',
-                            "X-localization": `${data?.lang}` // Указываем правильный тип контента
-                        },
-                    });
-                    return response.data;
-                } catch (error) {
-                    console.log(error)
-                }
-            } else if(!data.isText) {
-                formData.append('child_id', data.child_id);
+            } else {
                 formData.append('audio', {
                     uri: data.audio,
                     type: 'audio/m4a',
                     name: 'voice-recording.m4a',
                 });
-
-                try {
-                    const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
-                        headers: {
-                            Authorization: `Bearer ${data.token}`,
-                            'Content-Type': 'multipart/form-data',
-                            "X-localization": `${data?.lang}` // Указываем правильный тип контента
-                        },
-                    });
-            
-                    return response.data;
-                } catch (error) {
-                    console.log(error)
-                    console.log(error.response.data.message)
-                }
             }
-
+    
+            const response = await axios.post(`${this.baseUrl}/conversation`, formData, {
+                headers: {
+                    Authorization: `Bearer ${data.token}`,
+                    'Content-Type': 'multipart/form-data',
+                    "X-localization": data?.lang,
+                },
+            });
+    
+            return response.data;
         } catch (error) {
-            console.log(error)
-            console.log(error.response?.data?.message);
+            console.log(error?.response?.data)
+            console.log(error?.response?.data?.message || "Ошибка при отправке сообщения");
+            throw error;
         }
     }
-
+    
     async getMessages(child_id: any, token: any, lang: string) {
         // console.log(child_id, token)
         try {
@@ -432,7 +419,8 @@ class Api {
             // console.log(response.data)
             return response.data;
         } catch (error) {
-            console.log(error.response.data.message);
+            console.log(error?.response?.data?.message);
+            throw error
         }
     }
 
@@ -456,7 +444,8 @@ class Api {
             console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
+            throw error
         }
     }
 
@@ -483,6 +472,34 @@ class Api {
             return response.data
         } catch (error) {
             console.log(error.response.data)
+            throw error
+        }
+    }
+
+    async answerDragAndDrop(params: any) {
+        try {
+            // console.log(params)
+            const response = await axios.post(`${this.baseUrl}/tasks/answer`, 
+            {
+                task_id: params.task_id,
+                attempt: params.attempt,
+                child_id: params.child_id,
+                success: params.success,
+                lead_time: params.lead_time,
+                answer_id: params.answer_id,
+                image_id: params.image_id
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${params.token}`,
+                    "X-localization": `${params.lang}`
+                },
+            })
+            console.log(response.data)
+            return response.data
+        } catch (error) {
+            console.log(error)
+            throw error
         }
     }
 
@@ -507,7 +524,8 @@ class Api {
                 return response.data
         } catch (error) {
             console.log(error)
-            console.log(error.response.data)
+            console.log(error?.response?.data?.message)
+            throw error
         }
     }
 }

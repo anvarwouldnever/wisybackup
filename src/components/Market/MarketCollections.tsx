@@ -3,11 +3,11 @@ import React, { useEffect, useRef } from 'react'
 import store from '../../store/store';
 import Svg, { SvgUri } from 'react-native-svg';
 import star from '../../images/tabler_star-filled.png'
-import Animated, { FadeInRight, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, Easing, runOnJS } from 'react-native-reanimated';
-import { PanGestureHandler } from 'react-native-gesture-handler';
-import { toJS } from "mobx";
+import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import { observer } from 'mobx-react-lite';
 import RenderItem from './RenderItem';
+import LottieView from 'lottie-react-native';
+import loadingAnim from '../../../assets/6Vcbuw6I0c (1).json'
 
 const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAnimationStart }) => {
 
@@ -17,6 +17,14 @@ const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAni
 
         return (
             <View style={{position: 'absolute', top: windowHeight * (118 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800)}}>
+                {store.loadingCats?
+                <LottieView
+                    loop={true}
+                    autoPlay
+                    source={loadingAnim}
+                    style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
+                />
+                :
                 <Animated.FlatList
                     entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
                     key={store.market} 
@@ -26,7 +34,7 @@ const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAni
                     horizontal
                     contentContainerStyle={{ gap: 16 }}
                     showsHorizontalScrollIndicator={false}
-                />
+                />}
             </View>
         )
 }

@@ -8,7 +8,7 @@ import { useNavigation } from "@react-navigation/native";
 import { SvgUri } from "react-native-svg";
 
 const Knowledge = ({ screen }) => {
-    const color = screen.color;
+    const color = screen?.color ?? 'white'
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
 

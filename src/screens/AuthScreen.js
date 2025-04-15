@@ -12,7 +12,6 @@ const AuthScreen = ({ route }) => {
     const [authOption, setAuthOption] = useState(route?.params?.authOption === undefined? 'signup' : route.params.authOption)
     const navigation = useNavigation()
     const proceed = () => {
-        
         navigation.navigate('EmailConfirmScreen')
     }
 

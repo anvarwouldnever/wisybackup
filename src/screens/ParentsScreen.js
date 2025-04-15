@@ -1,21 +1,16 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform, FlatList } from "react-native";
+import { Text, Image, View, SafeAreaView, useWindowDimensions, TouchableOpacity, Platform, FlatList, ActivityIndicator } from "react-native";
 import ParentsCancel from "../components/ParentsCancel";
-import dog from '../images/Dog.png';
-import narrowdown from '../images/narrowdown.png';
-import narrowup from '../images/narrowup.png';
 import ParentsComponents from "../components/ParentsComponent";
 import BottomTabs from "../components/BottomTabs";
 import ParentsSettings from "../components/ParentsSettings";
-import SubscriptionState from "../components/SubscriptionState";
-import Modal from 'react-native-modal'
 import store from "../store/store";
 import Child from "../components/Child";
 import DropDownModal from "../components/DropDownModal";
 import { observer } from "mobx-react-lite";
 import LanguageComponent from "../components/LanguageComponent";
 import narrowLeft from '../images/narrowLeftBlack.png'
-import Animated, { SlideInRight } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import translations from "../../localization";
 
 const ParentsScreen = () => {
@@ -23,18 +18,17 @@ const ParentsScreen = () => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const initialScreen = store?.attributes?.[0]
     const [screen, setScreen] = useState(initialScreen);
-    const [dropDown, setDropDown] = useState();
+    const [dropDown, setDropDown] = useState(null);
 
     const handleScreenChange = useCallback((newScreen) => setScreen(newScreen), []);
 
     useEffect(() => {
-        console.log('ran children parents screen')
         store.loadDataFromStorageChildren();
     }, [])
 
     const LanguageReturn = () => {
         return (
-            <Animated.View entering={SlideInRight} style={{width: windowWidth * (312 / 360), height: windowHeight * (28 / 800), alignItems: 'center', flexDirection: 'row', gap: windowWidth * (8 / 360)}}>
+            <Animated.View style={{width: windowWidth * (312 / 360), height: windowHeight * (28 / 800), alignItems: 'center', flexDirection: 'row', gap: windowWidth * (8 / 360)}}>
                 <TouchableOpacity onPress={() => setScreen('Settings')} style={{justifyContent: 'center', alignItems: 'center', width: 'auto', height: 'auto'}}>
                     <Image style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800)}} source={narrowLeft}/>
                 </TouchableOpacity>
@@ -49,10 +43,9 @@ const ParentsScreen = () => {
             {screen == 'Lang'? <LanguageReturn /> : screen !== 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen === 'Settings'? null : <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800)}}/>}
             {screen !== 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
             {screen == 'Settings'?  <ParentsSettings setScreen={setScreen}/> : screen == 'Lang'? <LanguageComponent setScreen={setScreen}/> : <ParentsComponents screen={screen}/>}
-            {/* {screen === 'Settings' && <SubscriptionState />} */}
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800)}} />
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', position: 'absolute', bottom: Platform.OS === 'ios'? windowHeight * (40 / 932) : windowHeight * (15 / 932), alignSelf: 'center'}}>
-                <BottomTabs screen={screen} setScreen={handleScreenChange} />
+                {store.attributes && <BottomTabs screen={screen} setScreen={handleScreenChange} />}
             </View>
         </SafeAreaView>
     )
@@ -60,7 +53,7 @@ const ParentsScreen = () => {
 
 export default observer(ParentsScreen);
 
-
+{/* {screen === 'Settings' && <SubscriptionState />} */}
 
 // import React from "react";
 // import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";

@@ -44,9 +44,6 @@
       ],
       ["react-native-email-link"]
     ],
-    "androidNavigationBar": {
-        "visible": "sticky-immersive"
-      },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

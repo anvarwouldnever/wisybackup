@@ -1,18 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { View, StyleSheet, ImageBackground, Text, useWindowDimensions, TouchableOpacity, Image, Platform, Vibration } from 'react-native';
 import bg from '../images/bg.png'
-import narrowleft from '../images/narrowleft-purple.png';
-import wisy from '../images/pandaHead.png';
-import star from '../images/Star.png';
-import { useNavigation } from '@react-navigation/native';
-import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated';
-import Game1TextAnimation from '../animations/Game1/Game1TextAnimations';
 import MicroAnimation from '../animations/MicroAnimation';
 import api from '../api/api';
 import TaskComponent from '../components/TaskComponent';
 import store from '../store/store';
-import { useFocusEffect } from '@react-navigation/native';
-import * as ScreenOrientation from 'expo-screen-orientation';
 import useTimer from '../hooks/useTimer';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import { playSound } from '../hooks/usePlayBase64Audio';
@@ -29,11 +21,21 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     const [image, setImage] = useState(1);
     const [thinking, setThinking] = useState(false);
     const [lock, setLock] = useState(false);
-
+    
     const { getTime, start, stop, reset } = useTimer();
 
     const [wisySpeaking, setWisySpeaking] = useState(false)
     const lottieRef = useRef(null);
+
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
         
     useEffect(() => {
         if (wisySpeaking) {
@@ -48,6 +50,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     }, [wisySpeaking]);
                                 
     const playVoice = async (sound) => {
+            if (!isActive.current) return
             try {
                 setWisySpeaking(true)
                 await playSound(sound);
@@ -58,9 +61,11 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                 setWisySpeaking(false);
                 setLock(false);
             }
-        };
+    };
 
     useEffect(() => {
+        playSoundWithoutStopping.stop()
+        playSound.stop()
         const introPlay = async() => {
             try {
                 setLock(true)
@@ -76,6 +81,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                     if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
                         setText(data?.content?.question)
                         setWisySpeaking(true);
+                        await playSound.stop()
                         await playSound(data?.content?.speech);
                     }
                 } catch (error) {
@@ -89,6 +95,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         }
     
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+        
     }, [data?.content?.speech, tutorialShow]);
 
     useEffect(() => {
@@ -103,10 +115,11 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     const lastAnswer = async(hint, stars, voice, old_stars) => {
+        if (!isActive.current) return
         setImage(2)
         reset();
         if (isFromAttributes) {
-            store.loadCategories();
+            // store.loadCategories();
         } else {
             onCompleteTask(subCollectionId, data.next_task_id)
         }
@@ -132,10 +145,10 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     }
 
     const correctAnswer = async(hint, stars, voice, old_stars) => {
-        console.log(hint)
+        if (!isActive.current) return
         reset();
         if (isFromAttributes) {
-            store.loadCategories();
+            // store.loadCategories();
         } else {
             onCompleteTask(subCollectionId, data.next_task_id)
         }
@@ -163,6 +176,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     const incorrectAnswer = async(hint, voice) => {
+        if (!isActive.current) return
         start();
         setText(hint);
         playVoice(voice)
@@ -170,9 +184,10 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     const incorrectAnswerToNext = async(hint, stars, voice, old_stars) => {
+        if (!isActive.current) return
         reset();
         if (isFromAttributes) {
-            store.loadCategories();
+            // store.loadCategories();
         } else {
             onCompleteTask(subCollectionId, data.next_task_id)
         }
@@ -200,14 +215,17 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
 
     const sendAnswer = async(uri) => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setThinking(true)
             setLock(true)
             const requestStatus = await api.answerTask(data.id, attempt, uri, `${store.playingChildId.id}`, store.token, lead_time, store.language)
+            // console.log(requestStatus)
             return requestStatus    
         } catch (error) {
-            setLock(false) 
+            setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }

@@ -1,7 +1,5 @@
-import { View, Image, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text, Dimensions } from 'react-native'
-import React, { useState, useEffect, useRef, useMemo } from 'react'
-import wisy from '../images/pandaHead.png'
-import Game4TextAnimation from '../animations/Game4/Game4TextAnimation'
+import { View, Platform, useWindowDimensions, Vibration, TouchableOpacity, Text } from 'react-native'
+import React, { useState, useEffect, useRef } from 'react'
 import Game4AnimalsAnimation from '../animations/Game4/Game4AnimalsAnimation'
 import store from '../store/store'
 import api from '../api/api'
@@ -15,7 +13,7 @@ import Game8Tutorial from '../components/Game8Tutorial'
 
 const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, level, introTaskIndex, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -31,7 +29,9 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 lottieRef.current?.play();
             }, 1);
         } else {
-            lottieRef.current?.reset();
+            setTimeout(() => {
+                lottieRef.current?.reset();
+            }, 1);
         }
     }, [wisySpeaking]);
 
@@ -44,11 +44,23 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
     }, [])
 
+    const isActive = useRef(true);
+
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     useEffect(() => {
         const introPlay = async() => {
+            await playSound.stop()
+            await playSoundWithoutStopping.stop()
             try {
                 setLock(true)
-                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                if (level === introTaskIndex && (!tutorialShow || tutorials?.length === 0)) {
                     setWisySpeaking(true);
                     setText(introText);
                     await playSoundWithoutStopping(introAudio);
@@ -57,25 +69,40 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 console.log(error)
             } finally {
                 try {
-                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0)) {
                         setText(data?.content?.question)
                         setWisySpeaking(true);
-                        await playSound(data?.content?.speech);
+                        await playSoundWithoutStopping(data?.content?.speech);
                     }
                 } catch (error) {
                     console.error("cОшибка при воспроизведении звука:", error);
                 } finally {
                     setText(null);
-                    setWisySpeaking(false)
-                    setLock(false)
+                    setWisySpeaking(false);
+                    try {
+                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0)) {
+                            await playSound(data?.content?.question_audio);
+                        }
+                    } catch (error) {
+                        console.log(error);
+                    } finally {
+                        setLock(false);
+                    }
                 }
             }
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
     
     const playVoice = async (sound) => {
+        if (!isActive.current) return;
         try {
             setWisySpeaking(true)
             await playSound(sound);
@@ -103,17 +130,20 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     const answer = async({ answer }) => {
         try {
+            if (!isActive.current) return;
             const lead_time = getTime();
             stop();
             setId(null)
             setThinking(true)
             setLock(true)
+            playSound.stop()
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (!isActive.current) return;
+            if (response && response.stars && response.success && isActive.current) {
                 console.log(response)
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -121,6 +151,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response?.hint)
 
                 try {
+                    if (!isActive.current) return;
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -137,18 +168,12 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     }, 1000);
                 }
                 return;
-                
-                // setTimeout(() => {
-                //     setStars(response?.stars);
-                //     setEarnedStars(response?.stars - response?.old_stars)
-                //     setLevel(prev => prev + 1);
-                //     setLock(false)
-                // }, 1500);
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return;
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -157,6 +182,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response?.hint)
 
                 try {
+                    if (!isActive.current) return;
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -173,15 +199,9 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     }, 1000);
                 }
                 return;
-                
-                // setTimeout(() => {
-                //     setStars(response?.stars);
-                //     setEarnedStars(response?.stars - response?.old_stars)
-                //     setLevel(prev => prev + 1);
-                //     setLock(false)
-                // }, 1500);
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return;
                 start();
                 setId({id: answer, result: 'wrong'})
                 vibrate()
@@ -189,9 +209,10 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 playVoice(response?.sound)
                 setAttempt('2')
             } else if(response && response.success) {
+                if (!isActive.current) return;
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -199,6 +220,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return;
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -214,16 +236,11 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     }, 1000);
                 }
                 return;
-                
-                // setTimeout(() => {
-                //     setLevel(prev => prev + 1);
-                //     setAttempt('1');
-                //     setLock(false)
-                // }, 1500);
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return;
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -232,6 +249,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return;
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -247,27 +265,35 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     }, 1000);
                 }
                 return;
-
-                // setTimeout(() => {
-                //     setLevel(prev => prev + 1);
-                //     setAttempt('1');
-                //     setLock(false)
-                // }, 1500);
             }
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
     };
+
+    const voiceForTask = async(sound) => {
+        if (!sound) return;
+        try {
+            setLock(true)
+            await playSound(sound)
+        } catch (error) {
+            setText('error loading the sound')
+            setLock(false)
+        } finally {
+            setLock(false)
+        }
+    }
 
     return (
         <View style={{top: windowHeight * (24 / 360), width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, justifyContent: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game4AnimalsAnimation lock={lock} id={id} answer={answer} audio={data.content.question_audio} images={data.content.images} setId={setId}/>}
+            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game4AnimalsAnimation lock={lock} id={id} answer={answer} audio={data?.content?.question_audio} images={data?.content?.images} setId={setId} voiceForTask={voiceForTask}/>}
             <View style={{width: 'auto', height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', left: 0, bottom: 0}}>
                 <LottieView
                     ref={lottieRef}

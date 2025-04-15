@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View, Image } from "react-native";
+import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View, Image, Dimensions } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import api from "../api/api";
 import { playSound } from "../hooks/usePlayBase64Audio";
 
-const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, setText, setWisySpeaking, wisySpeaking }) => {
+const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -22,21 +22,24 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections, 
 
         const func = async () => {
             try {
-                setWisySpeaking(true);
+                await playSound.stop()
                 const sound = await api.getSpeech('switch_category', store.language);
                 if (sound.length > 0) {
+                    store.setWisySpeaking(true);
                     const randomIndex = Math.floor(Math.random() * sound.length);
-                    setText(sound[randomIndex]?.text);
+                    store.setWisyMenuText(sound[randomIndex]?.text);
                     await playSound(sound[randomIndex]?.audio);
                 }
             } catch (error) {
                 console.log(error);
             } finally {
-                setWisySpeaking(false)
+                store.setWisySpeaking(false)
             }
         };
-        
-        func();
+
+        if (!store.loadingCats && !store.wisySpeaking) {
+            func();
+        }
     }, [activeCategory]);
 
     const renderItem = ({ item, index }) => {

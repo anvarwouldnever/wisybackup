@@ -27,32 +27,46 @@ const ChatScreen = () => {
 
     // const [keyboardActive, setKeyboardActive] = useState(false);
     
-    const sendMessage = async(currentText) => {
-        setThinking(true)
-        await store.setMessages({type: 'text', text: currentText, author: 'You'});
-        setTimeout(async() => {
-            await store.setMessages({type: 'thinking', text: 'Thinking', author: 'MyWisy'})
-        }, 500);
-
+    const sendMessage = async (currentText) => {
+        setThinking(true);
+    
+        await store.setMessages({ type: 'text', text: currentText, author: 'You' });
+    
+        setTimeout(async () => {
+            await store.setMessages({ type: 'thinking', text: 'Thinking', author: 'MyWisy' });
+        }, 100);
+    
         try {
-            const response = await api.sendMessage({child_id: store.playingChildId.id, message: currentText, token: store.token, isText: true, lang: store.language});
-            await store.setMessages({type: 'text', text: response?.data?.content, author: 'MyWisy'});
+            const response = await api.sendMessage({
+                child_id: store.playingChildId.id,
+                message: currentText,
+                token: store.token,
+                isText: true,
+                lang: store.language
+            });
+                
+            await store.setMessages({ type: 'text', text: response?.content, author: 'MyWisy' });
+
             setTimeout(() => {
                 if (firstMessageRef?.current) {
-                    firstMessageRef?.current.measure((x, y, width, height) => {
+                    firstMessageRef.current.measure((x, y, width, height) => {
                         const firstMessageHeight = height;
                         if (firstMessageHeight > 700) {
-                            flatListRef?.current?.scrollToOffset({ offset: (firstMessageHeight - 400) });
+                            flatListRef?.current?.scrollToOffset({ offset: firstMessageHeight - 400 });
                         }
                     });
                 }
             }, 100);
+            
+    
         } catch (error) {
-            console.log('Ошибка при отправке сообщения:', error);
+            await store.setMessages({ type: 'text', text: "Something went wrong, try again later", author: 'MyWisy' });
+            return
         } finally {
             setThinking(false);
         }
     };
+    
 
     return (
         <View style={{flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}>

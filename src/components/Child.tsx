@@ -5,10 +5,13 @@ import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import translations from "../../localization";
+import Animated, { FadeInUp } from "react-native-reanimated";
+
+const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
 
 const Child = ({ setDropDown, dropDown }) => {
 
-        const completedSubs = store.children.find(child => child.id === store.playingChildId.id)?.completed_sub_collections;
+        const completedSubs = store?.children?.find(child => child.id === store.playingChildId?.id)?.completed_sub_collections;
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         const calculateAge = (birthday) => {
@@ -26,14 +29,14 @@ const Child = ({ setDropDown, dropDown }) => {
             return age;
         };
 
-        const age = calculateAge(store.playingChildId.birthday)
+        const age = calculateAge(store.playingChildId?.birthday)
 
         return (
-            <TouchableOpacity activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
+            <AnimatedTouchableOpacity entering={FadeInUp.duration(400)} activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
                 <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800), justifyContent: 'space-between', borderRadius: 12, backgroundColor: '#F8F8F8', flexDirection: 'row', gap: windowWidth * (12 / 360), alignItems: 'center'}}>
                     {(() => {
-                        const avatarObj = store.avatars.find(avatar => avatar.id === store.playingChildId.avatar_id);
-                        const avatarUrl = avatarObj ? avatarObj.image.url : dog;
+                        const avatarObj = store.avatars.find(avatar => avatar?.id === store.playingChildId?.avatar_id);
+                        const avatarUrl = avatarObj ? avatarObj?.image?.url : dog;
                         const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 
                         return isSvg ? (
@@ -69,7 +72,7 @@ const Child = ({ setDropDown, dropDown }) => {
                         <Image source={narrowdown} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
                     </View>
                 </View>
-            </TouchableOpacity>
+            </AnimatedTouchableOpacity>
         )
     }
 

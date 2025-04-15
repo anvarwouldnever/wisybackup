@@ -1,5 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
-import { View, Dimensions } from "react-native";
+import { View, Dimensions, useWindowDimensions } from "react-native";
 import bgimage from '../images/BGimage.png';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesCollections from "../components/GamesList";
@@ -27,10 +27,8 @@ const GamesScreen = () => {
     const [animationStart, setAnimationStart] = useState(false);
     const [modal, setModal] = useState(false);
     const [name, setName] = useState('');
-    const [text, setText] = useState(null);
-    const [wisySpeaking, setWisySpeaking] = useState(false);
-
-    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
+                                    
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions()
 
     useFocusEffect(
         useCallback(() => {
@@ -40,25 +38,25 @@ const GamesScreen = () => {
             changeScreenOrientation();
         }, [])
     );
-
+    
     return (
-        <View style={{flex: 1, backgroundColor: 'black'}}>
+        <View style={{flex: 1}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
-                <WisyPanel wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} text={text} setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
+                <WisyPanel setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
                 {marketCollections != null &&
-                    <MarketCollections wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
+                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {subCollections != null && marketCollections == null? <HeaderCollection wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} setSubCollections={setSubCollections} name={name}/> : <HeaderMenu wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <View style={{top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', flexDirection: 'row', gap: 7}}>
                     <Stars />
                     <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
                 </View>
 
-                {marketCollections == null && <GameCategories wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
+                {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
 
-                {marketCollections == null && <GamesCollections wisySpeaking={wisySpeaking} setWisySpeaking={setWisySpeaking} setText={setText} activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
+                {marketCollections == null && <GamesCollections activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
                 {modal && <ModalConfirm setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation}/>}
             </LinearGradient>
         </View>

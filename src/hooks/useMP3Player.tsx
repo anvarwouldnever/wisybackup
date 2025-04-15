@@ -44,7 +44,6 @@ const useMP3Player = observer(({ url }) => {
 
   const loadAndPlayMusic = async () => {
     try {
-      store.setPlayingMusic(false)
       await configureAudioMode();
 
       if (sound.current) {
@@ -57,7 +56,12 @@ const useMP3Player = observer(({ url }) => {
 
       sound.current = newSound;
       await sound.current.setVolumeAsync(1);
-      await sound.current.playAsync();
+      if (store.breakMusicPlaying) {
+        store.setPlayingMusic(false)
+        await sound.current.playAsync();
+      } else {
+        await sound.current.pauseAsync();
+      }
 
     } catch (error) {
       console.error('Ошибка загрузки музыки', error);
@@ -69,6 +73,7 @@ const useMP3Player = observer(({ url }) => {
 
     return () => {
       if (sound.current) {
+        sound.current.pauseAsync();
         sound.current.unloadAsync();
       }
     };

@@ -72,7 +72,8 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
                         }
                     }, 100);
                 } catch (error) {
-                    console.log(error);
+                    await store.setMessages({ type: 'text', text: "Something went wrong, try again later", author: 'MyWisy' });
+                    return
                 }
             }
         } catch (error) {

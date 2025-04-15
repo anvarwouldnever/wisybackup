@@ -12,10 +12,11 @@ import store from '../store/store';
 import bg from '../images/choosePlayer.png'
 
 const ChoosePlayerScreen = () => {
+
     const navigation = useNavigation();
-    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [chosenPlayerIndex, setChosenPlayerIndex] = useState(null);
-    const [chosenPlayer, setChosenPlayer] = useState()
+    const [chosenPlayer, setChosenPlayer] = useState();
 
     useFocusEffect(
         useCallback(() => {
@@ -33,9 +34,9 @@ const ChoosePlayerScreen = () => {
                 <Children setChosenPlayerIndex={setChosenPlayerIndex} chosenPlayerIndex={chosenPlayerIndex} setChosenPlayer={setChosenPlayer}/>
             </View>
             {chosenPlayerIndex != null && <TouchableOpacity onPress={() => {
-                    navigation.navigate('GamesScreen')
-                    store.setPlayingChildId(chosenPlayer);
-                }
+                navigation.navigate('GamesScreen');
+                store.setPlayingChildId(chosenPlayer);
+            }
             } style={{borderRadius: 100, flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#504297', width: Platform.isPad? windowWidth * (147 / 800) : windowWidth * (147 / 800), height: Platform.isPad? windowWidth * (56 / 800) : windowHeight * (56 / 360), top: windowHeight * (280 / 360), left: windowWidth * (629 / 800), position: 'absolute'}}>
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), color: 'white'}}>Let's play</Text>
                 <Image source={narrow} style={{width: 24, height: 24, marginLeft: 10, aspectRatio: 24 / 24}}/>
@@ -57,5 +58,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default ChoosePlayerScreen
-
+export default ChoosePlayerScreen;

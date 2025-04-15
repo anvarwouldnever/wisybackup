@@ -3,7 +3,7 @@ import { Text, View, useWindowDimensions, Image, Touchable, TouchableOpacity } f
 import { AVPlaybackStatus, Audio } from "expo-av";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Sound } from "expo-av/build/Audio";
-import Animated, { useAnimatedStyle, withTiming, SlideInRight, SlideInLeft } from "react-native-reanimated";
+import Animated, { useAnimatedStyle, withTiming, SlideInRight } from "react-native-reanimated";
 import store from "../store/store";
 import { observer } from "mobx-react-lite";
 import pause from '../images/pauseIcon.jpg'
@@ -89,7 +89,7 @@ const PlayVoiceMessage = ({uri, animated, index}) => {
                 <Image source={require('../images/Dog.png')} style={{ width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24 }} />
                 <Text style={{color: '#555555', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (24 / 800),}}>You</Text>
             </View>
-            <View style={{width: windowWidth * (250 / 360), height: 70, shadowColor: "#000000", shadowOffset: { width: 3, height: 3 }, shadowOpacity: 0.2, shadowRadius: 7, backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-end', marginRight: 5, flexDirection: 'row', alignItems: 'center', padding: 20, gap: 10, justifyContent: 'center'}}>
+            <View style={{width: windowWidth * (250 / 360), height: 70, shadowColor: "#000000", shadowOffset: { width: 3, height: 3 }, shadowOpacity: 0.2, shadowRadius: 7, elevation: 10, backgroundColor: 'white', borderRadius: 10, alignSelf: 'flex-end', marginRight: 5, flexDirection: 'row', alignItems: 'center', padding: 20, gap: 10, justifyContent: 'center'}}>
                 <TouchableOpacity activeOpacity={1} onPress={() => playSound(uri)}>
                     <Image source={isPlaying? pause : play} style={{width: windowWidth * (25 / 360), height: windowHeight * (25 / 800), backgroundColor: 'white'}}/>
                 </TouchableOpacity>

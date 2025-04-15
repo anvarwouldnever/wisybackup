@@ -13,6 +13,7 @@ import LottieView from 'lottie-react-native'
 import speakingWisy from '../lotties/headv9.json'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 import Game8Tutorial from '../components/Game8Tutorial'
+import RenderComponent13 from '../components/Game13/RenderComponent13'
 
 const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
@@ -25,7 +26,6 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [wisySpeaking, setWisySpeaking] = useState(false)
     
     const lottieRef = useRef(null);
-    const timeoutRef = useRef(null);
     
     useEffect(() => {
         if (wisySpeaking) {
@@ -43,6 +43,8 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
                 if (level === introTaskIndex && introAudio && (!tutorialShow || tutorials == 0)) {
@@ -57,6 +59,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
                         setText(data?.content?.question)
                         setWisySpeaking(true);
+                        await playSound.stop()
                         await playSound(data?.content?.speech);
                     }
                 } catch (error) {
@@ -70,9 +73,16 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+        
     }, [data?.content?.speech, tutorialShow]);
                             
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
             setWisySpeaking(true)
             await playSound(sound);
@@ -103,35 +113,32 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const vibrate = () => {
         Vibration.vibrate(500);
     };
-                                
-    // useEffect(() => {
-    //     if (id?.id && id?.result) {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //         timeoutRef.current = setTimeout(() => {
-    //             setId(null);
-    //         }, 2500);
-    //     }
-    //     return () => {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //     };
-    // }, [id]);
 
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+                            
     const answer = async({ answer }) => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setId(null)
             setThinking(true)
             setLock(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (!isActive.current) return
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -139,6 +146,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -162,10 +170,11 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -174,6 +183,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -197,17 +207,19 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start()
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -215,6 +227,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -235,10 +248,11 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLock(false)
                     }, 1500);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -246,6 +260,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 vibrate()
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -270,40 +285,10 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
-    }
-
-    const RenderGame13Component = () => {
-
-        const options = [{num: '1'}, {num: '2'}, {num: '3'}];
-
-        return (
-            <View style={{width: windowWidth * (592 / 800), height: windowHeight * (160 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>
-                <View style={{width: '100%', height: windowHeight * (40 / 360), justifyContent: 'center', alignItems: 'center'}}>
-                    <Text style={{color: '#222222', fontWeight: '600', fontSize: windowWidth * (24 / 800)}}>{data?.content?.question}</Text>
-                </View>
-                <View style={{width: 'auto', gap: 16, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
-                    {data && data.content.options && data.content.options.map((option, index) => {
-                        return (
-                            <TouchableOpacity onPress={lock? () => {return} : () => {
-                                    answer({ answer: option.id })
-                                    if (timeoutRef.current) {
-                                        clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
-                                    }
-                                    setId(null);
-                                }} key={index} style={{width: windowWidth * (80 / 800), height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), backgroundColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? 'red' : 'white', borderColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? '#D81616' : 'white', borderWidth: 2, alignItems: 'center', justifyContent: 'center', borderRadius: 10}}>
-                                <Text style={{fontWeight: '600', fontSize: windowWidth * (24 / 800), color: id?.id == null? 'black' : id?.id != null && id?.id == option.id? 'black' : '#D4D1D1'}}>{option.text}</Text>
-                                {/* {id?.id == option?.id && <View style={{width: windowWidth * (16 / 800), height: windowHeight * (16 / 360), position: 'absolute', top: 5, right: 5, backgroundColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                                    <Image source={id?.result == 'correct'? galochka : x} style={{width: windowWidth * (8 / 800), height: windowHeight * (8 / 360)}}/>
-                                </View>} */}
-                            </TouchableOpacity>
-                        )
-                    })}
-                </View>
-            </View>
-        )
     }
 
     return (
@@ -311,7 +296,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderGame13Component />}
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderComponent13 lock={lock} setId={setId} data={data} id={id} answer={answer}/> }
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}

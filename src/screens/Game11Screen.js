@@ -56,6 +56,8 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
                 if (level === introTaskIndex && introAudio && introText && (!tutorialShow || tutorials.length == 0)) {
@@ -65,7 +67,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     await playSoundWithoutStopping(introAudio);
                 }
             } catch (error) {
-                console.log(error)
+                console.log(error);
             } finally {
                 try {
                     if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials.length == 0)) {
@@ -78,15 +80,22 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false)
-                    setLock(false)
+                    setLock(false);
                 }
             }
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
                         
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
             setWisySpeaking(true)
             await playSound(sound);
@@ -139,26 +148,18 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     //     };
     // }, [id]);
     
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+    
     const vibrate = () => {
         Vibration.vibrate(500);
-    };
-
-    const voice = async () => {
-        try {
-            store.setPlayingMusic(false);
-            await sound.current.loadAsync({ uri: audio });
-            await sound.current.playAsync();
-    
-            sound.current.setOnPlaybackStatusUpdate((status) => {
-                if (status.didJustFinish) {
-                    store.setPlayingMusic(true);
-                    sound.current.unloadAsync();
-                }
-            });
-        } catch (error) {
-            console.log("Error playing audio:", error);
-            await sound.current.unloadAsync();
-        }
     };
     
     const panResponder = PanResponder.create({
@@ -204,6 +205,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const answer = async() => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setId(null)
@@ -212,10 +214,12 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setThinking(true)
             setLock(true)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (!isActive.current) return
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -223,6 +227,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -230,17 +235,6 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
-                    // if (response?.sound) {
-                    //     setId(null)
-                    //     setLock(false)
-                    //     setLines([])
-                    // } else {
-                    //     setTimeout(() => {
-                    //         setId(null)
-                    //         setLock(false)
-                    //         setLines([])
-                    //     }, 1500);
-                    // }
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
@@ -252,10 +246,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -264,6 +259,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -271,17 +267,6 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
-                    // if (response?.sound) {
-                    //     setId(null)
-                    //     setLock(false)
-                    //     setLines([])
-                    // } else {
-                    //     setTimeout(() => {
-                    //         setId(null)
-                    //         setLock(false)
-                    //         setLines([])
-                    //     }, 1500);
-                    // }
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
@@ -293,17 +278,19 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start()
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -311,6 +298,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -334,10 +322,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setAttempt('1');
                     }, 1500);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -345,6 +334,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 vibrate()
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -352,17 +342,6 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false);
-                    // if (sound) {
-                    //     setId(null)
-                    //     setLock(false)
-                    //     setLines([])
-                    // } else {
-                    //     setTimeout(() => {
-                    //         setId(null)
-                    //         setLock(false)
-                    //         setLines([])
-                    //     }, 1500);
-                    // }
                     setTimeout(() => {
                         setLevel(prev => prev + 1);
                         setAttempt('1');
@@ -375,10 +354,23 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
     };
+
+    const voiceForTask = async(sound) => {
+        if (!sound) return
+        try {
+            
+        } catch (error) {
+            setText('error loading the sound')
+            setLock(false)
+        } finally {
+            setLock(false)
+        }
+    }
 
     // {data.content.first_image.endsWith(".svg") ? <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} /> : <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}/>}
 
@@ -388,9 +380,9 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{ minWidth: windowWidth * (320 / 800), height: Platform.isPad? windowWidth * (260 / 800) : windowHeight * (260 / 360), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between', position: 'absolute'}}>
-                <View style={{ width: windowWidth * (244 / 800), height: Platform.isPad? windowWidth * (140 / 800) : windowHeight * (140 / 360), backgroundColor: '#FFFFFF', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly'}}>
-                {data.content.image.endsWith(".svg") ? <SvgUri uri={data.content.image} width={windowWidth * (108 / 800)} height={Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)} /> : <Image source={{ uri: data.content.image }} style={{width: windowWidth * (108 / 800), height: Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)}}/>}
-                    <TouchableOpacity onPress={() => voice()} style={{width: windowWidth * (64 / 800), borderWidth: 1, height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
+                <View style={{ width: windowWidth * (244 / 800), height: Platform.isPad? windowWidth * (140 / 800) : windowHeight * (140 / 360), backgroundColor: '#FFFFFF', borderRadius: 10, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-evenly', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                {data?.content?.image.endsWith(".svg") ? <SvgUri uri={data?.content?.image} width={windowWidth * (108 / 800)} height={Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)} /> : <Image source={{ uri: data?.content?.image }} style={{width: windowWidth * (108 / 800), height: Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)}}/>}
+                    <TouchableOpacity onPress={lock? () => {return} : () => voiceForTask(audio)} style={{width: windowWidth * (64 / 800), borderWidth: 1, height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
                         <Image source={speaker} style={{width: windowWidth * (30 / 800), height: Platform.isPad? windowWidth * (30 / 800) : windowHeight * (30 / 360)}}/>
                     </TouchableOpacity>
                 </View>
@@ -399,7 +391,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         const isUnknown = letter === '*';
 
                         return (
-                            <View key={index} style={{ width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10}}>
+                            <View key={index} style={{ width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                                 {isUnknown ? (
                                     <ViewShot ref={viewShotRef} style={{borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? "#ADD64D" : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: 10, borderWidth: 2}} options={{ format: 'png', quality: 1 }}>  
                                         <View
@@ -409,11 +401,11 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                             <Svg height='100%' width='100%'>
                                             {lines.map((line, index) => (
                                                 <Polyline
-                                                key={index}
-                                                points={line.join(' ')}
-                                                stroke="#504297"
-                                                strokeWidth="4"
-                                                fill="none"
+                                                    key={index}
+                                                    points={line.join(' ')}
+                                                    stroke="#504297"
+                                                    strokeWidth="4"
+                                                    fill="none"
                                                 />
                                             ))}
                                             <Polyline

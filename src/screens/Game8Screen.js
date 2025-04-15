@@ -52,6 +52,8 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
                 if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
@@ -66,6 +68,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
                         setText(data?.content?.question)
                         setWisySpeaking(true);
+                        await playSound.stop()
                         await playSound(data?.content?.speech);
                     }
                 } catch (error) {
@@ -79,10 +82,18 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
             
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
+            if (!isActive.current) return
             setWisySpeaking(true)
             await playSound(sound);
         } catch (error) {
@@ -156,8 +167,19 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
     };
 
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     const answer = async() => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setId(null)
@@ -165,10 +187,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             setThinking(true)
             setLock(true)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -176,6 +199,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -194,10 +218,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -206,6 +231,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -224,17 +250,19 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start()
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -242,6 +270,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -268,10 +297,11 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLines([])
                     }, 1500);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -279,6 +309,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 vibrate()
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -306,6 +337,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
@@ -317,12 +349,26 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (592 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
-                {data.content.first_image.endsWith(".svg") ? <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> : <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                
+                <View style={{borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                    {data.content.first_image.endsWith(".svg") ? 
+                    <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/>
+                    : 
+                    <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                </View>
+                
                 <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>{data.content.operation === 'addition'? '+' : ''}</Text>
-                {data.content.second_image.endsWith(".svg") ? <SvgUri uri={data.content.second_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> : <Image source={{uri: data.content.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                
+                <View style={{borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                    {data.content.second_image.endsWith(".svg") ?
+                    <SvgUri uri={data.content.second_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> 
+                    : 
+                    <Image source={{uri: data.content.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                </View>
+
                 <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>=</Text>
 
-                <ViewShot ref={viewShotRef} style={{borderRadius: 10, backgroundColor: 'white'}} options={{ format: 'png', quality: 1 }}>  
+                <ViewShot ref={viewShotRef} style={{borderRadius: 10, backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}} options={{ format: 'png', quality: 1 }}>  
                     <View
                         {...panResponder.panHandlers}
                         style={{backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}

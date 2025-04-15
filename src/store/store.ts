@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from '@react-native-community/netinfo';
 import api from '../api/api';
 import useSvgParser from "../hooks/useSvgParser";
+import { Alert } from "react-native";
 
 class Store {
 
@@ -23,8 +24,11 @@ class Store {
     messages = [];
     language = null;
     holdEmail = null;
-    playinVoiceMessageId = null;
+    playinVoiceMessageId = null;                                      
     voiceInstructions = true;
+    wisySpeaking = false;
+    wisyMenuText = null;
+    loadingCats = false;
 
     constructor() {
         makeAutoObservable(this);
@@ -36,7 +40,6 @@ class Store {
                 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
                 if (this.language !== null) {
-                    console.log('ran reaction')
                     if (this.connectionState && this.playingChildId !== null && this.token !== null) {
                         console.log("ran collections inside lang reaction");
                         await this.loadAttributes();
@@ -65,27 +68,18 @@ class Store {
             }),
             async ({ connectionState, playingChildId, token }) => {
               if (connectionState && playingChildId !== null && token !== null) {
-                console.log("ran collections reaction");
                 await this.loadCategories();
                 await this.loadMessages();
                 await this.loadAttributes();
+              } else if (!connectionState && playingChildId !== null && token !== null) {
+                await this.setLoadingCats(true)
               }
             }
           );
-
-        // autorun(() => {
-        //     if (this.connectionState && this.playingChildId !== null && this.token !== null) {
-        //         console.log('ran autorun')
-        //         this.loadCategories();
-        //         this.loadMessages();
-        //     }
-        // });
     }
 
     async initializeStore() {
-        console.log('init');
         await this.determineConnection();
-        await this.loadData();
     }
 
     async loadData() {
@@ -169,7 +163,6 @@ class Store {
                     try {
                         const response = await api.getMarketItems({ id: category.id, token: this.token, lang: this.language });
     
-                        // Просто возвращаем данные, не парся анимации
                         return { id: category.id, items: response };
                     } catch (error) {
                         console.log(`Ошибка загрузки элементов для категории ${category.id}:`, error);
@@ -192,21 +185,19 @@ class Store {
             }
         }
     }
-    
-    
+
     async loadAttributes() {
         if (this.connectionState) {
             try {
                 const request = await api.getAttributes(this.token, this.language);
     
-                // Асинхронно загружаем и парсим SVG для каждого элемента с .svg
                 const parsedAttributes = await Promise.all(
                     request.map(async (item) => {
                         if (item.image.endsWith('.svg')) {
                             const parsedSvg = await useSvgParser(item.image);
                             return { ...item, svgData: parsedSvg };
                         }
-                        return item; // Оставляем без изменений, если не SVG
+                        return item;
                     })
                 );
     
@@ -252,8 +243,13 @@ class Store {
     async loadDataFromStorageChildren() {
         try {
             if (this.connectionState && this.token != null) {
-                const children = await api.getChildren(this.token, this.language)
-                this.setChildren(children.data)
+                try {
+                    const children = await api.getChildren(this.token, this.language)
+                    this.setChildren(children.data)
+                } catch (error) {
+                    console.log(error)
+                    throw error
+                }
             } else if (!this.connectionState) {
                 const children = await this.loadDataFromStorage('children');
                 runInAction(() => {
@@ -266,76 +262,115 @@ class Store {
     }
 
     async loadCategories() {
-        console.log('ran cats solo')
         if (this.connectionState) {
             try {
+                runInAction(() => {
+                    this.loadingCats = true
+                })
                 const request = await api.getCategories(this.token, this.language);
+                // console.log(request.data)
     
-                // Сохраняем категории в `this.categories`
                 runInAction(() => {
                     this.categories = request.data.map(category => ({
                         ...category,
-                        collections: [], // Добавляем пустое поле `collections` для каждой категории
+                        collections: [],
                     }));
                 });
     
-                // Загружаем коллекции для каждой категории
                 await this.loadCollections();
             } catch (error) {
-                console.log(error.response.data);
+                console.log(error?.response?.data);
+                runInAction(() => {
+                    this.wisyMenuText = 'Probably server overload, try again later'
+                })
             }
+        } else {
+            runInAction(() => {
+                this.wisyMenuText = 'Please check your internet connection and try again'
+            })
         }
     }
+
+    
     
     async loadCollections() {
-        if (this.connectionState) {
-            try {
-                // Создаём массив запросов для загрузки коллекций по каждой категории
-                const collectionsRequests = this.categories.map(async (category) => {
+        if (!this.connectionState) {
+            runInAction(() => {
+                this.wisyMenuText = 'Please check your internet connection and try again';
+            });
+            return;
+        }
+    
+        runInAction(() => {
+            this.loadingCats = true; // Флаг загрузки
+        });
+    
+        try {
+            const collectionsRequests = this.categories.map(async (category) => {
+                try {
                     const collectionsResponse = await api.getCollections({ id: category.id, child_id: this.playingChildId, token: this.token, lang: this.language });
     
-                    // Загружаем подколлекции и задачи для каждой коллекции
                     const collectionsWithSubCollections = await Promise.allSettled(
                         collectionsResponse.data.map(async (collection) => {
-                            const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId, token: this.token, lang: this.language });
+                            try {
+                                const subCollectionsResponse = await api.getSubCollections({ id: collection.id, child_id: this.playingChildId, token: this.token, lang: this.language });
+                                
+                                const subCollectionsWithTasks = await Promise.allSettled(
+                                    subCollectionsResponse.data.map(async (subCollection) => {
+                                        try {
+                                            const tasksResponse = await api.getTasks({ id: subCollection.id, token: this.token }, this.language);
+                                            return { ...subCollection, tasks: tasksResponse };
+                                        } catch (error) {
+                                            console.error(`Ошибка загрузки задач для ${subCollection.id}:`, error);
+                                            return null; // Исключаем сломанные данные
+                                        }
+                                    })
+                                );
     
-                            const subCollectionsWithTasks = await Promise.allSettled(
-                                subCollectionsResponse.data.map(async (subCollection) => {
-                                    const tasksResponse = await api.getTasks({ id: subCollection.id, token: this.token}, this.language );
-                                    return {
-                                        ...subCollection,
-                                        tasks: tasksResponse,
-                                    };
-                                })
-                            );
-
-                            return {
-                                ...collection,
-                                breaks: subCollectionsResponse?.dynamicBreakGroups,
-                                available_sub_collections: subCollectionsResponse?.available_sub_collections,
-                                sub_collections: subCollectionsWithTasks
-                                    .filter(result => result.status === 'fulfilled')
-                                    .map(result => result.value),
-                            };
+                                return {
+                                    ...collection,
+                                    breaks: subCollectionsResponse?.dynamicBreakGroups,
+                                    available_sub_collections: subCollectionsResponse?.available_sub_collections,
+                                    sub_collections: subCollectionsWithTasks
+                                        .filter(result => result.status === 'fulfilled' && result.value !== null)
+                                        .map(result => result?.value),
+                                };
+                            } catch (error) {
+                                console.error(`Ошибка загрузки подколлекций для ${collection.id}:`, error);
+                                return null;
+                            }
                         })
                     );
     
                     return collectionsWithSubCollections
-                        .filter(result => result.status === 'fulfilled')
-                        .map(result => result.value);
-                });
+                        .filter(result => result.status === 'fulfilled' && result.value !== null)
+                        .map(result => result?.value);
+                } catch (error) {
+                    console.error(`Ошибка загрузки коллекций для категории ${category.id}:`, error);
+                    return null;
+                }
+            });
     
-                const allCollectionsResults = await Promise.all(collectionsRequests);
+            const allCollectionsResults = await Promise.all(collectionsRequests);
     
-                runInAction(() => {
-                    this.categories = this.categories.map((category, index) => ({
-                        ...category,
-                        collections: allCollectionsResults[index],
-                    }));
-                });
-            } catch (error) {
-                console.log(error.response.data.message);
-            }
+            // Проверяем, есть ли ошибки в загрузке
+            const isEverythingLoaded = allCollectionsResults.every(result => result !== null);
+    
+            runInAction(() => {
+                this.categories = this.categories.map((category, index) => ({
+                    ...category,
+                    collections: allCollectionsResults[index] || [],
+                }));
+    
+                if (isEverythingLoaded) {
+                    this.loadingCats = false; // Сбрасываем только если загрузка успешна
+                }
+            });
+        } catch (error) {
+            console.log(error?.response?.data?.message || "Unknown error occurred");
+            runInAction(() => {
+                this.wisyMenuText = 'Probably server overload, try again later';
+            });
         }
     }
 
@@ -343,7 +378,6 @@ class Store {
         if (this.connectionState) {
             try {
                 const response = await api.getMessages(this.playingChildId.id, this.token, this.language );
-                // console.log(response)
     
                 const formattedMessages = response.data.map(item => ({
                     type: 'text',
@@ -359,11 +393,10 @@ class Store {
             }
         }
     }
-    
 
     async setMessages(message: any) {
         runInAction(() => {
-            if (message.type === 'text' && message.author === 'MyWisy') {
+            if (message.type == 'text' && message.author ==='MyWisy') {
                 this.messages = [
                     { type: message.type, text: message.text, author: message.author },
                     ...this.messages.slice(1),
@@ -390,24 +423,33 @@ class Store {
             this.connectionState = state.isConnected;
         });
 
-        NetInfo.addEventListener((state) => {
-            runInAction(() => {
-                this.connectionState = state.isConnected;
-            });
-        });
+        if (this.connectionState) {
+            await this.loadData();
+        } else {
+            Alert.alert('Something went wrong', 'check your internet connection and try again later', [
+                {
+                    text: 'Retry',
+                    onPress: async () => await this.determineConnection()
+                },
+                {
+                    text: 'Ok',
+                    style: 'cancel'
+                }
+            ])
+        }
     }
 
     async completeGame(collectionId: any, subCollectionId: any, subCollectionStarId: any, earnedStars: number, collectionIndex: number) {
         try {
-            const collections = this.categories[collectionId].collections;
-            const collection = this.categories[collectionId].collections[collectionIndex];
+            const collections = this.categories[collectionId]?.collections;
+            const collection = this.categories[collectionId]?.collections[collectionIndex];
 
             runInAction(() => {
-                collection.available_sub_collections = [...collection.available_sub_collections, subCollectionId];
+                collection.available_sub_collections = [...collection?.available_sub_collections, subCollectionId];
             })
 
             for (let i = 0; i < collections.length; i++) {
-                const subCollection = collections[i].sub_collections.find(sub => sub.id === subCollectionStarId);
+                const subCollection = collections[i].sub_collections.find(sub => sub?.id === subCollectionStarId);
                 
                 if (subCollection) {
                     runInAction(() => {
@@ -519,6 +561,18 @@ class Store {
         });
     }
 
+    async setLoadingCats(bool: boolean) {
+        runInAction(() => {
+            this.loadingCats = bool;
+        });
+    }
+
+    async setWisySpeaking(bool: boolean) {
+        runInAction(() => {
+            this.wisySpeaking = bool;
+        });
+    }
+
     async setVoiceInstructions(bool: boolean) {
         runInAction(() => {
             this.voiceInstructions = bool;
@@ -535,7 +589,12 @@ class Store {
             this.holdEmail = email;
         });
     }
-
+    
+    async setWisyMenuText(email: string) {
+        runInAction(() => {
+            this.wisyMenuText = email;
+        });
+    }
 }
 
 export default new Store();

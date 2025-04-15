@@ -4,7 +4,7 @@ import building from '../../images/tabler_building-store.png';
 import tabler2 from '../../images/tablerInactive.png';
 import activeBuilding from '../../images/activeBuilding2.png'
 
-const HeaderMenu = ({ setMarketCollections, setAnimationStart, subCollections, marketCollections }) => {
+const HeaderMenu = ({ setMarketCollections, setAnimationStart, marketCollections }) => {
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 

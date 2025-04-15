@@ -117,7 +117,6 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                 borderRadius: 20,
                 backgroundColor: 'white',
                 position: 'absolute',
-                top: height * (230 / 932),
                 alignSelf: 'center',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -125,6 +124,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                 shadowRadius: 400,
                 shadowOffset: { width: 1, height: 1 },
                 shadowOpacity: 1,
+                elevation: 100,
             }}
         >
             <Calendar
@@ -170,8 +170,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '400',
                         }}
                     >
@@ -190,8 +189,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '600',
                         }}
                     >

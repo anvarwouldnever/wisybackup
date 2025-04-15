@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Button, TouchableOpacity, Text, View, useWindowDimensions, Image, Vibration, Platform, Dimensions } from "react-native";
+import { Button, TouchableOpacity, Text, View, StatusBar, Image, Vibration, Platform, Dimensions, useWindowDimensions } from "react-native";
 import Svg, { Line, Path } from "react-native-svg";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedProps, runOnJS } from "react-native-reanimated";
@@ -37,7 +37,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const mainContainerOffset = { top: 24 };
 
-    const { height: windowHeight, width: windowWidth } = Dimensions.get('screen');
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -67,35 +67,43 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }, [wisySpeaking]);
 
     useEffect(() => {
-            const introPlay = async() => {
+        const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
+            try {
+                setLock(true)
+                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                    setWisySpeaking(true);
+                    setText(introText);
+                    await playSoundWithoutStopping(introAudio);
+                }
+            } catch (error) {
+                console.log(error)
+            } finally {
                 try {
-                    setLock(true)
-                    if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
-                                            setWisySpeaking(true);
-                                            setText(introText);
-                                            await playSoundWithoutStopping(introAudio);
-                                        }
-                } catch (error) {
-                    console.log(error)
-                } finally {
-                    try {
-                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                                                    setText(data?.content?.question)
-                                                    setWisySpeaking(true);
-                                                    await playSound(data?.content?.speech);
-                                                }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false)
-                        setLock(false)
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                        setText(data?.content?.question)
+                        setWisySpeaking(true);
+                        await playSound(data?.content?.speech);
                     }
+                } catch (error) {
+                    console.error("cОшибка при воспроизведении звука:", error);
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false)
+                    setLock(false)
                 }
             }
-    
-            introPlay()
-        }, [data?.content?.speech, tutorialShow]);
+        }
+
+        introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
+    }, [data?.content?.speech, tutorialShow]);
 
     useEffect(() => {
         if (!text) return;
@@ -119,21 +127,21 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         Vibration.vibrate(500);
     };
                                 
-    useEffect(() => {
-        if (id?.id && id?.result) {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            timeoutRef.current = setTimeout(() => {
-                setId(null);
-            }, 2500);
-        }
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
-    }, [id]);
+    // useEffect(() => {
+    //     if (id?.id && id?.result) {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //         timeoutRef.current = setTimeout(() => {
+    //             setId(null);
+    //         }, 2500);
+    //     }
+    //     return () => {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //     };
+    // }, [id]);
 
     const animatedProps = useAnimatedProps(() => ({
         x1: lineStartX.value,
@@ -207,6 +215,16 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }, 500);
     }, [images]);
 
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     useEffect(() => {
         setTimeout(() => {
             const layouts = [];
@@ -225,21 +243,25 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const answer = async(params) => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setThinking(true)
             setLock(true)
             const response = await api.answerTaskObjectMatching({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, success: params.answer, lead_time: lead_time, token: store.token, lang: store.language, pair_id: params.pair_id, target_pair_id: params.target_pair_id})
-            if (response && response.stars && response.success) {
+            if (!isActive.current) return
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
                 setText(response?.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -256,17 +278,19 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
+                            // store.loadCategories();
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
-                setId({id: answer, result: 'wrong'})
+                // setId({id: answer, result: 'wrong'})
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -283,24 +307,27 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start();
-                setId({id: answer, result: 'wrong'})
+                // setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
-                setId({id: answer, result: 'correct'})
+                // setId({id: answer, result: 'correct'})
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -314,17 +341,19 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLock(false)
                     }, 1500);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
-                setId({id: answer, result: 'wrong'})
+                // setId({id: answer, result: 'wrong'})
                 vibrate();
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -342,8 +371,11 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
+            setWrongObject(null)
+            setLines(prev => prev.slice(0, -1));
         } finally {
-            setThinking(false)
+            setThinking(false);
         }
     };
 
@@ -510,6 +542,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }, [answered])
 
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
             setWisySpeaking(true);
             await playSound(sound);
@@ -535,8 +568,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
                 <View style={{width: windowWidth * (80 / 800), height: windowHeight * (312 / 360), alignItems: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, justifyContent: 'center', flexDirection: 'column'}}>
                     {(images.length === 4 || images.length === 3 ? images : images.length === 5 || images.length === 6 ? images.slice(0, 3) : []).map((item, index) => {
-
-                        // console.log(item?.id, item?.target_pair?.id)
 
                         const gesture = Gesture.Pan()
                         .onBegin((event) => {
@@ -581,8 +612,8 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
                         return (
                             <GestureDetector key={item.key} gesture={gesture}>
-                                <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key) && images.length != 4 && images.length != 3 ? '#ADD64D' : 'white', borderWidth: 2}}>
-                                    <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ width: images.length === 3? windowWidth * (96 / 800) : images.length === 4? windowWidth * (69 / 800) :  windowWidth * (80 / 800), height: images.length === 3? windowHeight * (96 / 360) : images.length === 4? windowHeight * (69 / 360) : windowHeight * (80 / 360), backgroundColor: answered.includes(item.key) && images.length != 4 && images.length != 3? '#ADD64D4D' : 'white', borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
+                                <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3 ? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                    <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: images?.length === 3? windowWidth * (96 / 800) : images?.length === 4? windowWidth * (69 / 800) :  windowWidth * (80 / 800), height: images?.length === 3? windowHeight * (96 / 360) : images?.length === 4? windowHeight * (69 / 360) : windowHeight * (80 / 360), backgroundColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center'}}>
                                         <Image source={{ uri: item?.image }} style={{ width: images.length === 3? windowWidth * (80 / 800) : windowWidth * (64 / 800), height: images.length === 3? windowHeight * (81 / 360) : windowHeight * (64 / 360), resizeMode: 'contain' }}/>
                                     </View>
                                 </View>
@@ -650,7 +681,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             return (
                                 <GestureDetector key={item.key} gesture={gesture}>
                                     {type == 'text'? 
-                                        <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', justifyContent: 'space-between'}}>
+                                        <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', justifyContent: 'space-between', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                                             <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
                                                 <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360)}}>{item?.text}</Text>
                                             </View>
@@ -660,8 +691,8 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                         </View>
                                     :
                                     type == 'image' &&
-                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderWidth: 2}}>
-                                        <View style={{width: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), height: images.length === 4? windowHeight * (69 / 360) : windowHeight * (96 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : wrongObject == item.key? '#D816164D' : 'white', borderRadius: 10, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                        <View style={{width: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), height: images.length === 4? windowHeight * (69 / 360) : windowHeight * (96 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : wrongObject == item.key? '#D816164D' : 'white', borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
                                             <Image source={{ uri: item?.image }} style={{width: windowWidth * (80 / 800), height: windowHeight * (81 / 360)}}/>
                                         </View> 
                                     </View>   
@@ -727,8 +758,8 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
                                 return (
                                     <GestureDetector key={item.key} gesture={gesture}>
-                                        <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : 'white', borderWidth: 2}}>
-                                            <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : 'white', borderRadius: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                        <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                            <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 <Image source={{ uri: item?.image }} style={{ width: windowWidth * (64 / 800), height: windowHeight * (64 / 360), resizeMode: 'contain' }}/>
                                             </View>
                                         </View>

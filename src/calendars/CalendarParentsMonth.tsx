@@ -1,33 +1,59 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
-import RNDateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
-import { format } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, useWindowDimensions, Platform } from "react-native";
+import RNDateTimePicker from "@react-native-community/datetimepicker";
+import { Calendar, LocaleConfig } from "react-native-calendars";
+import moment from "moment";
+import { format } from "date-fns";
+import store from "../store/store";
+import { observer } from "mobx-react-lite";
+import translations from "../../localization";
 
 const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
-    const [markedDates, setMarkedDates] = useState({});
     const [selectedDate, setSelectedDate] = useState(new Date());
     const { height, width } = useWindowDimensions();
+    const [markedDates, setMarkedDates] = useState({});
 
     const cancel = () => {
         setShow(false);
     };
 
+    useEffect(() => {
+        const today = moment();
+        selectMonth({ month: today.month() + 1, year: today.year() });
+    }, []);
+
     const done = () => {
-        const selectedMoment = moment(selectedDate);
-        const startOfMonth = selectedMoment.clone().startOf('month').format('DD.MM.yyyy'); // Правильное форматирование
-        const endOfMonth = selectedMoment.clone().endOf('month').format('DD.MM.yyyy'); // Правильное форматирование
-    
-        if (startOfMonth && endOfMonth) {
-            const formattedMonthRange = {
-                startDate: startOfMonth,
-                endDate: endOfMonth,
-            };
-    
-            setMonthRange(formattedMonthRange); // Устанавливаем в state диапазон месяца
+        if (Platform.OS === "ios") {
+            const startOfMonth = moment(selectedDate).startOf("month").format("DD.MM.yyyy");
+            const endOfMonth = moment(selectedDate).endOf("month").format("DD.MM.yyyy");
+            setMonthRange({ startDate: startOfMonth, endDate: endOfMonth });
+        } else {
+            const selectedDates = Object.keys(markedDates);
+            const firstDay = selectedDates[0];
+            const lastDay = selectedDates[selectedDates.length - 1];
+            setMonthRange({
+                startDate: format(new Date(firstDay), "dd.MM.yyyy"),
+                endDate: format(new Date(lastDay), "dd.MM.yyyy"),
+            });
         }
-    
         setShow(false);
+    };
+
+    const selectMonth = (month) => {
+        const startOfMonth = moment(`${month.year}-${month.month}-01`);
+        const endOfMonth = startOfMonth.clone().endOf("month");
+        const newMarkedDates = {};
+    
+        for (let m = startOfMonth.clone(); m.isSameOrBefore(endOfMonth); m.add(1, "days")) {
+            const key = m.format("YYYY-MM-DD");
+            newMarkedDates[key] = {
+                color: "#504297",
+                textColor: "white",
+                startingDay: key === startOfMonth.format("YYYY-MM-DD"),
+                endingDay: key === endOfMonth.format("YYYY-MM-DD"),
+            };
+        }
+        setMarkedDates(newMarkedDates);
     };
 
     return (
@@ -35,40 +61,42 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
             style={{
                 width: width * (314 / 360),
                 maxWidth: 445,
-                height: 'auto',
-                alignItems: 'center',
+                alignItems: "center",
                 borderRadius: 20,
-                backgroundColor: 'white',
-                position: 'absolute',
-                top: height * (230 / 932),
-                alignSelf: 'center',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                shadowColor: 'black',
+                backgroundColor: "white",
+                position: "absolute",
+                alignSelf: "center",
+                flexDirection: "column",
+                justifyContent: "space-between",
+                shadowColor: "black",
                 shadowRadius: 400,
                 shadowOffset: { width: 1, height: 1 },
                 shadowOpacity: 1,
+                elevation: 100,
             }}
         >
-            <RNDateTimePicker
-                value={selectedDate}
-                onChange={(event, date) => {
-                    if (date) {
-                        setSelectedDate(date); // Устанавливаем выбранную дату
-                    }
-                }}
-                themeVariant="light"
-                style={{
-                    marginTop: 1,
-                    width: width * 0.8666 - 25,
-                    maxWidth: 420,
-                    height: height * (320 / 800),
-                    backgroundColor: 'white',
-                }}
-                accentColor="#504297"
-                display="spinner"
-                mode="date"
-            />
+            {Platform.OS === "ios" ? (
+                <RNDateTimePicker
+                    value={selectedDate}
+                    onChange={(event, date) => date && setSelectedDate(date)}
+                    themeVariant="light"
+                    display="spinner"
+                    mode="date"
+                    accentColor="#504297"
+                />
+            ) : (
+                <Calendar
+                    style={{ width: width * (314 / 360), borderRadius: 10 }}
+                    theme={{
+                        textDayStyle: { color: "white" }, // Делаем текст невидимым
+                    }}
+                    markedDates={markedDates}
+                    markingType="period"
+                    hideDayNames={true}
+                    onMonthChange={selectMonth}
+                />
+            )}
+
             <View
                 style={{
                     width: width * (314 / 360),
@@ -94,12 +122,11 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '400',
                         }}
                     >
-                        Cancel
+                        {translations?.[store.language]?.cancel}
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
@@ -114,12 +141,11 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '600',
                         }}
                     >
-                        Done
+                        {translations?.[store.language]?.done}
                     </Text>
                 </TouchableOpacity>
             </View>
@@ -127,13 +153,4 @@ const CalendarParentsMonth = ({ setShow, setMonthRange }) => {
     );
 };
 
-export default CalendarParentsMonth;
-
-
-{/* <RNDateTimePicker
-                    value={new Date()}
-                    themeVariant="light"
-                    style={{marginTop: 1, width: width * 0.8666 - 25, maxWidth: 420, height: height * (320 / 800), backgroundColor: 'white'}}
-                    accentColor="#504297"
-                    display='spinner'
-                /> */}
+export default observer(CalendarParentsMonth);

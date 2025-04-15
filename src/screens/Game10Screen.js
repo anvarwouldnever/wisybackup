@@ -50,6 +50,8 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
                 if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
@@ -77,9 +79,16 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
                 
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
             setWisySpeaking(true)
             await playSound(sound);
@@ -146,6 +155,16 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     //     };
     // }, [id, setId]);
 
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     const saveAndShareImage = async () => {
         try {
             const uri = await captureRef(viewShotRef, {
@@ -173,6 +192,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const answer = async() => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             const image = await saveAndShareImage()
@@ -180,10 +200,12 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setLock(true)
             setId(null)
             const response = await api.answerHandWritten({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, images: [image], lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && !response.success) {
+            if (!isActive.current) return
+            if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -192,6 +214,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -199,17 +222,6 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 } finally {
                     setText(null);
                     setWisySpeaking(false)
-                    // if (sound) {
-                    //     setId(null)
-                    //     setLock(false)
-                    //     setLines([])
-                    // } else {
-                    //     setTimeout(() => {
-                    //         setId(null)
-                    //         setLock(false)
-                    //         setLines([])
-                    //     }, 1500);
-                    // }
                     setTimeout(() => {
                         setStars(response?.stars);
                         setEarnedStars(response?.stars - response?.old_stars)
@@ -221,10 +233,11 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && response.stars && response.success) {
+            else if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -232,6 +245,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -250,17 +264,19 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start()
                 setId({id: data.id, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -268,6 +284,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -291,10 +308,11 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setAttempt('1');
                     }, 1500);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -302,6 +320,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 vibrate()
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -329,6 +348,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
@@ -340,13 +360,13 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (408 / 800), height: windowHeight * (184 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
-                <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10}}>
+                <View style={{alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                     <Text style={{fontSize: 112, color: "#504297", fontWeight: '600', textAlign: 'center'}}>A</Text>
                 </View>
-                <ViewShot ref={viewShotRef} options={{ format: 'png', quality: 1 }}>  
+                <ViewShot ref={viewShotRef} style={{backgroundColor: 'white', borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}} options={{ format: 'png', quality: 1 }}>  
                     <View
                         {...panResponder.panHandlers}
-                        style={{backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10}}
+                        style={{backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (184 / 800), height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), borderRadius: 10}}
                     >
                         <Svg height='100%' width='100%'>
                         {lines.map((line, index) => (
@@ -369,7 +389,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 </ViewShot>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (730 / 800), height: Platform.isPad? windowWidth * (64 / 800) : 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', bottom: 0}}>
-                <View style={{width: 'auto', height: Platform.isPad? windowWidth * (150 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+                <View style={{width: 'auto', height: Platform.isPad? windowWidth * (150 / 800) :  windowHeight * (85 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                     <LottieView
                         ref={lottieRef}
                         resizeMode="cover"
@@ -382,21 +402,21 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         autoPlay={false}
                         loop={true}
                     />
-                    {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
+                    <Game3TextAnimation text={text} thinking={thinking}/>
                 </View>
             </View>}
             {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
-                                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
-                                  Skip
-                                </Text>
-                            </TouchableOpacity>}
+                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
+                    Skip
+                </Text>
+            </TouchableOpacity>}
             {lines.length != 0 && <TouchableOpacity onPress={lock? () => {return} : () => {
                     answer()
                     if (timeoutRef.current) {
-                        clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
+                        clearTimeout(timeoutRef.current);
                     }
                     setId(null);
-                }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
+            }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
                 <Text style={{fontSize: 16, color: 'white', fontWeight: '600'}}>Send</Text>
             </TouchableOpacity>}
         </View>

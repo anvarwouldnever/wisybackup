@@ -16,6 +16,9 @@ import LottieView from 'lottie-react-native'
 import speakingWisy from '../lotties/headv9.json'
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds'
 import Game8Tutorial from '../components/Game8Tutorial'
+import blackRed from '../images/darkRedSpeaker.png'
+import black from '../images/tabler_speakerphone2.png';
+import RenderComponent from '../components/Game16/RenderComponent'
 
 const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
@@ -27,7 +30,6 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [lock, setLock] = useState(false);   
     const [wisySpeaking, setWisySpeaking] = useState(false);
 
-    const timeoutRef = useRef(null);
     const lottieRef = useRef(null);
 
     const animal = data?.content?.image?.url
@@ -47,6 +49,8 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
                 if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
@@ -74,9 +78,16 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
                                 
     const playVoice = async (sound) => {
+        if (!isActive.current) return
         try {
             setWisySpeaking(true)
             await playSound(sound);
@@ -97,15 +108,6 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         }
     }
 
-    useEffect(() => {
-        if (!text) return;
-        const timeoutId = setTimeout(() => {
-            setText(null);
-        }, 3000);
-    
-        return () => clearTimeout(timeoutId);
-    }, [text]); 
-
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
@@ -119,34 +121,47 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         Vibration.vibrate(500);
     };
                                 
+    // useEffect(() => {
+    //     if (id?.id && id?.result) {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //         timeoutRef.current = setTimeout(() => {
+    //             setId(null);
+    //         }, 2500);
+    //     }
+    //     return () => {
+    //         if (timeoutRef.current) {
+    //             clearTimeout(timeoutRef.current);
+    //         }
+    //     };
+    // }, [id]);
+
+    const isActive = useRef(true);
+    
     useEffect(() => {
-        if (id?.id && id?.result) {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            timeoutRef.current = setTimeout(() => {
-                setId(null);
-            }, 2500);
-        }
+        isActive.current = true;
+    
         return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
+            isActive.current = false;
         };
-    }, [id]);
+    }, []);
 
     const answer = async({ answer }) => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setId(null)
             setThinking(true)
             setLock(true)
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (!isActive.current) return
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -154,6 +169,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
                 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -171,10 +187,11 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -183,6 +200,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response?.hint)
                     
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -201,17 +219,19 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start()
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -219,6 +239,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -233,10 +254,11 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setId(null);
                     }, 1000);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset();
                 if (isFromAttributes) {
-                    store.loadCategories();
+                    // store.loadCategories();
                 } else {
                     onCompleteTask(subCollectionId, data.next_task_id)
                 }
@@ -262,89 +284,23 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
     }
 
-    const RenderGame13Component = () => {
-
-        return (
-            <View style={{width: windowWidth * (392 / 800), height: windowHeight * (280 / 360), flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', alignSelf: 'center'}}>
-                <View style={{backgroundColor: 'white', borderRadius: 10, width: 'auto', height: 'auto'}}>
-                    {animal ? (
-                        isAnimalSvg ? (
-                            <SvgUri uri={animal} style={{ width: windowWidth * (176 / 800), height: windowHeight * (176 / 360)}} />
-                            ) : (
-                            <Image source={{ uri: animal }} style={{ width: windowWidth * (176 / 800), height: Platform.isPad? windowWidth * (176 / 800) : windowHeight * (176 / 360), resizeMode: 'cover', borderWidth: 2, borderColor: 'white', borderRadius: 10, aspectRatio: 1 }} />
-                        )
-                    ) : null}
-                </View>
-                <View style={{width: windowWidth * (575 / 800), gap: 16, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
-                    {data && data.content.options && data.content.options.map((option: any, index: any) => {
-                        return !option.audio ? (
-                            <TouchableOpacity
-                              key={index}
-                              onPress={lock? () => {return} : () => {
-                                answer({ answer: option.id });
-                                if (timeoutRef.current) {
-                                  clearTimeout(timeoutRef.current);
-                                }
-                                setId(null);
-                              }}
-                              style={{
-                                width: windowWidth * (120 / 800),
-                                height: Platform.isPad ? windowWidth * (56 / 800) : windowHeight * (56 / 360),
-                                backgroundColor:
-                                  id?.id == option.id && id?.result == 'correct'
-                                    ? '#ADD64D'
-                                    : id?.id == option.id && id?.result == 'wrong'
-                                    ? 'red'
-                                    : 'white',
-                                borderColor:
-                                  id?.id == option.id && id?.result == 'correct'
-                                    ? '#ADD64D'
-                                    : id?.id == option.id && id?.result == 'wrong'
-                                    ? '#D81616'
-                                    : 'white',
-                                borderWidth: 2,
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: 100,
-                              }}
-                            >
-                              <Text
-                                style={{
-                                  fontWeight: '600',
-                                  fontSize: windowWidth * (14 / 800),
-                                  color: id?.id == null ? 'black' : id?.id != null && id?.id == option.id ? 'black' : '#D4D1D1',
-                                }}
-                              >
-                                {option.text}
-                              </Text>
-                            </TouchableOpacity>
-                          ) : (
-                            <View key={index} style={{width: windowWidth * (181 / 800), height: Platform.isPad ? windowWidth * (40 / 800) : windowHeight * (40 / 360), flexDirection: 'row', gap: 5}}>
-                                <TouchableOpacity style={{width: windowWidth * (131 / 800), height: Platform.isPad ? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0}}>
-                                    <Text
-                                        style={{
-                                        fontWeight: '600',
-                                        fontSize: windowWidth * (12 / 800),
-                                        color: id?.id == null ? 'black' : id?.id != null && id?.id == option.id ? 'black' : '#D4D1D1',
-                                        }}
-                                    >
-                                        {option.text}
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity onPress={() => playSound2(option.audio)} style={{width: windowWidth * (46 / 800), height: Platform.isPad ? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#B3ABDB', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, justifyContent: 'center', alignItems: 'center'}}>
-                                    <Image source={speaker} style={{width: windowWidth * (24 / 800), height:  windowWidth * (24 / 800)}}/>
-                                </TouchableOpacity>
-                            </View>
-                          );
-                        })}
-                </View>
-            </View>
-        )
+    const voice = async(sound) => {
+        if (!sound) return
+        try {
+            setLock(true)
+            await playSound2(sound)
+        } catch (error) {
+            setText('error loading the sound')
+            setLock(false)
+        } finally {
+            setLock(false)
+        }
     }
 
     return (
@@ -352,8 +308,8 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderGame13Component />}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderComponent animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> }
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -366,7 +322,9 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     autoPlay={false}
                     loop={true}
                 />
-                <Game3TextAnimation text={text} thinking={thinking}/>
+                <View style={{marginBottom: 30}}>
+                    <Game3TextAnimation text={text} thinking={thinking}/>
+                </View>
             </View>}
             {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                                                                                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>

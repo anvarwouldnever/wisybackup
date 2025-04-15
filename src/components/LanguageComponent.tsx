@@ -18,7 +18,7 @@ const LanguageComponent = ({ setScreen }) => {
         setTimeout(() => {
             setLoading(false);
             setScreen('Settings');
-        }, 5000);
+        }, 3000);
     };
 
     const langs = [

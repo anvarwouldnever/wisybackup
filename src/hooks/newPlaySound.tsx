@@ -3,6 +3,7 @@ import store from '../store/store';
 import { Platform } from 'react-native';
 
 let currentSound: Audio.Sound | null = null;
+let shouldCancel = false;
 
 export const newPlaySound = async (source?: string): Promise<void> => {
   if (!source || typeof source !== 'string' || source.trim() === '') {
@@ -10,24 +11,37 @@ export const newPlaySound = async (source?: string): Promise<void> => {
     return;
   }
 
+  // отменяем все предыдущие загрузки
+  shouldCancel = true;
+  await stopCurrentSound(); // гарантированная остановка текущего звука
+
+  // начинаем новую попытку
+  shouldCancel = false;
+
   try {
     store.setBreakPlayingMusic(false);
 
-    // Очищаем предыдущий звук
-    if (currentSound) {
-      await currentSound.unloadAsync();
-      currentSound = null;
-    }
-
     const sound = new Audio.Sound();
-    const isBase64 = source.startsWith('/9j') || source.length > 1000; // Простая проверка на base64
+    const isBase64 = source.startsWith('/9j') || source.length > 1000;
 
     await sound.loadAsync({
       uri: isBase64 ? `data:audio/mp3;base64,${source}` : source,
     });
 
-    await sound.setVolumeAsync(1.0);
-    await sound.playAsync();
+    // Проверяем, не была ли отменена загрузка в процессе
+    if (shouldCancel) {
+      await sound.unloadAsync();
+      return;
+    }
+
+    await sound.setVolumeAsync(store.voiceInstructions? 1.0 : 0);
+    if (store.breakMusicPlaying || store.musicPlaying) {
+      store.setBreakPlayingMusic(false);
+      store.setPlayingMusic(false)
+      await sound.playAsync();
+    } else {
+      await sound.playAsync();
+    }
 
     sound.setOnPlaybackStatusUpdate(async (status) => {
       if (status.didJustFinish) {
@@ -48,15 +62,21 @@ export const newPlaySound = async (source?: string): Promise<void> => {
   }
 };
 
-// Остановить текущее воспроизведение
 export const stopCurrentSound = async () => {
+  shouldCancel = true;
+
   if (currentSound) {
+    const soundToStop = currentSound;
+    currentSound = null;
+
     try {
-      await currentSound.stopAsync();
-      await currentSound.unloadAsync();
+      const status = await soundToStop.getStatusAsync();
+      if (status.isLoaded) {
+        await soundToStop.stopAsync();
+      }
+      await soundToStop.unloadAsync();
     } catch (error) {
       console.error('Ошибка при остановке звука:', error);
     }
-    currentSound = null;
   }
 };

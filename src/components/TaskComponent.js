@@ -9,15 +9,12 @@ const TaskComponent = ({ image, successImage }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [imageKey, setImageKey] = useState(0);
-    const [imageLoaded, setImageLoaded] = useState(false); // Добавляем состояние для отслеживания загрузки изображения
+    const [imageLoaded, setImageLoaded] = useState(false);
 
     useEffect(() => {
         setImageKey(prevKey => prevKey + 1);
-        setImageLoaded(false); // Сбрасываем состояние при смене изображения
+        setImageLoaded(false);
     }, [image]);
-
-    // console.log(image)
-    // console.log(successImage)
 
     return (
         <View style={{backgroundColor: 'white', borderRadius: 10, width: windowWidth * (188 / 800),
@@ -33,8 +30,9 @@ const TaskComponent = ({ image, successImage }) => {
             borderColor: successImage === 2 && imageLoaded ? '#ADD64D' : 'white',
             padding: 24,
             position: 'absolute',
+            shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
         }}>
-            {imageLoaded ? ( // Показываем анимированное изображение только после загрузки
+            {imageLoaded ? (
                 <Animated.Image
                     key={imageKey}
                     entering={FadeInRight.duration(500)}
@@ -45,14 +43,14 @@ const TaskComponent = ({ image, successImage }) => {
                     }}
                 />
             ) : (
-                <Image // Просто отображаем статическое изображение во время загрузки
+                <Image
                     source={{ uri: image }}
                     style={{
                         opacity: 0,
                         width: windowWidth * (140 / 800),
                         height: Platform.isPad ? windowWidth * (140 / 800) : windowHeight * (140 / 360)
                     }}
-                    onLoad={() => setImageLoaded(true)} // Вызываем функцию после загрузки
+                    onLoad={() => setImageLoaded(true)}
                 />
             )}
             {successImage === 2 && imageLoaded && (

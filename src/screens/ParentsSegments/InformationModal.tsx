@@ -10,6 +10,8 @@ const InformationModal = ({ modalData, setInformationModal, informationModal }) 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         const navigation = useNavigation();
 
+        console.log(modalData)
+
         const subCollection = store?.categories[0]?.collections[0]?.sub_collections?.find(
             (item) => item?.id === modalData?.id
         );

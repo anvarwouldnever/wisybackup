@@ -1,13 +1,7 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Image, View, useWindowDimensions, Platform, Vibration, Text } from 'react-native';
+import { Image, View, useWindowDimensions, Platform, Vibration, Text, Dimensions } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS, FadeIn, Easing, LinearTransition, withSpring, withDelay, FadingTransition, EntryExitTransition, SequencedTransition } from 'react-native-reanimated';
-import petux from '../images/petux.png';
-import cow from '../images/cow.png';
-import lion from '../images/lionGame2.png';
-import ocean from '../images/ocean2.png';
-import polyana from '../images/polyana.png';
-import sky from '../images/sky.png';
 import * as Haptics from 'expo-haptics'
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import speakingWisy from '../lotties/headv9.json'
@@ -17,21 +11,34 @@ import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgro
 import useTimer from '../hooks/useTimer';
 import store from '../store/store';
 import api from '../api/api';
+import galochka from '../images/gamepassed.png'
+import x from '../images/wrongAnswerX.png'
 
-const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone }) => {
+const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, opacity, draggingId, setDraggingId }) => {
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
-    const [draggingId, setDraggingId] = useState(null)
 
     const dragGesture = Gesture.Pan()
         .onStart(() => {
-            runOnJS(setDraggingId)(item.id)
+            if (lock) return;
+            runOnJS(setDraggingId)(item.id);
         })
         .onUpdate((event) => {
+            if (lock) {
+                translateX.value = 0;
+                translateY.value = 0;
+                return;
+            }
             translateX.value = event.translationX;
             translateY.value = event.translationY;
         })
         .onEnd((event) => {
+            if (lock) {
+                translateX.value = 0;
+                translateY.value = 0;
+                return;
+            }
+
             const hit = runOnJS(checkDropZone)(
                 event.absoluteX,
                 event.absoluteY,
@@ -39,27 +46,26 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone }) => {
                 item
             );
 
-            runOnJS(setDraggingId)(null)
-
             if (hit) return;
 
             translateX.value = withDelay(50, withSpring(0, { damping: 20, stiffness: 200 }));
             translateY.value = withDelay(50, withSpring(0, { damping: 20, stiffness: 200 }));
         });
 
-    const animatedStyleMove = useAnimatedStyle(() => ({
-        transform: [{ translateX: translateX.value }, { translateY: translateY.value }],
-    }));
+    const animatedStyleMove = useAnimatedStyle(() => {
+        return lock
+            ? { transform: [{ translateX: 0 }, { translateY: 0 }] }
+            : { transform: [{ translateX: translateX.value }, { translateY: translateY.value }] };
+    });
 
     return (
         <GestureDetector gesture={dragGesture}>
-            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: windowWidth * (80 / 800), zIndex: draggingId == item.id? 1000 : 0, height: windowHeight * (80 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }]}>
-                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: windowWidth * (64 / 800), height: windowHeight * (64 / 360) }]} />
+            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: windowWidth * (80 / 800), zIndex: draggingId == item.id? 1000 : 0, height: windowHeight * (80 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}]}>
+                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: windowHeight * (64 / 360), height: windowHeight * (64 / 360), opacity: draggingId == item.id? opacity : 1}]} />
             </Animated.View>
         </GestureDetector>
     );
 };
-
 
 const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
@@ -72,6 +78,9 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [lock, setLock] = useState(false);   
     const [wisySpeaking, setWisySpeaking] = useState(false);
     
+    const [opacity, setOpacity] = useState(1)
+    const [draggingId, setDraggingId] = useState(null);
+
     const [draggableObjects, setDraggableObjects] = useState(
         data?.content?.answers
             ?.flatMap(item => item.images.map(image => ({ id: image.id, image: image.url }))) || []
@@ -85,12 +94,11 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         })) || []
     );
 
-    console.log(data?.content?.answers[0].images)
+    // console.log(data?.content?.answers[0].images)
 
     const [answered, setAnswered] = useState([]);
 
     const lottieRef = useRef(null);
-    const timeoutRef = useRef(null);
 
     const placeholderRefs = useRef(new Map());
     const [placeholders, setPlaceholders] = useState(new Map());
@@ -109,22 +117,24 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     useEffect(() => {
             const introPlay = async() => {
+                await playSoundWithoutStopping.stop()
+                await playSound.stop()
                 try {
                     setLock(true)
                     if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
-                                            setWisySpeaking(true);
-                                            setText(introText);
-                                            await playSoundWithoutStopping(introAudio);
-                                        }
+                        setWisySpeaking(true);
+                        setText(introText);
+                        await playSoundWithoutStopping(introAudio);
+                    }
                 } catch (error) {
                     console.log(error)
                 } finally {
                     try {
                         if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                                                    setText(data?.content?.question)
-                                                    setWisySpeaking(true);
-                                                    await playSound(data?.content?.speech);
-                                                }
+                            setText(data?.content?.question)
+                            setWisySpeaking(true);
+                            await playSound(data?.content?.speech);
+                        }
                     } catch (error) {
                         console.error("cОшибка при воспроизведении звука:", error);
                     } finally {
@@ -136,36 +146,124 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             }
     
             introPlay()
-        }, [data?.content?.speech, tutorialShow]);
 
-    useEffect(() => {
-        if (!text) return;
-        const timeoutId = setTimeout(() => {
-            setText(null);
-        }, 3000);
-    
-        return () => clearTimeout(timeoutId);
-    }, [text]); 
+            return () => {
+                playSound.stop()
+                playSoundWithoutStopping.stop()
+            }
+
+    }, [data?.content?.speech, tutorialShow]);
 
     const { getTime, start, stop, reset } = useTimer();
 
+    const playVoice = async (sound) => {
+        if (!isActive.current) return
+        try {
+            setWisySpeaking(true);
+            await playSound(sound);
+        } catch (error) {
+            console.error("Ошибка при воспроизведении звука:", error);
+        } finally {
+            setWisySpeaking(false);
+            setText(null);
+            setLock(false);
+        }
+    };
+
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     const answer = async(params) => {
             try {
+                if (!isActive.current) return
                 const lead_time = getTime();
                 stop();
-                setThinking(true)
-                setLock(true)
-                const response = await api.answerTaskObjectMatching({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, success: params.answer, lead_time: lead_time, token: store.token, lang: store.language, pair_id: params.pair_id, target_pair_id: params.target_pair_id})
-                if (response && response.stars && response.success) {
+                setThinking(true);
+                setLock(true);
+                const response = await api.answerDragAndDrop({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, success: params.answer, lead_time: lead_time, token: store.token, lang: store.language, answer_id: params.answer_id, image_id: params.image_id})
+                if (!isActive.current) return
+                if (response && response.stars && response.success && isActive.current) {
+                    if (!isActive.current) return
                     reset()
                     if (isFromAttributes) {
-                        store.loadCategories();
+                        // store.loadCategories();
+                    } else {
+                        onCompleteTask(subCollectionId, data.next_task_id)
+                    }
+                    setText(response?.hint);
+    
+                    try {
+                        if (!isActive.current) return
+                        setWisySpeaking(true)
+                        await playSound(response?.sound)
+                    } catch (error) {
+                        console.log(error)
+                    } finally {
+                        setText(null);
+                        setWisySpeaking(false);
+                        setTimeout(() => {
+                            setStars(response?.stars);
+                            setEarnedStars(response?.stars - response?.old_stars)
+                            setLevel(prev => prev + 1);
+                            setLock(false)
+                        }, 1500);
+                    }
+                    return;
+                }
+                else if (response && response.stars && !response.success && isActive.current) {
+                    if (!isActive.current) return
+                    reset()
+                    if (isFromAttributes) {
+                        // store.loadCategories();
+                    } else {
+                        onCompleteTask(subCollectionId, data.next_task_id)
+                    }
+                    setText(response?.hint)
+                    
+                    try {
+                        if (!isActive.current) return
+                        setWisySpeaking(true)
+                        await playSound(response?.sound)
+                    } catch (error) {
+                        console.log(error)
+                    } finally {
+                        setText(null);
+                        setWisySpeaking(false);
+                        setTimeout(() => {
+                            setStars(response?.stars);
+                            setEarnedStars(response?.stars - response?.old_stars)
+                            setLevel(prev => prev + 1);
+                            setLock(false)
+                        }, 1500);
+                    }
+                    return;
+                }
+                else if (response && !response.success && !response.to_next && isActive.current) {
+                    if (!isActive.current) return
+                    start();
+                    vibrate();
+                    setText(response?.hint)
+                    playVoice(response?.sound)
+                    setAttempt('2')
+                } else if(response && response.success && !response.to_next && isActive.current) {
+                    if (!isActive.current) return
+                    reset()
+                    if (isFromAttributes) {
+                        // store.loadCategories();
                     } else {
                         onCompleteTask(subCollectionId, data.next_task_id)
                     }
                     setText(response?.hint)
     
                     try {
+                        if (!isActive.current) return
                         setWisySpeaking(true)
                         await playSound(response?.sound)
                     } catch (error) {
@@ -174,52 +272,16 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setText(null);
                         setWisySpeaking(false);
                         setTimeout(() => {
-                            setStars(response?.stars);
-                            setEarnedStars(response?.stars - response?.old_stars)
                             setLevel(prev => prev + 1);
+                            setAttempt('1');
                             setLock(false)
                         }, 1500);
-                    }
-                    return;
-                }
-                else if (response && response.stars && !response.success) {
+                    } 
+                } else if(response && response.success && response.to_next && isActive.current) {
+                    if (!isActive.current) return
                     reset()
                     if (isFromAttributes) {
-                                store.loadCategories();
-                            } else {
-                                onCompleteTask(subCollectionId, data.next_task_id)
-                            }
-                    setId({id: answer, result: 'wrong'})
-                    setText(response?.hint)
-                    
-                    try {
-                        setWisySpeaking(true)
-                        await playSound(response?.sound)
-                    } catch (error) {
-                        console.log(error)
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false);
-                        setTimeout(() => {
-                            setStars(response?.stars);
-                            setEarnedStars(response?.stars - response?.old_stars)
-                            setLevel(prev => prev + 1);
-                            setLock(false)
-                        }, 1500);
-                    }
-                    return;
-                }
-                else if (response && !response.success && !response.to_next) {
-                    start();
-                    setId({id: answer, result: 'wrong'})
-                    vibrate();
-                    setText(response.hint)
-                    playVoice(response?.sound)
-                    setAttempt('2')
-                } else if(response && response.success) {
-                    reset()
-                    if (isFromAttributes) {
-                        store.loadCategories();
+                        // store.loadCategories();
                     } else {
                         onCompleteTask(subCollectionId, data.next_task_id)
                     }
@@ -227,6 +289,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     setText(response.hint)
     
                     try {
+                        if (!isActive.current) return
                         setWisySpeaking(true)
                         await playSound(response?.sound)
                     } catch (error) {
@@ -240,17 +303,18 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             setLock(false)
                         }, 1500);
                     }
-                } else if(response && !response.success && response.to_next) {
+                } else if(response && !response.success && response.to_next && isActive.current) {
+                    if (!isActive.current) return
                     reset()
                     if (isFromAttributes) {
-                        store.loadCategories();
+                        // store.loadCategories();
                     } else {
                         onCompleteTask(subCollectionId, data.next_task_id)
                     }
-                    setId({id: answer, result: 'wrong'})
                     vibrate();
-                    setText(response.hint)
+                    setText(response?.hint)
                     try {
+                        if (!isActive.current) return
                         setWisySpeaking(true)
                         await playSound(response?.sound)
                     } catch (error) {
@@ -268,6 +332,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             } catch (error) {
                 console.log(error)
                 setLock(false)
+                setText("probably server overload, try again later")
             } finally {
                 setThinking(false)
             }
@@ -283,22 +348,6 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const vibrate = () => {
         Vibration.vibrate(500);
     };
-                                
-    useEffect(() => {
-        if (id?.id && id?.result) {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-            timeoutRef.current = setTimeout(() => {
-                setId(null);
-            }, 2500);
-        }
-        return () => {
-            if (timeoutRef.current) {
-                clearTimeout(timeoutRef.current);
-            }
-        };
-    }, [id]);
 
     useEffect(() => {
         setTimeout(() => {
@@ -320,33 +369,66 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const checkDropZone = (touchX, touchY, draggedUri, draggedItem) => {
         let hit = false;
-    
+
         for (const [id, { x, y, width, height }] of placeholders.entries()) {
             const isInside = touchX >= x && touchX <= x + width && touchY >= y && touchY <= y + height;
     
-            if (isInside && !answered.includes(id)) {
-
+            if (isInside) {
                 const foundPlaceholder = placeholderObjects.find(p => p.id === id);
                 if (!foundPlaceholder.possibleAnswers.includes(draggedItem.id)) {
-                    // runOnJS(answer)({ answer: false, pair_id: draggedItem.id, target_pair_id: foundPlaceholder?.id });
+                    // setId({id: id, result: 'wrong'});
+                    // setOpacity(0);
+                    answer({answer: false, answer_id: id, image_id: draggedItem.id});
+                    // setAnswered((prev) => prev.filter(answeredId => answeredId !== id));
+                    // setPlaceholderObjects((prev) =>
+                    //     prev.map((p) =>
+                    //         p.id === id ? { ...foundPlaceholder, draggedUri } : p
+                    //     )
+                    // );
+                    // setTimeout(() => {
+                    //     setPlaceholderObjects((prev) =>
+                    //         prev.map((p) =>
+                    //             p.id === id ? { ...foundPlaceholder, draggedUri: null } : p
+                    //         )
+                    //     );
+                    //     setId(null)
+                    //     setOpacity(1)
+                    // }, 1500);
                     hit = false;
                     break;
-                    // console.log("possibleAnswers:", foundPlaceholder.possibleAnswers, "draggedImageId:", draggedItem.id);
                 }
 
-                runOnJS(setPlaceholderObjects)((prev) =>
+                setPlaceholderObjects((prev) =>
                     prev.map((p) =>
                         p.id === id ? { ...foundPlaceholder, draggedUri } : p
                     )
                 );
-    
-                runOnJS(setDraggableObjects)((prev) =>
+
+                setDraggableObjects((prev) =>
                     prev.filter((obj) => obj.id !== draggedItem.id)
                 );
-
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft)
+                
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft);
     
-                runOnJS(setAnswered)((prev) => [...prev, id]);
+                setAnswered((prev) => {
+                    const filtered = prev.filter(item => item !== id);
+                    return [...filtered, id];
+                });
+
+                const filteredIds = foundPlaceholder.possibleAnswers.filter(id => id !== draggedItem.id);
+                const exists = draggableObjects.some(obj => filteredIds.includes(obj.id));
+                if (exists) {
+                    setLock(true)
+                    setTimeout(() => {
+                        setAnswered((prev) => prev.filter(item => item !== id));
+                        setPlaceholderObjects((prev) =>
+                            prev.map((p) =>
+                                p.id === id ? { ...p, draggedUri: null } : p
+                            )
+                        );
+                    setLock(false)
+                    }, 1500);
+                }
     
                 hit = true;
                 break;
@@ -357,12 +439,10 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     };
     
     useEffect(() => {
-        // console.log(answered.length, placeholderObjects.length)
-        if (answered.length === placeholderObjects.length) {
-            setText('vse pravilno krasava')
-            // answer({ answer: true })
+        if (draggableObjects.length === 0) {
+            answer({answer: true})
         }
-    }, [answered])
+    }, [answered]);
 
     return (
         <View style={{ flex: 1, position: 'absolute', alignSelf: 'center', alignItems: 'center', width: windowWidth - 60, height: windowHeight - 45}}>
@@ -370,90 +450,115 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             {placeholderObjects.map((item) => {
 
                 return (
-                    <View
-                        key={item.id}
-                        ref={(el) => {
-                            if (el) {
-                                placeholderRefs.current.set(item.id, el);
-                            } else {
-                                placeholderRefs.current.delete(item.id);
-                            }
-                        }}
-                        style={{
-                            width: windowWidth * (160 / 800),
-                            height: windowHeight * (168 / 360),
-                            borderRadius: item?.image ? 10 : 16,
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: 'white',
-                            
-                        }}
-                    >
-                    {item?.image ? 
-                        (
-                            <>
-                                <Image 
-                                    source={{ uri: item.image }} 
-                                    style={{ 
-                                        width: windowWidth * (176 / 800), 
-                                        height: windowHeight * (184 / 360), 
-                                        borderRadius: 16, 
-                                        borderWidth: 2, 
-                                        borderColor: 'white' 
-                                    }} 
-                                />
-                                {item?.draggedUri && (
-                                    <Animated.Image
-                                        entering={FadeIn
-                                            .duration(600)
-                                            .delay(50)
-                                            .springify()
-                                            .easing(Easing.out(Easing.exp))
-                                        }
-                                        source={{ uri: item.draggedUri }}
-                                        style={{
-                                            width: windowWidth * (120 / 800),
-                                            height: windowHeight * (120 / 360),
-                                            position: 'absolute',
-                                            alignSelf: 'center',
-                                        }}
+                    <View style={{
+                                width: windowWidth * (160 / 800),
+                                height: windowHeight * (168 / 360),
+                                borderRadius: item?.image ? 10 : 16,
+                                borderColor: id?.id == item?.id && id?.result == 'wrong' && !item?.image? '#D81616' : (id?.id == item?.id && id?.result == 'correct') || answered.includes(item.id) && !item?.image? '#ADD64D' : 'black',
+                                borderWidth: 2,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: 'white',
+                                shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
+                            }}
+                            key={item.id}
+                            ref={(el) => {
+                                if (el) {
+                                    placeholderRefs.current.set(item.id, el);
+                                } else {
+                                    placeholderRefs.current.delete(item.id);
+                                }
+                            }}
+                        >
+                        <View
+                            style={{
+                                width: windowWidth * (160 / 800),
+                                height: windowHeight * (168 / 360),
+                                borderRadius: item?.image ? 10 : 16,
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                backgroundColor: id?.id == item?.id && id?.result == 'wrong' && !item?.image? '#D816164D' : (id?.id == item?.id && id?.result == 'correct') || answered.includes(item.id) && !item?.image? '#ADD64D4D' : 'white',
+                                
+                            }}
+                        >
+                        {item?.image ? 
+                            (
+                                <>
+                                    <Image 
+                                        source={{ uri: item.image }} 
+                                        style={{ 
+                                            width: windowWidth * (176 / 800), 
+                                            height: windowHeight * (184 / 360), 
+                                            borderRadius: 16, 
+                                            borderWidth: 2, 
+                                            borderColor: id?.id == item?.id && id?.result == 'wrong'? '#D81616' : (id?.id == item?.id && id?.result == 'correct') || answered.includes(item.id)? '#ADD64D' : 'white',
+                                        }} 
                                     />
-                                )}
-                            </>
-                        ) 
-                        : 
-                        (
-                            <View style={{flex: 1, gap: 10, padding: 16, alignItems: 'center'}}>
-                                <Text style={{position: 'absolute', bottom: windowHeight * (10 / 360), fontWeight: '600', fontSize: windowHeight * (14 / 360)}}>{item.text}</Text>
-                                {item?.draggedUri && (
-                                    <Animated.Image
-                                        entering={FadeIn
-                                            .duration(600)
-                                            .delay(50)
-                                            .springify()
-                                            .easing(Easing.out(Easing.exp))
-                                        }
-                                        source={{ uri: item.draggedUri }}
-                                        style={{
-                                            width: windowWidth * (120 / 800),
-                                            height: windowHeight * (120 / 360),
-                                            alignSelf: 'center',
-                                            
-                                        }}
-                                    />
-                                )}
+                                    {item?.draggedUri && (
+                                        <Animated.Image
+                                            entering={FadeIn
+                                                .duration(600)
+                                                .delay(50)
+                                                .springify()
+                                                .easing(Easing.out(Easing.exp))
+                                            }
+                                            source={{ uri: item.draggedUri }}
+                                            style={{
+                                                width: windowWidth * (120 / 800),
+                                                height: windowHeight * (120 / 360),
+                                                position: 'absolute',
+                                                alignSelf: 'center',
+                                            }}
+                                        />
+                                    )}
+                                    {answered.includes(item.id) && (
+                                        <Image source={galochka} style={{width: windowHeight * (24 / 360), height: windowHeight * (24 / 360), position: 'absolute', top: 2, right: 2}}/>
+                                    )}
+                                    {id?.id == item?.id && id?.result == 'wrong' && (
+                                        <Image source={x} style={{width: windowHeight * (24 / 360), height: windowHeight * (24 / 360), position: 'absolute', top: 2, right: 2}}/>
+                                    )}
+                                </>
+                            ) 
+                            : 
+                            (
+                                <View style={{flex: 1, gap: 10, padding: 16, alignItems: 'center'}}>
+                                    <Text style={{position: 'absolute', bottom: windowHeight * (10 / 360), fontWeight: '600', fontSize: windowHeight * (14 / 360)}}>{item.text}</Text>
+                                    {item?.draggedUri && (
+                                        <Animated.Image
+                                            entering={FadeIn
+                                                .duration(600)
+                                                .delay(50)
+                                                .springify()
+                                                .easing(Easing.out(Easing.exp))
+                                            }
+                                            source={{ uri: item.draggedUri }}
+                                            style={{
+                                                width: windowWidth * (120 / 800),
+                                                height: windowHeight * (120 / 360),
+                                                alignSelf: 'center',
+                                                
+                                            }}
+                                        />
+                                    )}
                                 </View>
-                        )}
+                            )}
+                            {answered.includes(item.id) && !item?.image && (
+                                <Image source={galochka} style={{width: windowHeight * (24 / 360), height: windowHeight * (24 / 360), position: 'absolute', top: 5, right: 5}}/>
+                            )}
+                            {id?.id == item?.id && id?.result == 'wrong' && !item?.image && (
+                                <Image source={x} style={{width: windowHeight * (24 / 360), height: windowHeight * (24 / 360), position: 'absolute', top: 5, right: 5}}/>
+                            )}
+                        </View>
                     </View>
                 )
             })}
             </View>
             <Animated.View style={{ width: windowWidth * (560 / 800), height: windowHeight * (80 / 360), marginTop: 50, flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'center', position: 'absolute', alignSelf: 'center', bottom: 0}}>
                 {draggableObjects.map((item) => (
-                    <DraggableItem key={item.id} item={item} windowWidth={windowWidth} windowHeight={windowHeight} checkDropZone={checkDropZone}/>
+                    <DraggableItem key={item.id} item={item} windowWidth={windowWidth} windowHeight={windowHeight} checkDropZone={checkDropZone} lock={lock} opacity={opacity} draggingId={draggingId} setDraggingId={setDraggingId}/>
                 ))}
             </Animated.View>
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -466,7 +571,9 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     autoPlay={false}
                     loop={true}
                 />
-                <Game3TextAnimation text={text} thinking={thinking}/>
+                <View style={{marginBottom: 30}}>
+                    <Game3TextAnimation text={text} thinking={thinking}/>
+                </View>
             </View>}
         </View>
     );

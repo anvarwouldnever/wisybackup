@@ -1,44 +1,26 @@
 import React from "react";
-import { View, Text, ScrollView, Image, TouchableOpacity, useWindowDimensions } from "react-native";
+import { View, Text, ScrollView, useWindowDimensions, ActivityIndicator } from "react-native";
 import Knowledge from "./Knowledge";
-import winkingWisy from '../images/Winking.png';
-import { useNavigation } from "@react-navigation/native";
-import translations from "../../localization";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import GetToKnowYourChild from "./ParentComponent/GetToKnowYourChild";
 import store from "../store/store";
+import { observer } from "mobx-react-lite";
 
 const ParentsComponents = ({ screen }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions()
-    const navigation = useNavigation()
-
-    const GetToKnowYourChild = () => {
-        return (
-            <View style={{backgroundColor: '#C4DF84', flexDirection: 'row', gap: windowWidth * (16 / 360), padding: windowHeight * (16 / 800), alignSelf: 'center', borderRadius: 12, width: windowWidth * (312 / 360), height: windowHeight * (152 / 800)}}>
-                <Image source={winkingWisy} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
-                <View style={{width: windowWidth * (224 / 360), height: windowHeight * (120 / 800), justifyContent: 'space-between'}}>
-                    <View style={{width: windowWidth * (224 / 360), height: windowHeight * (64 / 800), alignSelf: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
-                        <Text style={{fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (20 / 800)}}>{translations?.[store.language].getToKnowYourChild}</Text>
-                        <Text style={{fontWeight: '600', color: '#555555', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (40 / 800)}}>{translations?.[store.language].tenInsights}</Text>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")} style={{width: windowWidth * (96 / 360), height: windowHeight * (40 / 800), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
-                        <Text style={{color: '#504297', fontWeight: '600', fontSize: windowHeight * (12 / 800)}}>{translations?.[store.language]?.openChat}</Text>
-                    </TouchableOpacity>
-                </View>
-            </View>
-        )
-    }
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     return (
-        <View style={{width: windowWidth * (312 / 360), height: windowHeight * (502 / 800), justifyContent: 'space-between'}}>
-            <Text style={{fontSize: windowHeight * (16 / 800), lineHeight: windowHeight * (24 / 800), fontWeight: '600', height: windowHeight * (24 / 800), marginBottom: 7}}>{screen.name}</Text>
+        <View style={{width: windowWidth * (312 / 360), height: windowHeight * (502 / 800), justifyContent: 'space-between', gap: windowHeight * (13 / 800)}}>
+            <Text style={{fontSize: windowHeight * (16 / 800), fontWeight: '600', height: windowHeight * (24 / 800)}}>{screen?.name}</Text>
+            {screen != 'Settings' && <GetToKnowYourChild />}
             <ScrollView contentContainerStyle={{justifyContent: 'space-between', gap: windowWidth * (16 / 360)}} showsVerticalScrollIndicator={false}>
-                {screen != 'Settings' && <GetToKnowYourChild />}
-                <View style={{width: windowWidth * (312 / 360), height: 'auto'}}>
+                <Animated.View key={screen?.name} entering={FadeInDown.duration(400)} style={{width: windowWidth * (312 / 360), height: 'auto'}}>
                     <Knowledge screen={screen}/>
-                </View>
+                </Animated.View>
             </ScrollView>
         </View>
     )
 }
 
-export default ParentsComponents;
+export default observer(ParentsComponents);

@@ -77,7 +77,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                 borderRadius: 20,
                 backgroundColor: 'white',
                 position: 'absolute',
-                top: height * (230 / 932),
+                // top: height * (230 / 932), она и так центрируется
                 alignSelf: 'center',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
@@ -85,6 +85,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                 shadowRadius: 400,
                 shadowOffset: { width: 1, height: 1 },
                 shadowOpacity: 1,
+                elevation: 100
             }}
         >
             <Calendar
@@ -133,8 +134,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '400',
                         }}
                     >
@@ -153,8 +153,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                     <Text
                         style={{
                             color: '#504297',
-                            fontSize: 17,
-                            letterSpacing: 0.5,
+                            fontSize: height * (17 / 800),
                             fontWeight: '600',
                         }}
                     >

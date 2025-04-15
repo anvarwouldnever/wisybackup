@@ -33,7 +33,7 @@ const Game3TextAnimation = ({ text, thinking }) => {
                 borderTopLeftRadius: 16,
                 borderBottomRightRadius: 16,
                 padding: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360),
-                marginLeft: 10
+                marginLeft: 10,
             }}
         >
             {!thinking || text? <Text

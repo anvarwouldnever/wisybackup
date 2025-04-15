@@ -52,7 +52,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     useEffect(() => {
         
         if (isFromAttributes) {
-            store.loadCategories()
+            // store.loadCategories()
         } else {
             onComplete(id, starId, stars.length);
         }

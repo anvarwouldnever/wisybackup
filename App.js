@@ -14,7 +14,7 @@ import ParentsScreen from './src/screens/ParentsScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import ParentsSegments from './src/screens/ParentsSegments';
 import TextToSpeech from './src/components/TextToSpeech';
-import { AppState } from 'react-native';
+import { AppState, View } from 'react-native';
 import Game1Screen from './src/screens/Game1Screen';
 import Game2Screen from './src/screens/Game2Screen';
 import React, { useEffect, useRef } from 'react';
@@ -38,20 +38,31 @@ import SplashScreen from './src/screens/SplashScreen';
 import ForgotPassword from './src/components/ForgotPassword';
 import ResetPassword from './src/screens/ResetPassword';
 import ResettedPasswordScreen from './src/screens/ResettedPasswordScreen';
+import NetInfo from '@react-native-community/netinfo';
 
 const Stack = createStackNavigator();
+
+// AsyncStorage.clear();
+
+// igor.khegay@avtech.uz
 
 const App = () => {
 
   // AsyncStorage.clear();
 
-  // igor.khegay@avtech.uz
-
   const url = Linking.useURL();
 
   const navigationRef = useRef(null);
 
-  // console.log(store.language)
+  useEffect(() => {
+    const unsubscribe = NetInfo.addEventListener(() => {
+      store.determineConnection()
+    });
+  
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   useEffect(() => {
     const handleDeepLink = async (url) => {
@@ -74,6 +85,8 @@ const App = () => {
     };
   }, []);
 
+  // console.log(store.token)
+
   if (store.loading) {
     return <SplashScreen />
   }
@@ -81,7 +94,7 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{flex: 1}}>
       <NavigationContainer ref={navigationRef}>
-        <StatusBar translucent={true} backgroundColor="transparent" style="light" hidden={true}/>
+        <StatusBar translucent={true} backgroundColor="transparent" style='dark' hidden={false}/>
         <Stack.Navigator screenOptions={{
             headerShown: false,
             ...TransitionPresets.ModalSlideFromBottomIOS
@@ -97,7 +110,7 @@ const App = () => {
               <Stack.Screen name="ResetPassword" component={ResetPassword} />
               <Stack.Screen name="ResettedPasswordScreen" component={ResettedPasswordScreen} />
             </>
-          ) : store.token !== null && store.children.length > 0 ? (
+          ) : store.token !== null && store.children?.length > 0 ? (
             <>
               <Stack.Screen name="ChoosePlayerScreen" component={ChoosePlayerScreen} />
               <Stack.Screen name="ChildParamsScreen" component={ChildParams} />
@@ -111,7 +124,7 @@ const App = () => {
               <Stack.Screen name="GameScreen" component={GameScreen} />
               <Stack.Screen name="TestScreen" component={SvgPathExtractor} />
             </>
-          ) : store.token !== null && store.children.length === 0 ? (
+          ) : store.token !== null && store.children?.length === 0 ? (
             <>
               <Stack.Screen name="ChildParamsScreen" component={ChildParams} />
               <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
@@ -125,35 +138,3 @@ const App = () => {
 }
 
 export default observer(App);
-
-{/* <Stack.Screen name="GamesScreen" component={GamesScreen} />
-          <Stack.Screen name="ParentsCaptchaScreen" component={ParentsCaptcha} />
-          <Stack.Screen name="ParentsScreen" component={ParentsScreen} />
-          <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
-          <Stack.Screen name="ChatScreen" component={ChatScreen} />
-          <Stack.Screen name="ParentsSegments" component={ParentsSegments} />
-          <Stack.Screen name="TextToSpeech" component={TextToSpeech} />
-          <Stack.Screen name="GameScreen" component={GameScreen} />
-          <Stack.Screen name="Game1Screen" component={Game1Screen} />
-          <Stack.Screen name="Game2Screen" component={Game2Screen} />
-          <Stack.Screen name="Game3Screen" component={Game3Screen} />
-          <Stack.Screen name="Game4Screen" component={Game4Screen} />
-          <Stack.Screen name="Game5Screen" component={Game5Screen} />
-          <Stack.Screen name="Game6Screen" component={Game6Screen} />
-          <Stack.Screen name="Game7Screen" component={Game7Screen} />
-          <Stack.Screen name="Game8Screen" component={Game8Screen} />
-          <Stack.Screen name="Game9Screen" component={Game9Screen} />
-          <Stack.Screen name="Game14Screen" component={Game14Screen} />
-          <Stack.Screen name="TestScreen" component={SvgPathExtractor} /> */}
-
-
-          // <Stack.Screen name="Game1Screen" component={Game1Screen} />
-          //     <Stack.Screen name="Game2Screen" component={Game2Screen} />
-          //     <Stack.Screen name="Game3Screen" component={Game3Screen} />
-          //     <Stack.Screen name="Game4Screen" component={Game4Screen} />
-          //     <Stack.Screen name="Game5Screen" component={Game5Screen} />
-          //     <Stack.Screen name="Game6Screen" component={Game6Screen} />
-          //     <Stack.Screen name="Game7Screen" component={Game7Screen} />
-          //     <Stack.Screen name="Game8Screen" component={Game8Screen} />
-          //     <Stack.Screen name="Game9Screen" component={Game9Screen} />
-          //     <Stack.Screen name="Game14Screen" component={Game14Screen} />

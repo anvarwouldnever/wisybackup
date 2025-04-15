@@ -27,15 +27,13 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const renderChild = ({ item, index }) => {
-            const last = store.children.length - 1;
-            const age = calculateAge(item.birthday);
+            const last = store.children?.length - 1;
+            const age = calculateAge(item?.birthday);
         
-            // Find the avatar URL
             const avatarObj = store.avatars.find(avatar => avatar.id === item.avatar_id);
             const avatarUrl = avatarObj ? avatarObj.image.url : dog;
             const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
         
-            // Avatar rendering component
             const Avatar = isSvg ? (
                 <SvgUri 
                     uri={avatarUrl} 
@@ -100,7 +98,6 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                         </View>
                     </View>
         
-                    {/* Toggle dropdown button */}
                     {index === 0 ? (
                         <TouchableOpacity 
                             onPress={() => setDropDown(prev => !prev)} 

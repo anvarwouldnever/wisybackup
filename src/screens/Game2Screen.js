@@ -47,9 +47,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     useEffect(() => {
         const introPlay = async() => {
+            await playSoundWithoutStopping.stop()
+            await playSound.stop()
             try {
                 setLock(true)
-                if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
+                if (level === introTaskIndex && (!tutorialShow || tutorials?.length === 0) && introAudio) {
                     setWisySpeaking(true);
                     setText(introText);
                     await playSoundWithoutStopping(introAudio);
@@ -58,7 +60,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 console.log(error)
             } finally {
                 try {
-                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0)) {
                         setText(data?.content?.question)
                         setWisySpeaking(true);
                         await playSound(data?.content?.speech);
@@ -74,6 +76,12 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
 
         introPlay()
+
+        return () => {
+            playSound.stop()
+            playSoundWithoutStopping.stop()
+        }
+
     }, [data?.content?.speech, tutorialShow]);
 
     const playVoice = async (sound) => {
@@ -97,28 +105,54 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
     };
 
+    const voiceForTask = async(sound) => {
+        if (!sound) return
+        try {
+            setLock(true)
+            await playSound(sound)
+        } catch (error) {
+            setText('error loading the sound')
+            setLock(true)
+        } finally {
+            setLock(false)
+        }
+    }
+
+    const isActive = useRef(true);
+    
+    useEffect(() => {
+        isActive.current = true;
+    
+        return () => {
+            isActive.current = false;
+        };
+    }, []);
+
     const vibrate = () => {
         Vibration.vibrate(500);
     };
 
     const answer = async({ answer }) => {
         try {
+            if (!isActive.current) return
             const lead_time = getTime();
             stop();
             setId(null);
             setThinking(true);
             setLock(true);
             const response = await api.answerTaskSC({task_id: data.id, attempt: attempt, child_id: store.playingChildId.id, answer: answer, lead_time: lead_time, token: store.token, lang: store.language})
-            if (response && response.stars && response.success) {
+            if (response && response.stars && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
+                            // store.loadCategories();
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
                 setId({id: answer, result: 'correct'})
                 setText(response?.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true);
                     await playSound(response?.sound);
                 } catch (error) {
@@ -136,10 +170,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }
                 return;
             }
-            else if (response && response.stars && !response.success) {
+            else if (response && response.stars && !response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
+                            // store.loadCategories();
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
@@ -148,6 +183,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 setText(response.hint)
 
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -165,22 +201,25 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }
                 return;
             }
-            else if (response && !response.success && !response.to_next) {
+            else if (response && !response.success && !response.to_next && isActive.current) {
+                if (!isActive.current) return
                 start();
                 setId({id: answer, result: 'wrong'})
                 vibrate()
                 setText(response.hint)
                 playVoice(response?.sound)
                 setAttempt('2')
-            } else if(response && response.success) {
+            } else if(response && response.success && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
+                            // store.loadCategories();
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
                 setId({id: answer, result: 'correct'})
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     setText(response.hint)
                     await playSound(response?.sound)
@@ -196,10 +235,11 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setId(null);
                     }, 1000);
                 }
-            } else if(response && !response.success && response.to_next) {
+            } else if(response && !response.success && response.to_next && isActive.current) {
+                if (!isActive.current) return
                 reset()
                 if (isFromAttributes) {
-                            store.loadCategories();
+                            // store.loadCategories();
                         } else {
                             onCompleteTask(subCollectionId, data.next_task_id)
                         }
@@ -207,6 +247,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 vibrate()
                 setText(response.hint)
                 try {
+                    if (!isActive.current) return
                     setWisySpeaking(true)
                     await playSound(response?.sound)
                 } catch (error) {
@@ -225,6 +266,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         } catch (error) {
             console.log(error)
             setLock(false);
+            setText("probably server overload, try again later")
         } finally {
             setThinking(false)
         }
@@ -235,7 +277,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {data && (!tutorialShow || tutorials.length == 0 || isFromAttributes) && <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio}/>}
+            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask}/>}
             <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', position: 'absolute', bottom: 0, left: 0, flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
