@@ -1,6 +1,5 @@
 import React, { useCallback, useState, useEffect } from "react";
 import { View, Dimensions, useWindowDimensions } from "react-native";
-import bgimage from '../images/BGimage.png';
 import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesCollections from "../components/GamesList";
 import GameCategories from "../components/GameOptions";
@@ -16,11 +15,11 @@ import Back from "./GamesScreen/Back";
 import Stars from "./GamesScreen/Stars";
 import { LinearGradient } from "expo-linear-gradient";
 import ModalConfirm from "./GamesScreen/ModalConfirm";
+import store from "../store/store";
 
 const GamesScreen = () => {
 
     const [activeCategory, setActiveCategory] = useState(0);
-    const [subCollections, setSubCollections] = useState(null);
     const [activeMarket, setActiveMarket] = useState(0);
     const [marketCollections, setMarketCollections] = useState(null);
     const [currentAnimation, setCurrentAnimation] = useState({animation: null, cost: null, id: null});
@@ -38,7 +37,7 @@ const GamesScreen = () => {
             changeScreenOrientation();
         }, [])
     );
-    
+
     return (
         <View style={{flex: 1}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
@@ -47,16 +46,16 @@ const GamesScreen = () => {
                     <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {subCollections != null && marketCollections == null? <HeaderCollection setSubCollections={setSubCollections} name={name}/> : <HeaderMenu subCollections={subCollections} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {store?.subCollections?.length > 0 && marketCollections == null? <HeaderCollection name={name}/> : <HeaderMenu marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <View style={{top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', flexDirection: 'row', gap: 7}}>
                     <Stars />
-                    <GoParent setAnimationStart={setAnimationStart} setSubCollections={setSubCollections}/>
+                    <GoParent setAnimationStart={setAnimationStart}/>
                 </View>
 
-                {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory} setSubCollections={setSubCollections}/>}
+                {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory}/>}
 
-                {marketCollections == null && <GamesCollections activeCategory={activeCategory} subCollections={subCollections} setSubCollections={setSubCollections} setName={setName}/>}
+                {marketCollections == null && <GamesCollections activeCategory={activeCategory} setName={setName}/>}
                 {modal && <ModalConfirm setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation}/>}
             </LinearGradient>
         </View>

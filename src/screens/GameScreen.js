@@ -1,4 +1,4 @@
-import { View, TouchableOpacity, Text, Image, useWindowDimensions, Platform, ImageBackground, Dimensions } from 'react-native';
+import { View, TouchableOpacity, Text, Image, useWindowDimensions, Platform, ImageBackground } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import store from '../store/store';
 import Game1Screen from './Game1Screen';
@@ -27,33 +27,28 @@ import Game14Screen from './Game14Screen';
 import Game17Screen from './Game17Screen';
 import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds';
 import { playSound } from '../hooks/usePlayBase64Audio';
+import { observer } from 'mobx-react-lite';
 
 const GameScreen = ({ route }) => {
 
-    const { tasks, onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes } = route.params;
+    const { onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, categoryId, collectionId } = route.params;
+    const tasks = store?.tasks;
     const navigation = useNavigation();
     const [taskLevel, setTaskLevel] = useState(0);
+    const [isFrozen, setIsFrozen] = useState(false);
     const [level, setLevel] = useState(isFromAttributes? 0 : tasks[taskLevel]?.current_task_id_index);
     const [stars, setStars] = useState(null);
     const [earnedStars, setEarnedStars] = useState(null);
     const [cameFromBreak, setCameFromBreak] = useState(isFromBreak);
     const [isBreak, setIsBreak] = useState(false);
-    const [tutorialShow, setTutorialShow] = useState(true);
+    const [tutorialShow, setTutorialShow] = useState(isFromAttributes? false : true);
     const [introTaskIndex, setIntroTaskIndex] = useState(isFromAttributes? 0 : tasks[taskLevel]?.current_task_id_index);
-    const task = tasks[taskLevel]?.tasks;
+    const task = tasks[taskLevel]?.tasks; 
 
     let introAudio = tasks[taskLevel]?.introAudio
     let introText = tasks[taskLevel]?.introText
     let tutorials = tasks[taskLevel]?.tutorials
-
-    /// console.log(task[level]?.type, task[level]?.content?.sub_type)
-
-    useEffect(() => {
-        if (!isFromAttributes) {
-            setLevel(tasks[taskLevel]?.current_task_id_index) 
-        }
-    }, [taskLevel])
-
+    
     const ifCameFromBreak = breaks?.find(b => b.order === tasks[taskLevel]?.order);
     const currentBreakContent = breaks?.find(b => b.order === tasks[taskLevel]?.order);
 
@@ -71,8 +66,6 @@ const GameScreen = ({ route }) => {
             setIsBreak(true);
             return prev;
           }
-      
-          // если багует отображение туторов, учти возможность их выключения в предыдущих играх, а состояние для них - глобальное 
 
           if (isBreak) {
             if (!tutorialShow) {
@@ -98,6 +91,8 @@ const GameScreen = ({ route }) => {
             return 0;
         });
     };
+
+    // console.log(task)
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -247,14 +242,16 @@ const GameScreen = ({ route }) => {
         };
     });
 
+    const goBack = () => {
+        playSound.stop();
+        playSoundWithoutStopping.stop();
+        navigation.goBack();
+        setIsFrozen(true);
+    };
+
     const BackButton = () => {
         return (
-            <TouchableOpacity onPress={() => 
-                {
-                    playSoundWithoutStopping.stop()
-                    playSound.stop()
-                    navigation.goBack()
-                }} style={{backgroundColor: 'white', width: windowWidth * (85 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), borderRadius: 100, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: windowWidth * (8 / 800), position: 'absolute', left: 30, top: 30, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+            <TouchableOpacity onPress={() => goBack()} style={{backgroundColor: 'white', width: windowWidth * (85 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), borderRadius: 100, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: windowWidth * (8 / 800), position: 'absolute', left: 30, top: 30, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                 <Image source={narrowleft} style={{width: 24, height: 24, aspectRatio: 24 / 24}}/>
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), lineHeight: windowHeight * (20 / 360), color: '#504297'}}>{translations?.[store.language]?.exit}</Text>
             </TouchableOpacity>
@@ -275,7 +272,9 @@ const GameScreen = ({ route }) => {
     return (
         <View style={{flex: 1}}>
             {!isFromAttributes && (cameFromBreak || isBreak)? 
-            <BreakScreen anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/> 
+            <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} collectionId={collectionId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
+            :
+            isFrozen? <View /> 
             :
             <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}}>
             {
@@ -310,8 +309,8 @@ const GameScreen = ({ route }) => {
                     <RenderTextSingleChoiceSimpleGame /> : 
                     task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio'?
                     <RenderTextSingleChoiceWithAudioGame /> : 
-                    <CongratulationsScreen setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
-                ) : <CongratulationsScreen setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                    <CongratulationsScreen taskLevel={taskLevel} categoryId={categoryId} collectionId={collectionId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                ) : <CongratulationsScreen taskLevel={taskLevel} categoryId={categoryId} collectionId={collectionId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
             }
                 <BackButton />
                 {task && task[level] && task[level].type && <ProgressAnimation />}
@@ -321,4 +320,4 @@ const GameScreen = ({ route }) => {
     )
 }
 
-export default GameScreen;
+export default observer(GameScreen);

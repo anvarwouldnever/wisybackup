@@ -57,7 +57,8 @@ const translations = {
         openInbox: 'Open inbox',
         redendCode: 'Resend code',
         resendCodeIn: 'Resend code in',
-        exit: 'Exit'
+        exit: 'Exit',
+        backgroundMusic: 'Background music'
     },
     lv: {
         welcome: 'Laipni lūdzam!',
@@ -117,7 +118,8 @@ const translations = {
         openInbox: 'Atvērt pastkasti',
         resendCode: 'Atkārtoti nosūtīt kodu',
         resendCodeIn: 'Atkārtoti nosūtīt kodu pēc',
-        exit: 'Iziet'
+        exit: 'Iziet',
+        backgroundMusic: 'Fona mūzika'
     }
 };
 

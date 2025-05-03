@@ -24,4 +24,5 @@ const TimeAndPuzzles = ({ data }) => {
             </View>
         )
     }
+    
 export default TimeAndPuzzles;

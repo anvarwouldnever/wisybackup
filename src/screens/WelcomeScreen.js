@@ -1,5 +1,5 @@
-import React, { useState, useCallback} from "react";
-import { View, Text, SafeAreaView, TouchableOpacity, Dimensions, StyleSheet, useWindowDimensions } from "react-native";
+import React, { useState, useCallback, useEffect} from "react";
+import { View, Text, SafeAreaView, TouchableOpacity, Dimensions, StyleSheet, useWindowDimensions, ActivityIndicator } from "react-native";
 import Logo from "../components/Logo";
 import SlideShow from "../components/SlideShow";
 import { useNavigation } from "@react-navigation/native";
@@ -14,7 +14,24 @@ const { width, height } = Dimensions.get('window');
 
 const WelcomeScreen = () => {
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [loading, setLoading] = useState(false)
     const navigation = useNavigation();
+
+    useEffect(() => {
+        console.log('run getting slides')
+        const getSLides = async() => {
+            try {
+                setLoading(true)
+                await store.loadSlides()
+            } catch (error) {
+                console.log(error)
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        getSLides()
+    }, [])
 
     useFocusEffect(
         useCallback(() => {
@@ -29,7 +46,11 @@ const WelcomeScreen = () => {
         <SafeAreaView style={styles.container}>
             <Logo />
             <View style={styles.slideShowContainer}>
-                <SlideShow onPageChange={setCurrentIndex}/>
+                {loading? 
+                    <ActivityIndicator size={'large'} color={'purple'}/> 
+                : 
+                    <SlideShow onPageChange={setCurrentIndex}/>
+                }
             </View>
             <View style={styles.paginationContainer}>
                 {store?.slides?.map((_, index) => (
@@ -65,6 +86,7 @@ const styles = StyleSheet.create({
     },
     slideShowContainer: {
         height: height * (402 / 800),
+        justifyContent: 'center'
     },
     paginationContainer: {
         flexDirection: 'row',

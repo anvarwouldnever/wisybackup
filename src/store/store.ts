@@ -17,6 +17,7 @@ class Store {
     children = [];
     playingChildId = null;
     musicPlaying = true;
+    musicTurnedOn = true;
     breakMusicPlaying = false;
     microOn = false;
     connectionState = false;
@@ -29,6 +30,92 @@ class Store {
     wisySpeaking = false;
     wisyMenuText = null;
     loadingCats = false;
+
+    tasks = null;
+    subCollections = [];
+    toPutNewSubCollections = true;
+
+    isSubCollectionsLoading = false;
+    subCollectionsQueue: (() => Promise<void>)[] = [];
+    
+    collectionQueue: (() => Promise<void>)[] = [];
+    isCollectionLoading = false;
+
+    runNextSubCollectionsTask() {
+        if (this.subCollectionsQueue.length === 0 || this.isSubCollectionsLoading) {
+            return;
+        }
+    
+        const nextTask = this.subCollectionsQueue.shift();
+        if (nextTask) {
+            nextTask();
+        }
+    }
+
+    runNextCollectionTask() {
+        if (this.collectionQueue.length === 0 || this.isCollectionLoading) {
+            return;
+        }
+    
+        const nextTask = this.collectionQueue.shift();
+        if (nextTask) {
+            nextTask();
+        }
+    }
+
+    async enqueueGetAndProcessSubCollections(params) {
+        return new Promise<void>((resolve) => {
+            const task = async () => {
+                try {
+                    runInAction(() => {
+                        this.isSubCollectionsLoading = true;
+                    })
+                    await this.getAndProcessSubCollections(params);
+                } catch (e) {
+                    console.error('[Очередь] Ошибка в задаче:', e);
+                } finally {
+                    resolve();
+                    runInAction(() => {
+                        this.isSubCollectionsLoading = false;
+                    })
+                    this.runNextSubCollectionsTask(); // запуск следующей
+                }
+            };
+    
+            this.subCollectionsQueue.push(task);
+    
+            if (!this.isSubCollectionsLoading) {
+                this.runNextSubCollectionsTask();
+            }
+        });
+    }
+
+    async enqueueGetCollection(params) {
+        return new Promise<void>((resolve) => {
+            const task = async () => {
+                try {
+                    runInAction(() => {
+                        this.isCollectionLoading = true;
+                    })
+                    await this.getCollection(params);
+                } catch (e) {
+                    console.error('[Очередь] Ошибка в getCollection:', e);
+                } finally {
+                    resolve();
+                    runInAction(() => {
+                        this.isCollectionLoading = false;
+                    })
+                    this.runNextCollectionTask();
+                }
+            };
+    
+            this.collectionQueue.push(task);
+    
+            if (!this.isCollectionLoading) {
+                this.runNextCollectionTask();
+            }
+        });
+    }    
 
     constructor() {
         makeAutoObservable(this);
@@ -43,15 +130,13 @@ class Store {
                     if (this.connectionState && this.playingChildId !== null && this.token !== null) {
                         console.log("ran collections inside lang reaction");
                         await this.loadAttributes();
-                        await delay(1000)
+                        await delay(1000);
+
                         await this.loadCategories();
-                        await delay(7000);
+                        await delay(2000);
                     }
     
                     await this.loadMarket();
-                    await delay(2000);
-    
-                    await this.loadSlides();
                     await delay(2000);
     
                     await this.loadAddChildUI();
@@ -78,17 +163,314 @@ class Store {
           );
     }
 
+    async getAndProcessSubCollections(params) {
+        try {
+            this.toPutNewSubCollections = true
+            let allSubCollections: any[] = [];
+            let breaks = [];
+            let available_sub_collections = [];
+    
+            const category = this.categories.find(cat => cat.id === params.categoryId);
+            const collection = category?.collections.find(col => col.id === params.collectionId);
+            if (!collection) {
+                console.warn('[Ошибка] Коллекция не найдена по ID:', params.collectionId);
+                return;
+            }
+    
+            if (collection.sub_collections.length === 0) {
+                const res = await api.getSubCollections({
+                    id: params.collectionId,
+                    child_id: this.playingChildId,
+                    token: this.token,
+                    lang: this.language
+                });
+    
+                breaks = res?.dynamicBreakGroups || [];
+                available_sub_collections = res?.available_sub_collections || [];
+                allSubCollections = res?.data?.map(sub => ({ ...sub })) || [];
+    
+                if (!Array.isArray(allSubCollections) || allSubCollections.length === 0) {
+                    console.warn('[Ошибка] Пустой массив sub_collections из API или неверный формат');
+                }
+
+                if (!this.toPutNewSubCollections) return
+    
+                runInAction(() => {
+                    collection.breaks = [...breaks];
+                    collection.available_sub_collections = [...available_sub_collections];
+                    collection.sub_collections = [...allSubCollections];
+                });
+            } else {
+                console.log('вернул имеющиеся сабы с тасками')
+                allSubCollections = collection.sub_collections;
+                breaks = collection.breaks || [];
+            }
+    
+            const subsToLoad = allSubCollections.filter(sub => !sub.tasks).slice(0, 3);
+
+            if (!this.toPutNewSubCollections) return
+    
+            const subCollectionsWithTasks = await Promise.allSettled(
+                subsToLoad.map(async (sub) => {
+                    try {
+                        const tasks = await api.getTasks({ id: sub.id, token: this.token }, this.language);
+                        if (!tasks || !Array.isArray(tasks)) {
+                            console.warn(`[Ошибка] Невалидный ответ задач для sub ID: ${sub.id}`);
+                        }
+                        return { ...sub, tasks };
+                    } catch (err) {
+                        console.error(`[Ошибка] Не удалось получить задачи для sub ID: ${sub.id}`, err);
+                        return sub; // вернем без задач
+                    }
+                })
+            );
+
+            if (!this.toPutNewSubCollections) return
+    
+            subCollectionsWithTasks.forEach(result => {
+                if (result.status === 'fulfilled' && result.value) {
+                    const index = allSubCollections.findIndex(sub => sub.id === result.value.id);
+                    if (index === -1) {
+                        console.warn(`[Ошибка] Не найден sub ID: ${result.value.id} в общем списке при обновлении`);
+                        return;
+                    }
+    
+                    if (!result.value.tasks) {
+                        console.warn(`[Ошибка] Подколлекция ${result.value.id} не получила задачи после API`);
+                    }
+    
+                    allSubCollections[index] = result.value;
+                } else {
+                    console.error('[Ошибка] Promise не выполнен при загрузке задач:', result);
+                }
+            });
+
+            if (!this.toPutNewSubCollections) return
+    
+            runInAction(() => {
+                collection.sub_collections = [...allSubCollections];
+            });
+    
+            let updatedSubCollections = allSubCollections.map(sub => ({
+                ...sub,
+                isLoading: !sub.tasks,
+            }));
+    
+            const sortedBreaks = [...breaks]
+                .filter(b => !b.is_hidden)
+                .sort((a, b) => b.order - a.order);
+    
+            sortedBreaks.forEach(breakItem => {
+                const insertIndex = updatedSubCollections.findIndex(
+                    el => el.order_column >= breakItem.order
+                );
+    
+                const targetId = insertIndex !== -1
+                    ? updatedSubCollections[insertIndex].id
+                    : breakItem.id;
+    
+                const existingBreak = updatedSubCollections.find(el => el.isBreak && el.id === breakItem.id);
+    
+                const prev = insertIndex > 0 ? updatedSubCollections[insertIndex - 1] : null;
+                const next = insertIndex < updatedSubCollections.length - 1 ? updatedSubCollections[insertIndex] : null;
+                const hasLoadingNeighbor = !!(prev?.isLoading || next?.isLoading);
+    
+                const breakElement = {
+                    ...breakItem,
+                    isBreak: true,
+                    id: targetId,
+                    breaks,
+                    isLoading: hasLoadingNeighbor,
+                };
+    
+                if (!existingBreak) {
+                    updatedSubCollections = [
+                        ...updatedSubCollections.slice(0, insertIndex + 1),
+                        breakElement,
+                        ...updatedSubCollections.slice(insertIndex + 1),
+                    ];
+                }
+            });
+    
+            updatedSubCollections = updatedSubCollections.map(sub => ({
+                ...sub,
+                breaks,
+            }));
+    
+            runInAction(() => {
+                if (this.toPutNewSubCollections) {
+                    this.subCollections = updatedSubCollections;
+                } else {
+                    console.log('не назначил саб коллекцию,но загрузил')
+                }
+            });
+    
+        } catch (error) {
+            console.error('[Критическая ошибка] Ошибка в getAndProcessSubCollections:', error);
+        }
+    }
+    
+    async resetSubCollection() {
+        runInAction(() => {
+            this.toPutNewSubCollections = false;
+            this.isSubCollectionsLoading = false;
+            this.subCollections = [];
+            this.subCollectionsQueue = [];
+        });
+    }
+
+    async prepareTasksArray(itemId) {
+        const tasksArray = this.subCollections
+            .filter(item => item.tasks?.length > 0)
+            .map(item => {
+                const currentTaskIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+    
+                const tasks = item.tasks.map((task, index) => ({
+                    ...task,
+                    next_task_id: item.tasks[index + 1]?.id || null,
+                }));
+    
+                return {
+                    tasks,
+                    current_task_id_index: currentTaskIndex !== -1 ? currentTaskIndex : 0,
+                    id: item.id,
+                    order: item?.order_column,
+                    introAudio: item?.intro_speech_audio,
+                    introText: item?.intro_speech,
+                    tutorials: item?.tutorials,
+                };
+            });
+    
+        const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
+        const slicedTasks = tasksArray.slice(clickedIndex);
+    
+        this.setTasks(slicedTasks)
+    }    
+   
+    async getCollection(params) {
+        try {
+            const collectionResponse = await api.getCollections({
+                id: params.categoryId,
+                child_id: this.playingChildId,
+                token: this.token,
+                lang: this.language
+            });
+    
+            runInAction(() => {
+                const categoryIndex = this.categories.findIndex(c => c.id === params.categoryId);
+                if (categoryIndex !== -1) {
+                    this.categories[categoryIndex] = {
+                        ...this.categories[categoryIndex],
+                        collections: collectionResponse.data.map(c => ({
+                            ...c,
+                            sub_collections: [],
+                            breaks: [],
+                            available_sub_collections: []
+                        }))
+                    };
+                }
+            });
+        } catch (error) {
+            console.log('Ошибка при получении коллекций:', error?.response?.data || error);
+        }
+    }
+
+    async loadCategories() {
+        if (this.connectionState) {
+            try {
+                runInAction(() => {
+                    this.loadingCats = true
+                })
+                const request = await api.getCategories(this.token, this.language);
+    
+                runInAction(() => {
+                    this.categories = request.data.map(category => ({
+                        ...category,
+                        collections: [],
+                    }));
+                });
+    
+            } catch (error) {
+                console.log(error?.response?.data);
+                runInAction(() => {
+                    this.wisyMenuText = 'Probably server overload, try again later'
+                })
+            } finally {
+                runInAction(() => {
+                    this.loadingCats = false
+                })
+            }
+        } else {
+            runInAction(() => {
+                this.wisyMenuText = 'Please check your internet connection and try again'
+            })
+        }
+    }
+    
+    async loadNextTasksChunk(params) {
+        try {
+            const subCollectionsBefore = [...this.subCollections];
+            const previousTasks = this.tasks || [];
+    
+            await this.getAndProcessSubCollections(params);
+    
+            const newSubWithTasks = this.subCollections.find(sub => {
+                const before = subCollectionsBefore.find(prev => prev.id === sub.id);
+            
+                // Если раньше этой подколлекции не было — новая
+                if (!before) return sub.tasks?.length;
+            
+                // Если была, но без тасков — теперь появились
+                return !before.tasks?.length && sub.tasks?.length;
+            });            
+    
+            if (!newSubWithTasks) return console.log('dinax');
+    
+            // Повторяем prepareTasksArray, но вручную
+            const tasksArray = this.subCollections
+                .filter(item => item.tasks?.length > 0)
+                .map(item => {
+                    const currentTaskIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
+    
+                    const tasks = item.tasks.map((task, index) => ({
+                        ...task,
+                        next_task_id: item.tasks[index + 1]?.id || null,
+                    }));
+    
+                    return {
+                        tasks,
+                        current_task_id_index: currentTaskIndex !== -1 ? currentTaskIndex : 0,
+                        id: item.id,
+                        order: item?.order_column,
+                        introAudio: item?.intro_speech_audio,
+                        introText: item?.intro_speech,
+                        tutorials: item?.tutorials,
+                    };
+                });
+    
+            const clickedIndex = tasksArray.findIndex(obj => obj.id === newSubWithTasks.id);
+            const slicedTasks = tasksArray.slice(clickedIndex);
+    
+            runInAction(() => {
+                this.tasks = [...previousTasks, ...slicedTasks];
+            });
+    
+        } catch (error) {
+            console.error('Ошибка в loadNextTasksChunk:', error);
+        }
+    }               
+
     async initializeStore() {
         await this.determineConnection();
     }
 
     async loadData() {
         try {
-            console.log('ran default load')
             await this.loadDataFromStorageToken();
             await this.loadDataFromStorageLanguage();
             await this.loadDataFromStorageChildren();
             await this.loadDataFromStorageVoiceInstructions();
+            await this.loadDataFromStorageBackgroundMusic();
             await this.loadAvatars();
         } catch (error) {
             console.log(error)
@@ -231,13 +613,22 @@ class Store {
 
     async loadDataFromStorageVoiceInstructions() {
         const voice = await this.loadDataFromStorage('voiceInstruction');
-        console.log(voice)
         runInAction(() => {
             if (voice !== null && voice !== undefined) {
                 this.voiceInstructions = voice
             }
         });
         return this.voiceInstructions
+    }
+
+    async loadDataFromStorageBackgroundMusic() {
+        const music = await this.loadDataFromStorage('backgroundMusic');
+        runInAction(() => {
+            if (music !== null && music !== undefined) {
+                this.musicTurnedOn = music
+            }
+        });
+        return this.musicTurnedOn
     }
 
     async loadDataFromStorageChildren() {
@@ -259,40 +650,8 @@ class Store {
         } catch (error) {
             console.log(error);   
         }
-    }
-
-    async loadCategories() {
-        if (this.connectionState) {
-            try {
-                runInAction(() => {
-                    this.loadingCats = true
-                })
-                const request = await api.getCategories(this.token, this.language);
-                // console.log(request.data)
-    
-                runInAction(() => {
-                    this.categories = request.data.map(category => ({
-                        ...category,
-                        collections: [],
-                    }));
-                });
-    
-                await this.loadCollections();
-            } catch (error) {
-                console.log(error?.response?.data);
-                runInAction(() => {
-                    this.wisyMenuText = 'Probably server overload, try again later'
-                })
-            }
-        } else {
-            runInAction(() => {
-                this.wisyMenuText = 'Please check your internet connection and try again'
-            })
-        }
-    }
-
-    
-    
+    }   
+     
     async loadCollections() {
         if (!this.connectionState) {
             runInAction(() => {
@@ -441,8 +800,8 @@ class Store {
 
     async completeGame(collectionId: any, subCollectionId: any, subCollectionStarId: any, earnedStars: number, collectionIndex: number) {
         try {
-            const collections = this.categories[collectionId]?.collections;
-            const collection = this.categories[collectionId]?.collections[collectionIndex];
+            const collections = this.categories.find(cat => cat.id === collectionId)?.collections;
+            const collection = this.categories.find(cat => cat.id === collectionId)?.collections.find(col => col.id === collectionIndex);
 
             runInAction(() => {
                 collection.available_sub_collections = [...collection?.available_sub_collections, subCollectionId];
@@ -469,20 +828,27 @@ class Store {
     }
     
     async completeTask(categoryId: any, collectionId: any, sub_collectionId: any, nextTaskId: any) {
-        // console.log(categoryId, collectionId, sub_collectionId, nextTaskId)
         try {
+            // Находим категорию по ID
+            const category = this.categories.find(cat => cat.id === categoryId);
+            if (!category) return console.log("Категория не найдена");
+    
+            // Находим коллекцию по ID в этой категории
+            const collection = category.collections.find(col => col.id === collectionId);
+            if (!collection) return console.log("Коллекция не найдена");
+    
+            // Находим подколлекцию по ID
+            const subCollection = collection.sub_collections.find(sub => sub.id === sub_collectionId);
+            if (subCollection) {
                 runInAction(() => {
-                    const subCollection = this.categories[categoryId]?.collections[collectionId]?.sub_collections.find(sub => sub.id === sub_collectionId);
-                    
-                    if (subCollection) {
-                        subCollection.current_task_id = nextTaskId ?? subCollection.tasks[0]?.id;
-                    }
+                    subCollection.current_task_id = nextTaskId ?? subCollection.tasks[0]?.id;
                 });
-            
+            }
+    
         } catch (error) {
             console.error("Ошибка завершения таска:", error);
         }
-    }
+    }    
 
     async setToken(token: string) {
         runInAction(() => {
@@ -511,6 +877,19 @@ class Store {
             this.playingChildId = id;
         });
     }
+    
+    async setTasks(tasks: any) {
+        runInAction(() => {
+            this.tasks = tasks;
+    
+            // const cleaned = tasks.map((task: any) => {
+            //     const { introAudio, ...rest } = task;
+            //     return rest;
+            // });
+    
+            // console.log(cleaned);
+        });
+    }    
 
     async setMarket(market: any) {
         runInAction(() => {
@@ -559,6 +938,17 @@ class Store {
         runInAction(() => {
             this.microOn = bool;
         });
+    }
+
+    async setMusicTurnedOn(bool: boolean) {
+        runInAction(() => {
+            this.musicTurnedOn = bool;
+        });
+        if (bool !== null) {
+            await AsyncStorage.setItem('backgroundMusic', JSON.stringify(bool));
+        } else {
+            await AsyncStorage.removeItem('backgroundMusic');
+        }
     }
 
     async setLoadingCats(bool: boolean) {

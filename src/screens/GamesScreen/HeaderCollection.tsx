@@ -5,24 +5,24 @@ import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
 import store from "../../store/store";
 
-const HeaderCollection = ({ setSubCollections, name }) => {
+const HeaderCollection = ({ name }) => {
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const func = async() => {
-            setSubCollections(null);
+            store.resetSubCollection()
             if (store.wisySpeaking) return
-            try {
-                playSound.stop()
-                store.setWisySpeaking(true)
-                const response = await api.getSpeech('enter_collections_screen', store.language)
-                store.setWisyMenuText(response[0]?.text)
-                await playSound(response[0]?.audio)
-            } catch (error) {
-                console.log(error)
-            } finally {
-                store.setWisySpeaking(false)
-            }
+            // try {
+            //     playSound.stop()
+            //     store.setWisySpeaking(true)
+            //     const response = await api.getSpeech('enter_collections_screen', store.language)
+            //     store.setWisyMenuText(response[0]?.text)
+            //     await playSound(response[0]?.audio)
+            // } catch (error) {
+            //     console.log(error)
+            // } finally {
+            //     store.setWisySpeaking(false)
+            // }
         }
 
         return (

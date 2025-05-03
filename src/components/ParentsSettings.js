@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TouchableOpacity, View, useWindowDimensions, Image, Text, FlatList } from "react-native";
+import { TouchableOpacity, View, useWindowDimensions, Image, Text } from "react-native";
 import mail from '../images/mail.png';
 import narrowright from '../images/narrowright.png';
 import password from '../images/password.png';
@@ -20,10 +20,23 @@ const ParentsSettings = ({ setScreen }) => {
     const [modal, setModal] = useState(false);
     const [popUpModal, setPopUpModal] = useState(false);
     const [secure, setSecure] = useState(true);
+    const [musicToggleBlocked, setMusicToggleBlocked] = useState(false);
 
     let voiceInstructions = store.voiceInstructions;
+    let backgroundMusic = store.musicTurnedOn;
 
-    const animatedToggle = useAnimatedStyle(() => {
+    const handleToggleBackgroundMusic = () => {
+        if (musicToggleBlocked) return;
+
+        setMusicToggleBlocked(true);
+        store.setMusicTurnedOn(!store.musicTurnedOn);
+
+        setTimeout(() => {
+            setMusicToggleBlocked(false);
+        }, 500);
+    }
+
+    const animatedToggleVoiceInstructions = useAnimatedStyle(() => {
         return {
             transform: [{
                 translateX: withTiming(voiceInstructions? windowHeight * (9 / 800) : 0, {duration: 300})
@@ -32,10 +45,19 @@ const ParentsSettings = ({ setScreen }) => {
         }
     })
 
+    const animatedToggleBackgroundMusic = useAnimatedStyle(() => {
+        return {
+            transform: [{
+                translateX: withTiming(backgroundMusic? windowHeight * (9 / 800) : 0, {duration: 300})
+            }],
+            backgroundColor: withTiming(!backgroundMusic? 'white' : 'black', {duration: 400})
+        }
+    })
+
     const logout = async() => {
         await store.setToken(null)
         await store.setChildren(null)
-    }
+    };
 
     const settingsItems = [
         {
@@ -47,6 +69,13 @@ const ParentsSettings = ({ setScreen }) => {
             key: 'changePassword',
             icon: password,
             onPress: () => setModal(true),
+        },
+        {
+            key: 'backgroundMusic',
+            icon: speaker,
+            onPress: () => handleToggleBackgroundMusic(),
+            isBackgroundMusicSwitch: true,
+            value: store.musicTurnedOn,
         },
         {
             key: 'voiceInstructions',
@@ -85,7 +114,7 @@ const ParentsSettings = ({ setScreen }) => {
                     <Image source={item.icon} style={styles.icon(windowHeight)} />
                     <Text style={styles.text(windowWidth, windowHeight)}>{translations?.[store.language][item.key]}</Text>
                     <View style={styles.switchContainer(windowHeight)}>
-                        <Animated.View style={[animatedToggle, styles.switchThumb(windowHeight)]} />
+                        <Animated.View style={[animatedToggleVoiceInstructions, styles.switchThumb(windowHeight)]} />
                     </View>
                 </TouchableOpacity>
             );
@@ -101,6 +130,18 @@ const ParentsSettings = ({ setScreen }) => {
                     </View>
                 </TouchableOpacity>
             );
+        }
+
+        if (item.isBackgroundMusicSwitch) {
+            return (
+                <TouchableOpacity activeOpacity={1} onPress={item.onPress} style={styles.touchable(windowWidth, windowHeight)}>
+                    <Image source={item.icon} style={styles.icon(windowHeight)} />
+                    <Text style={styles.text(windowWidth, windowHeight)}>{translations?.[store.language][item.key]}</Text>
+                    <View style={styles.switchContainer(windowHeight)}>
+                        <Animated.View style={[animatedToggleBackgroundMusic, styles.switchThumb(windowHeight)]} />
+                    </View>
+                </TouchableOpacity>     
+            )
         }
 
         return (

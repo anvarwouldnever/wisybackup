@@ -2,14 +2,13 @@ import { TouchableOpacity, Platform, Image, useWindowDimensions } from "react-na
 import { useNavigation } from "@react-navigation/native";
 import parent from '../../images/tabler_accessible.png';
 
-const GoParent = ({ setSubCollections, setAnimationStart }) => {
+const GoParent = ({ setAnimationStart }) => {
 
         const navigation = useNavigation();
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         
         return (
             <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => { 
-                setSubCollections(null)
                 setAnimationStart(false)
                 navigation.navigate('ParentsCaptchaScreen')
             }}>

@@ -23,7 +23,8 @@ const RenderAttributes = ({ item, setModalData, setInformationModal }) => {
                 style={{
                     width: windowWidth * (184 / 360), 
                     height: windowHeight * (44 / 800), 
-                    justifyContent: 'space-between'
+                    justifyContent: 'space-between',
+                    
                 }}
             >
                 <Text 
@@ -31,8 +32,10 @@ const RenderAttributes = ({ item, setModalData, setInformationModal }) => {
                         color: '#222222', 
                         fontWeight: '600', 
                         fontSize: windowHeight * (14 / 800), 
-                        lineHeight: windowHeight * (20 / 800)
+                        lineHeight: windowHeight * (20 / 800),
+                        width: windowWidth * (184 / 360),
                     }}
+                    numberOfLines={1}
                 >
                     {item.name}
                 </Text>

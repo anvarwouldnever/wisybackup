@@ -11,9 +11,9 @@ import Timer from '../components/Timer';
 import reload from '../images/succscreenreload.png'
 import translations from '../../localization';
 
-const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow }) => {
+const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow, categoryId, collectionId, taskLevel }) => {
     
-    console.log(earnedStarsText, starsText)
+    // console.log(earnedStarsText, starsText)
 
     const stars = Array.from({ length: parseInt(starsText, 10) }, (_, index) => ({
         id: index + 1,
@@ -92,11 +92,23 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                 value.y.value = starsContainerLayout.y;
             });
         }
+
     }, [starsContainerLayout]);
 
     const Nums = () => {
         setNumStars(prev => prev + 1)
     }
+
+    useEffect(() => {
+        if (!isFromAttributes) {
+            const currentTaskGroup = store.tasks[taskLevel];
+            const indexInTasks = store.tasks.findIndex(group => group.id === currentTaskGroup.id);
+                
+            if (indexInTasks >= store.tasks.length - 3) {
+                store.loadNextTasksChunk({ categoryId, collectionId });
+            }
+        }
+    }, [])
 
     useEffect(() => {
         if (layoutCaptured) {

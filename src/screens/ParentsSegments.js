@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, FlatList } from "react-native";
+import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, FlatList, ActivityIndicator } from "react-native";
 import CalendarParentsWeek from "../calendars/CalendarParentsWeek";
 import CalendarParentsDay from "../calendars/CalendarParentsDay";
 import { useFocusEffect } from "@react-navigation/native";
@@ -26,6 +26,7 @@ const ParentsSegments = ({ route }) => {
     useFocusEffect(
         useCallback(() => {
             async function changeScreenOrientation() {
+                setIsFrozen(false)
                 await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
             }
             changeScreenOrientation();
@@ -37,6 +38,7 @@ const ParentsSegments = ({ route }) => {
     const [modalData, setModalData] = useState()
     const [chosenMistakesOption, setChosenMistakesOption] = useState(true)
     const [informationModal, setInformationModal] = useState(false)
+    const [isFrozen, setIsFrozen] = useState(false)
     const [chosenPeriod, setChosenPeriod] = useState('day');
     const [formattedDate, setFormatedDate] = useState(format(new Date(), 'dd.MM.yyyy'));
     const [weekRange, setWeekRange] = useState({
@@ -71,15 +73,34 @@ const ParentsSegments = ({ route }) => {
     };
 
     const changeDate = (direction) => {
+        const today = new Date();
+    
         if (chosenPeriod === 'day') {
-            const newDate = addDays(parse(formattedDate, 'dd.MM.yyyy', new Date()), direction);
+            const currentDate = parse(formattedDate, 'dd.MM.yyyy', new Date());
+            const newDate = addDays(currentDate, direction);
+    
+            if (newDate > today) return;
+    
             setFormatedDate(format(newDate, 'dd.MM.yyyy'));
         } else if (chosenPeriod === 'week') {
+            const currentStartDate = parse(weekRange.startDate, 'dd.MM.yyyy', new Date());
+            const newStartDate = addDays(currentStartDate, direction * 7);
+    
+            // Проверяем НАЧАЛО новой недели
+            if (newStartDate > today) return;
+    
             updateWeekRange(direction);
         } else if (chosenPeriod === 'month') {
+            const currentStartDate = parse(monthRange.startDate, 'dd.MM.yyyy', new Date());
+            const newStartDate = addMonths(currentStartDate, direction);
+    
+            // Проверяем НАЧАЛО нового месяца
+            if (newStartDate > today) return;
+    
             updateMonthRange(direction);
         }
-    };
+    };    
+    
     
     useEffect(() => {
         const getData = async() => {
@@ -123,6 +144,15 @@ const ParentsSegments = ({ route }) => {
         getData()
     }, [chosenPeriod, monthRange, weekRange, formattedDate])
 
+
+    if (isFrozen) {
+        return (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <ActivityIndicator color={'purple'} size={'large'} style={{position: 'absolute', alignSelf: 'center'}}/>
+            </View>
+        )
+    }
+
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: 'white', alignItems: 'center', gap: windowHeight * (16 / 800)}}>
             <Back name={name}/>
@@ -158,7 +188,7 @@ const ParentsSegments = ({ route }) => {
                         </View>
                     </View>
                 </View>
-            {informationModal && <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal}/>}
+            {informationModal && <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal} setIsFrozen={setIsFrozen}/>}
         </SafeAreaView>
     )
 }

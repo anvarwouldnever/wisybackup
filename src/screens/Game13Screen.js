@@ -285,7 +285,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
-            setText("probably server overload, try again later")
+            setText(error)
         } finally {
             setThinking(false)
         }

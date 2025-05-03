@@ -1,5 +1,5 @@
 import { View, Text, useWindowDimensions, FlatList, Image, ScrollView } from 'react-native'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import store from '../../store/store';
 import Svg, { SvgUri } from 'react-native-svg';
 import star from '../../images/tabler_star-filled.png'
@@ -13,28 +13,62 @@ const MarketCollections = ({ activeMarket, setCurrentAnimation, setModal, setAni
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
+    // const [loading, setLoading] = useState(false)
+
+    // useEffect(() => {
+    //     const getMarketItems = async() => {
+    //         try {
+    //             setLoading(true)
+    //             await store.loadMarket();
+    //         } catch (error) {
+    //             console.log(error)
+    //             setLoading(false)
+    //         } finally {
+    //             setLoading(false)
+    //         }
+    //     }
+
+    //     getMarketItems()
+    // }, [])
+
     const items = store?.market
 
         return (
-            <View style={{position: 'absolute', top: windowHeight * (118 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800)}}>
-                {store.loadingCats?
-                <LottieView
-                    loop={true}
-                    autoPlay
-                    source={loadingAnim}
-                    style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
-                />
-                :
-                <Animated.FlatList
-                    entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
-                    key={store.market} 
-                    data={items[0].items}
-                    renderItem={({ item, index }) => <RenderItem setCurrentAnimation={setCurrentAnimation} setModal={setModal} item={item} index={index} setAnimationStart={setAnimationStart}/>}
-                    scrollEnabled
-                    horizontal
-                    contentContainerStyle={{ gap: 16 }}
-                    showsHorizontalScrollIndicator={false}
-                />}
+            <View style={{position: 'absolute', top: windowHeight * (100 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800), minHeight: windowHeight * (176 / 360), justifyContent: 'center', alignSelf: 'center'}}>
+                {store.loadingCats
+                    ? (
+                        <LottieView
+                            loop={true}
+                            autoPlay
+                            source={loadingAnim}
+                            style={{
+                                width: windowWidth * (50 / 800),
+                                height: windowHeight * (50 / 360),
+                                position: 'absolute',
+                                alignSelf: 'center'
+                            }}
+                        />
+                    ) : (
+                        <Animated.FlatList
+                            entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
+                            key={items[0]?.id} // безопасный ключ
+                            data={items[0]?.items || []}
+                            renderItem={({ item, index }) => (
+                                <RenderItem
+                                    setCurrentAnimation={setCurrentAnimation}
+                                    setModal={setModal}
+                                    item={item}
+                                    index={index}
+                                    setAnimationStart={setAnimationStart}
+                                />
+                            )}
+                            scrollEnabled
+                            horizontal
+                            contentContainerStyle={{ gap: 16 }}
+                            showsHorizontalScrollIndicator={false}
+                        />
+                    )
+                }
             </View>
         )
 }

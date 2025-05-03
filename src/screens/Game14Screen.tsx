@@ -105,14 +105,14 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     }, [data?.content?.speech, tutorialShow]);
 
-    useEffect(() => {
-        if (!text) return;
-        const timeoutId = setTimeout(() => {
-            setText(null);
-        }, 3000);
+    // useEffect(() => {
+    //     if (!text) return;
+    //     const timeoutId = setTimeout(() => {
+    //         setText(null);
+    //     }, 3000);
     
-        return () => clearTimeout(timeoutId);
-    }, [text]); 
+    //     return () => clearTimeout(timeoutId);
+    // }, [text]); 
 
     const { getTime, start, stop, reset } = useTimer();
 
@@ -371,7 +371,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         } catch (error) {
             console.log(error)
             setLock(false)
-            setText("probably server overload, try again later")
+            setText(error)
             setWrongObject(null)
             setLines(prev => prev.slice(0, -1));
         } finally {
@@ -681,9 +681,9 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             return (
                                 <GestureDetector key={item.key} gesture={gesture}>
                                     {type == 'text'? 
-                                        <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: windowWidth * (160 / 800), height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', justifyContent: 'space-between', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
-                                            <View style={{width: windowWidth * (110 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
-                                                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360)}}>{item?.text}</Text>
+                                        <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: 'auto', height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', gap: 5, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                            <View style={{minWidth: windowWidth * (110 / 800), maxWidth: 'auto', height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
+                                                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360), textAlign: 'center'}}>{item?.text}</Text>
                                             </View>
                                             <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={answered.includes(item.key)? black : wrongObject == item.key? blackRed : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>

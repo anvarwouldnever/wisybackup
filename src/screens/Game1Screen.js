@@ -225,7 +225,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             return requestStatus    
         } catch (error) {
             setLock(false)
-            setText("probably server overload, try again later")
+            setText(error)
         } finally {
             setThinking(false)
         }

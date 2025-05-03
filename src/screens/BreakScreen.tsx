@@ -10,14 +10,17 @@ import UseMP3Player from '../hooks/useMP3Player';
 import { newPlaySound, stopCurrentSound } from '../hooks/newPlaySound';
 import loadingAnim from '../../assets/6Vcbuw6I0c (1).json'
 import { observer } from 'mobx-react-lite';
+import { Audio } from 'expo-av';
+import { AppState } from 'react-native';
 
-const BreakScreeen = ({ anyBreak, incrementTaskLevel }) => {
+const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, categoryId, collectionId, taskLevel }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [seconds, setSeconds] = useState<number>();
 
     const animationRef = useRef<LottieView>();
     const isFirstRender = useRef(true);
+    const loadedOnce = useRef(false)
 
     const [animation, setAnimation] = useState(null);
     const [animationsOrder, setAnimationOrders] = useState(0);
@@ -70,6 +73,23 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel }) => {
     }, [seconds])
 
     useEffect(() => {
+        if (seconds <= 10 && !loadedOnce.current) {
+            loadedOnce.current = true
+            if (!isFromAttributes) {
+                console.log('vizov')
+                const currentTaskGroup = store.tasks[taskLevel];
+                const indexInTasks = store.tasks.findIndex(group => group.id === currentTaskGroup.id);
+                    
+                if (indexInTasks >= store.tasks.length - 3) {
+                    store.loadNextTasksChunk({ categoryId, collectionId });
+                }
+            }
+        } else {
+            return
+        }
+    }, [seconds])
+
+    useEffect(() => {
         const fetchJSON = async () => {
             let animationData = null;
             let currentBreak = null;
@@ -102,7 +122,6 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel }) => {
     
         fetchJSON();
     }, [animationsOrder]);
-    
 
     useEffect(() => {
         if (isFirstRender.current) {
@@ -126,9 +145,55 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel }) => {
         
     }, [animationsOrder, textOrder]);
 
+    const sound = useRef<Audio.Sound | null>(null);
+    
+    useEffect(() => {
+    
+        const loadAndPlayMusic = async () => {
+            try {
+    
+                if (sound.current) {
+                    await sound.current.unloadAsync();
+                }
+    
+                const { sound: newSound } = await Audio.Sound.createAsync(
+                    { uri: anyBreak?.music },
+                    { shouldPlay: true, isLooping: true }
+                );
+                sound.current = newSound;
+                store.setBreakPlayingMusic(true);
+            } catch (error) {
+                console.error('Ошибка загрузки музыки', error);
+            }
+        };
+    
+        loadAndPlayMusic();
+    
+        return () => {
+            store.setBreakPlayingMusic(false);
+            if (sound.current) {
+                sound.current.unloadAsync();
+            }
+        };
+    }, []);
+
+    useEffect(() => {
+        const updatePlayback = async () => {
+          if (sound.current) {
+            if (store.breakMusicPlaying) {
+              await sound.current.playAsync();
+            } else {
+              await sound.current.pauseAsync();
+            }
+          }
+        };
+      
+        updatePlayback();
+    }, [store.breakMusicPlaying]);
+
     return (
         <ImageBackground style={{flex: 1, justifyContent: 'center'}} source={{ uri: anyBreak?.background }}>
-            {animation && <UseMP3Player url={anyBreak?.music}/>}
+            {/* {animation && <UseMP3Player url={anyBreak?.music}/>} */}
             <BackButton />
                 {text && <Animated.View key={text} entering={ZoomInEasyDown} style={{
                                 position: 'absolute',

@@ -392,7 +392,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         } catch (error) {
             console.log(error)
             setLock(false)
-            setText("probably server overload, try again later")
+            setText(error)
         } finally {
             setThinking(false)
         }

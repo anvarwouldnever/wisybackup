@@ -1,6 +1,6 @@
 import { useNavigation } from "@react-navigation/native";
-import React, { useState, useEffect, useCallback } from "react";
-import { FlatList, useWindowDimensions, Text, Platform, TouchableOpacity, Image, View } from "react-native";
+import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { FlatList, useWindowDimensions, Text, Platform, TouchableOpacity, Image, View, ActivityIndicator, StyleSheet } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import Animated, { FadeInRight, Easing } from "react-native-reanimated";
@@ -12,12 +12,13 @@ import emptyStar from '../images/emptyStar.png';
 import { observer } from "mobx-react-lite";
 import api from "../api/api";
 import { playSound } from "../hooks/usePlayBase64Audio";
-import md5 from 'react-native-md5';
 import LottieView from "lottie-react-native";
 import loadingAnim from '../../assets/6Vcbuw6I0c (1).json';
-import { playSoundWithoutStopping } from "../hooks/usePlayWithoutStoppingBackgrounds";
+import md5 from 'react-native-md5';
+import Blur from "./BlurView";
+import Ionicons from '@expo/vector-icons/Ionicons';
 
-const GamesCollections = ({ setSubCollections, subCollections, setName, activeCategory }) => {
+const GamesCollections = ({ setName, activeCategory }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [collectionIndex, setCollectionIndex] = useState(0);
@@ -45,35 +46,67 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         if (store.wisySpeaking) return
         playSpeech('enter_subcollections_screen');
     }
+
     const func3 = () => {
         if (store.wisySpeaking) return
         playSpeech('locked_subcollection_attempt')
     }
 
-    const collections = store.categories[activeCategory]?.collections
-    const availableSubCollections = collections? collections[collectionIndex]?.available_sub_collections : [];
+    const hasTriggered = useRef(false);
 
-    const handleGameCompletion = useCallback((id, starId, earnedStars) => {
-        const subCollection = subCollections.find(sub => sub?.id === starId);
+    const onViewableItemsChanged = useCallback(({ viewableItems }) => {
+        if (hasTriggered.current) return;
+
+        const visibleLoadingItem = viewableItems.find(({ item }) => item?.isLoading);
+
+        if (visibleLoadingItem) {
+            const currentCategory = store.categories.find(item => item.id === activeCategory);
+            const currentCollection = currentCategory?.collections.find(col => col.id === collectionIndex);
+
+            const collectionId = currentCollection?.id;
+            const categoryId = currentCategory?.id;
+
+            if (collectionId && categoryId) {
+                hasTriggered.current = true;
+
+                store.getAndProcessSubCollections({ collectionId, categoryId })
+                    .finally(() => {
+                        hasTriggered.current = false;
+                    });
+            }
+        }
+    }, [activeCategory, collectionIndex]);
+
+    // console.log(store.subCollections.map(({ intro_speech_audio, ...rest }) => rest));
+
+    const handleGameCompletion = (id, starId, earnedStars) => {
+        const subCollection = store.subCollections.find(sub => sub?.id === starId);
         if (subCollection) {
             subCollection.stars.earned += earnedStars;
         }
     
         store.completeGame(activeCategory, id, starId, earnedStars, collectionIndex);
-    }, [subCollections, activeCategory, collectionIndex, store]);
+    };
     
     const handleTaskCompletion = useCallback((id, nextTaskId) => {
-        const collection = subCollections.find(item => item.id === id);
+        const collection = store.subCollections.find(item => item.id === id);
     
         if (collection) {
             collection.current_task_id = nextTaskId !== null ? nextTaskId : collection.tasks[0]?.id;
         }
     
         store.completeTask(activeCategory, collectionIndex, id, nextTaskId);
-    }, [subCollections, activeCategory, collectionIndex, store]);
+    }, [activeCategory, collectionIndex]);
 
+    const getSubCollections = async(collectionId, categoryId) => {
+        try {
+            await store.enqueueGetAndProcessSubCollections({ collectionId: collectionId, categoryId: categoryId })
+        } catch (error) {
+            console.log(error)
+        }
+    };
+     
     const renderCollections = ({ item, index }) => {
-        // Вычисления для платформы
         const isPad = Platform.isPad;
         const windowWidthFactor = isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360);
         const windowHeightFactor = isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360);
@@ -82,44 +115,19 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
         const imageHeight = isPad ? windowWidth * (224 / 1194) : windowHeight * (82 / 360);
         const bottomSpacing = isPad ? windowHeight * (76 / 834) : windowHeight * (35 / 360);
     
-        const arr = () => {
-            const { sub_collections, breaks } = item;
-            let updatedSubCollections = [...sub_collections];
-    
-            const sortedBreaks = [...breaks]
-                .filter(b => !b.is_hidden)
-                .sort((a, b) => b.order - a.order);
-    
-            sortedBreaks.forEach(breakItem => {
-                const insertIndex = updatedSubCollections.findIndex(
-                    el => el.order_column >= breakItem.order
-                );
-    
-                const targetId = insertIndex !== -1 ? updatedSubCollections[insertIndex].id : breakItem.id;
-    
-                updatedSubCollections = [
-                    ...updatedSubCollections.slice(0, insertIndex + 1),
-                    { ...breakItem, isBreak: true, id: targetId },
-                    ...updatedSubCollections.slice(insertIndex + 1),
-                ];
-            });
-    
-            return updatedSubCollections.map(sub => ({
-                ...sub,
-                breaks: item.breaks, // Добавляем breaks внутрь каждого sub
-            }));
-        };
-    
         return (
             <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: 'auto', height: 'auto' }}>
                 <TouchableOpacity 
                     onPress={() => {
-                        setCollectionIndex(index);
-                        const subs = arr();
-                        setSubCollections(subs);
-                        setName(item.name);
-                        func();
-                    }} 
+                        try {
+                            getSubCollections(item?.id, item?.category?.id);
+                            setCollectionIndex(item.id);
+                            setName(item.name);
+                            func();
+                        } catch (error) {
+                            console.log('Ошибка в onPress:', error);
+                        }
+                    }}
                     style={{
                         backgroundColor: 'white', 
                         borderRadius: 12, 
@@ -216,224 +224,266 @@ const GamesCollections = ({ setSubCollections, subCollections, setName, activeCa
                                 alignItems: 'center'
                             }}
                         >
-                            <Image 
-                                source={lock} 
-                                style={{
-                                    width: windowWidth * (24 / 800), 
-                                    height: windowHeight * (24 / 360)
-                                }} 
-                                resizeMode='contain' 
-                            />
+                            <Ionicons name='lock-closed' size={24} color={'#504297'}/>
                         </BlurView>
                     )}
                 </TouchableOpacity>
             </Animated.View>
         );
     };
-    
+
+    const collections = store.categories.find(item => item.id === activeCategory)?.collections
+    const availableSubCollections = collections?.find(col => col.id === collectionIndex)?.available_sub_collections || [];
+
+    const currentCategory = store.categories.find(item => item.id === activeCategory)
+    const categoryId = currentCategory?.id
+    const collectionId = currentCategory?.collections?.find(col => col.id === collectionIndex)?.id
+
+    const RenderAttributes = ({ attributes }) => {
+        return (
+          <View style={{
+            width: '100%',
+            height: windowHeight * (35 / 360),
+            bottom: 0,
+            position: 'absolute',
+            alignItems: 'center',
+            flexDirection: 'row',
+            alignSelf: 'center',
+            justifyContent: 'center',
+            borderRadius: 10
+          }}>
+            {attributes && attributes.length > 0 && attributes.slice(0, 4).map((attribute, index) => {
+              const isSvg = typeof attribute?.image === 'string' && attribute?.image.endsWith('.svg');
+              return isSvg ? (
+                <SvgUri
+                  key={index}
+                  uri={attribute.image}
+                  width={windowWidth * (24 / 800)}
+                  height={windowHeight * (24 / 360)}
+                  style={{ marginHorizontal: 5, backgroundColor: attribute.group.color, borderRadius: 5 }}
+                />
+              ) : (
+                <Image
+                  key={index}
+                  source={{ uri: attribute.image }}
+                  style={{
+                    resizeMode: 'contain',
+                    width: windowWidth * (24 / 800),
+                    height: windowHeight * (24 / 360),
+                    marginHorizontal: 5,
+                    backgroundColor: attribute.group.color
+                  }}
+                />
+              );
+            })}
+          </View>
+        );
+    };
+      
+    const RenderStars = ({ earned, total }) => {
+        return (
+          <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad ? 8 : 8 }}>
+            {[...Array(total)].map((_, index) => {
+              const starImage = index < earned ? filledStar : emptyStar;
+              return (
+                <Image
+                  key={index}
+                  source={starImage}
+                  style={{
+                    width: Platform.isPad ? windowWidth * (22 / 800) : windowWidth * (16 / 800),
+                    height: Platform.isPad ? windowHeight * (22 / 360) : windowHeight * (16 / 360),
+                    marginHorizontal: 2,
+                    resizeMode: 'contain'
+                  }}
+                />
+              );
+            })}
+          </View>
+        );
+    };
+
     const renderSubCollections = ({ item, onComplete, onCompleteTask }) => {
 
-        const { image } = item;
-        const isSvg = typeof image === 'string' && image.endsWith('.svg');
-
-        const task = availableSubCollections?.includes(item.id) ? item.id : null;
-
-        const prepareTasksArray = useCallback((itemId) => {
-            const tasksArray = subCollections
-                .filter(item => item.tasks?.length > 0)
-                .map(item => {
-                    const currentTaskIndex = item.tasks.findIndex(task => task.id === item.current_task_id);
-        
-                    const tasks = item.tasks.map((task, index) => ({
-                        ...task,
-                        next_task_id: item.tasks[index + 1]?.id || null,
-                    }));
-        
-                    return {
-                        tasks,
-                        current_task_id_index: currentTaskIndex !== -1 ? currentTaskIndex : 0,
-                        id: item.id,
-                        order: item?.order_column,
-                        introAudio: item?.intro_speech_audio,
-                        introText: item?.intro_speech,
-                        tutorials: item?.tutorials,
-                    };
-                });
-        
-            const clickedIndex = tasksArray.findIndex(obj => obj.id === itemId);
-            return tasksArray.slice(clickedIndex);
-        }, [subCollections]);           
-
-        return (
-                <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: 'auto', height: 'auto' }}>
-                <TouchableOpacity
-                    // (task != null && (item.tasks?.length > 0 || item?.isBreak))? 
-                    onPress={true? () => {
-                            const filteredTasksArray = prepareTasksArray(item.id);
-                            navigation.navigate('GameScreen', { tasks: filteredTasksArray, breaks: item?.breaks, isFromBreak: item?.isBreak, onComplete: (id, starId, earnedStars) => onComplete(id, starId, earnedStars), onCompleteTask: (id, newTaskId) => onCompleteTask(id, newTaskId)});
-                        } 
-                        : () => func3()}
+        if (item?.isLoading) {
+            return (
+                <View
                     style={{
-                        backgroundColor: '#D8F6FF33', 
-                        borderRadius: 12, 
-                        width: Platform.isPad? windowWidth * (306 / 1194) : windowHeight * (136 / 360), 
-                        height: Platform.isPad? windowHeight * (402 / 834) : windowHeight * (160 / 360), 
-                        marginRight: 20,  
-                        borderWidth: 1, 
+                        backgroundColor: '#D8F6FF33',
+                        borderRadius: 12,
+                        width: Platform.isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360),
+                        height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360),
+                        marginRight: 20,
+                        borderWidth: 1,
                         borderColor: '#FFFFFF1F',
-                        flexDirection: 'column'
+                        justifyContent: 'center',
+                        alignItems: 'center',
                     }}
                 >
-                    {
-                        (task != null && item?.tasks?.length > 0) &&
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad? 8 : 8 }}>
-                            {[...Array(item?.stars?.total)].map((_, index) => {
-                                const starImage = index < item?.stars?.earned ? filledStar : emptyStar;
-                                return (
-                                    <Image
-                                        key={index}
-                                        source={starImage}
-                                        style={{
-                                            width: Platform.isPad? windowWidth * (22 / 800) : windowWidth * (16 / 800),
-                                            height: Platform.isPad? windowHeight * (22 / 360) : windowHeight * (16 / 360),
-                                            marginHorizontal: 2,
-                                            resizeMode: 'contain'
-                                        }}
-                                    />
-                                );
-                            })}
-                        </View>
-                    }
-                    <View 
+                    <ActivityIndicator size='large' color="#504297" />
+                </View>
+            );
+        }
+
+        return (
+            <Animated.View
+                entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
+                style={{ width: 'auto', height: 'auto'}}
+                >
+                <View style={{ position: 'relative'}}>
+                    <TouchableOpacity
+                        onPress={() => {
+                            store.prepareTasksArray(item.id);
+                            navigation.navigate('GameScreen', {
+                            breaks: item?.breaks,
+                            isFromBreak: item?.isBreak,
+                            categoryId,
+                            collectionId,
+                            onComplete,
+                            onCompleteTask,
+                            });
+                        }}
                         style={{
-                            width: '100%', 
-                            position: 'absolute', 
-                            borderColor: 'white', 
-                            borderWidth: 1, 
-                            opacity: 0.12, 
-                            top: Platform.isPad? windowHeight * (60 / 800) : 35
-                        }} 
+                            backgroundColor: '#D8F6FF33',
+                            borderRadius: 12,
+                            width: Platform.isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360),
+                            height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360),
+                            marginRight: 20,
+                            borderWidth: 1,
+                            borderColor: '#FFFFFF1F',
+                            flexDirection: 'column',
+                            overflow: 'hidden', // чтобы блюр не вылазил за края
+                        }}
+                    >
+                    {!item?.isBreak && <RenderStars earned={item?.stars?.earned} total={item?.stars?.total} />}
+                    <View
+                        style={{
+                        width: '100%',
+                        position: 'absolute',
+                        borderColor: 'white',
+                        borderWidth: 1,
+                        opacity: 0.12,
+                        top: Platform.isPad ? windowHeight * (60 / 800) : 35,
+                        }}
                     />
-                    {isSvg ? (
-                        <SvgUri 
-                            uri={image} 
-                            width={Platform.isPad? windowWidth * (256 / 1194) : windowWidth * (135 / 800)} 
-                            height={Platform.isPad? windowWidth * (224 / 1194) : windowHeight * (82 / 360)} 
+                    {typeof item?.image === 'string' && !item.image.endsWith('.svg') ? (
+                        <Image
+                            source={{ uri: item?.image }}
                             style={{
-                                alignSelf: 'center', 
-                                position: 'absolute', 
-                                top: Platform.isPad? windowHeight * (90 / 800) : windowHeight * (35 / 360),
-                                resizeMode: 'contain'
+                                width: Platform.isPad ? windowWidth * (256 / 1194) : windowWidth * (135 / 800),
+                                height: Platform.isPad ? windowWidth * (224 / 1194) : windowHeight * (82 / 360),
+                                alignSelf: 'center',
+                                resizeMode: 'contain',
+                                position: 'absolute',
+                                top: Platform.isPad ? windowHeight * (90 / 800) : windowHeight * (35 / 360),
                             }}
                         />
                     ) : (
-                        <Image 
-                            source={{ uri: image }} 
-                            style={{ 
-                                width: Platform.isPad? windowWidth * (256 / 1194) : windowWidth * (135 / 800), height: Platform.isPad? windowWidth * (224 / 1194) : windowHeight * (82 / 360), alignSelf: 'center', resizeMode: 'contain' , position: 'absolute', aspectRatio: 1 / 1, top: Platform.isPad? windowHeight * (90 / 800) : windowHeight * (35 / 360), 
+                        <SvgUri
+                            uri={item?.image}
+                            width={Platform.isPad ? windowWidth * (256 / 1194) : windowWidth * (135 / 800)}
+                            height={Platform.isPad ? windowWidth * (224 / 1194) : windowHeight * (82 / 360)}
+                            style={{
+                                alignSelf: 'center',
+                                position: 'absolute',
+                                top: Platform.isPad ? windowHeight * (90 / 800) : windowHeight * (35 / 360),
                             }}
-                            resizeMode='contain'
                         />
                     )}
-                    <View 
+                    <View
                         style={{
-                            width: '100%', 
-                            position: 'absolute', 
-                            borderColor: 'white', 
-                            borderWidth: 1, 
-                            opacity: 0.12, 
-                            bottom: Platform.isPad? windowHeight * (30 / 360) : 40
-                        }} 
+                        width: '100%',
+                        position: 'absolute',
+                        borderColor: 'white',
+                        borderWidth: 1,
+                        opacity: 0.12,
+                        bottom: Platform.isPad ? windowHeight * (30 / 360) : 40,
+                        }}
                     />
-                    <View 
+                    <View
                         style={{
-                            width: '100%', 
-                            height: windowHeight * (35 / 360), 
-                            bottom: 0, 
-                            position: 'absolute', 
-                            alignItems: 'center', 
-                            flexDirection: 'row', 
-                            alignSelf: 'center', 
-                            justifyContent: 'center',
-                            borderRadius: 10
+                        width: '100%',
+                        height: windowHeight * (35 / 360),
+                        bottom: 0,
+                        position: 'absolute',
+                        alignItems: 'center',
+                        flexDirection: 'row',
+                        alignSelf: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 10,
                         }}
                     >
-                        {item?.attributes && item?.attributes?.length > 0 && item?.attributes.slice(0, 4).map((item, index) => {
-                            const isSvg = typeof item?.image === 'string' && item?.image.endsWith('.svg');
-                            // console.log(item.image)
-
-                            // console.log(store.attributes[0].attributes)
-
-                            return isSvg ? (
-                                <SvgUri
-                                    key={index}
-                                    uri={item.image}
-                                    width={windowWidth * (24 / 800)}
-                                    height={windowHeight * (24 / 360)}
-                                    style={{ marginHorizontal: 5, backgroundColor: item.group.color, borderRadius: 5 }}
-                                />
-                            ) : (
-                                <Image
-                                    key={index}
-                                    source={{ uri: item.image }}
-                                    style={{
-                                        resizeMode: 'contain',
-                                        width: windowWidth * (24 / 800),
-                                        height: windowHeight * (24 / 360),
-                                        marginHorizontal: 5,
-                                        backgroundColor: item.group.color
-                                    }}
-                                />
-                            );
-                        })}
+                        <RenderAttributes attributes={item?.attributes} />
                     </View>
-                    {(task === null || item?.tasks?.length === 0) && <BlurView intensity={10} tint="light" style={{flex: 1, borderRadius: 12, overflow: 'hidden', justifyContent: 'center', alignItems: 'center'}}>
-                            <Image source={lock} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360)}} resizeMode='contain' />
-                        </BlurView>}
-                </TouchableOpacity>
+                    </TouchableOpacity>
+
+                    {/* Blur накладывается поверх, если надо */}
+                    <Blur itemId={item?.id} categoryId={categoryId} collectionId={collectionId} />
+                </View>
             </Animated.View>
         )
-    };
+    }
 
-    const MemoizedRenderCollections = React.memo(renderCollections);
-    const MemoizedRenderSubCollections = React.memo(renderSubCollections, (prevProps, nextProps) => {
-        return prevProps.item.id === nextProps.item.id;
-    });
+    const listData = store.subCollections.length > 0
+    ? store.subCollections
+    : collections;
 
-    const renderItem = (props) =>
-        subCollections
-            ? <MemoizedRenderSubCollections {...props} onComplete={handleGameCompletion} onCompleteTask={handleTaskCompletion} />
-            : <MemoizedRenderCollections {...props} />;
-
+    const MemoizedRenderCollections = renderCollections;
+    const MemoizedRenderSubCollections = renderSubCollections;
+    
+    const renderItem = useMemo(() => ({ item, index }) => {
+        if (item.isLoader) {
+            return (
+                <View style={{ justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+                    <ActivityIndicator size="small" color="#888" />
+                </View>
+            );
+        }
+    
+        if (store.subCollections.length > 0) {
+            return (
+                <MemoizedRenderSubCollections
+                    item={item}
+                    index={index}
+                    onComplete={handleGameCompletion}
+                    onCompleteTask={handleTaskCompletion}
+                />
+            );
+        }
+    
+        return <MemoizedRenderCollections item={item} index={index} />;
+    }, [store.subCollections.length, availableSubCollections]);
+    
     return (
         <View style={{
-            width: windowWidth * (480 / 800), 
-            height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360), 
-            position: 'absolute', 
-            top: Platform.isPad ? windowHeight * (224 / 834) : windowHeight * (104 / 360), 
+            width: windowWidth * (480 / 800),
+            height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360),
+            position: 'absolute',
+            top: Platform.isPad ? windowHeight * (224 / 834) : windowHeight * (104 / 360),
             left: windowWidth * (320 / 800),
             justifyContent: 'center',
         }}>
-            {store.loadingCats?
-                <LottieView
+            {store.isSubCollectionsLoading || store.isCollectionLoading? 
+            <LottieView
                     loop={true}
                     autoPlay
                     source={loadingAnim}
                     style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
-                />
-                :
-                <FlatList
-                    horizontal
-                    extraData={[store.categories, subCollections]}
-                    data={subCollections || collections}
-                    renderItem={renderItem}
-                    keyExtractor={(item) => md5.hex_md5(`${item?.id}_${item?.image}`)}
-                    showsHorizontalScrollIndicator={false}
-                    scrollEventThrottle={16}
-                    removeClippedSubviews
-                    
-                />
-            }
+            />
+            :
+            <FlatList
+                horizontal
+                data={listData}
+                extraData={[store.categories, store.subCollections.length]}
+                renderItem={renderItem}
+                keyExtractor={(item) => md5.hex_md5(`${item?.id}_${item?.image}`)}
+                showsHorizontalScrollIndicator={false}
+                scrollEventThrottle={16}
+                removeClippedSubviews
+                onViewableItemsChanged={onViewableItemsChanged}
+                viewabilityConfig={{
+                    itemVisiblePercentThreshold: 50
+                }}
+            />}
         </View>
     );
 }

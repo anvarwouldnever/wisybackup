@@ -1,5 +1,5 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
-import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions, UIManager, findNodeHandle, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions } from "react-native";
 import mywisy from '../../images/MyWisy-waving.png';
 import reload from '../../images/tabler_reload.png';
 import LottieView from "lottie-react-native";
@@ -14,12 +14,16 @@ import standingWisy from '../../lotties/standingWisy.json'
 import speakingAndStanding from '../../lotties/speakingAndStanding.json'
 import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json'
 import { observer } from "mobx-react-lite";
+import { useNetInfo } from "@react-native-community/netinfo";
+import { useFocusEffect, useNavigationState } from "@react-navigation/native";
+import { useRoute } from "@react-navigation/native";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const animationRef = useRef<LottieView>(null);
     const [animation, setAnimation] = useState<any>(null);
+    const doneWelcomeSpeech = useRef<any>(null)
 
     const func = async (name: string) => {
         try {
@@ -45,7 +49,8 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     }, [marketCollections]);
 
     useEffect(() => {
-        if (!store.loadingCats && !store.wisySpeaking) {
+        if (!store.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current) {
+            doneWelcomeSpeech.current = true
             func('enter_collections_screen')
         }
     }, [store.loadingCats]);

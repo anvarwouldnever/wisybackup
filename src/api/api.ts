@@ -316,7 +316,6 @@ class Api {
             return response?.data?.data
         } catch (error) {
             console.log(id?.id, "tasks");
-            console.log(error?.response?.data);
             console.log(error?.response?.data?.message);
             throw error
         }
@@ -375,8 +374,10 @@ class Api {
             formData.append('child_id', data.child_id);
     
             // Добавляем текущую дату в формате YYYY-MM-DD
-            const currentDate = new Date().toISOString().split('T')[0]; 
-            formData.append('time_data', currentDate);
+            // const currentDate = new Date().toISOString().split('T')[0]; 
+            // formData.append('time_data', currentDate);
+
+            formData.append('about_child', 'true')
     
             if (data.isText) {
                 formData.append('message', data.message);
@@ -445,7 +446,7 @@ class Api {
             return response.data
         } catch (error) {
             console.log(error?.response?.data)
-            throw error
+            throw error?.response?.data?.message
         }
     }
 
@@ -471,8 +472,8 @@ class Api {
             console.log(response.data)
             return response.data
         } catch (error) {
-            console.log(error.response.data)
-            throw error
+            console.log(error?.response?.data)
+            throw error?.response?.data?.message
         }
     }
 
@@ -499,13 +500,13 @@ class Api {
             return response.data
         } catch (error) {
             console.log(error)
-            throw error
+            throw error?.response?.data?.message
         }
     }
 
     async answerHandWritten(answer: any) {
         try {
-                console.log(answer.images[0])
+                // console.log(answer.images[0])
                 const formData = new FormData();
                 formData.append('task_id', `${answer.task_id}`);
                 formData.append('attempt', `${answer.attempt}`);
@@ -521,11 +522,11 @@ class Api {
                     },
                 })
                 // console.log(response.data)
-                return response.data
+                return response?.data
         } catch (error) {
-            console.log(error)
+            console.log(error?.response?.data)
             console.log(error?.response?.data?.message)
-            throw error
+            throw error?.response?.data?.message
         }
     }
 }

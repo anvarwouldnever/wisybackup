@@ -7,13 +7,14 @@ import { AppState } from 'react-native';
 const BackgroundMusic = observer(() => {
   const sound = useRef(null);
   const [appState, setAppState] = useState(AppState.currentState);
+  const fadeInterval = useRef(null);
 
   const configureAudioMode = async () => {
     try {
       await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false,  // Отключаем запись (важно для музыки) // Не смешиваем звуки
-        playsInSilentModeIOS: true, 
-        shouldDuckAndroid: false,  // Не занижаем громкость других звуков
+        allowsRecordingIOS: false,
+        playsInSilentModeIOS: true,
+        shouldDuckAndroid: false,
         playThroughEarpieceAndroid: false,
         staysActiveInBackground: false
       });
@@ -22,15 +23,45 @@ const BackgroundMusic = observer(() => {
     }
   };
 
-  useEffect(() => {
-    const manageSound = async () => {
-      if (sound.current) {
-        if (store.musicPlaying) {
-          await configureAudioMode();
-          await sound.current.playAsync();
-        } else {
+  const fadeVolume = async (targetVolume, step, interval) => {
+    if (!sound.current) return;
+    if (fadeInterval.current) clearInterval(fadeInterval.current);
+
+    const { value: currentVolume } = await sound.current.getStatusAsync().then(s => ({ value: s.volume }));
+    let volume = currentVolume;
+
+    fadeInterval.current = setInterval(async () => {
+      if (!sound.current) return;
+
+      const direction = targetVolume > volume ? 1 : -1;
+      volume = parseFloat((volume + direction * step).toFixed(2));
+
+      if ((direction === 1 && volume >= targetVolume) || (direction === -1 && volume <= targetVolume)) {
+        volume = targetVolume;
+        clearInterval(fadeInterval.current);
+        fadeInterval.current = null;
+
+        if (targetVolume === 0) {
           await sound.current.pauseAsync();
         }
+      }
+
+      await sound.current.setVolumeAsync(volume);
+    }, interval);
+  };
+
+  useEffect(() => {
+    const manageSound = async () => {
+      if (!sound.current) return;
+
+      await configureAudioMode();
+
+      if (store.musicPlaying) {
+        await sound.current.setVolumeAsync(0);
+        await sound.current.playAsync();
+        fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
+      } else {
+        fadeVolume(0, 0.1, 30);
       }
     };
 
@@ -38,35 +69,36 @@ const BackgroundMusic = observer(() => {
   }, [store.musicPlaying]);
 
   useEffect(() => {
-
     const configureAudioMode = async () => {
       try {
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: false,
-          allowsRecordingANDROID: false,  // Отключаем запись (важно для музыки) // Не смешиваем звуки
           playsInSilentModeIOS: true,
-          staysActiveInBackground: true, // Оставляем активным в фоне
-          shouldDuckAndroid: false,  // Не занижаем громкость других звуков
-          playThroughEarpieceAndroid: false, // Стерео через динамики, а не через наушник
+          staysActiveInBackground: true,
+          shouldDuckAndroid: false,
+          playThroughEarpieceAndroid: false,
         });
       } catch (error) {
         console.error('Ошибка настройки аудиорежима', error);
       }
     };
 
-    const loadAndPlayMusic = async() => {
+    const loadAndPlayMusic = async () => {
       try {
         await configureAudioMode();
 
         const { sound: newSound } = await Audio.Sound.createAsync(
-          require('../../assets/bg_music.mp3'),  // Файл с фоновой музыкой
-          { shouldPlay: true, isLooping: true }  // Зацикливаем музыку
+          require('../../assets/bg_music.mp3'),
+          { shouldPlay: false, isLooping: true }
         );
         sound.current = newSound;
 
-        await sound.current.setVolumeAsync(1);
-        await sound.current.playAsync();
-        
+        await sound.current.setVolumeAsync(0); // начнем с 0
+        if (store.musicPlaying) {
+          await sound.current.playAsync();
+          fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
+        }
+
       } catch (error) {
         console.error('Ошибка загрузки музыки', error);
       }
@@ -75,11 +107,10 @@ const BackgroundMusic = observer(() => {
     loadAndPlayMusic();
 
     return () => {
-      if (sound.current) {
-        sound.current.unloadAsync();  // Очищаем ресурсы при размонтировании компонента
-      }
+      if (fadeInterval.current) clearInterval(fadeInterval.current);
+      if (sound.current) sound.current.unloadAsync();
     };
-  }, []);
+  }, [store.musicTurnedOn]);
 
   useEffect(() => {
     const handleAppStateChange = async (nextAppState) => {
@@ -102,4 +133,3 @@ const BackgroundMusic = observer(() => {
 });
 
 export default BackgroundMusic;
-

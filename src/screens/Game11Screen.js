@@ -39,6 +39,8 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const lottieRef = useRef(null);
     const timeoutRef = useRef(null);
     const viewShotRef = useRef(null);
+
+    // console.log(data)
     
     useEffect(() => {
         if (wisySpeaking) {
@@ -197,6 +199,8 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 type: fileType,
             };
 
+            // await Sharing.shareAsync(uri);
+
             return file;
         } catch (error) {
             console.error("Error saving and sharing image:", error);
@@ -352,9 +356,9 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }
             }
         } catch (error) {
-            console.log(error)
+            // console.log(error)
             setLock(false)
-            setText("probably server overload, try again later")
+            setText(error)
         } finally {
             setThinking(false)
         }
