@@ -18,7 +18,7 @@ const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, v
     }, []);
 
     return (
-        <View style={{ width: windowWidth * (392 / 800), height: windowHeight * (280 / 360), flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', alignSelf: 'center' }}>
+        <View style={{ width: windowWidth * (392 / 800), height: Platform.isPad ? windowWidth * (360 / 800) : windowHeight * (280 / 360), flexDirection: 'column', justifyContent: 'space-between', alignItems: 'center', alignSelf: 'center'}}>
             <View style={{ backgroundColor: 'white', borderRadius: 10, width: 'auto', height: 'auto', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4 }}>
                 {animal ? (
                     isAnimalSvg ? (

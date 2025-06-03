@@ -114,8 +114,6 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                 </TouchableOpacity>
             );
         }
-        
-        
 
         return (
             <Modal backdropColor="black" backdropOpacity={0.3} hasBackdrop={true} onBackdropPress={() => setDropDown(prev => !prev)} style={{height: 'auto', alignSelf: 'center', width: windowWidth * (312 / 360), position: 'absolute', top: windowHeight * (76 / 800)}} isVisible={dropDown} animationIn={'fadeIn'} >

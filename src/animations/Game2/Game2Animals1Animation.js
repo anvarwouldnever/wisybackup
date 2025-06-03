@@ -60,7 +60,7 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <View style={{backgroundColor: 'white', width: windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10, justifyContent: 'center'}}>
+            <View style={{backgroundColor: 'white', width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10, justifyContent: 'center'}}>
                 <TouchableOpacity onPress={!lock? () => {
                         answer({ answer: item.id })
                         if (timeoutRef.current) {
@@ -69,7 +69,7 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
                         setId(null)
                     } : () => {return}} style={{
                     borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white',  
-                    width: windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
+                    width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                     justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white',
                     shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
                 }}>
@@ -78,7 +78,7 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
                     ) : (
                         <Image source={{ uri: item?.url }} style={{ width: Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10 }} />
                     )}
-                    {item.name === 'monkey' && <Image source={passedimg} style={{ width: windowWidth * (24 / 800), height: Platform.isPad ? windowWidth * (24 / 800) : windowHeight * (24 / 360), position: 'absolute', right: 4, top: 4 }} />}
+                    {/* {item.name === 'monkey' && <Image source={passedimg} style={{ width: windowWidth * (24 / 800), height: Platform.isPad ? windowWidth * (24 / 800) : windowHeight * (24 / 360), position: 'absolute', right: 4, top: 4 }} />} */}
                     {id?.id == item?.id && <View style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
                         <Image source={id?.result == 'correct'? galochka : x} style={{width: windowWidth * (16 / 800), height: windowHeight * (16 / 360)}}/>
                     </View>}
@@ -90,7 +90,7 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
     return (
             <Animated.View key={key} entering={ZoomInEasyDown.duration(400)} style={{width: windowWidth * (664 / 800), height: Platform.isPad? windowWidth * (228 / 800) : windowHeight * (228 / 360), position: 'absolute', alignSelf: 'center', alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
                 {audio? <View style={{borderRadius: 0, flexDirection: 'row', gap: 5}}>
-                    <View style={{minWidth: windowWidth * (78 / 800), maxWidth: windowWidth * (500 / 800), height: windowHeight * (40 / 360), padding: windowHeight * (12 / 360), borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
+                    <View style={{minWidth: windowWidth * (78 / 800), maxWidth: windowWidth * (500 / 800), height: Platform.isPad? windowHeight * (60 / 800) : windowHeight * (40 / 360), padding: Platform.isPad? windowHeight * (12 / 800) : windowHeight * (12 / 360), borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
                         <Text style={{color: id?.result == 'correct'? '#222222' : id?.result == 'wrong'? 'white' : '#222222', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), fontWeight: '500', textAlign: 'center'}}>{animal}</Text>
                     </View>
                     <TouchableOpacity onPress={lock? () => {return} : () => voiceForTask(audio)} style={{minWidth: windowWidth * (46 / 800), maxWidth: windowWidth * (40 / 800), backgroundColor: '#B3ABDB', alignItems: 'center', justifyContent: 'center', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0}}>

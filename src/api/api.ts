@@ -3,7 +3,8 @@ import store from "../store/store";
 
 class Api {
 
-    baseUrl = 'https://apimywisy.hostweb.uz/api/v1/app';
+    baseUrl = 'https://tapimywisy.hostweb.uz/api/v1/app';
+    baseToken = '633|6R4jaeX3njTdJ7wHJhudU88Rkc2OvGGeIyFiVucS9bc848b4'
 
     async signUp(email: string, password: string) {
         try {
@@ -16,6 +17,7 @@ class Api {
                 return true
             }
         } catch (error) {
+            console.log(error)
             return error?.response?.data?.message;
         }
     }
@@ -76,7 +78,7 @@ class Api {
     async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string, lang: string) {
         // console.log(name, avatar, birthday, gender, engagement_time)
         try {
-            const response = await axios.post(
+            await axios.post(
                 `${this.baseUrl}/children`,
                 {
                     name: name,
@@ -88,14 +90,16 @@ class Api {
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        "X-localization": `en`
                     },
                 }
             );
-            if (response.status === 201) {
-                const children = await this.getChildren(token, lang)
-                return children
-            }
+
+            const children = await this.getChildren(token, lang)
+            return children
+            
         } catch (error) { 
+            console.log(error, 'while adding children')
             console.log(error?.response?.data)
         }
     }
@@ -104,13 +108,13 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/sign-up-settings`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    Authorization: `Bearer ${this.baseToken}`,
                     "X-localization": `${lang}`
                 }
             })
             return response.data;
         } catch (error) {
-            console.log(error.response.data)
+            console.log(error?.response?.data)
         }
     }
 
@@ -118,7 +122,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/onboardings`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    Authorization: `Bearer ${this.baseToken}`,
                     "X-localization": `${lang}`
                 }
             })
@@ -134,12 +138,13 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/children`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                    "X-localization": `${lang}`
+                    "X-localization": `en`
                 }
             })
             return response.data
         } catch (error) {
-            console.log(error.response.data)   
+            console.log(error, 'getting children')
+            console.log(error?.response?.data)   
         }
     }
 
@@ -147,7 +152,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    Authorization: `Bearer ${this.baseToken}`,
                     "X-localization": `${lang}`
                 }
             })
@@ -161,7 +166,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/market/categories/${param.id}/items`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`,
+                    Authorization: `Bearer ${this.baseToken}`,
                     "X-localization": `${param.lang}`
                 }
             })
@@ -175,7 +180,7 @@ class Api {
         try {
             const response = await axios.get(`${this.baseUrl}/avatars`, {
                 headers: {
-                    Authorization: `Bearer 497|6QH1QCf13k2xggBELLY9YWz7ROl22q3H4HoevMjw4ed179fd`
+                    Authorization: `Bearer ${this.baseToken}`
                 }
             })
             return response.data?.data
@@ -204,13 +209,17 @@ class Api {
     }
 
     async getAttributes(token: string, lang: string) {
-        const response = await axios.get(`${this.baseUrl}/attributes`, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                "X-localization": `${lang}`
-            }
-        })
-        return response.data.data
+        try {
+            const response = await axios.get(`${this.baseUrl}/attributes`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    "X-localization": `${lang}`
+                }
+            })
+            return response?.data?.data
+        } catch (error) {
+            throw error?.response?.data?.message
+        }
     }
 
     async getAttributeByChild(param) {
@@ -371,16 +380,16 @@ class Api {
     async sendMessage(data) {
         try {
             const formData = new FormData();
-            formData.append('child_id', data.child_id);
+            formData.append('child_id', data?.child_id);
     
             // Добавляем текущую дату в формате YYYY-MM-DD
             // const currentDate = new Date().toISOString().split('T')[0]; 
             // formData.append('time_data', currentDate);
 
-            formData.append('about_child', 'true')
+            // formData.append('about_child', 'true')
     
-            if (data.isText) {
-                formData.append('message', data.message);
+            if (data?.isText) {
+                formData.append('message', data?.message);
             } else {
                 formData.append('audio', {
                     uri: data.audio,
@@ -397,7 +406,7 @@ class Api {
                 },
             });
     
-            return response.data;
+            return response?.data?.data;
         } catch (error) {
             console.log(error?.response?.data)
             console.log(error?.response?.data?.message || "Ошибка при отправке сообщения");

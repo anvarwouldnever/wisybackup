@@ -11,11 +11,9 @@ export const newPlaySound = async (source?: string): Promise<void> => {
     return;
   }
 
-  // отменяем все предыдущие загрузки
   shouldCancel = true;
-  await stopCurrentSound(); // гарантированная остановка текущего звука
+  await stopCurrentSound();
 
-  // начинаем новую попытку
   shouldCancel = false;
 
   try {
@@ -28,7 +26,6 @@ export const newPlaySound = async (source?: string): Promise<void> => {
       uri: isBase64 ? `data:audio/mp3;base64,${source}` : source,
     });
 
-    // Проверяем, не была ли отменена загрузка в процессе
     if (shouldCancel) {
       await sound.unloadAsync();
       return;

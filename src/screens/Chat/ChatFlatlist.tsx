@@ -36,13 +36,13 @@ const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
     }
 
     return (
-        <View style={{width: windowWidth * (328 / 360), height: 'auto', alignSelf: 'center'}}>
+        <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), alignSelf: 'center'}}>
             <FlatList
                 ref={flatListRef}
                 data={store.messages}
                 renderItem={renderItemMessage}
                 keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={{gap: windowHeight * (24 / 800), paddingTop: 30 }}
+                contentContainerStyle={{gap: windowHeight * (24 / 800), paddingBottom: windowHeight * (60 / 800), paddingTop: windowHeight * (30 / 800) }}
                 scrollEnabled={true}
                 showsVerticalScrollIndicator={false}
                 inverted={true} 

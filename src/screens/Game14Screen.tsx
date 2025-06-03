@@ -610,7 +610,16 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             }
                         });
 
-                        return (
+                        return Platform.isPad? (
+                            <GestureDetector key={item.key} gesture={gesture}>
+                                <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3 ? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                    <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: images?.length === 3? windowWidth * (96 / 800) : images?.length === 4? windowWidth * (69 / 800) :  windowWidth * (80 / 800), height: images?.length === 3? windowWidth * (96 / 800) : images?.length === 4? windowWidth * (69 / 800) : windowWidth * (80 / 800), backgroundColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center'}}>
+                                        <Image source={{ uri: item?.image }} style={{ width: images.length === 3? windowWidth * (80 / 800) : windowWidth * (64 / 800), height: images.length === 3? windowHeight * (81 / 360) : windowHeight * (64 / 360), resizeMode: 'contain' }}/>
+                                    </View>
+                                </View>
+                            </GestureDetector>
+                        ) : 
+                        (
                             <GestureDetector key={item.key} gesture={gesture}>
                                 <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3 ? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                                     <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: images?.length === 3? windowWidth * (96 / 800) : images?.length === 4? windowWidth * (69 / 800) :  windowWidth * (80 / 800), height: images?.length === 3? windowHeight * (96 / 360) : images?.length === 4? windowHeight * (69 / 360) : windowHeight * (80 / 360), backgroundColor: answered.includes(item.key) && images?.length != 4 && images?.length != 3? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center'}}>
@@ -618,7 +627,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                     </View>
                                 </View>
                             </GestureDetector>
-                        )
+                        ) 
                     })}
                 </View>
                 <View style={{width: windowWidth * (160 / 800), height: windowHeight * (300 / 360), alignItems: 'center', justifyContent: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, flexDirection: 'column', overflow: 'visible'}}>
@@ -678,12 +687,34 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                 }
                             });
                         
-                            return (
+                            return Platform.isPad? (
+                                <GestureDetector key={item.key} gesture={gesture}>
+                                    {type == 'text'? 
+                                        <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: 'auto', height: windowWidth * (40 / 800), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', gap: 5, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                            <View style={{minWidth: windowWidth * (110 / 800), maxWidth: 'auto', height: windowWidth * (40 / 800), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
+                                                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360), textAlign: 'center'}}>{item?.text}</Text>
+                                            </View>
+                                            <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowWidth * (40 / 800), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
+                                                <Image source={answered.includes(item.key)? black : wrongObject == item.key? blackRed : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
+                                            </TouchableOpacity>
+                                        </View>
+                                    :
+                                    type == 'image' &&
+                                    <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#D81616' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                        <View style={{width: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), height: images.length === 4? windowWidth * (69 / 800) : windowWidth * (96 / 800), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : wrongObject == item.key? '#D816164D' : 'white', borderRadius: 8, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+                                            <Image source={{ uri: item?.image }} style={{width: windowWidth * (80 / 800), height: windowWidth * (81 / 800)}}/>
+                                        </View> 
+                                    </View>   
+                                    }
+                                </GestureDetector>
+                            ) 
+                                :
+                            (
                                 <GestureDetector key={item.key} gesture={gesture}>
                                     {type == 'text'? 
                                         <View ref={(view) => answersRefs.current.set(item.key, view)} onLayout={() => {}} style={{width: 'auto', height: windowHeight * (40 / 360), backgroundColor: 'transparent', borderRadius: 100, flexDirection: 'row', gap: 5, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
-                                            <View style={{minWidth: windowWidth * (110 / 800), maxWidth: 'auto', height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
-                                                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowHeight * (12 / 360), textAlign: 'center'}}>{item?.text}</Text>
+                                            <View style={{minWidth: windowWidth * (110 / 800), maxWidth: 'auto', height: windowWidth * (40 / 800), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : 'white', borderTopLeftRadius: 100, borderBottomLeftRadius: 100, justifyContent: 'center', paddingHorizontal: windowWidth * (16 / 800) }}>
+                                                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowWidth * (12 / 800), textAlign: 'center'}}>{item?.text}</Text>
                                             </View>
                                             <TouchableOpacity onPress={lock? () => {return} : () => playSound(item?.speech)} style={{width: windowWidth * (46 / 800), height: windowHeight * (40 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D' : wrongObject == item.key? '#EA6E6E' : '#B3ABDB', borderTopRightRadius: 100, borderBottomRightRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
                                                 <Image source={answered.includes(item.key)? black : wrongObject == item.key? blackRed : speaker} style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), resizeMode: 'contain'}}/>
@@ -756,7 +787,18 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                     }
                                 });
 
-                                return (
+                                return Platform.isPad? 
+                                (
+                                    <GestureDetector key={item.key} gesture={gesture}>
+                                        <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                                            <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: windowWidth * (80 / 800), height: windowWidth * (80 / 800), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center' }}>
+                                                <Image source={{ uri: item?.image }} style={{ width: windowWidth * (64 / 800), height: windowWidth * (64 / 800), resizeMode: 'contain' }}/>
+                                            </View>
+                                        </View>
+                                    </GestureDetector>
+                                )
+                                :
+                                (
                                     <GestureDetector key={item.key} gesture={gesture}>
                                         <View style={{backgroundColor: 'white', borderRadius: 10, borderColor: answered.includes(item.key)? '#ADD64D' : 'white', borderWidth: 2, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                                             <View ref={(view) => imageRefs.current.set(item.key, view)} onLayout={() => {}} style={{ borderRadius: 8, width: windowWidth * (80 / 800), height: windowHeight * (80 / 360), backgroundColor: answered.includes(item.key)? '#ADD64D4D' : 'white', justifyContent: 'center', alignItems: 'center' }}>
@@ -770,7 +812,8 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     )}
                 </View>}
             </View>}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  
+            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"

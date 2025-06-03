@@ -155,7 +155,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -185,7 +185,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null)
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -221,7 +221,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             } else if(response && !response.success && response.to_next && isActive.current) {
                 if (!isActive.current) return
@@ -246,7 +246,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             }
         } catch (error) {
@@ -263,7 +263,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {data && (!tutorialShow || tutorials == 0 || isFromAttributes) && <Game3AnimalsAnimation lock={lock} id={id} answer={answer} images={data.content.images} setId={setId}/>}
+            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game3AnimalsAnimation lock={lock} id={id} answer={answer} images={data.content.images} setId={setId}/>}
             <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}

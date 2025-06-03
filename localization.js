@@ -58,7 +58,8 @@ const translations = {
         redendCode: 'Resend code',
         resendCodeIn: 'Resend code in',
         exit: 'Exit',
-        backgroundMusic: 'Background music'
+        backgroundMusic: 'Background music',
+        childWithThisName: 'Child with this name already exists'
     },
     lv: {
         welcome: 'Laipni lūdzam!',
@@ -119,7 +120,8 @@ const translations = {
         resendCode: 'Atkārtoti nosūtīt kodu',
         resendCodeIn: 'Atkārtoti nosūtīt kodu pēc',
         exit: 'Iziet',
-        backgroundMusic: 'Fona mūzika'
+        backgroundMusic: 'Fona mūzika',
+        childWithThisName: 'Bērns ar šādu vārdu jau eksistē'
     }
 };
 

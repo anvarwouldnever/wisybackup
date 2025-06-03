@@ -8,14 +8,42 @@
     "icon": "./assets/wisyIcon.png",
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
-    
     "ios": {
       "requireFullScreen": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.anvarwouldnever3.wisy",
       "associatedDomains": [
         "applinks:mywisy.com"
-      ]
+      ],
+      "infoPlist": {
+        "LSApplicationQueriesSchemes": [
+          "mailto",
+          "message",
+          "readdle-spark",
+          "airmail",
+          "ms-outlook",
+          "googlegmail",
+          "inbox-gmail",
+          "ymail",
+          "superhuman",
+          "yandexmail",
+          "fastmail",
+          "protonmail",
+          "mailto",
+          "message",
+          "readdle-spark",
+          "airmail",
+          "ms-outlook",
+          "googlegmail",
+          "inbox-gmail",
+          "ymail",
+          "superhuman",
+          "yandexmail",
+          "fastmail",
+          "protonmail"
+        ],
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "plugins": [
       [
@@ -42,7 +70,9 @@
           "imageWidth": 250
         }
       ],
-      ["react-native-email-link"]
+      [
+        "react-native-email-link"
+      ]
     ],
     "android": {
       "adaptiveIcon": {
@@ -50,7 +80,11 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.anvarwouldnever3.wisy",
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"

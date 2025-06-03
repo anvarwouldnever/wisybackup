@@ -166,7 +166,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false);
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -197,7 +197,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false);
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -233,7 +233,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false);
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             } else if(response && !response.success && response.to_next && isActive.current) {
                 if (!isActive.current) return
@@ -260,7 +260,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false);
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             }
         } catch (error) {
@@ -273,7 +273,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, justifyContent: 'center'}}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}

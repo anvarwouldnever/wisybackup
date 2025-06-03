@@ -374,14 +374,14 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             key={index}
                             points={line.join(' ')}
                             stroke="#504297"
-                            strokeWidth="4"
+                            strokeWidth="2"
                             fill="none"
                             />
                         ))}
                         <Polyline
                             points={currentLine.join(' ')}
                             stroke="#504297"
-                            strokeWidth="4"
+                            strokeWidth="2"
                             fill="none"
                         />
                         </Svg>

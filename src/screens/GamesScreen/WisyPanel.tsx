@@ -1,10 +1,8 @@
-import React, { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions } from "react-native";
-import mywisy from '../../images/MyWisy-waving.png';
 import reload from '../../images/tabler_reload.png';
 import LottieView from "lottie-react-native";
 import store from "../../store/store";
-import useLottieParser from "../../hooks/useLottieParser";
 import lot from '../../lotties/panda anim 2.json'
 import fetchAnimation from "./FetchLottie";
 import api from "../../api/api";
@@ -14,16 +12,12 @@ import standingWisy from '../../lotties/standingWisy.json'
 import speakingAndStanding from '../../lotties/speakingAndStanding.json'
 import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json'
 import { observer } from "mobx-react-lite";
-import { useNetInfo } from "@react-native-community/netinfo";
-import { useFocusEffect, useNavigationState } from "@react-navigation/native";
-import { useRoute } from "@react-navigation/native";
 
-const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation }) => {
+const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const animationRef = useRef<LottieView>(null);
-    const [animation, setAnimation] = useState<any>(null);
-    const doneWelcomeSpeech = useRef<any>(null)
+    const doneWelcomeSpeech = useRef<any>(null);
 
     const func = async (name: string) => {
         try {
@@ -43,6 +37,9 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     };
 
     useEffect(() => {
+        if (!marketCollections) {
+            setAnimation(null)
+        }
         if (marketCollections && !store.loadingCats && !store.wisySpeaking) {
             func('open_market')
         }
@@ -56,51 +53,55 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     }, [store.loadingCats]);
 
     useEffect(() => {
-        if (store.wisySpeaking) {
-            setTimeout(() => {
-                animationRef.current?.play()
-            }, 1);
-        } else {
-            setTimeout(() => {
-                animationRef.current?.reset()
-            }, 1);
-        }
-    }, [store.wisySpeaking]);
-
-    useEffect(() => {
         if (animationStart && !store.loadingCats) {
-            animationRef.current?.reset()
+            animationRef.current?.reset();
             const func = async() => {
-                const animation = await fetchAnimation(currentAnimation?.animation)
+                const animation = await fetchAnimation(currentAnimation?.animation);
                 setAnimation(animation);
                 setCurrentAnimation(null);
                 const sound = await api.getSpeech('market_item_purchase', store.language);
                 if (sound.length > 0) {
-                    playSound.stop()
+                    playSound.stop();
                     const randomIndex = Math.floor(Math.random() * sound.length);
                     store.setWisyMenuText(sound[randomIndex]?.text);
                     await playSound(sound[randomIndex]?.audio);
                 }
             }
-            func()
+            func();
         } else {
-            if (marketCollections) animationRef.current?.reset()
+            if (marketCollections) animationRef.current?.reset();
         }
-    }, [animationStart]); 
+    }, [animationStart, modal]); 
+
+    useEffect(() => {
+        if (animation) {
+            animationRef?.current.play()
+        } else if (!animation && !store.wisySpeaking && marketCollections) {
+            animationRef?.current.play()
+        } else if (!animation && !store.wisySpeaking && !marketCollections) {
+            animationRef?.current.play()
+        } else if (!animation && store.wisySpeaking && !marketCollections) {
+            animationRef?.current.play()
+        }
+    }, [animation]);
 
     const animationProps = useMemo(() => {
         if (animation) {
             return {
                 source: animation,
                 loop: false,
-                onAnimationLoaded: () => animationRef.current?.play(),
+                autoPlay: false,
+                onAnimationFinish: () => {
+                    setAnimationStart(false)
+                    setAnimation(null)
+                }
             };
         } 
         if (marketCollections && store.wisySpeaking) {
             return {
                 source: speakingWisyMarket,
                 loop: true,
-                onAnimationLoaded: () => animationRef.current?.play(),
+                autoPlay: true,
             };
         } 
         if (marketCollections && !store.wisySpeaking) {
@@ -108,18 +109,21 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
                 source: lot,
                 loop: true,
                 onAnimationLoaded: () => animationRef.current?.play(),
+                autoPlay: false,
             };
         } 
         if (!marketCollections && store.wisySpeaking) {
             return {
                 source: speakingAndStanding,
-                loop: false,
+                loop: true,
+                autoPlay: true,
             };
         }
         return {
             source: standingWisy,
             loop: true,
             onAnimationLoaded: () => animationRef.current?.play(),
+            autoPlay: false,
         };
     }, [animation, marketCollections, store.wisySpeaking]);
     
@@ -141,9 +145,6 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
                         key={animation}
                         ref={animationRef}
                         {...animationProps}
-                        autoPlay={false}
-                        enableMergePathsAndroidForKitKatAndAbove={false}
-                        hardwareAccelerationAndroid={false}
                         style={{
                             minWidth: windowWidth * (190 / 800),
                             minHeight: Platform.isPad ? windowWidth * (190 / 800) : windowHeight * (190 / 360),

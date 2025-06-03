@@ -38,7 +38,7 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId, lo
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <View style={{backgroundColor: 'white', width: windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
+            <View style={{backgroundColor: 'white', width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10, justifyContent: 'center', alignItems: 'center'}}>
                 <TouchableOpacity onPress={lock? () => {return} : () => {
                         answer({ answer: item.id })
                         if (timeoutRef.current) {
@@ -47,7 +47,7 @@ const Game5AnimalsAnimation = ({ answer, id, images, animal, thinking, setId, lo
                         setId(null)
                 }} style={{
                     borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item.id && id?.result == 'wrong'? '#D816164D' : 'white', 
-                    width: windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
+                    width:  Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
                     justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white',
                     shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
                 }}>

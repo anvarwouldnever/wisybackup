@@ -60,7 +60,7 @@ const Knowledge = ({ screen }) => {
 
     return (
         <FlatList
-            data={screen.attributes}
+            data={screen?.attributes}
             keyExtractor={(item, index) => index.toString()}
             renderItem={renderItem}
             contentContainerStyle={{ gap: 16 }}

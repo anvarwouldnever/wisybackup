@@ -4,7 +4,7 @@ import chat from '../images/chat.png';
 import brain from '../images/brain.png';
 import brainActive from '../images/brainActive.png';
 import React, { useState } from "react";
-import { View, TouchableOpacity, Image, useWindowDimensions, Text, FlatList } from "react-native";
+import { View, TouchableOpacity, Image, useWindowDimensions, Text, FlatList, Platform } from "react-native";
 import skills from '../images/skills.png';
 import skillsActive from '../images/skillsActive.png';
 import heart from '../images/heart.png';
@@ -18,44 +18,44 @@ const BottomTabs = ({ screen, setScreen }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
 
-    const fetchSvg = async (uri: string) => {
-        try {
-            const response = await fetch(uri);
+    // const fetchSvg = async (uri: string) => {
+    //     try {
+    //         const response = await fetch(uri);
     
-            if (!response.ok) {
-                throw new Error(`Ошибка загрузки SVG: ${response.status} ${response.statusText}`);
-            }
+    //         if (!response.ok) {
+    //             throw new Error(`Ошибка загрузки SVG: ${response.status} ${response.statusText}`);
+    //         }
     
-            const svg = await response.text();
+    //         const svg = await response.text();
     
-            const pathRegex = /<path[^>]*d="([^"]*)"[^>]*>/g;
+    //         const pathRegex = /<path[^>]*d="([^"]*)"[^>]*>/g;
     
-            const svgParamsRegex = /<svg[^>]*\s(width|height|viewBox|fill)="([^"]*)"/g;
+    //         const svgParamsRegex = /<svg[^>]*\s(width|height|viewBox|fill)="([^"]*)"/g;
     
-            const paths: { d: string; [key: string]: string }[] = [];
-            let pathMatch;
-            while ((pathMatch = pathRegex.exec(svg)) !== null) {
-                const pathAttributes = {};
-                const attributeRegex = /(\w+)="([^"]*)"/g;
-                let attrMatch;
-                while ((attrMatch = attributeRegex.exec(pathMatch[0])) !== null) {
-                    pathAttributes[attrMatch[1]] = attrMatch[2];
-                }
-                paths.push(pathAttributes);
-            }
+    //         const paths: { d: string; [key: string]: string }[] = [];
+    //         let pathMatch;
+    //         while ((pathMatch = pathRegex.exec(svg)) !== null) {
+    //             const pathAttributes = {};
+    //             const attributeRegex = /(\w+)="([^"]*)"/g;
+    //             let attrMatch;
+    //             while ((attrMatch = attributeRegex.exec(pathMatch[0])) !== null) {
+    //                 pathAttributes[attrMatch[1]] = attrMatch[2];
+    //             }
+    //             paths.push(pathAttributes);
+    //         }
     
-            const svgParams: { [key: string]: string } = {};
-            let match;
-            while ((match = svgParamsRegex.exec(svg)) !== null) {
-                svgParams[match[1]] = match[2];
-            }
+    //         const svgParams: { [key: string]: string } = {};
+    //         let match;
+    //         while ((match = svgParamsRegex.exec(svg)) !== null) {
+    //             svgParams[match[1]] = match[2];
+    //         }
     
-            return { paths, svgParams };
-        } catch (error) {
-            console.error('Ошибка загрузки SVG:', error);
-            return null;
-        }
-    };
+    //         return { paths, svgParams };
+    //     } catch (error) {
+    //         console.error('Ошибка загрузки SVG:', error);
+    //         return null;
+    //     }
+    // };
 
     const attributes = store.attributes
 
@@ -72,8 +72,8 @@ const BottomTabs = ({ screen, setScreen }) => {
                             aspectRatio: 1
                         }}
                         viewBox="0 0 24 24"
-                        width={24}
-                        height={24}
+                        width={windowHeight * (24 / 800)}
+                        height={windowHeight * (24 / 800)}
                         fill={'none'}
                     >
                         {svg.paths.map((path, index) => (
@@ -115,7 +115,7 @@ const BottomTabs = ({ screen, setScreen }) => {
                     <Image source={screen === 'Settings' || screen === 'Lang'? settingsActive : settings} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
                 </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: windowWidth * (112 / 360), height: windowHeight * (56 / 800), gap: windowHeight * (8 / 800), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: Platform.isPad? windowHeight * (56 / 360) : windowWidth * (112 / 360), height: windowHeight * (56 / 800), gap: windowHeight * (8 / 800), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
                 <Image source={chat} style={{width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
                 <Text style={{fontWeight: '600', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (24 / 800), color: '#504297'}}>Chat</Text>
             </TouchableOpacity>

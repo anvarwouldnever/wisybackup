@@ -7,9 +7,8 @@ const { width, height } = Dimensions.get('window');
 
 const ChildEngagementTime = ({ options, setOptions }) => {
 
-    const title = store.addchildui.engagement_title
+    const title = store?.addchildui?.engagement_title
     
-
     return (
         <Animated.View entering={SlideInRight} style={{width: '100%', height: '100%', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column'}}>
             <View style={{width: width * 0.8666, height: height * (272 / 800), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>

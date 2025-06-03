@@ -379,7 +379,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     // {data.content.first_image.endsWith(".svg") ? <SvgUri uri={data.content.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} /> : <Image source={{uri: data.content.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}/>}
 
     return (
-        <View style={{ position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
@@ -395,12 +395,12 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         const isUnknown = letter === '*';
 
                         return (
-                            <View key={index} style={{ width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                            <View key={index} style={{ width: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
                                 {isUnknown ? (
                                     <ViewShot ref={viewShotRef} style={{borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? "#ADD64D" : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: 10, borderWidth: 2}} options={{ format: 'png', quality: 1 }}>  
                                         <View
                                             {...panResponder.panHandlers}
-                                            style={{ backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 8}}
+                                            style={{ backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: Platform.isPad? windowWidth * (96 / 800) : windowHeight * (96 / 360), height: Platform.isPad? windowWidth * (94 / 800) : windowHeight * (94 / 360), borderRadius: 8}}
                                         >
                                             <Svg height='100%' width='100%'>
                                             {lines.map((line, index) => (
@@ -408,14 +408,14 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                                     key={index}
                                                     points={line.join(' ')}
                                                     stroke="#504297"
-                                                    strokeWidth="4"
+                                                    strokeWidth="2"
                                                     fill="none"
                                                 />
                                             ))}
                                             <Polyline
                                                 points={currentLine.join(' ')}
                                                 stroke="#504297"
-                                                strokeWidth="4"
+                                                strokeWidth="2"
                                                 fill="none"
                                             />
                                             </Svg>
@@ -429,7 +429,8 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     })}
                 </View>
             </View>}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: 'auto', position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
+            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -442,7 +443,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     autoPlay={false}
                     loop={true}
                 />
-                <Game3TextAnimation text={text} thinking={thinking}/>
+                {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
             </View>}
             {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                                             <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>

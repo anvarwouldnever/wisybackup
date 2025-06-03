@@ -108,6 +108,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                     },
                 }}
                 locale={store.language}
+                monthFormat={'MMMM yyyy'}
             />
             <View
                 style={{

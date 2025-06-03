@@ -13,6 +13,7 @@ import store from "../store/store";
 import langIcon from '../images/languageIcon.png';
 import { observer } from "mobx-react-lite";
 import translations from "../../localization";
+import api from "../api/api";
 
 const ParentsSettings = ({ setScreen }) => {
 
@@ -159,7 +160,7 @@ const ParentsSettings = ({ setScreen }) => {
     };
 
     return (
-        <View style={{ width: windowWidth * (312 / 360), backgroundColor: 'white', alignItems: 'center', height: 'auto' }}>
+        <View style={{ width: windowWidth * (312 / 360), backgroundColor: 'white', alignItems: 'center', height: 'auto'}}>
             <PopUpModal modal={popUpModal} setModal={setPopUpModal} />
             <Text style={{
                 width: windowWidth * (312 / 360),
@@ -173,10 +174,11 @@ const ParentsSettings = ({ setScreen }) => {
                 data={settingsItems}
                 keyExtractor={(item) => item.key}
                 renderItem={renderItem}
-                contentContainerStyle={{ gap: 12, paddingVertical: 8 }}
+                contentContainerStyle={{ gap: 12, paddingVertical: 8, width: '100%' }}
                 showsVerticalScrollIndicator={false}
                 scrollEnabled={false}
             />
+            <Text style={{fontSize: windowHeight * (18 / 800), color: 'grey', fontWeight: '600', margin: windowHeight * (20 / 800)}}>{api.baseUrl === 'https://tapimywisy.hostweb.uz/api/v1/app' ? 'Dev' : ''}</Text>
             <NewPasswordModal secure={secure} modal={modal} setModal={setModal} setSecure={setSecure} setPopUpModal={setPopUpModal} />
         </View>
     )

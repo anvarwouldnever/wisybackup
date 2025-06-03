@@ -344,7 +344,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     };
 
     return (
-        <Animated.View entering={ZoomInEasyDown} style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
+        <Animated.View entering={ZoomInEasyDown} style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
@@ -379,14 +379,14 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                             key={index}
                             points={line.join(' ')}
                             stroke="#504297"
-                            strokeWidth="6"
+                            strokeWidth="2"
                             fill="none"
                             />
                         ))}
                         <Polyline
                             points={currentLine.join(' ')}
                             stroke="#504297"
-                            strokeWidth="6"
+                            strokeWidth="2"
                             fill="none"
                         />
                         </Svg>

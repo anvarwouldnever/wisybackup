@@ -14,7 +14,6 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }
     const gameoptions = store?.categories
 
     const isFirstRender = useRef(true);
-    const isInitialCategorySet = useRef(false);
 
     const getCollection = async(id) => {
         setActiveCategory(id);

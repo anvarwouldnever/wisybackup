@@ -60,8 +60,8 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, o
 
     return (
         <GestureDetector gesture={dragGesture}>
-            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: windowWidth * (80 / 800), zIndex: draggingId == item.id? 1000 : 0, height: windowHeight * (80 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}]}>
-                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: windowHeight * (64 / 360), height: windowHeight * (64 / 360), opacity: draggingId == item.id? opacity : 1}]} />
+            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: windowWidth * (80 / 800), zIndex: draggingId == item.id? 1000 : 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}]}>
+                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: windowHeight * (64 / 360), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), opacity: draggingId == item.id? opacity : 1, resizeMode: 'contain'}]} />
             </Animated.View>
         </GestureDetector>
     );
@@ -451,8 +451,8 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
                 return (
                     <View style={{
-                                width: windowWidth * (160 / 800),
-                                height: windowHeight * (168 / 360),
+                                width: Platform.isPad ? windowWidth * (160 / 800) : windowWidth * (160 / 800),
+                                height: Platform.isPad ? windowWidth * (160 / 800) : windowHeight * (168 / 360),
                                 borderRadius: item?.image ? 10 : 16,
                                 borderColor: id?.id == item?.id && id?.result == 'wrong' && !item?.image? '#D81616' : (id?.id == item?.id && id?.result == 'correct') || answered.includes(item.id) && !item?.image? '#ADD64D' : 'black',
                                 borderWidth: 2,
@@ -473,7 +473,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         <View
                             style={{
                                 width: windowWidth * (160 / 800),
-                                height: windowHeight * (168 / 360),
+                                height: Platform.isPad? windowWidth * (160 / 800) : windowHeight * (168 / 360),
                                 borderRadius: item?.image ? 10 : 16,
                                 alignItems: 'center',
                                 justifyContent: 'center',
@@ -488,7 +488,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                         source={{ uri: item.image }} 
                                         style={{ 
                                             width: windowWidth * (176 / 800), 
-                                            height: windowHeight * (184 / 360), 
+                                            height: Platform.isPad? windowWidth * (184 / 800) : windowHeight * (184 / 360), 
                                             borderRadius: 16, 
                                             borderWidth: 2, 
                                             borderColor: id?.id == item?.id && id?.result == 'wrong'? '#D81616' : (id?.id == item?.id && id?.result == 'correct') || answered.includes(item.id)? '#ADD64D' : 'white',
@@ -505,7 +505,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                             source={{ uri: item.draggedUri }}
                                             style={{
                                                 width: windowWidth * (120 / 800),
-                                                height: windowHeight * (120 / 360),
+                                                height: Platform.isPad? windowWidth * (120 / 800) : windowHeight * (120 / 360),
                                                 position: 'absolute',
                                                 alignSelf: 'center',
                                             }}
@@ -522,7 +522,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                             : 
                             (
                                 <View style={{flex: 1, gap: 10, padding: 16, alignItems: 'center'}}>
-                                    <Text style={{position: 'absolute', bottom: windowHeight * (10 / 360), fontWeight: '600', fontSize: windowHeight * (14 / 360)}}>{item.text}</Text>
+                                    <Text style={{position: 'absolute', bottom: Platform.isPad? windowWidth * (10 / 800) : windowHeight * (10 / 360), fontWeight: '600', fontSize: Platform.isPad? windowWidth * (14 / 800) : windowHeight * (14 / 360)}}>{item.text}</Text>
                                     {item?.draggedUri && (
                                         <Animated.Image
                                             entering={FadeIn
@@ -534,9 +534,9 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                                             source={{ uri: item.draggedUri }}
                                             style={{
                                                 width: windowWidth * (120 / 800),
-                                                height: windowHeight * (120 / 360),
+                                                height: Platform.isPad? windowWidth * (120 / 800) : windowHeight * (120 / 360),
                                                 alignSelf: 'center',
-                                                
+                                                resizeMode: 'contain'
                                             }}
                                         />
                                     )}
@@ -553,7 +553,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 )
             })}
             </View>
-            <Animated.View style={{ width: windowWidth * (560 / 800), height: windowHeight * (80 / 360), marginTop: 50, flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'center', position: 'absolute', alignSelf: 'center', bottom: 0}}>
+            <Animated.View style={{ width: windowWidth * (560 / 800), height: windowHeight * (80 / 360), marginTop: windowHeight * (50 / 360), flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'center', position: 'absolute', alignSelf: 'center', bottom: 0}}>
                 {draggableObjects.map((item) => (
                     <DraggableItem key={item.id} item={item} windowWidth={windowWidth} windowHeight={windowHeight} checkDropZone={checkDropZone} lock={lock} opacity={opacity} draggingId={draggingId} setDraggingId={setDraggingId}/>
                 ))}

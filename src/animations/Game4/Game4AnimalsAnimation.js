@@ -43,7 +43,7 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceFo
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <View style={{backgroundColor: 'white', width: windowHeight * (122 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (122 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}>
+            <View style={{backgroundColor: 'white', width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (122 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (122 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center'}}>
                 <TouchableOpacity onPress={lock? () => {return} : () => {
                     answer({ answer: item.id })
                     if (timeoutRef.current) {
@@ -72,7 +72,7 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceFo
     
     return (
         <Animated.View key={key} entering={ZoomInEasyDown} style={{width: windowWidth * (664 / 800), height: Platform.isPad? windowWidth * (232 / 800) : windowHeight * (232 / 360), position: 'absolute', alignSelf: 'center', alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
-            <TouchableOpacity onPress={lock? () => {} : () => voiceForTask(audio)} style={{width: windowHeight * (80 / 360), borderWidth: 1, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
+            <TouchableOpacity onPress={lock? () => {} : () => voiceForTask(audio)} style={{width: Platform.isPad ? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderWidth: 1, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
                 <Image source={speaker} style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360)}}/>
             </TouchableOpacity>
             <View style={{height: Platform.isPad? windowWidth * (135 / 800) : windowHeight * (138 / 360), alignItems: 'center', width: 'auto'}}>

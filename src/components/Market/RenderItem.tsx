@@ -1,21 +1,21 @@
 import { View, useWindowDimensions, Image, Text, TouchableOpacity } from "react-native";
-import { PanGestureHandler } from "react-native-gesture-handler";
 import { SvgUri } from "react-native-svg";
-import Animated, { FadeInRight, useAnimatedGestureHandler, useAnimatedStyle, useSharedValue, Easing, runOnJS } from 'react-native-reanimated';
 import star from '../../images/tabler_star-filled.png'
+import store from "../../store/store";
+import { observer } from "mobx-react-lite";
 
-const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, index }) => {
+const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, animationStart }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
             
     const isSvg = item?.image?.endsWith('.svg')
     
             return (
-                <TouchableOpacity onPress={() => {
+                <TouchableOpacity onPress={store.wisySpeaking || animationStart? () => {return} : () => {
                     setCurrentAnimation({animation: item.animation, cost: item.cost, id: item.id})
                     setAnimationStart(false)
                     setModal(true)
-                }} style={{width: windowHeight * (136 / 360), height: windowHeight * (176 / 360), padding: 12, justifyContent: 'space-between', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', alignSelf: 'center', position: 'relative' }}>
+                }} style={{width: windowHeight * (136 / 360), height: windowHeight * (176 / 360), padding: 12, justifyContent: 'space-between', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', alignSelf: 'center', position: 'relative', opacity: store.wisySpeaking || animationStart? 0.6 : 1 }}>
                     {isSvg ? (
                         <SvgUri
                             uri={item.image}
@@ -43,4 +43,4 @@ const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, in
             )
         }
 
-export default RenderItem;
+export default observer(RenderItem);

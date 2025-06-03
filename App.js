@@ -1,4 +1,4 @@
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import { StatusBar } from 'expo-status-bar';
 import WelcomeScreen from './src/screens/WelcomeScreen';
@@ -14,31 +14,20 @@ import ParentsScreen from './src/screens/ParentsScreen';
 import ChatScreen from './src/screens/ChatScreen';
 import ParentsSegments from './src/screens/ParentsSegments';
 import TextToSpeech from './src/components/TextToSpeech';
-import { AppState, View } from 'react-native';
-import Game1Screen from './src/screens/Game1Screen';
-import Game2Screen from './src/screens/Game2Screen';
 import React, { useEffect, useRef } from 'react';
 import { observer } from 'mobx-react-lite';
 import store from './src/store/store';
 import * as Linking from 'expo-linking';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Game3Screen from './src/screens/Game3Screen';
-import Game4Screen from './src/screens/Game4Screen';
-import Game5Screen from './src/screens/Game5Screen';
-import Game6Screen from './src/screens/Game6Screen';
-import Game7Screen from './src/screens/Game7Screen';
-import Game8Screen from './src/screens/Game8Screen';
-import Game9Screen from './src/screens/Game9Screen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import GameScreen from './src/screens/GameScreen';
 import SvgPathExtractor from './src/screens/TestScreen';
-import Game14Screen from './src/screens/Game14Screen';
 import LanguageScreen from './src/screens/LanguageScreen';
 import SplashScreen from './src/screens/SplashScreen';
 import ForgotPassword from './src/components/ForgotPassword';
 import ResetPassword from './src/screens/ResetPassword';
 import ResettedPasswordScreen from './src/screens/ResettedPasswordScreen';
 import NetInfo from '@react-native-community/netinfo';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createStackNavigator();
 

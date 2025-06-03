@@ -165,7 +165,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -196,7 +196,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -233,7 +233,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             } else if(response && !response.success && response.to_next && isActive.current) {
@@ -262,7 +262,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -289,18 +289,18 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }
 
     return (
-        <View style={{top: windowHeight * (24 / 360), width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, justifyContent: 'center'}}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game4AnimalsAnimation lock={lock} id={id} answer={answer} audio={data?.content?.question_audio} images={data?.content?.images} setId={setId} voiceForTask={voiceForTask}/>}
-            <View style={{width: 'auto', height: Platform.isPad? windowHeight * (60 / 360) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', left: 0, bottom: 0}}>
+            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
                     source={speakingWisy}
                     style={{
-                        width: windowHeight * (64 / 360),
+                        width: windowWidth * (64 / 800),
                         height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
                         aspectRatio: 64 / 64,
                     }}

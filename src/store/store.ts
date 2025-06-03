@@ -155,7 +155,6 @@ class Store {
               if (connectionState && playingChildId !== null && token !== null) {
                 await this.loadCategories();
                 await this.loadMessages();
-                await this.loadAttributes();
               } else if (!connectionState && playingChildId !== null && token !== null) {
                 await this.setLoadingCats(true)
               }
@@ -576,7 +575,7 @@ class Store {
                 const parsedAttributes = await Promise.all(
                     request.map(async (item) => {
                         if (item.image.endsWith('.svg')) {
-                            const parsedSvg = await useSvgParser(item.image);
+                            const parsedSvg = await useSvgParser(item?.image);
                             return { ...item, svgData: parsedSvg };
                         }
                         return item;
@@ -587,8 +586,10 @@ class Store {
                     this.attributes = parsedAttributes;
                 });
             } catch (error) {
-                console.log(error);
+                throw error
             }
+        } else {
+            throw 'No internet conection'
         }
     }
 

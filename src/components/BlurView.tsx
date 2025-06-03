@@ -5,15 +5,15 @@ import lock from '../images/zamok.png';
 import store from '../store/store';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-const Blur = ({ itemId, categoryId, collectionId }) => {
+const Blur = ({ itemId, categoryId, collectionId, isLocked }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
-    const category = store.categories.find(cat => cat.id === categoryId);
-    const collection = category?.collections?.find(col => col.id === collectionId);
-    const availableSubCollections = collection?.available_sub_collections || [];
+    // const category = store.categories.find(cat => cat.id === categoryId);
+    // const collection = category?.collections?.find(col => col.id === collectionId);
+    // const availableSubCollections = collection?.available_sub_collections || [];
 
-    const isLocked = !availableSubCollections.includes(itemId);
+    // const isLocked = !availableSubCollections.includes(itemId);
 
     if (!isLocked) return null;
 

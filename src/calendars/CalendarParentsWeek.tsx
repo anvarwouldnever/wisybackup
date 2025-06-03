@@ -144,6 +144,7 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
                 }}
                 markedDates={markedDates}
                 markingType="period"
+                monthFormat={'MMMM yyyy'}
             />
             <View
                 style={{

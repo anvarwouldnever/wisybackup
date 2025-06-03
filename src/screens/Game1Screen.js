@@ -140,7 +140,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                 setEarnedStars(stars - old_stars)
                 setLevel(prev => prev + 1);
                 setLock(false)
-            }, 1000);
+            }, 1500);
         }
     }
 
@@ -171,7 +171,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                 setLevel(prev => prev + 1)
                 setImage(1)
                 setLock(false)
-            }, 1000);
+            }, 1500);
         }
     };
 
@@ -209,7 +209,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
                 setLevel(prev => prev + 1)
                 setImage(1)
                 setLock(false)
-            }, 1000);
+            }, 1500);
         }
     };
 
@@ -232,36 +232,34 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     return (
-        <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50}}>
-            <View source={bg} style={{flex: 1, alignItems: 'center', justifyContent: 'space-between', paddingTop: 50, justifyContent: Platform.isPad? 'center' : ''}}>
-                {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
+            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                     <Game8Tutorial tutorials={tutorials}/>
                 </View>}
-                {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
-                    <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (90 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
-                        <LottieView
-                            ref={lottieRef}
-                            resizeMode="cover"
-                            source={speakingWisy}
-                            style={{
-                                width: windowWidth * (64 / 800),
-                                height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
-                                aspectRatio: 64 / 64,
-                            }}
-                            autoPlay={false}
-                            loop={true}
-                        />
-                        <Game3TextAnimation text={text} thinking={thinking}/>
-                    </View>
-                    {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
-                        {!lock && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
-                    </View>}                          
-                    {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
-                        <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
-                            Skip
-                        </Text>
-                    </TouchableOpacity>} 
-            </View>
+            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <TaskComponent image={image === 1? data.content?.placeholder_image?.url : data.content?.image?.url} successImage={image}/>}
+                <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : windowHeight * (90 / 360), alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', left: 0, bottom: 0}}>
+                    <LottieView
+                        ref={lottieRef}
+                        resizeMode="cover"
+                        source={speakingWisy}
+                        style={{
+                            width: windowWidth * (64 / 800),
+                            height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
+                            aspectRatio: 64 / 64,
+                        }}
+                        autoPlay={false}
+                        loop={true}
+                    />
+                    <Game3TextAnimation text={text} thinking={thinking}/>
+                </View>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
+                {!lock && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
+            </View>}                          
+            {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
+                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
+                    Skip
+                </Text>
+            </TouchableOpacity>} 
         </View>                                                                                                                                                                             
     );
 }

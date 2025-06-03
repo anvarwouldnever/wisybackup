@@ -24,6 +24,7 @@ const ChildParams = () => {
     const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)
     const [focusComponent, setFocusComponent] = useState('name')
+    const [nameError, setNameError] = useState(false)
     const currentAvatar = avatars?.[currentIndex]?.id ?? null
     
     const [options, setOptions] = useState({name: '', avatar: '1', age: '', gender: 0, engagement_time: 30})
@@ -66,6 +67,21 @@ const ChildParams = () => {
         }
     }
 
+    const navigate = () => {
+        const newName = options.name.trim().toLowerCase();
+    
+        const nameExists = store.children.some(child => child.name.trim().toLowerCase() === newName);
+        console.log(nameExists)
+
+        if (nameExists) {
+            setFocusComponent('name')
+            setNameError(true)
+            return;
+        }
+
+        setFocusComponent('avatar')
+    };
+
     return (
             <View style={{flex: 1, backgroundColor: 'white'}}>
                 <ImageBackground style={{flex: 1}} source={image}>
@@ -80,7 +96,7 @@ const ChildParams = () => {
                             {
                                 focusComponent === 'name' && ScreenOrientation.Orientation.PORTRAIT_UP ?
                                 <Animated.View key={ScreenOrientation.Orientation} style={{width: width, height: height * (180 / 800), alignItems: 'center'}}>
-                                    <ChildName setKeyboardActive={setKeyboardActive} setOptions={setOptions} options={options}/> 
+                                    <ChildName nameError={nameError} setNameError={setNameError} setKeyboardActive={setKeyboardActive} setOptions={setOptions} options={options}/> 
                                 </Animated.View>
                                 : focusComponent === 'avatar'?
                                 <View style={{width: width, height: height * (360 / 800)}}>
@@ -112,7 +128,20 @@ const ChildParams = () => {
                                 <Image source={narrow} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
                             </TouchableOpacity>
                             :
-                            <TouchableOpacity onPress={focusComponent === 'engtime' && !loading? () => addChild() : () => setFocusComponent(prev => prev === 'name'? 'avatar' : prev === 'avatar'? 'age' : prev === 'age'? 'gender' : prev === 'gender'? 'engtime' : 'engtime')} style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100}}>
+                            <TouchableOpacity onPress={() => {
+                                if (focusComponent === 'engtime' && !loading) {
+                                    addChild();
+                                } else if (focusComponent === 'name') {
+                                    navigate(); // сам вызывает setFocusComponent, если имя уникальное
+                                } else if (focusComponent === 'avatar') {
+                                    setFocusComponent('age');
+                                } else if (focusComponent === 'age') {
+                                    setFocusComponent('gender');
+                                } else if (focusComponent === 'gender') {
+                                    setFocusComponent('engtime');
+                                }
+                            }}
+                             style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100}}>
                                 <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>Continue</Text>
                                 <Image source={narrow} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
                             </TouchableOpacity>

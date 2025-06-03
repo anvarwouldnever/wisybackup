@@ -154,7 +154,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -183,7 +183,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setLevel(prev => prev + 1);
                         setLock(false);
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -218,7 +218,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             } else if(response && !response.success && response.to_next && isActive.current) {
                 if (!isActive.current) return
@@ -236,7 +236,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     setAttempt('1');
                     setLock(false)
                     setId(null)
-                }, 1000);
+                }, 1500);
             }
         } catch (error) {
             console.log(error)
@@ -248,13 +248,12 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, justifyContent: 'center'}}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
-            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game5AnimalsAnimation lock={lock} setLock={setLock} id={id} thinking={thinking} answer={answer} animal={data.content.question_image} images={data.content.images} setId={setId}/>}
-            <View style={{width: windowWidth * (255 / 800), height: Platform.isPad? windowWidth * (150 / 800) : 'auto', alignSelf: 'center', alignItems: 'flex-end', flexDirection: 'row', position: 'absolute', bottom: 0, left: 0,}}>
-                {/* <Image source={wisy} style={{width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), aspectRatio: 64 / 64}}/> */}
+            {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <Game5AnimalsAnimation lock={lock} setLock={setLock} id={id} thinking={thinking} answer={answer} animal={data.content.question_image} images={data?.content?.images} setId={setId}/>}
+            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -267,9 +266,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                     autoPlay={false}
                     loop={true}
                 />
-                <View style={{marginBottom: 30}}>
-                    <Game3TextAnimation text={text} thinking={thinking}/>
-                </View>
+                {text && text != '' && <Game3TextAnimation text={text} thinking={thinking}/>}
             </View>
             {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', position: 'absolute', bottom: 0, right: 0, borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
                 <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>

@@ -27,7 +27,7 @@ const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMes
                         Keyboard.dismiss();
                         sendMessage(text);
                         setText('');
-                    }} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
+                    }} style={{width: windowWidth * (40 / 360), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === '' || thinking? '#E5E5E5' : '#C4DF84'}}>
                         <Image source={arrow} style={{width: windowWidth * (10 / 360), height: windowHeight * (15 / 800), aspectRatio: 10 / 15}}/>
                     </TouchableOpacity>}
                 </View>

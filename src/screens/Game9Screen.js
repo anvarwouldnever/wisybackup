@@ -1,12 +1,9 @@
 import { View, Text, Platform, useWindowDimensions, Image, FlatList, PanResponder, TouchableOpacity, Vibration } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigation } from '@react-navigation/native';
-import wisy from '../images/pandaHead.png';
 import { Svg, Polyline } from 'react-native-svg';
 import { SvgUri } from 'react-native-svg';
 import ViewShot, { captureRef } from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
 import { playSound } from '../hooks/usePlayBase64Audio';
 import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
 import api from '../api/api';
@@ -49,8 +46,6 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, [wisySpeaking]);
 
     const { getTime, start, stop, reset } = useTimer();
-
-    // console.log(introAudio, introText)
 
     useEffect(() => {
         const introPlay = async() => {
@@ -122,23 +117,6 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             reset();
         }
     }, [])
-                    
-    // useEffect(() => {
-    //     if (id?.id && id?.result) {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //         timeoutRef.current = setTimeout(() => {
-    //             setId(null);
-    //             setLines([]);
-    //         }, 2500);
-    //     }
-    //     return () => {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //     };
-    // }, [id]);
     
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -399,7 +377,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     };
 
     return (
-        <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center', paddingTop: 50}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
@@ -445,14 +423,14 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                                     key={index}
                                     points={line.join(' ')}
                                     stroke="#504297"
-                                    strokeWidth="6"
+                                    strokeWidth="2"
                                     fill="none"
                                     />
                                 ))}
                                 <Polyline
                                     points={currentLine.join(' ')}
                                     stroke="#504297"
-                                    strokeWidth="6"
+                                    strokeWidth="2"
                                     fill="none"
                                 />
                             </Svg>

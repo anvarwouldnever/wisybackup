@@ -183,7 +183,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -215,7 +215,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setLevel(prev => prev + 1);
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
                 return;
             }
@@ -252,7 +252,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             } else if(response && !response.success && response.to_next && isActive.current) {
                 if (!isActive.current) return
@@ -278,7 +278,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                         setAttempt('1');
                         setLock(false)
                         setId(null);
-                    }, 1000);
+                    }, 1500);
                 }
             }
         } catch (error) {
@@ -304,12 +304,13 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }
 
     return (
-        <Animated.View entering={ZoomInEasyDown} style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center'}}>
+        <Animated.View entering={ZoomInEasyDown} style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center'}}>
             {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
                 <Game8Tutorial tutorials={tutorials}/>
             </View>}
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderComponent animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> }
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  
+            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
                 <LottieView
                     ref={lottieRef}
                     resizeMode="cover"
@@ -327,10 +328,10 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 </View>
             </View>}
             {tutorialShow && tutorials?.length > 0 && <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
-                                                                                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
-                                                                                  Skip
-                                                                                </Text>
-                                                                            </TouchableOpacity>}
+                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
+                    Skip
+                </Text>
+            </TouchableOpacity>}
         </Animated.View>
     )
 }

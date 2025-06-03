@@ -26,7 +26,8 @@ const GamesScreen = () => {
     const [animationStart, setAnimationStart] = useState(false);
     const [modal, setModal] = useState(false);
     const [name, setName] = useState('');
-                                    
+    const [animation, setAnimation] = useState(null);
+          
     const { height: windowHeight, width: windowWidth } = useWindowDimensions()
 
     useFocusEffect(
@@ -41,12 +42,12 @@ const GamesScreen = () => {
     return (
         <View style={{flex: 1}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
-                <WisyPanel setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
+                <WisyPanel animation={animation} setAnimation={setAnimation} setCurrentAnimation={setCurrentAnimation} modal={modal} marketCollections={marketCollections} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} animationStart={animationStart}/>
                 {marketCollections != null &&
-                    <MarketCollections setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
+                    <MarketCollections animationStart={animationStart} setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {store?.subCollections?.length > 0 && marketCollections == null? <HeaderCollection name={name}/> : <HeaderMenu marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {store?.subCollections?.length > 0 && marketCollections == null? <HeaderCollection name={name}/> : <HeaderMenu setAnimation={setAnimation} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <View style={{top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', flexDirection: 'row', gap: 7}}>
                     <Stars />

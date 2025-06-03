@@ -13,7 +13,7 @@ const RenderComponent13 = ({ lock, data, answer, id, setId }) => {
     }, []);
 
     return (
-        <View style={{width: windowWidth * (592 / 800), height: windowHeight * (160 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>
+        <View style={{width: windowWidth * (592 / 800), height: Platform.isPad? windowWidth * (200 / 800) : windowHeight * (160 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>
             <View style={{width: '100%', height: windowHeight * (40 / 360), justifyContent: 'center', alignItems: 'center'}}>
                 <Text style={{color: '#222222', fontWeight: '600', fontSize: windowWidth * (24 / 800)}}>{data?.content?.question}</Text>
             </View>

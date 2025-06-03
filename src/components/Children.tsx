@@ -63,7 +63,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                     justifyContent: 'space-between', 
                     flexDirection: 'column', 
                     alignItems: 'center', 
-                    marginLeft: index === 0 ? 150 : 0
+                    marginLeft: index === 0 ? 150 : 0,
                 }}
             >
                 <TouchableOpacity 
@@ -73,18 +73,23 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                         setChosenPlayer(item);    
                     }} 
                     style={{
-                        width: 'auto', 
-                        height: 'auto', 
-                        borderWidth: 3, 
-                        borderColor: chosenPlayerIndex === index ? '#504297' : '#F4E3F1', 
-                        borderRadius: 100
+                        width: 'auto',
+                        height: 'auto',
+                        
+                        alignItems: 'center',
+                        justifyContent: 'center',
                     }}
                 >
                     {isSvg ? (
                         <SvgUri 
                             uri={avatarUrl} 
-                            width={Platform.isPad ? windowHeight * (96 / 360) : windowHeight * (96 / 360)}
+                            width={Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360)}
                             height={Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360)}
+                            style={{
+                                borderWidth: 3, 
+                                borderColor: chosenPlayerIndex === index ? '#504297' : '#F4E3F1', 
+                                borderRadius: 100,
+                            }}
                         />
                     ) : (
                         <Image 
@@ -95,7 +100,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                                 borderRadius: 100, 
                                 width: Platform.isPad ? windowHeight * (96 / 360) : windowWidth * (96 / 800), 
                                 height: Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360), 
-                                aspectRatio: 96 / 96
+                                aspectRatio: 1
                             }}
                         />
                     )}
@@ -111,7 +116,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                         textAlign: 'center'
                     }}
                 >
-                    {item.name}
+                    {item?.name}
                 </Text>
             </View>
         );

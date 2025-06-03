@@ -9,8 +9,13 @@ const Back = () => {
         const navigation = useNavigation();
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
+        const goBack = () => {
+            navigation.goBack()
+            store.resetSubCollection()
+        }
+
         return (
-            <TouchableOpacity onPress={() => navigation.goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
+            <TouchableOpacity onPress={() => goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
                 <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
                     <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
                 </View>

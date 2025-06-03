@@ -35,7 +35,7 @@ const Game8Tutorial = ({ tutorials }) => {
             <TouchableOpacity
                 activeOpacity={currentIndex === 0 ? 0 : 1}
                 style={{
-                    width: height * (40 / 360),
+                    width: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     height: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     borderRadius: 100,
                     backgroundColor: 'white',
@@ -78,7 +78,7 @@ const Game8Tutorial = ({ tutorials }) => {
             <TouchableOpacity
                 activeOpacity={currentIndex === data.length - 1 ? 0 : 1}
                 style={{
-                    width: height * (40 / 360),
+                    width: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     height: Platform.isPad ? width * (40 / 800) : height * (40 / 360),
                     borderRadius: 100,
                     backgroundColor: 'white',

@@ -28,6 +28,7 @@ const ChatScreen = () => {
     // const [keyboardActive, setKeyboardActive] = useState(false);
     
     const sendMessage = async (currentText) => {
+        setText('')
         setThinking(true);
     
         await store.setMessages({ type: 'text', text: currentText, author: 'You' });
@@ -58,20 +59,17 @@ const ChatScreen = () => {
                 }
             }, 100);
             
-    
         } catch (error) {
             await store.setMessages({ type: 'text', text: "Something went wrong, try again later", author: 'MyWisy' });
-            return
         } finally {
             setThinking(false);
         }
     };
     
-
     return (
         <View style={{flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center'}}>
             <KeyboardAvoidingView style={{gap: windowWidth * (12 / 360)}} behavior='position' keyboardVerticalOffset={Platform.OS == 'android'? 10 : 0}>
-                <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), marginTop: windowHeight * (20 / 800), alignSelf: 'center'}}>
+                <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), alignSelf: 'center'}}>
                     <ChatFlatlist flatListRef={flatListRef} firstMessageRef={firstMessageRef}/>
                 </View>
                 <View style={{width: windowWidth * (328 / 360), gap: 16, alignSelf: 'center', alignItems: 'center', marginBottom: Platform.OS === 'android'? 0 : windowHeight * (30 / 800)}}>

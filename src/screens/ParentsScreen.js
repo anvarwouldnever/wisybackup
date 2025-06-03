@@ -16,9 +16,29 @@ import translations from "../../localization";
 const ParentsScreen = () => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const initialScreen = store?.attributes?.[0]
-    const [screen, setScreen] = useState(initialScreen);
+    const [screen, setScreen] = useState(store?.attributes?.[0] || null);
     const [dropDown, setDropDown] = useState(null);
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState('')
+
+    useEffect(() => {
+        const func = async () => {
+            if (store?.attributes === null) {
+                try {
+                    setLoading(true);
+                    await store.loadAttributes()
+                        .then(() => {
+                            setScreen(store?.attributes?.[0]);
+                            setLoading(false);
+                        });
+                } catch (error) {
+                    setError(error)
+                }
+            }
+        };
+    
+        func();
+    }, []);    
 
     const handleScreenChange = useCallback((newScreen) => setScreen(newScreen), []);
 
@@ -42,60 +62,13 @@ const ParentsScreen = () => {
             {screen == 'Lang'? '' : <ParentsCancel />}
             {screen == 'Lang'? <LanguageReturn /> : screen !== 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen === 'Settings'? null : <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800)}}/>}
             {screen !== 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
-            {screen == 'Settings'?  <ParentsSettings setScreen={setScreen}/> : screen == 'Lang'? <LanguageComponent setScreen={setScreen}/> : <ParentsComponents screen={screen}/>}
+            {screen == 'Settings'?  <ParentsSettings setScreen={setScreen}/> : screen == 'Lang'? <LanguageComponent setScreen={setScreen}/> : <ParentsComponents loading={loading} screen={screen} error={error}/>}
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800)}} />
             <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', position: 'absolute', bottom: Platform.OS === 'ios'? windowHeight * (40 / 932) : windowHeight * (15 / 932), alignSelf: 'center'}}>
-                {store.attributes && <BottomTabs screen={screen} setScreen={handleScreenChange} />}
+                {!loading && <BottomTabs screen={screen} setScreen={handleScreenChange} />}
             </View>
         </SafeAreaView>
     )
 }
 
 export default observer(ParentsScreen);
-
-{/* {screen === 'Settings' && <SubscriptionState />} */}
-
-// import React from "react";
-// import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-// import ChildAge from "../components/ChildAge";
-// import ChildGender from "../components/ChildGender";
-// import ChildEngagementTime from "../components/ChildEngagementTime";
-// import ChildName from "../components/ChildName";
-// import HomeIcon from '../images/Cat.png'
-// import CartIcon from '../images/Dog.png'
-// import OrdersIcon from '../images/Girafe.png'
-// import UserIcon from '../images/dino.png'
-// import { Text, Image, Dimensions } from "react-native";
-
-// const windows = Dimensions.get('window')
-// const SCREEN_WIDTH = windows.width
-// const SCREEN_HEIGHT = windows.height
-
-// const Tab = createBottomTabNavigator();
-
-// const ParentsScreen = () => {
-//     return (
-//         <Tab.Navigator screenOptions={({route}) => ({headerShown: false, tabBarShowLabel: false, tabBarStyle: {backgroundColor: '#F8F8F8', borderRadius: 100, position: 'absolute', bottom: 50, height: 56, width: 188, borderTopWidth: 0, shadowColor: 'gray', shadowOpacity: 0.4, shadowRadius: 5, shadowOffset: {width: 1, height: 1}}, tabBarItemStyle: {flexDirection: 'column', width: 'auto', height: 52}, tabBarIcon: ({ focused, color, size }) => {
-//             let icon;
-//                 if (route.name === 'Главная') {
-//                     icon = focused ? HomeIcon : HomeIcon;
-//                 } else if (route.name === 'Чат') {
-//                     icon = focused ? CartIcon : CartIcon;
-//                 } else if (route.name === 'Избранное') {
-//                     icon = focused ? OrdersIcon : OrdersIcon;
-//                 } else if (route.name === 'Аккаунт') {
-//                     icon = focused ? UserIcon : UserIcon;
-//                 }
-
-//       return <Image source={icon} style={{width: 24, height: 24, tintColor: focused ? '#6246EA' : '#7D8588', marginTop: 6}} />
-//         }
-//           })} >
-//             <Tab.Screen name="Главная" component={ChildAge} />
-//             <Tab.Screen name="Чат" component={ChildEngagementTime} />
-//             <Tab.Screen name="Избранное" component={ChildGender} />
-//             <Tab.Screen name="Аккаунт" component={ChildName} />
-//         </Tab.Navigator>
-//     )   
-// }
-
-// export default ParentsScreen;
