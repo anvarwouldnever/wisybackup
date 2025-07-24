@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef, useCallback } from "react";
-import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View, Image, Dimensions } from "react-native";
+import { FlatList, Platform, TouchableOpacity, useWindowDimensions, View, Image } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import api from "../api/api";
 import { playSound } from "../hooks/usePlayBase64Audio";
 import { useFocusEffect } from "@react-navigation/native";
+import Blur from "./BlurView";
 
 const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }) => {
 
@@ -28,23 +29,15 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }
         }
     }
 
-    // useEffect(() => {
-    //     const firstCategory = gameoptions[0];
-    //     if (firstCategory?.collections?.length === 0) {
-    //         console.log('ran automatically get collections')
-    //         setActiveCategory(gameoptions[0]?.id);
-    //         getCollection(gameoptions[0]?.id);
-    //     }
-    // }, [gameoptions]);
-
     useFocusEffect(
         useCallback(() => {
-            const firstCategory = gameoptions[0];
-            if (firstCategory?.collections?.length === 0) {
-                console.log('ran automatically get collections')
-                setActiveCategory(gameoptions[0]?.id);
-                getCollection(gameoptions[0]?.id);
-            }
+          const reversed = gameoptions.slice().reverse();
+          const firstCategory = reversed[0];
+          if (firstCategory?.collections?.length === 0) {
+            console.log('ran automatically get collections');
+            setActiveCategory(firstCategory?.id);
+            getCollection(firstCategory?.id);
+          }
         }, [gameoptions])
     )
     
@@ -56,6 +49,7 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }
 
         const func = async () => {
             try {
+                if (store.isFirstOpening) return
                 await playSound.stop()
                 const sound = await api.getSpeech('switch_category', store.language);
                 if (sound.length > 0) {
@@ -76,28 +70,30 @@ const GameCategories = ({ setActiveCategory, activeCategory, setSubCollections }
         }
     }, [activeCategory]);
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
 
         const isSvg = item?.image?.url.endsWith(".svg")
 
         return (
-            <TouchableOpacity onPress={() => getCollection(item.id)} style={{marginRight: 8, width: Platform.isPad? windowWidth * (128 / 1194) : windowHeight * (64 / 360), alignItems: 'center', justifyContent: 'center', height: Platform.isPad? windowHeight * (128 / 834) : windowHeight * (64 / 360), borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: activeCategory === item.id? 'white' : '#F8F8F833'}}>
+            <TouchableOpacity onPress={store.isFirstOpening ? () => {} : () => getCollection(item.id)} style={{marginRight: 8, width: Platform.isPad? windowWidth * (128 / 1194) : windowHeight * (64 / 360), alignItems: 'center', justifyContent: 'center', height: Platform.isPad? windowHeight * (128 / 834) : windowHeight * (64 / 360), borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: activeCategory === item.id? 'white' : '#F8F8F833', overflow: 'hidden'}}>
                 {isSvg?
                     <SvgUri width={Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360)} height={Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360)} uri={item?.image?.url} style={{backgroundColor: '#F8F8F833', borderRadius: 100}}/> 
                 :
                     <Image source={{ uri: item?.image?.url }} style={{ width: Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360), height: Platform.isPad? windowWidth * (96 / 1194) : windowHeight * (48 / 360), backgroundColor: '#F8F8F833', borderRadius: 100 }}/>
                 }
+                {index != 0 && store.isFirstOpening && <Blur forMarket={true} isLocked={true} />}
             </TouchableOpacity>
         )
     }
 
     return (
         <View style={{width: 'auto', height: windowHeight * (64 / 360), position: 'absolute', bottom: 5, left: windowWidth * (320 / 800), height: 'auto'}}>
+            {store.isFirstOpening && null}
             <FlatList
-                data={gameoptions}
+                data={gameoptions?.slice().reverse()}
                 key={store.categories}
                 renderItem={renderItem}
-                keyExtractor={item => item.id}
+                keyExtractor={(item, index) => item.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}
             />

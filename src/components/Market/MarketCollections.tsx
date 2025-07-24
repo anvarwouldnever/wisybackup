@@ -1,8 +1,6 @@
 import { View, Text, useWindowDimensions, FlatList, Image, ScrollView } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import store from '../../store/store';
-import Svg, { SvgUri } from 'react-native-svg';
-import star from '../../images/tabler_star-filled.png'
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import { observer } from 'mobx-react-lite';
 import RenderItem from './RenderItem';
@@ -16,8 +14,8 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
     const items = store?.market
 
         return (
-            <View style={{position: 'absolute', top: windowHeight * (100 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800), minHeight: windowHeight * (176 / 360), justifyContent: 'center', alignSelf: 'center'}}>
-                {store.loadingCats
+            <View style={{position: 'absolute', top: windowHeight * (100 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800), height: windowHeight * (197 / 360), justifyContent: 'center'}}>
+                {store?.loadingCats
                     ? (
                         <LottieView
                             loop={true}
@@ -34,13 +32,13 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
                         <Animated.FlatList
                             entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
                             key={items[0]?.id}
-                            data={items[0]?.items || []}
+                            data={[...(items[0]?.items || [])].reverse()}
                             renderItem={({ item, index }) => (
                                 <RenderItem
                                     setCurrentAnimation={setCurrentAnimation}
                                     setModal={setModal}
                                     item={item}
-                                    
+                                    index={index}
                                     setAnimationStart={setAnimationStart}
                                     animationStart={animationStart}
                                 />

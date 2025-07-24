@@ -58,14 +58,14 @@ const ChildAvatar = ({ currentIndex, setCurrentIndex }) => {
     const [scrollX, setScrollX] = useState(0)
 
     const handleScroll = (event) => {
-        const newScrollX = event.nativeEvent.contentOffset.x;
+        const newScrollX = event?.nativeEvent?.contentOffset?.x;
         setScrollX(newScrollX);
         setCurrentIndex(Math.floor(newScrollX / (AvatarWidth - Spacing)));
     };
 
-    const avatars = store.addchildui.avatars
-    const title = store.addchildui.choose_avatar_title
-    const lastIndex = avatars.length - 1;
+    const avatars = store?.addchildui?.avatars;
+    const title = store?.addchildui?.choose_avatar_title;
+    const lastIndex = avatars?.length - 1;
 
     return (
         <View style={{flexDirection: 'column', justifyContent: 'space-between', flex: 1, alignItems: 'center'}}>

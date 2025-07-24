@@ -73,24 +73,29 @@ export const playSound = async (source: string): Promise<void> => {
 };
 
 playSound.stop = async () => {
-  if (isStopping || !currentSound) return;
+  if (isStopping) return;
   isStopping = true;
 
   try {
-    const status = await currentSound.getStatusAsync();
+    const sound = currentSound;
+
+    currentSound = null;
+
+    if (!sound) return;
+
+    const status = await sound.getStatusAsync();
 
     if (!status.isLoaded) {
-      currentSound = null;
       return;
     }
 
-    currentSound.setOnPlaybackStatusUpdate(null); // сброс слушателя
+    sound.setOnPlaybackStatusUpdate(null);
 
     if (status.isPlaying || status.positionMillis > 0) {
-      await withTimeout(currentSound.stopAsync().catch(() => {}), 1000);
+      await withTimeout(sound.stopAsync().catch(() => {}), 1000);
     }
 
-    await withTimeout(currentSound.unloadAsync().catch(() => {}), 1000);
+    await withTimeout(sound.unloadAsync().catch(() => {}), 1000);
     store.setWisySpeaking(false);
   } catch (error) {
     console.error("Ошибка при остановке звука:", error);

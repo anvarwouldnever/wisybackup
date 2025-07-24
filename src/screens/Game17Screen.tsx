@@ -3,16 +3,15 @@ import { Image, View, useWindowDimensions, Platform, Vibration, Text, Dimensions
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS, FadeIn, Easing, LinearTransition, withSpring, withDelay, FadingTransition, EntryExitTransition, SequencedTransition } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics'
-import Game3TextAnimation from '../animations/Game3/Game3TextAnimation';
-import speakingWisy from '../lotties/headv9.json'
-import LottieView from 'lottie-react-native';
 import { playSound } from '../hooks/usePlayBase64Audio';
-import { playSoundWithoutStopping } from '../hooks/usePlayWithoutStoppingBackgrounds';
 import useTimer from '../hooks/useTimer';
 import store from '../store/store';
 import api from '../api/api';
 import galochka from '../images/gamepassed.png'
 import x from '../images/wrongAnswerX.png'
+import { useIntroSequence } from '../hooks/useIntroSequence';
+import WisyHint from '../components/WisyHint';
+import OverlayHint from '../components/OverlayHint';
 
 const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, opacity, draggingId, setDraggingId }) => {
     const translateX = useSharedValue(0);
@@ -94,65 +93,14 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         })) || []
     );
 
-    // console.log(data?.content?.answers[0].images)
-
     const [answered, setAnswered] = useState([]);
 
-    const lottieRef = useRef(null);
+    const isActive = useRef(true);
 
     const placeholderRefs = useRef(new Map());
     const [placeholders, setPlaceholders] = useState(new Map());
 
-    useEffect(() => {
-        if (wisySpeaking) {
-            setTimeout(() => {
-                lottieRef.current?.play(180, 0);
-            }, 1);
-        } else {
-            setTimeout(() => {
-                lottieRef.current?.reset();
-            }, 1);
-        }
-    }, [wisySpeaking]);
-
-    useEffect(() => {
-            const introPlay = async() => {
-                await playSoundWithoutStopping.stop()
-                await playSound.stop()
-                try {
-                    setLock(true)
-                    if (level === introTaskIndex && (!tutorialShow || tutorials == 0)) {
-                        setWisySpeaking(true);
-                        setText(introText);
-                        await playSoundWithoutStopping(introAudio);
-                    }
-                } catch (error) {
-                    console.log(error)
-                } finally {
-                    try {
-                        if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials == 0)) {
-                            setText(data?.content?.question)
-                            setWisySpeaking(true);
-                            await playSound(data?.content?.speech);
-                        }
-                    } catch (error) {
-                        console.error("cОшибка при воспроизведении звука:", error);
-                    } finally {
-                        setText(null);
-                        setWisySpeaking(false)
-                        setLock(false)
-                    }
-                }
-            }
-    
-            introPlay()
-
-            return () => {
-                playSound.stop()
-                playSoundWithoutStopping.stop()
-            }
-
-    }, [data?.content?.speech, tutorialShow]);
+    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
 
     const { getTime, start, stop, reset } = useTimer();
 
@@ -169,16 +117,16 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             setLock(false);
         }
     };
-
-    const isActive = useRef(true);
     
     useEffect(() => {
         isActive.current = true;
-    
+        start();
+                                  
         return () => {
             isActive.current = false;
+            reset();
         };
-    }, []);
+    }, [])
 
     const answer = async(params) => {
             try {
@@ -337,13 +285,6 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 setThinking(false)
             }
     };
-
-    useEffect(() => {
-        start();
-        return () => {
-            reset();
-        }
-    }, []);
 
     const vibrate = () => {
         Vibration.vibrate(500);
@@ -553,28 +494,20 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 )
             })}
             </View>
+
             <Animated.View style={{ width: windowWidth * (560 / 800), height: windowHeight * (80 / 360), marginTop: windowHeight * (50 / 360), flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'center', position: 'absolute', alignSelf: 'center', bottom: 0}}>
                 {draggableObjects.map((item) => (
                     <DraggableItem key={item.id} item={item} windowWidth={windowWidth} windowHeight={windowHeight} checkDropZone={checkDropZone} lock={lock} opacity={opacity} draggingId={draggingId} setDraggingId={setDraggingId}/>
                 ))}
             </Animated.View>
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
-                <LottieView
-                    ref={lottieRef}
-                    resizeMode="cover"
-                    source={speakingWisy}
-                    style={{
-                        width: windowWidth * (64 / 800),
-                        height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
-                        aspectRatio: 64 / 64,
-                    }}
-                    autoPlay={false}
-                    loop={true}
-                />
-                <View style={{marginBottom: 30}}>
-                    <Game3TextAnimation text={text} thinking={thinking}/>
-                </View>
-            </View>}
+
+            <OverlayHint visible={store.isBlacked}>
+                <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />
+            </OverlayHint>
+
+            {!store?.isBlacked && (
+                <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />
+            )}
         </View>
     );
 };

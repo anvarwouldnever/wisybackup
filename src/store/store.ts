@@ -4,6 +4,7 @@ import NetInfo from '@react-native-community/netinfo';
 import api from '../api/api';
 import useSvgParser from "../hooks/useSvgParser";
 import { Alert } from "react-native";
+import fetchAnimation from "../screens/GamesScreen/FetchLottie";
 
 class Store {
 
@@ -30,6 +31,10 @@ class Store {
     wisySpeaking = false;
     wisyMenuText = null;
     loadingCats = false;
+    isFirstOpening = false;
+    isBlacked = false;
+    newChildren = []
+    loadingMarketItems = false
 
     tasks = null;
     subCollections = [];
@@ -136,9 +141,6 @@ class Store {
                         await delay(2000);
                     }
     
-                    await this.loadMarket();
-                    await delay(2000);
-    
                     await this.loadAddChildUI();
                     await delay(2000);
                 }
@@ -147,17 +149,21 @@ class Store {
 
         reaction(
             () => ({
-              connectionState: this.connectionState,
-              playingChildId: this.playingChildId,
-              token: this.token
+                connectionState: this.connectionState,
+                playingChildId: this.playingChildId,
+                token: this.token
             }),
             async ({ connectionState, playingChildId, token }) => {
-              if (connectionState && playingChildId !== null && token !== null) {
-                await this.loadCategories();
-                await this.loadMessages();
-              } else if (!connectionState && playingChildId !== null && token !== null) {
-                await this.setLoadingCats(true)
-              }
+                const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+                if (connectionState && playingChildId !== null && token !== null) {
+                    await this.loadCategories();
+                    await this.loadMessages();
+                } else if (!connectionState && playingChildId !== null && token !== null) {
+                    await this.setLoadingCats(true)
+                } else if (this.connectionState && this.token !== null) {
+                    await this.loadMarket();
+                    await delay(2000);
+                }
             }
           );
     }
@@ -470,13 +476,14 @@ class Store {
             await this.loadDataFromStorageChildren();
             await this.loadDataFromStorageVoiceInstructions();
             await this.loadDataFromStorageBackgroundMusic();
+            await this.loadNewChildren()
             await this.loadAvatars();
         } catch (error) {
             console.log(error)
         } finally {
             runInAction(() => {
-                this.loading = false; 
-            });
+                this.loading = false
+            })
         }
     }
 
@@ -565,7 +572,7 @@ class Store {
                 console.log(error);
             }
         }
-    }
+    }  
 
     async loadAttributes() {
         if (this.connectionState) {
@@ -629,7 +636,17 @@ class Store {
                 this.musicTurnedOn = music
             }
         });
-        return this.musicTurnedOn
+    }
+
+    async loadDataFromStorageIsFirstOpening() {
+        const isFirstOpeningState = await this.loadDataFromStorage('isFirstOpening');
+        const isBlacked = await this.loadDataFromStorage('isBlacked');
+        runInAction(() => {
+            if (isFirstOpeningState !== null && isFirstOpeningState !== undefined && isBlacked !== null && isBlacked !== undefined) {
+                this.isFirstOpening = isFirstOpeningState
+                this.isBlacked = isBlacked
+            }
+        });
     }
 
     async loadDataFromStorageChildren() {
@@ -737,16 +754,25 @@ class Store {
     async loadMessages() {
         if (this.connectionState) {
             try {
-                const response = await api.getMessages(this.playingChildId.id, this.token, this.language );
+                runInAction(() => {
+                    this.messages = [];
+                });
+                const response = await api.getMessages(this.playingChildId?.id, this.token, this.language );
+
+                // console.log(this.playingChildId?.id)
     
-                const formattedMessages = response.data.map(item => ({
-                    type: 'text',
-                    text: item.content,
-                    author: item.is_from_bot ? 'MyWisy' : 'You' // Используем is_from_bot для определения автора
-                }));
+                const formattedMessages = response.data.map(item => {
+                    // console.log(item?.is_from_bot);
+                
+                    return {
+                        type: 'text',
+                        text: item.content,
+                        author: item.is_from_bot ? 'MyWisy' : 'You'
+                    };
+                });
     
                 runInAction(() => {
-                    this.messages = formattedMessages.reverse(); // Реверсируем список сообщений
+                    this.messages = formattedMessages.reverse();
                 });
             } catch (error) {
                 console.log(error);
@@ -929,6 +955,53 @@ class Store {
         });
     }
 
+    async setIsFirstOpening(bool: boolean) {
+        runInAction(() => {
+            this.isFirstOpening = bool;
+        });
+    }
+
+    async setNewChildren(id: any) {
+        const updated = [...this.newChildren, id];
+      
+        runInAction(() => {
+            this.newChildren = updated;
+        });
+        
+        try {
+            await AsyncStorage.setItem('newChildren', JSON.stringify(updated));
+        } catch (e) {
+            console.log('Ошибка сохранения в AsyncStorage:', e);
+        }
+    }
+
+    async removeNewChild(id: any) {
+        const updated = this.newChildren.filter(item => item !== id);
+
+        runInAction(() => {
+            this.newChildren = updated;
+        });
+
+        try {
+            await AsyncStorage.setItem('newChildren', JSON.stringify(updated));
+        } catch (e) {
+            console.log('Ошибка сохранения в AsyncStorage при удалении:', e);
+        }
+    }
+
+    async loadNewChildren() {
+        try {
+            const json = await AsyncStorage.getItem('newChildren');
+            const parsed = json != null ? JSON.parse(json) : [];
+    
+            runInAction(() => {
+                this.newChildren = parsed;
+            });
+        } catch (e) {
+            console.log('Ошибка загрузки newChildren из AsyncStorage:', e);
+        }
+    }
+
     async setBreakPlayingMusic(bool: boolean) {
         runInAction(() => {
             this.breakMusicPlaying = bool;
@@ -975,15 +1048,21 @@ class Store {
         }
     }
 
+    async setIsBlacked(bool: boolean) {
+        runInAction(() => {
+            this.isBlacked = bool;
+        });
+    }
+
     async setHoldEmail(email: string) {
         runInAction(() => {
             this.holdEmail = email;
         });
     }
     
-    async setWisyMenuText(email: string) {
+    async setWisyMenuText(text: string) {
         runInAction(() => {
-            this.wisyMenuText = email;
+            this.wisyMenuText = text;
         });
     }
 }

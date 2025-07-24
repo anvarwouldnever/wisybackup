@@ -10,4 +10,4 @@ const fetchAnimation = async(url: string) => {
     }
 };
 
-export default fetchAnimation
+export default fetchAnimation;

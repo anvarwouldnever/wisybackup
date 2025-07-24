@@ -30,11 +30,10 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswer
             return correctAnswer(requestStatus?.hint, requestStatus?.stars, requestStatus?.sound, requestStatus?.old_stars)
         } 
         else if (requestStatus.to_next && !requestStatus?.success) {
-            return incorrectAnswerToNext(requestStatus?.hint, requestStatus?.sound)
+            return incorrectAnswerToNext(requestStatus?.hint, requestStatus?.stars, requestStatus?.sound, requestStatus?.old_stars)
         } 
         else if (!requestStatus.to_next && !requestStatus.success) {
-            console.log(requestStatus.next_attempt)
-            return incorrectAnswer(requestStatus?.hint, requestStatus?.next_attempt, requestStatus?.sound, requestStatus?.old_stars)
+            return incorrectAnswer(requestStatus?.hint, requestStatus?.sound)
         } else {
             setText(requestStatus?.hint)
         }
@@ -59,7 +58,7 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, lastAnswer, incorrectAnswer
 
     return (
         <Animated.View style={[animatedMicro, { borderStyle: 'solid', borderColor: '#B3ABDB80', borderRadius: 100, backgroundColor: '#B3ABDB', justifyContent: 'center', alignItems: 'center', width: windowWidth * (64 / 800), height: Platform.isPad? windowWidth * (64 / 800) : windowWidth * (64 / 800)}]}>
-            <TouchableOpacity onPressIn={handlePressIn} onPressOut={handlePressOut} activeOpacity={1} style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', borderRadius: 100 }}>
+            <TouchableOpacity onPressIn={() => handlePressIn()} onPressOut={() => handlePressOut()} activeOpacity={1} style={{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%', borderRadius: 100 }}>
                 <Image source={microOn? microwhite : micro} style={{ width: windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (24 / 800) : windowHeight * (24 / 360), aspectRatio: 24 / 24 }}/>
             </TouchableOpacity>
         </Animated.View>

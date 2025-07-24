@@ -19,7 +19,7 @@ const { width, height } = Dimensions.get('window');
 
 const ChildParams = () => {
 
-    const avatars = store?.addchildui?.avatars
+    const avatars = store?.addchildui?.avatars;
 
     const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)
@@ -56,7 +56,8 @@ const ChildParams = () => {
         try {
             setLoading(true)
             const requestStatus = await api.addChild(options.name, `${currentAvatar}`, options.age, options.gender, options.engagement_time, store.token)
-            await store.setChildren(requestStatus.data)
+            await store.setChildren(requestStatus.children)
+            await store.setNewChildren(requestStatus.newChild?.id)
             if (requestStatus) {
                 navigation.navigate('LoaderScreen')
             }
@@ -71,7 +72,6 @@ const ChildParams = () => {
         const newName = options.name.trim().toLowerCase();
     
         const nameExists = store.children.some(child => child.name.trim().toLowerCase() === newName);
-        console.log(nameExists)
 
         if (nameExists) {
             setFocusComponent('name')
@@ -85,6 +85,7 @@ const ChildParams = () => {
     return (
             <View style={{flex: 1, backgroundColor: 'white'}}>
                 <ImageBackground style={{flex: 1}} source={image}>
+                    
                     <Animated.View style={[animatedUp, {paddingTop: height * (60 / 932), backgroundColor: 'white', height: height * (642 / 800), alignItems: 'center', borderBottomLeftRadius: 24, borderBottomRightRadius: 24}]}>
                         <View style={{marginTop: Platform.OS === 'android'? -40 : 0}}>
                             <Logo />
@@ -117,6 +118,7 @@ const ChildParams = () => {
                             }
                         </View>
                     </Animated.View>
+
                     <View style={{justifyContent: 'center', width: width, height: height * (140 / 932)}}>
                         <View style={{justifyContent: 'space-between', paddingHorizontal: 20, width: width, alignItems: 'center', flexDirection: 'row', height: height * (56 / 800)}}>
                             <TouchableOpacity onPress={() => setFocusComponent(prev => prev === 'avatar'? 'name' : prev === 'age'? 'avatar' : prev === 'gender'? 'age' : prev === 'engtime'? 'gender' : navigation.navigate('ChoosePlayerScreen'))} style={{width: width * (56 / 360), justifyContent: 'center', alignItems: 'center', height: height * (56 / 800), backgroundColor: '#F8F8F833', borderRadius: 100}}>
@@ -148,6 +150,7 @@ const ChildParams = () => {
                             }
                         </View>
                     </View>
+                    
                     {loading && <ActivityIndicator color='#504297' style={{position: 'absolute', alignSelf: 'center', top: 0, left: 0, right: 0, bottom: 0}}/>}
                 </ImageBackground>
             </View>  

@@ -31,17 +31,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Stack = createStackNavigator();
 
-// AsyncStorage.clear();
-
 // igor.khegay@avtech.uz
 
 const App = () => {
 
-  // AsyncStorage.clear();
-
   const url = Linking.useURL();
 
   const navigationRef = useRef(null);
+
+  // AsyncStorage.clear();
 
   useEffect(() => {
     const unsubscribe = NetInfo.addEventListener(() => {
@@ -76,7 +74,7 @@ const App = () => {
 
   // console.log(store.token)
 
-  if (store.loading) {
+  if (store?.loading) {
     return <SplashScreen />
   }
 

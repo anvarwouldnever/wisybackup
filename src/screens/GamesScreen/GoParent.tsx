@@ -1,6 +1,8 @@
 import { TouchableOpacity, Platform, Image, useWindowDimensions } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import parent from '../../images/tabler_accessible.png';
+import store from "../../store/store";
+import { observer } from "mobx-react-lite";
 
 const GoParent = ({ setAnimationStart }) => {
 
@@ -8,7 +10,7 @@ const GoParent = ({ setAnimationStart }) => {
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         
         return (
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={() => { 
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={store.isFirstOpening ? () => {} : () => { 
                 setAnimationStart(false)
                 navigation.navigate('ParentsCaptchaScreen')
             }}>
@@ -17,4 +19,4 @@ const GoParent = ({ setAnimationStart }) => {
         )
     }
 
-export default GoParent;
+export default observer(GoParent);

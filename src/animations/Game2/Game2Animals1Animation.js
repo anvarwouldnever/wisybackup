@@ -35,32 +35,16 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
     }, []);
 
     useEffect(() => {
-        setKey(prevKey => prevKey + 1); // Change key on animal or images update
+        setKey(prevKey => prevKey + 1);
     }, [images, animal]);
     
     const timeoutRef = useRef(null);
-
-    // useEffect(() => {
-    //     if (id?.id && id?.result) {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //         timeoutRef.current = setTimeout(() => {
-    //             setId(null);
-    //         }, 2500);
-    //     }
-    //     return () => {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //     };
-    // }, [id, setId]);
     
     const renderItem = ({ item }) => {
         const isSvg = item.url.endsWith('.svg');
     
         return (
-            <View style={{backgroundColor: 'white', width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), borderRadius: 10, justifyContent: 'center'}}>
+            <View style={{backgroundColor: 'white', width: Platform.isPad ? windowWidth * (100 / 800) : windowHeight * (100 / 360), height: Platform.isPad ? windowWidth * (100 / 800) : windowHeight * (100 / 360), borderRadius: 10, justifyContent: 'center'}}>
                 <TouchableOpacity onPress={!lock? () => {
                         answer({ answer: item.id })
                         if (timeoutRef.current) {
@@ -69,14 +53,14 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
                         setId(null)
                     } : () => {return}} style={{
                     borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white',  
-                    width: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
+                    width: '100%', height: '100%', 
                     justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white',
                     shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
                 }}>
                     {isSvg ? (
-                        <SvgUri uri={item.url} width={Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360)} height={Platform.isPad? windowWidth * (108 / 800) : windowHeight * (100 / 360)} style={{ width: windowWidth * (108 / 800), height: Platform.isPad ? windowWidth * (108 / 360) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10}} />
+                        <SvgUri uri={item.url} width={Platform.isPad? windowWidth * (90 / 800) : windowHeight * (90 / 360)} height={Platform.isPad? windowWidth * (90 / 800) : windowHeight * (90 / 360)} style={{ width: windowWidth * (90 / 800), height: Platform.isPad ? windowWidth * (90 / 360) : windowHeight * (90 / 360), aspectRatio: 1, borderRadius: 10}} />
                     ) : (
-                        <Image source={{ uri: item?.url }} style={{ width: Platform.isPad? windowWidth * (108 / 800) : windowHeight * (108 / 360), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10 }} />
+                        <Image source={{ uri: item?.url }} style={{ width: Platform.isPad? windowWidth * (90 / 800) : windowHeight * (90 / 360), height: Platform.isPad ? windowWidth * (90 / 800) : windowHeight * (90 / 360), aspectRatio: 1, borderRadius: 10 }} />
                     )}
                     {/* {item.name === 'monkey' && <Image source={passedimg} style={{ width: windowWidth * (24 / 800), height: Platform.isPad ? windowWidth * (24 / 800) : windowHeight * (24 / 360), position: 'absolute', right: 4, top: 4 }} />} */}
                     {id?.id == item?.id && <View style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
@@ -105,7 +89,7 @@ const Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voi
                 </View>}
                 <View style={{width: windowWidth * (664 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)}}>
                     <FlatList 
-                        data={shuffledImages?.slice(0, 4)}
+                        data={shuffledImages?.slice(0, 5)}
                         renderItem={renderItem}
                         horizontal={true}
                         keyExtractor={(item, index) => index.toString()}

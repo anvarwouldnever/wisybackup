@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from "react";
+import React, { useEffect, useRef, useMemo, useState } from "react";
 import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions } from "react-native";
 import reload from '../../images/tabler_reload.png';
 import LottieView from "lottie-react-native";
@@ -8,16 +8,21 @@ import fetchAnimation from "./FetchLottie";
 import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
-import standingWisy from '../../lotties/standingWisy.json'
-import speakingAndStanding from '../../lotties/speakingAndStanding.json'
-import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json'
+import standingWisy from '../../lotties/standingWisy.json';
+import speakingAndStanding from '../../lotties/speakingAndStanding.json';
+import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json';
 import { observer } from "mobx-react-lite";
+import bamboo from '../../lotties/panda bamboo eat5-F.json'
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
         
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const animationRef = useRef<LottieView>(null);
     const doneWelcomeSpeech = useRef<any>(null);
+    const welcomeSequenceDone = useRef(false);
+    // const [durationOfAnimation, setDurationOfAnimation] = useState()
+
+    const animationHasFinishedOnceRef = useRef<boolean>(false);
 
     const func = async (name: string) => {
         try {
@@ -37,28 +42,126 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     };
 
     useEffect(() => {
-        if (!marketCollections) {
-            setAnimation(null)
+        if (store.isFirstOpening && marketCollections && !store.loadingCats ) {
+            playWelcomeSequenceMarket()
+            return
         }
-        if (marketCollections && !store.loadingCats && !store.wisySpeaking) {
-            func('open_market')
+    
+        if (!marketCollections) {
+            setAnimation(null);
+        }
+    
+        if (!store.isFirstOpening && marketCollections && !store.loadingCats && !store.wisySpeaking) {
+            func('open_market');
         }
     }, [marketCollections]);
 
-    useEffect(() => {
-        if (!store.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current) {
-            doneWelcomeSpeech.current = true
-            func('enter_collections_screen')
+    const firstOpening = async(name: string) => {
+        try {
+            playSound.stop()
+            const sound = await api.getSpeech(name, store.language);
+            store.setWisySpeaking(true);
+            store.setWisyMenuText(sound[0]?.text);
+            await playSound(sound[0]?.audio);
+        } catch (error) {
+            console.log(error);
+        } 
+    }
+
+    const playWelcomeSequenceMarket = async() => {
+        
+        store.setWisySpeaking(true);
+
+        await firstOpening('first_login_welcome_text_5');
+
+        store.setWisySpeaking(false);
+        welcomeSequenceDone.current = true;
+    }
+
+    const playWelcomeSequenceMarket2 = async() => {
+        const messages = [
+            'first_login_welcome_text_6',
+            'first_login_welcome_text_7'
+        ];
+
+        await new Promise(res => setTimeout(res, 500));
+
+        store.setWisySpeaking(true);
+
+        for (const msg of messages) {
+            await firstOpening(msg);
         }
-    }, [store.loadingCats]);
+
+        if (store.isFirstOpening) {
+            store.setIsFirstOpening(false)
+            store.removeNewChild(store?.playingChildId?.id)
+        }
+
+        store.setWisySpeaking(false);
+        setAnimationStart(false)
+        welcomeSequenceDone.current = true;
+    }
+
+    useEffect(() => {
+        const playWelcomeSequenceCollections = async () => {
+            if (marketCollections) return
+            const messages = [
+                'first_login_welcome_text_1',
+                'first_login_welcome_text_2',
+                'first_login_welcome_text_3',
+                'first_login_welcome_text_4',
+            ];
+    
+            await new Promise(res => setTimeout(res, 500));
+    
+            store.setWisySpeaking(true);
+    
+            for (const msg of messages) {
+                await firstOpening(msg);
+            }
+    
+            store.setWisySpeaking(false);
+            welcomeSequenceDone.current = true;
+        };
+    
+        if (store.isFirstOpening && !marketCollections) {
+            playWelcomeSequenceCollections();
+        }
+    }, []);
+
+    useEffect(() => {
+        if (store.isFirstOpening) return;
+    
+        if (!store.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current && !welcomeSequenceDone.current) {
+            doneWelcomeSpeech.current = true;
+            func('enter_collections_screen');
+        }
+    }, [store.loadingCats]);    
 
     useEffect(() => {
         if (animationStart && !store.loadingCats) {
             animationRef.current?.reset();
-            const func = async() => {
-                const animation = await fetchAnimation(currentAnimation?.animation);
-                setAnimation(animation);
-                setCurrentAnimation(null);
+            animationHasFinishedOnceRef.current = false;
+            const func = async () => {
+                // const json = currentAnimation?.animation;
+
+                // вычисляем длительность
+                // if (json?.fr && json?.op) {
+                //     const duration = (json.op / json.fr) * 1000;
+                //     setDurationOfAnimation(duration);
+                // }
+
+                if (currentAnimation?.animation === 0) {
+                    setAnimation(1);
+                    setCurrentAnimation(null);
+                } else {
+                    const animation = await fetchAnimation(currentAnimation?.animation);
+                    setAnimation(animation);
+                    setCurrentAnimation(null);
+                }
+
+                if (store.isFirstOpening) return
+
                 const sound = await api.getSpeech('market_item_purchase', store.language);
                 if (sound.length > 0) {
                     playSound.stop();
@@ -66,21 +169,22 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
                     store.setWisyMenuText(sound[randomIndex]?.text);
                     await playSound(sound[randomIndex]?.audio);
                 }
-            }
+            };
             func();
         } else {
-            if (marketCollections) animationRef.current?.reset();
+            return
+            // if (marketCollections) animationRef.current?.reset();
         }
-    }, [animationStart, modal]); 
+    }, [animationStart, modal]);    
 
     useEffect(() => {
         if (animation) {
             animationRef?.current.play()
-        } else if (!animation && !store.wisySpeaking && marketCollections) {
+        } else if (!store.wisySpeaking && marketCollections) {
             animationRef?.current.play()
-        } else if (!animation && !store.wisySpeaking && !marketCollections) {
+        } else if (!store.wisySpeaking && !marketCollections) {
             animationRef?.current.play()
-        } else if (!animation && store.wisySpeaking && !marketCollections) {
+        } else if (store.wisySpeaking && !marketCollections) {
             animationRef?.current.play()
         }
     }, [animation]);
@@ -88,13 +192,38 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     const animationProps = useMemo(() => {
         if (animation) {
             return {
-                source: animation,
+                source: animation === 1? bamboo : animation,
                 loop: false,
                 autoPlay: false,
                 onAnimationFinish: () => {
-                    setAnimationStart(false)
-                    setAnimation(null)
-                }
+                    console.log('🔥 onAnimationFinish сработал');
+        
+                    const isBamboo = animation === 1;
+        
+                    if (isBamboo && !animationHasFinishedOnceRef.current) {
+                        // bamboo: первый вызов — игнорируем
+                        animationHasFinishedOnceRef.current = true;
+                        console.log('⚠️ bamboo: первый вызов onAnimationFinish — игнорируем');
+                        return;
+                    }
+        
+                    if (!isBamboo && animationHasFinishedOnceRef.current) {
+                        // обычная анимация: повторный вызов — игнорируем
+                        console.log('⚠️ обычная анимация: повторный вызов onAnimationFinish — игнорируем');
+                        return;
+                    }
+        
+                    animationHasFinishedOnceRef.current = true;
+                    console.log('✅ onAnimationFinish — выполняем действия');
+        
+                    if (store.isFirstOpening) {
+                        setAnimation(null);
+                        playWelcomeSequenceMarket2();
+                    } else {
+                        setAnimation(null);
+                        setAnimationStart(false);
+                    }
+                }           
             };
         } 
         if (marketCollections && store.wisySpeaking) {
@@ -125,7 +254,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
             onAnimationLoaded: () => animationRef.current?.play(),
             autoPlay: false,
         };
-    }, [animation, marketCollections, store.wisySpeaking]);
+    }, [animation, marketCollections, store.wisySpeaking, modal]);
     
     return (
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>

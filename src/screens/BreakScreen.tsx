@@ -69,7 +69,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
     }
 
     useEffect(() => {
-        if (seconds == 0) return incrementTaskLevel()
+        if (seconds === 0) return incrementTaskLevel()
     }, [seconds])
 
     useEffect(() => {
@@ -80,7 +80,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
                 const currentTaskGroup = store.tasks[taskLevel];
                 const indexInTasks = store.tasks.findIndex(group => group.id === currentTaskGroup.id);
                     
-                if (indexInTasks >= store.tasks.length - 3) {
+                if (indexInTasks >= store.tasks?.length - 3) {
                     store.loadNextTasksChunk({ categoryId, collectionId });
                 }
             }

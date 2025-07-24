@@ -3,7 +3,7 @@ import { View, Dimensions, useWindowDimensions } from "react-native";
 import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesCollections from "../components/GamesList";
 import GameCategories from "../components/GameOptions";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { observer } from "mobx-react-lite";
 import MarketCollections from "../components/Market/MarketCollections";
 import MarketCategories from "../components/Market/MarketCategories";
@@ -39,6 +39,14 @@ const GamesScreen = () => {
         }, [])
     );
 
+    const firstOpeningAction = () => {
+        setAnimation(null);
+        setAnimationStart(false);
+        setMarketCollections(!null);
+        store.resetSubCollection()
+        store.setWisySpeaking(true)
+    }
+
     return (
         <View style={{flex: 1}}>
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1}}>
@@ -56,8 +64,8 @@ const GamesScreen = () => {
 
                 {marketCollections == null && <GameCategories activeCategory={activeCategory} setActiveCategory={setActiveCategory}/>}
 
-                {marketCollections == null && <GamesCollections activeCategory={activeCategory} setName={setName}/>}
-                {modal && <ModalConfirm setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation}/>}
+                {marketCollections == null && <GamesCollections activeCategory={activeCategory} setName={setName} firstOpeningAction={firstOpeningAction}/>}
+                {modal && <ModalConfirm setCurrentAnimation={setCurrentAnimation} setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation} setAnimation={setAnimation} />}
             </LinearGradient>
         </View>
     )

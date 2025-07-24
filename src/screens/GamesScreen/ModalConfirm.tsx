@@ -7,7 +7,7 @@ import star from '../../images/tabler_star-filled.png';
 import x from '../../images/xConfirmModal.png';
 import galka from '../../images/galkaConfirmModal.png'
 
-const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation }) => {
+const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, setAnimation, setCurrentAnimation }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 

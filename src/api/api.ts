@@ -3,8 +3,10 @@ import store from "../store/store";
 
 class Api {
 
-    baseUrl = 'https://tapimywisy.hostweb.uz/api/v1/app';
-    baseToken = '633|6R4jaeX3njTdJ7wHJhudU88Rkc2OvGGeIyFiVucS9bc848b4'
+    baseUrl = 'https://apimywisy.hostweb.uz/api/v1/app';
+    baseToken = '616|O9tjAOn5GVJGEBNOGTfjtD13giLgUmjV0xuZya0768fe3751';
+    
+    devToken = '663|O4WvH9kMy77WpybMik95SY1ZUYZ68R9zmRiL0Yu657b03656';
 
     async signUp(email: string, password: string) {
         try {
@@ -57,6 +59,7 @@ class Api {
         }
     }
 
+
     async signIn(email: string, password: string, lang: string) {
         try {
             const response = await axios.post(`${this.baseUrl}/auth/login`, {
@@ -78,7 +81,7 @@ class Api {
     async addChild(name: string, avatar: string, birthday: string, gender: number, engagement_time: number, token: string, lang: string) {
         // console.log(name, avatar, birthday, gender, engagement_time)
         try {
-            await axios.post(
+            const request = await axios.post(
                 `${this.baseUrl}/children`,
                 {
                     name: name,
@@ -96,11 +99,10 @@ class Api {
             );
 
             const children = await this.getChildren(token, lang)
-            return children
+            return { children: children.data, newChild: request?.data?.data }
             
         } catch (error) { 
-            console.log(error, 'while adding children')
-            console.log(error?.response?.data)
+            console.log(error?.response?.data?.message, error?.response?.status, 'while adding children')
         }
     }
 
@@ -143,8 +145,7 @@ class Api {
             })
             return response.data
         } catch (error) {
-            console.log(error, 'getting children')
-            console.log(error?.response?.data)   
+            console.log(error?.response?.data?.message, 'getting children')
         }
     }
 
@@ -153,7 +154,7 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/market/categories`, {
                 headers: {
                     Authorization: `Bearer ${this.baseToken}`,
-                    "X-localization": `${lang}`
+                    "X-localization": `lv`
                 }
             })
             return response.data.data
@@ -167,7 +168,7 @@ class Api {
             const response = await axios.get(`${this.baseUrl}/market/categories/${param.id}/items`, {
                 headers: {
                     Authorization: `Bearer ${this.baseToken}`,
-                    "X-localization": `${param.lang}`
+                    "X-localization": `lv`
                 }
             })
             return response.data.data
@@ -515,29 +516,34 @@ class Api {
 
     async answerHandWritten(answer: any) {
         try {
-                // console.log(answer.images[0])
-                const formData = new FormData();
-                formData.append('task_id', `${answer.task_id}`);
-                formData.append('attempt', `${answer.attempt}`);
-                formData.append('child_id', `${answer.child_id}`);
-                formData.append('lead_time', `${answer.lead_time}`);
-                formData.append('images[0]', answer.images[0]);
-
-                const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${answer.token}`,
-                        'Content-Type': 'multipart/form-data',
-                        "X-localization": `${answer.lang}`
-                    },
-                })
-                // console.log(response.data)
-                return response?.data
+            const formData = new FormData();
+            formData.append('task_id', `${answer.task_id}`);
+            formData.append('attempt', `${answer.attempt}`);
+            formData.append('child_id', `${answer.child_id}`);
+            formData.append('lead_time', `${answer.lead_time}`);
+        
+            // Добавляем все изображения с индексами
+            answer.images.forEach(({ image, index }) => {
+                formData.append(`images[${index}]`, image);
+            });
+        
+            const response = await axios.post(`${this.baseUrl}/tasks/answer`, formData, {
+                headers: {
+                Authorization: `Bearer ${answer.token}`,
+                'Content-Type': 'multipart/form-data',
+                'X-localization': `${answer.lang}`
+                },
+            });
+        
+            return response?.data;
         } catch (error) {
-            console.log(error?.response?.data)
-            console.log(error?.response?.data?.message)
-            throw error?.response?.data?.message
+           
+            console.log(error?.response?.status);
+            console.log(error?.response?.data?.message);
+            throw error?.response?.data?.message;
         }
-    }
+      }
+      
 }
 
 export default new Api();

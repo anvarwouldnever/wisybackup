@@ -54,6 +54,8 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
         const avatarUrl = typeof avatarImage === 'string' ? avatarImage : avatarImage?.url; 
         const isSvg = avatarUrl?.endsWith('.svg');
 
+        const isNew = store?.newChildren?.includes(item?.id)   
+
         return (
             <View 
                 key={index} 
@@ -70,7 +72,14 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                     activeOpacity={1} 
                     onPress={() => { 
                         setChosenPlayerIndex(index);
-                        setChosenPlayer(item);    
+                        setChosenPlayer(item);
+                        if (isNew) {
+                            store.setIsFirstOpening(true)
+                            store.setIsBlacked(true)
+                        } else {
+                            store.setIsFirstOpening(false)
+                            store.setIsBlacked(false)
+                        }
                     }} 
                     style={{
                         width: 'auto',

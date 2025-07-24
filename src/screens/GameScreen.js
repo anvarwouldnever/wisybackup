@@ -1,12 +1,12 @@
 import { View, useWindowDimensions, Platform, ImageBackground } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import store from '../store/store';
 import Game1Screen from './Game1Screen';
 import { useNavigation } from '@react-navigation/native';
 import bg from '../images/bgg.png';
-import Game5Screen from './Game5Screen';
+import Game5Screen from './Game5/Game5Screen';
 import Game3Screen from './Game3Screen';
-import Game4Screen from './Game4Screen';
+import Game4Screen from './Game4/Game4Screen';
 import Game6Screen from './Game6Screen';
 import Game2Screen from './Game2Screen';
 import Game8Screen from './Game8Screen';
@@ -26,7 +26,7 @@ import ProgressAnimation from './GameScreen/ProgressAnimation';
 
 const GameScreen = ({ route }) => {
 
-    const { onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, categoryId, collectionId } = route.params;
+    const { onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, categoryId, collectionId, firstOpeningAction, availableSubCollections } = route.params;
     const tasks = store?.tasks;
     const navigation = useNavigation();
     const [taskLevel, setTaskLevel] = useState(0);
@@ -38,54 +38,84 @@ const GameScreen = ({ route }) => {
     const [isBreak, setIsBreak] = useState(false);
     const [tutorialShow, setTutorialShow] = useState(isFromAttributes? false : true);
     const [introTaskIndex, setIntroTaskIndex] = useState(isFromAttributes? 0 : tasks[taskLevel]?.current_task_id_index);
-    const task = tasks[taskLevel]?.tasks; 
 
-    let introAudio = tasks[taskLevel]?.introAudio;
-    let introText = tasks[taskLevel]?.introText;
-    let tutorials = tasks[taskLevel]?.tutorials;
+    const task = tasks[taskLevel]?.tasks;
+
+    const introAudio = tasks[taskLevel]?.introAudio;
+    const introText = tasks[taskLevel]?.introText;
+    const tutorials = tasks[taskLevel]?.tutorials;
     
-    const ifCameFromBreak = breaks?.find(b => b.order === tasks[taskLevel]?.order);
-    const currentBreakContent = breaks?.find(b => b.order === tasks[taskLevel]?.order);
+    const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+    const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+
+    // for (let index = 0; index < tasks?.length; index++) {
+    //     const element = tasks[index];
+    //     console.log(element?.id)
+    // }
 
     const incrementTaskLevel = () => {
+
+        if (store.isFirstOpening) {
+            firstOpeningAction();
+            navigation.goBack()
+            setIsFrozen(true)
+            return
+        }
+
         setTaskLevel(prev => {
-          const nextLevel = prev + 1;
+            const nextLevel = prev + 1;
       
-          if (nextLevel >= tasks?.length) {
-            return navigation.goBack();
-          }
-      
-          const isScheduledBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
-      
-          if (isScheduledBreak && !cameFromBreak && !isBreak) {
-            setIsBreak(true);
-            return prev;
-          }
-
-          if (isBreak) {
-            if (!tutorialShow) {
-                setTutorialShow(true)
+            if (nextLevel >= tasks?.length) {
+                return navigation.goBack();
             }
-            setIsBreak(false);
-          }
-      
-          if (cameFromBreak) {
-            setCameFromBreak(false);
-          }
+        
+            const isScheduledBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+        
+            if (isScheduledBreak && !cameFromBreak && !isBreak) {
+                console.log('1')
+                setIsBreak(true);
+                return prev;
+            };
+        
+            if (cameFromBreak) {
+                const isNextTaskAvailable = availableSubCollections?.includes(tasks[nextLevel]?.id)
+                if (isNextTaskAvailable) {
+                    setCameFromBreak(false);
+                } else {
+                    return navigation.goBack();
+                }
+            }
 
-          return nextLevel;
+            return nextLevel;
         });
     };
+
+    // console.log(task[level]?.type, task[level].content.sub_type)
       
-    const incrementLevel = () => { 
+    const incrementLevel = () => {
         setLevel(prev => {
             if (prev + 1 > tasks?.length) {
                 console.log("Нет больше задач.");
-                return 0;
+                return null;
             }
-            return 0;
+            return null;
         });
     };
+
+    useEffect(() => {
+        if (!isFromAttributes) {
+            console.log(level)
+            setLevel(tasks[taskLevel]?.current_task_id_index)
+        }
+
+        if (isBreak) {
+            if (!tutorialShow) {
+                setTutorialShow(true);
+            }
+    
+            setIsBreak(false);
+        }
+    }, [taskLevel]);
 
     const { width: windowWidth } = useWindowDimensions();
 
@@ -164,7 +194,7 @@ const GameScreen = ({ route }) => {
 
     const RenderTextSingleChoiceWithTitleImageGame = () => {
         return (
-            <Game16Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game16Screen taskLevel={taskLevel} tasks={tasks} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -229,43 +259,42 @@ const GameScreen = ({ route }) => {
             {!isFromAttributes && (cameFromBreak || isBreak)? 
             <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} collectionId={collectionId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
             :
-            isFrozen? <View /> 
+            isFrozen ? <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}} />
             :
             <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}}>
             {
                 task && task[level] && task[level].type ? (
                     task[level].type === 'voice_input' ?  
                     <RenderVoiceGame /> :
-                    task[level].type === 'single_choice' && task[level].content.sub_type === 'with_image'?
+                    task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_image'?
                     <RenderWithImageGame /> :
-                    task[level].type === 'single_choice' && task[level].content.sub_type === 'simple'?
+                    task[level]?.type === 'single_choice' && task[level].content.sub_type === 'simple'?
                     <RenderSimpleGame /> :
-                    task[level].type === 'single_choice' && task[level].content.sub_type === 'with_audio'?
+                    task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_audio'?
                     <RenderWithAudio /> :
-                    task[level].type === 'single_choice' && task[level].content.sub_type === 'with_title'?
+                    task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_title'?
                     <RenderWithTitleGame /> :
-                    task[level].type === 'handwritten' && task[level].content.sub_type === 'simple'?
+                    task[level]?.type === 'handwritten' && task[level].content.sub_type === 'simple'?
                     <RenderHandWrittenSimpleGame /> :
-                    task[level].type === 'handwritten' && task[level].content.sub_type === 'repeat'?
+                    task[level]?.type === 'handwritten' && task[level].content.sub_type === 'repeat'?
                     <RenderHandWrittenRepeatGame /> :
-                    task[level].type === 'handwritten' && task[level].content.sub_type === 'counting'?
+                    task[level]?.type === 'handwritten' && task[level].content.sub_type === 'counting'?
                     <RenderHandWrittenCountingGame /> :
-                    task[level].type === 'handwritten' && task[level].content.sub_type === 'word'?
+                    task[level]?.type === 'handwritten' && task[level].content.sub_type === 'word'?
                     <RenderHandWrittenWordGame /> :
-                    task[level].type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
+                    task[level]?.type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
                     <RenderObjectMatchingTextGame /> :
-                    task[level].type === 'puzzle'?
+                    task[level]?.type === 'puzzle'?
                     <RenderPuzzleGame /> :
-                    task[level].type === 'drag_and_drop' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
+                    task[level]?.type === 'drag_and_drop' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
                     <RenderDragAndDropGame /> :
-                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
+                    task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
                     <RenderTextSingleChoiceWithTitleImageGame /> :
-                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'simple'?
+                    task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'simple'?
                     <RenderTextSingleChoiceSimpleGame /> : 
-                    task[level].type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio'?
-                    <RenderTextSingleChoiceWithAudioGame /> : 
-                    <CongratulationsScreen taskLevel={taskLevel} categoryId={categoryId} collectionId={collectionId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} stars={stars} earnedStars={earnedStars} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
-                ) : <CongratulationsScreen taskLevel={taskLevel} categoryId={categoryId} collectionId={collectionId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                    task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio' &&
+                    <RenderTextSingleChoiceWithAudioGame />
+                ) : <CongratulationsScreen setLevel2={setLevel} taskLevel={taskLevel} categoryId={categoryId} collectionId={collectionId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
             }
                 <BackButton setIsFrozen={setIsFrozen}/>
                 {task && task[level] && task[level].type && <ProgressAnimation task={task} level={level}/>}

@@ -3,6 +3,7 @@ import store from "../../store/store";
 import { useNavigation } from "@react-navigation/native";
 import dog from '../../images/Dog.png'
 import { SvgUri } from "react-native-svg";
+import { observer } from "mobx-react-lite";
 
 const Back = () => {
 
@@ -15,7 +16,7 @@ const Back = () => {
         }
 
         return (
-            <TouchableOpacity onPress={() => goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
+            <TouchableOpacity onPress={store.isFirstOpening ? () => {} : () => goBack()} style={{width: windowWidth * (126 / 800), alignItems: 'center', flexDirection: 'row', height: Platform.isPad? windowWidth * (48 / 800) : windowHeight * (48 / 360), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
                 <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
                     <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
                 </View>
@@ -25,9 +26,9 @@ const Back = () => {
                     const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 
                     return isSvg ? (
-                        <SvgUri 
+                        <SvgUri
                             uri={avatarUrl} 
-                            width={windowHeight * (48 / 360)} 
+                            width={windowHeight * (48 / 360)}
                             height={windowHeight * (48 / 360)}
                         />
                     ) : (
@@ -45,4 +46,4 @@ const Back = () => {
         )
     }
 
-export default Back;
+export default observer(Back);

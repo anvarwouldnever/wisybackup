@@ -59,7 +59,8 @@ const translations = {
         resendCodeIn: 'Resend code in',
         exit: 'Exit',
         backgroundMusic: 'Background music',
-        childWithThisName: 'Child with this name already exists'
+        childWithThisName: 'Child with this name already exists',
+        howOldIsYourChild: "How old is your child?"
     },
     lv: {
         welcome: 'Laipni lūdzam!',
@@ -121,7 +122,8 @@ const translations = {
         resendCodeIn: 'Atkārtoti nosūtīt kodu pēc',
         exit: 'Iziet',
         backgroundMusic: 'Fona mūzika',
-        childWithThisName: 'Bērns ar šādu vārdu jau eksistē'
+        childWithThisName: 'Bērns ar šādu vārdu jau eksistē',
+        howOldIsYourChild: "Cik vecs ir tavs bērns?"
     }
 };
 

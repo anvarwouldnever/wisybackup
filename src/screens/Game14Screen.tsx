@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
-import { Button, TouchableOpacity, Text, View, StatusBar, Image, Vibration, Platform, Dimensions, useWindowDimensions } from "react-native";
+import React, { useState, useRef, useEffect } from "react";
+import { TouchableOpacity, Text, View, Image, Vibration, Platform, useWindowDimensions } from "react-native";
 import Svg, { Line, Path } from "react-native-svg";
 import { GestureDetector, Gesture } from "react-native-gesture-handler";
 import Animated, { useSharedValue, useAnimatedProps, runOnJS } from "react-native-reanimated";
@@ -8,15 +8,15 @@ import speaker from '../images/tabler_speakerphone.png'
 import { playSound } from "../hooks/usePlayBase64Audio";
 import useTimer from "../hooks/useTimer";
 import { playSoundWithoutStopping } from "../hooks/usePlayWithoutStoppingBackgrounds";
-import Game3TextAnimation from "../animations/Game3/Game3TextAnimation";
-import LottieView from "lottie-react-native";
-import speakingWisy from '../lotties/headv9.json'
-import Game8Tutorial from "../components/Game8Tutorial";
 import black from '../images/tabler_speakerphone2.png';
 import api from "../api/api";
 import store from "../store/store";
 import blackRed from '../images/darkRedSpeaker.png'
 import * as Haptics from 'expo-haptics'
+import SkipButton from "../components/SkipButton";
+import TutorialOverlay from "../components/TutorialOverlay";
+import WisyHint from "../components/WisyHint";
+import OverlayHint from "../components/OverlayHint";
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
@@ -41,30 +41,16 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
-    const [id, setId] = useState(null);
     const [lock, setLock] = useState(false);   
     const [wisySpeaking, setWisySpeaking] = useState(false);
 
-    const timeoutRef = useRef(null);
-    const lottieRef = useRef(null);
+    const isActive = useRef(true);
 
     const imageRefs = useRef(new Map());
     const imageLayouts = useSharedValue([]);
 
     const answersRefs = useRef(new Map());
     const answersLayouts = useSharedValue([]);
-    
-    useEffect(() => {
-        if (wisySpeaking) {
-            setTimeout(() => {
-                lottieRef.current?.play(180, 0);
-            }, 1);
-        } else {
-            setTimeout(() => {
-                lottieRef.current?.reset();
-            }, 1);
-        }
-    }, [wisySpeaking]);
 
     useEffect(() => {
         const introPlay = async() => {
@@ -105,44 +91,22 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     }, [data?.content?.speech, tutorialShow]);
 
-    // useEffect(() => {
-    //     if (!text) return;
-    //     const timeoutId = setTimeout(() => {
-    //         setText(null);
-    //     }, 3000);
-    
-    //     return () => clearTimeout(timeoutId);
-    // }, [text]); 
-
     const { getTime, start, stop, reset } = useTimer();
 
     useEffect(() => {
+        isActive.current = true;
         start();
+                             
         return () => {
+            isActive.current = false;
             reset();
-        }
-    }, []);
+        };
+    }, [])
 
     const vibrate = () => {
         Vibration.vibrate(500);
     };
                                 
-    // useEffect(() => {
-    //     if (id?.id && id?.result) {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //         timeoutRef.current = setTimeout(() => {
-    //             setId(null);
-    //         }, 2500);
-    //     }
-    //     return () => {
-    //         if (timeoutRef.current) {
-    //             clearTimeout(timeoutRef.current);
-    //         }
-    //     };
-    // }, [id]);
-
     const animatedProps = useAnimatedProps(() => ({
         x1: lineStartX.value,
         y1: lineStartY.value,
@@ -214,16 +178,6 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             });
         }, 500);
     }, [images]);
-
-    const isActive = useRef(true);
-    
-    useEffect(() => {
-        isActive.current = true;
-    
-        return () => {
-            isActive.current = false;
-        };
-    }, []);
 
     useEffect(() => {
         setTimeout(() => {
@@ -561,9 +515,9 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         <View style={{top: mainContainerOffset.top, width: windowWidth - 60, height: windowHeight - 60, position: "absolute", alignItems: "center"}}>
             <Lines />
 
-            {tutorialShow && tutorials?.length > 0 && <View style={{ width: windowWidth * (600 / 800), height: windowHeight * (272 / 360), position: 'absolute', alignSelf: 'center', top: '6%' }}>
-                <Game8Tutorial tutorials={tutorials}/>
-            </View>}
+            {tutorialShow && tutorials?.length > 0 && (
+                <TutorialOverlay tutorials={tutorials} />
+            )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
                 <View style={{width: windowWidth * (80 / 800), height: windowHeight * (312 / 360), alignItems: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, justifyContent: 'center', flexDirection: 'column'}}>
@@ -812,41 +766,28 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     )}
                 </View>}
             </View>}
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&  
-            <View style={{width: windowWidth * (255 / 800), position: 'absolute', left: 0, bottom: 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row'}}>
-                <LottieView
-                    ref={lottieRef}
-                    resizeMode="cover"
-                    source={speakingWisy}
-                    style={{
-                        width: windowWidth * (64 / 800),
-                        height: Platform.isPad ? windowWidth * (64 / 800) : windowHeight * (64 / 360),
-                        aspectRatio: 64 / 64,
-                    }}
-                    autoPlay={false}
-                    loop={true}
-                />
-                <Game3TextAnimation text={text} thinking={thinking}/>
-            </View>}
-            {tutorialShow && tutorials?.length > 0 && 
-            <TouchableOpacity onPress={() => setTutorialShow(false)} style={{width: windowWidth * (58 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: 'white', alignSelf: 'flex-end', borderRadius: 100, alignItems: 'center', justifyContent: 'center'}}>
-                <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : 12, color: '#504297'}}>
-                    Skip
-                </Text>
-            </TouchableOpacity>}
+            
+            <OverlayHint visible={store.isBlacked}>
+                <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />
+            </OverlayHint>
+
+            {!store?.isBlacked && (
+                <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />
+            )}
+            
+            <SkipButton visible={tutorialShow && tutorials?.length > 0} showPaw={store?.isFirstOpening}
+                onSkip={() => {
+                    if (store.isFirstOpening) {
+                        store.setIsFirstOpening(false)
+                    }
+                    setTutorialShow(false)
+                }}
+            />
+
             {/* <Lines /> */}
+
         </View>
     );
 };
 
 export default Game14Screen;
-
-{/* <View style={{position: 'absolute', left: 30, top: 150}}>
-                <Button title="Добавить" onPress={() => setCurve(prev => prev + 0.1)}/>
-                <Text style={{color: 'black'}}>
-                    текущее: {curve.toFixed(2)}
-                </Text>
-                <Button title="Убавить" onPress={() => setCurve(prev => prev - 0.1)}/>
-            </View> */}
-
-            {/* <Lines /> */}

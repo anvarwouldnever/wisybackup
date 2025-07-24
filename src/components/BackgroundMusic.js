@@ -51,61 +51,42 @@ const BackgroundMusic = observer(() => {
   };
 
   useEffect(() => {
-    const manageSound = async () => {
-      if (!sound.current) return;
-
-      await configureAudioMode();
-
-      if (store.musicPlaying) {
-        await sound.current.setVolumeAsync(0);
-        await sound.current.playAsync();
-        fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
-      } else {
-        fadeVolume(0, 0.1, 30);
-      }
-    };
-
-    manageSound();
-  }, [store.musicPlaying]);
+    if (!sound.current) return;
+  
+    if (store.musicPlaying) {
+      sound.current.playAsync();
+      fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
+    } else {
+      fadeVolume(0, 0.1, 30);
+      sound.current.pauseAsync();
+    }
+  }, [store.musicPlaying, store.musicTurnedOn]);
 
   useEffect(() => {
-    const configureAudioMode = async () => {
-      try {
-        await Audio.setAudioModeAsync({
-          allowsRecordingIOS: false,
-          playsInSilentModeIOS: true,
-          staysActiveInBackground: true,
-          shouldDuckAndroid: false,
-          playThroughEarpieceAndroid: false,
-        });
-      } catch (error) {
-        console.error('Ошибка настройки аудиорежима', error);
-      }
-    };
-
-    const loadAndPlayMusic = async () => {
+    const loadMusicOnce = async () => {
       try {
         await configureAudioMode();
-
+  
         const { sound: newSound } = await Audio.Sound.createAsync(
           require('../../assets/bg_music.mp3'),
           { shouldPlay: false, isLooping: true }
         );
+  
         sound.current = newSound;
-
         await sound.current.setVolumeAsync(0); // начнем с 0
+  
         if (store.musicPlaying) {
           await sound.current.playAsync();
           fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
         }
-
-      } catch (error) {
-        console.error('Ошибка загрузки музыки', error);
+  
+      } catch (e) {
+        console.error('Ошибка загрузки музыки', e);
       }
     };
-
-    loadAndPlayMusic();
-
+  
+    loadMusicOnce();
+  
     return () => {
       if (fadeInterval.current) clearInterval(fadeInterval.current);
       if (sound.current) sound.current.unloadAsync();

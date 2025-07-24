@@ -2,6 +2,8 @@ import { View, Image, FlatList, useWindowDimensions, TouchableOpacity, Platform 
 import React, { useRef, useState } from 'react';
 import arrow from '../images/arrow-right.png';
 import arrow1 from '../images/arrow-left.png';
+import AnimatedPaw from '../animations/AnimatedPaw';
+import store from '../store/store';
 
 const Game8Tutorial = ({ tutorials }) => {
     const { width, height } = useWindowDimensions();
@@ -89,6 +91,7 @@ const Game8Tutorial = ({ tutorials }) => {
                 onPress={handleNext}
             >
                 <Image source={arrow} style={{ width: width * (24 / 800), height: Platform.isPad ? width * (24 / 800) : height * (24 / 360) }} />
+                {store.isFirstOpening && <AnimatedPaw />}
             </TouchableOpacity>
         </View>
     );

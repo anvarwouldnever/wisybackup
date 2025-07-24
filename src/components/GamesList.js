@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { FlatList, useWindowDimensions, Text, Platform, TouchableOpacity, Image, View, ActivityIndicator, StyleSheet, Touchable } from "react-native";
 import store from "../store/store";
 import { SvgUri } from "react-native-svg";
-import Animated, { FadeInRight, Easing } from "react-native-reanimated";
+import Animated, { FadeInRight, Easing, ZoomIn, ZoomInRight } from "react-native-reanimated";
 import star from '../images/tabler_star-filled.png';
 import { BlurView } from 'expo-blur';
 import lock from '../images/zamok.png';
@@ -17,16 +17,21 @@ import loadingAnim from '../../assets/6Vcbuw6I0c (1).json';
 import md5 from 'react-native-md5';
 import Blur from "./BlurView";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import lapa from '../images/paw.png'
+import AnimatedPaw from "../animations/AnimatedPaw";
+import { runOnJS } from "react-native-reanimated";
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-const GamesCollections = ({ setName, activeCategory }) => {
+const GamesCollections = ({ setName, activeCategory, firstOpeningAction }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [collectionIndex, setCollectionIndex] = useState(0);
     const navigation = useNavigation();
+    const [wasAnimated, setWasAnimated] = useState(false);
 
     const playSpeech = useCallback(async (speechKey) => {
+        if (store.isFirstOpening) return
         try {
             await playSound.stop();
             store.setWisySpeaking(true);
@@ -45,11 +50,13 @@ const GamesCollections = ({ setName, activeCategory }) => {
     }, [store.setWisyMenuText, store.setWisySpeaking]);
     
     const func = () => {
+        if (store.isFirstOpening) return
         if (store.wisySpeaking) return
         playSpeech('enter_subcollections_screen');
     };
 
     const func3 = () => {
+        if (store.isFirstOpening) return
         if (store.wisySpeaking) return
         playSpeech('locked_subcollection_attempt')
     };
@@ -82,6 +89,7 @@ const GamesCollections = ({ setName, activeCategory }) => {
     // console.log(store.subCollections.map(({ intro_speech_audio, ...rest }) => rest));
 
     const handleGameCompletion = (id, starId, earnedStars) => {
+        console.log('run handleGameCompletion')
         const subCollection = store.subCollections.find(sub => sub?.id === starId);
         if (subCollection) {
             subCollection.stars.earned += earnedStars;
@@ -91,6 +99,7 @@ const GamesCollections = ({ setName, activeCategory }) => {
     };
     
     const handleTaskCompletion = useCallback((id, nextTaskId) => {
+        console.log('run handleTaskCompletion')
         const collection = store.subCollections.find(item => item.id === id);
     
         if (collection) {
@@ -152,11 +161,20 @@ const GamesCollections = ({ setName, activeCategory }) => {
     };
 
     const collections = store.categories.find(item => item.id === activeCategory)?.collections
-    const availableSubCollections = collections?.find(col => col.id === collectionIndex)?.available_sub_collections || [];
+    const availableSubCollections = collections?.find(col => col?.id === collectionIndex)?.available_sub_collections || [];
 
     const currentCategory = store.categories.find(item => item.id === activeCategory)
     const categoryId = currentCategory?.id
     const collectionId = currentCategory?.collections?.find(col => col.id === collectionIndex)?.id
+
+    useEffect(() => {
+        if (store.isFirstOpening && collections?.length > 0) {
+            const firstItem = collections[0];
+            getSubCollections(firstItem?.id, firstItem?.category?.id);
+            setCollectionIndex(firstItem.id);
+            setName(firstItem.name);
+        }
+    }, [store.isFirstOpening, collections]);
 
     const RenderAttributes = ({ attributes }) => {
         return (
@@ -221,9 +239,9 @@ const GamesCollections = ({ setName, activeCategory }) => {
         );
     };
 
-    const renderSubCollections = ({ item, onComplete, onCompleteTask }) => {
+    const renderSubCollections = ({ item, onComplete, onCompleteTask, index }) => {
 
-        const isLocked = !availableSubCollections.includes(item?.id)
+        const isLocked = !availableSubCollections.includes(item?.id) || (store.isFirstOpening && index !== 0);
 
         if (item?.isLoading) {
             return (
@@ -247,19 +265,37 @@ const GamesCollections = ({ setName, activeCategory }) => {
 
         return (
             <AnimatedTouchableOpacity
-                entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))}
-                onPress={isLocked ? () => func3() : () => {
-                    store.prepareTasksArray(item.id);
-                    navigation.navigate('GameScreen', {
-                    breaks: item?.breaks,
-                    isFromBreak: item?.isBreak,
-                    categoryId,
-                    collectionId,
-                    onComplete,
-                    onCompleteTask
+                entering={
+                    store.isFirstOpening && !wasAnimated
+                    ? FadeInRight
+                        .delay(200)
+                        .duration(400)
+                        .easing(Easing.out(Easing.cubic))
+                        .withCallback(() => {
+                            runOnJS(setWasAnimated)(true); // Важно: runOnJS, иначе не сработает
+                        })
+                    : !store.isFirstOpening 
+                    && 
+                        FadeInRight
+                        .delay(200)
+                        .duration(400)
+                        .easing(Easing.out(Easing.cubic))
+                        
+                }
+                onPress={(store.isFirstOpening && store.wisySpeaking) ? () => {} : isLocked ? () => func3() : () => {
+                        store.prepareTasksArray(item.id);
+                        navigation.navigate('GameScreen', {
+                        breaks: item?.breaks,
+                        isFromBreak: item?.isBreak,
+                        categoryId,
+                        collectionId,
+                        onComplete,
+                        onCompleteTask,
+                        firstOpeningAction,
+                        availableSubCollections
                     });
                 }}
-                style={{ backgroundColor: '#D8F6FF33', borderRadius: 12, width: Platform.isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360), height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360), marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F', overflow: 'hidden', position: 'relative' }}
+                style={{ backgroundColor: '#D8F6FF33', borderRadius: 12, width: Platform.isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360), height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360), marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F', overflow: 'visible', position: 'relative' }}
                 >
                 {!item?.isBreak && <RenderStars earned={item?.stars?.earned} total={item?.stars?.total} />}
                 <View style={{ width: '100%', position: 'absolute', borderColor: 'white', borderWidth: 1, opacity: 0.12, top: Platform.isPad ? windowHeight * (60 / 800) : 35 }} />
@@ -270,10 +306,23 @@ const GamesCollections = ({ setName, activeCategory }) => {
                     <SvgUri uri={item?.image} width={Platform.isPad ? windowWidth * (256 / 1194) : windowWidth * (135 / 800)} height={Platform.isPad ? windowWidth * (224 / 1194) : windowHeight * (82 / 360)} style={{ alignSelf: 'center', position: 'absolute', top: Platform.isPad ? windowHeight * (90 / 800) : windowHeight * (35 / 360) }} />
                 )}
                 <View style={{ width: '100%', position: 'absolute', borderColor: 'white', borderWidth: 1, opacity: 0.12, bottom: Platform.isPad ? windowHeight * (30 / 360) : 40 }} />
-                <View style={{ width: '100%', height: windowHeight * (35 / 360), bottom: 0, position: 'absolute', alignItems: 'center', flexDirection: 'row', alignSelf: 'center', justifyContent: 'center', borderRadius: 10 }}>
-                    <RenderAttributes attributes={item?.attributes} />
-                </View>
+                {!(store.isFirstOpening && index === 0) && (
+                    <View style={{ 
+                        width: '100%', 
+                        height: windowHeight * (35 / 360), 
+                        bottom: 0, 
+                        position: 'absolute', 
+                        alignItems: 'center', 
+                        flexDirection: 'row', 
+                        alignSelf: 'center', 
+                        justifyContent: 'center', 
+                        borderRadius: 10,
+                    }}>
+                        <RenderAttributes attributes={item?.attributes} />
+                    </View>
+                )}
                 <Blur isLocked={isLocked} />
+                { store.isFirstOpening && index === 0 && !store.wisySpeaking && <AnimatedPaw /> }
             </AnimatedTouchableOpacity>
         )
     };
@@ -285,60 +334,71 @@ const GamesCollections = ({ setName, activeCategory }) => {
     const MemoizedRenderCollections = renderCollections;
     const MemoizedRenderSubCollections = renderSubCollections;
     
-    const renderItem = useMemo(() => ({ item, index }) => {
-        if (item?.isLoader) {
-            return (
-                <View style={{ justifyContent: 'center', alignItems: 'center', padding: 16 }}>
-                    <ActivityIndicator size="small" color="#888" />
-                </View>
-            );
-        }
+    const renderItem = useMemo(() => {
+        return ({ item, index }) => {
+            if (item?.isLoader) {
+                return (
+                    <View style={{ justifyContent: 'center', alignItems: 'center', padding: 16 }}>
+                        <ActivityIndicator size="small" color="#888" />
+                    </View>
+                );
+            }
     
-        if (store.subCollections?.length > 0) {
-            return (
+            const shouldRenderSub = store.subCollections?.length > 0;
+    
+            return shouldRenderSub ? (
                 <MemoizedRenderSubCollections
                     item={item}
                     index={index}
                     onComplete={handleGameCompletion}
                     onCompleteTask={handleTaskCompletion}
                 />
+            ) : (
+                <MemoizedRenderCollections item={item} index={index} />
             );
-        }
+        };
+    }, [
+        store.subCollections?.length,
+        store.isFirstOpening ? store.wisySpeaking : null,
+        store.isFirstOpening,
+        availableSubCollections,
+        wasAnimated
+    ]);
     
-        return <MemoizedRenderCollections item={item} index={index} />;
-    }, [store.subCollections?.length, availableSubCollections]);
     
     return (
         <View style={{
             width: windowWidth * (480 / 800),
-            height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (160 / 360),
+            height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (180 / 360),
             position: 'absolute',
             top: Platform.isPad ? windowHeight * (224 / 834) : windowHeight * (104 / 360),
             left: windowWidth * (320 / 800),
             justifyContent: 'center',
+            overflow: 'visible',
         }}>
             {store.isSubCollectionsLoading || store.isCollectionLoading? 
-            <LottieView
-                    loop={true}
-                    autoPlay
-                    source={loadingAnim}
-                    style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
-            />
+                <LottieView
+                        loop={true}
+                        autoPlay
+                        source={loadingAnim}
+                        style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
+                />
             :
-            <FlatList
-                horizontal
-                data={listData}
-                extraData={[store.categories, store.subCollections?.length]}
-                renderItem={renderItem}
-                keyExtractor={(item) => md5.hex_md5(`${item?.id}_${item?.image}`)}
-                showsHorizontalScrollIndicator={false}
-                scrollEventThrottle={16}
-                removeClippedSubviews
-                onViewableItemsChanged={onViewableItemsChanged}
-                viewabilityConfig={{
-                    itemVisiblePercentThreshold: 50
-                }}
-            />}
+                <FlatList
+                    horizontal
+                    data={listData}
+                    extraData={[store.categories, store.subCollections?.length]}
+                    renderItem={renderItem}
+                    keyExtractor={(item, index) => md5.hex_md5(`${item?.id}_${item?.image}`)}
+                    showsHorizontalScrollIndicator={false}
+                    scrollEventThrottle={16}
+                    removeClippedSubviews
+                    onViewableItemsChanged={onViewableItemsChanged}
+                    viewabilityConfig={{
+                        itemVisiblePercentThreshold: 50
+                    }}
+                />
+            }
         </View>
     );
 }
