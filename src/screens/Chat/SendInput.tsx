@@ -1,6 +1,6 @@
-import { View, Text, TextInput, TouchableOpacity, Image, useWindowDimensions, Keyboard } from 'react-native'
+import { View, TextInput, TouchableOpacity, Image, useWindowDimensions, Keyboard } from 'react-native'
 import React from 'react'
-import ChatMicroAnimation from '../../animations/ChatMicroAnimation';
+import ChatMicroAnimation from './SendInput/ChatMicroAnimation';
 import arrow from '../../images/arrowupblack.png'
 import translations from '../../../localization';
 import store from '../../store/store';

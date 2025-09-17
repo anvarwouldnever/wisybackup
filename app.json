@@ -73,6 +73,7 @@
       [
         "react-native-email-link"
       ]
+      
     ],
     "android": {
       "adaptiveIcon": {

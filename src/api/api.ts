@@ -1,5 +1,4 @@
 import axios from "axios";
-import store from "../store/store";
 
 class Api {
 
@@ -58,7 +57,6 @@ class Api {
             return error?.response?.data?.message
         }
     }
-
 
     async signIn(email: string, password: string, lang: string) {
         try {
@@ -273,6 +271,7 @@ class Api {
     }
 
     async getCollections(data: any) {
+        // console.log(data.id, data.child_id.id)
         try {
             const response = await axios.get(`${this.baseUrl}/collections`, {
                 headers: {
@@ -292,6 +291,7 @@ class Api {
     }
 
     async getSubCollections(data: any) {
+        console.log(data.id, data.child_id.id)
         
         try {
             const response = await axios.get(`${this.baseUrl}/sub-collections`, {
@@ -517,12 +517,12 @@ class Api {
     async answerHandWritten(answer: any) {
         try {
             const formData = new FormData();
+            console.log(answer.task_id)
             formData.append('task_id', `${answer.task_id}`);
             formData.append('attempt', `${answer.attempt}`);
             formData.append('child_id', `${answer.child_id}`);
             formData.append('lead_time', `${answer.lead_time}`);
         
-            // Добавляем все изображения с индексами
             answer.images.forEach(({ image, index }) => {
                 formData.append(`images[${index}]`, image);
             });

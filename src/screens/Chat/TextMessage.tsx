@@ -1,6 +1,6 @@
 import { View, Text, Image, useWindowDimensions } from 'react-native'
 import React from 'react'
-import DotsAnimation from '../../animations/DotsAnimation'
+import DotsAnimation from './ChatFlatlist/DotsAnimation'
 import wisypfp from '../../images/wisypfp.png'
 import dog from '../../images/Dog.png'
 

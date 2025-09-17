@@ -1,0 +1,51 @@
+import React, { useState } from "react";
+import { Dimensions, TouchableOpacity, Text, Modal, Platform, View } from "react-native";
+import Animated, { SlideInRight } from "react-native-reanimated";
+import Calendar from "../../calendars/Calendar";
+import { format } from "date-fns";
+import CalendarAndroid from "../../calendars/CalendarAndroid";
+import store from "../../store/store";
+import translations from "../../../localization";
+
+const { width, height } = Dimensions.get('window');
+
+const ChildAge = ({ setOptions, options }) => {
+
+    const [show, setShow] = useState(false);
+    const [showAndroid, setShowAndroid] = useState(false)
+
+    const formatDate = (someDate) => {
+        setOptions(prevOptions => ({
+            ...prevOptions,
+            age: `${format(someDate, 'dd.MM.yyyy')}`
+        }))
+    }
+
+    const title = store?.addchildui?.child_age_placeholder
+
+    return (
+        <Animated.View entering={SlideInRight} style={{width: width * 0.8666, height: '100%', justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>
+            
+            <View style={{alignItems: 'center', gap: width * (25 / 360)}}>
+                <Text style={{fontSize: width * (16 / 360), fontWeight: '600'}}>{translations[store.language].howOldIsYourChild}</Text>
+                
+                {
+                Platform.OS === 'ios'? <Modal visible={show} animationType='fade' transparent={true}>
+                    <Calendar setShow={setShow} formatDate={formatDate}/>
+                </Modal> 
+                : 
+                showAndroid && <CalendarAndroid setShow={setShow} formatDate={formatDate} setShowAndroid={setShowAndroid}/>
+                }
+                <TouchableOpacity onPress={() => Platform.OS === 'ios'? setShow(true) : setShowAndroid(true)} style={{justifyContent: 'center', opacity: show? 0 : 1, alignItems: 'center', width: width * 0.8666, borderRadius: 100, padding: 16, height: height * (56 / 800), borderWidth: 1, borderColor: '#E5E5E5'}}>
+                    <Text style={{fontWeight: '600', fontSize: height * (14 / 800), textAlign: 'center', color: options.birthday === '' ? '#B1B1B1' : '#222222'}}>{options.age === '' ? title : options.age}</Text>
+                </TouchableOpacity>
+            </View>
+            
+            <Text style={{opacity: show? 0 : 1, fontWeight: '500', fontSize: height * (12 / 800), color: '#555555', textAlign: 'center', lineHeight: height * (24 / 800), width: width * (290 / 360)}}>
+                We need the age for generating appropriate games and date to celebrate with Wisy the Birthday
+            </Text>
+        </Animated.View>
+    )
+}
+
+export default ChildAge;
