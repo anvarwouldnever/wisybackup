@@ -10,10 +10,11 @@ import RenderAttributes from './SubCollections/RenderAttributes';
 import Animated, { Easing } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import RenderStars from './SubCollections/RenderStars';
+import { gameStore } from '../../Games/store/gameStore';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
-const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubCollections, setWasAnimated, activeCategory, wasAnimated, playSpeech, firstOpeningAction }) => {
+const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubCollections, setWasAnimated, wasAnimated, playSpeech, firstOpeningAction }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -21,7 +22,7 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
 
     const isLocked = !availableSubCollections?.includes(item?.id) || (store?.isFirstOpening && index !== 0);
 
-    const currentCategory = store.categories.find(item => item.id === activeCategory)
+    const currentCategory = gameStore.categories.find(item => item.id === gameStore.categoryId)
     const categoryId = currentCategory?.id
 
     const func3 = () => {
@@ -70,7 +71,7 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
                     
             }
             onPress={(store.isFirstOpening && store.wisySpeaking) ? () => {} : isLocked ? () => func3() : () => {
-                    store.prepareTasksArray(item.id);
+                    gameStore.prepareTasksArray(item.id);
                     navigation.navigate('GameScreen', {
                     breaks: item?.breaks,
                     isFromBreak: item?.isBreak,

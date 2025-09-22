@@ -9,6 +9,7 @@ import ChatFlatlist from "./Chat/ChatFlatlist";
 import ChatRecsFlatlist from "./Chat/ChatRecsFlatlist";
 import SendInput from "./Chat/SendInput";
 import translations from "../../localization";
+import { Message } from "../api/methods/chat/message";
 
 const ChatScreen = () => {
 
@@ -32,15 +33,9 @@ const ChatScreen = () => {
         }, 100);
     
         try {
-            const response = await api.sendMessage({
-                child_id: store.playingChildId.id,
-                message: currentText,
-                token: store.token,
-                isText: true,
-                lang: store.language
-            });
+            const response = await Message(store.playingChildId.id, true, currentText, undefined);
                 
-            await store.setMessages({ type: 'text', text: response?.content, author: 'MyWisy' });
+            await store.setMessages({ type: 'text', text: response.data?.data?.content, author: 'MyWisy' });
 
             setTimeout(() => {
                 if (firstMessageRef?.current) {

@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, useWindowDimensions, Text, Platform } from 'react-native';
+import { View, useWindowDimensions, Platform } from 'react-native';
 import Animated, { BounceIn, withTiming, runOnJS, useSharedValue, useAnimatedStyle, FadeIn } from 'react-native-reanimated'
 import StarsLottie from './Congratulations/StarsLottie';
 import ConfettiLottie from './Congratulations/ConfettiLottie';
@@ -10,6 +10,7 @@ import ReloadButton from './Congratulations/ReloadButton';
 import Description from './Congratulations/Description';
 import EarnedStars from './Congratulations/EarnedStars';
 import { useScale } from '../hooks/useScale';
+import { gameStore } from './Games/store/gameStore';
 
 const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow, categoryId, taskLevel, setLevel2 }) => {
 
@@ -20,6 +21,8 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     const earnedStars = Array.from({ length: parseInt(earnedStarsText, 10) }, (_, index) => ({
         id: index + 1,
     }));
+
+    // const earnedStars = [1, 2, 3]
 
     const { s, vs } = useScale()
     
@@ -58,8 +61,10 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
         }
 
         const timeoutId = setTimeout(() => {
-            // setTaskLevel();
-            // setLevel();
+            if (!gameStore.loadingGames) {
+                setTaskLevel();
+                setLevel();
+            }
         }, 6500);
     
         return () => {
@@ -101,13 +106,13 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
     useEffect(() => {
         if (!isFromAttributes) {
-            const currentTaskGroup = store.tasks[taskLevel];
-            const indexInTasks = store.tasks.findIndex(group => group.id === currentTaskGroup.id);
+            const currentTaskGroup = gameStore.tasks[taskLevel];
+            const indexInTasks = gameStore.tasks.findIndex(group => group.id === currentTaskGroup.id);
 
-            const collectionId = store.collectionId
+            const collectionId = gameStore.collectionId
                 
-            if (indexInTasks >= store.tasks.length - 3) {
-                store.loadNextTasksChunk({ categoryId, collectionId });
+            if (indexInTasks >= gameStore.tasks.length - 3) {
+                gameStore.loadNextTasksChunk({ categoryId, collectionId });
             }
         }
     }, [])
@@ -140,7 +145,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
             <ConfettiLottie />
             
-            <Animated.View entering={BounceIn.delay(800).duration(700)} style={{ position: 'absolute', backgroundColor: 'white', width: vs(520), height: vs(510), alignSelf: 'center', borderRadius: 20, flexDirection: 'column', padding: vs(50), justifyContent: 'flex-end', rowGap: vs(75)}}>
+            <Animated.View entering={BounceIn.delay(800).duration(700)} style={{ position: 'absolute', backgroundColor: 'white', width: vs(520), height: vs(510), alignSelf: 'center', borderRadius: 20, flexDirection: 'column', padding: vs(50), justifyContent: 'flex-end'}}>
                 
                 <StarsLottie stars={stars}/>
                 
@@ -148,7 +153,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                 
                 <Description stars={stars} />
                 
-                <View style={{ flexDirection: 'row', height: vs(80), justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', height: s(19), justifyContent: 'space-between' }}>
                     
                     <ReloadButton replay={replay} />
                     

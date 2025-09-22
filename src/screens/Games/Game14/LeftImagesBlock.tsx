@@ -8,11 +8,16 @@ const LeftImagesBlock = ({ images, mainContainerOffset, answered, lock, addCurve
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     
-    const firstImages = (images.length === 4 || images.length === 3)
+    const firstImages = (images?.length === 4 || images?.length === 3)
     ? images
-    : (images.length === 5 || images.length === 6)
+    : (images?.length === 5 || images?.length === 6)
       ? images.slice(0, 3)
       : [];
+
+    const handleAddLine = (data) => {
+        setIsDrawing(false);
+        setLines((prev) => [...prev, data]);
+    };
 
     return (
         <View style={{width: windowWidth * (80 / 800), height: windowHeight * (312 / 360), alignItems: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, justifyContent: 'center', flexDirection: 'column'}}>
@@ -44,7 +49,14 @@ const LeftImagesBlock = ({ images, mainContainerOffset, answered, lock, addCurve
                             lineStartY.value = startObject.y + startObject.height / 2 - mainContainerOffset.top;
                         }
                 
-                        runOnJS(addCurvedLine)({ x1: lineStartX.value, y1: lineStartY.value, x2: newX, y2: newY, color: color }, setIsDrawing, setLines);
+                        runOnJS(handleAddLine)({
+                            x1: lineStartX.value,
+                            y1: lineStartY.value,
+                            x2: newX,
+                            y2: newY,
+                            color
+                        });
+                          
 
                     } else {
                         lineStartX.value = 0;

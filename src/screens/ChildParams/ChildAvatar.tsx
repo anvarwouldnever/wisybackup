@@ -3,6 +3,7 @@ import { Image, Dimensions, View, Text, Platform } from "react-native";
 import Animated, { useSharedValue, useAnimatedStyle, interpolate, SlideInRight, Extrapolation } from "react-native-reanimated";
 import store from "../../store/store";
 import { SvgUri } from "react-native-svg";
+import { getAvatars } from "./hooks/getAvatars";
 
 const { width, height } = Dimensions.get('window');
 const AvatarWidth = width * (180 / 360)
@@ -53,9 +54,11 @@ const RenderItem = ({ item, index, scrollX, lastIndex }) => {
     )
 }
 
-const ChildAvatar = ({ currentIndex, setCurrentIndex }) => {
+const ChildAvatar = ({ currentIndex, setCurrentIndex, settings }) => {
  
     const [scrollX, setScrollX] = useState(0)
+
+    const { avatars, error, loading } = getAvatars()
 
     const handleScroll = (event) => {
         const newScrollX = event?.nativeEvent?.contentOffset?.x;
@@ -63,8 +66,7 @@ const ChildAvatar = ({ currentIndex, setCurrentIndex }) => {
         setCurrentIndex(Math.floor(newScrollX / (AvatarWidth - Spacing)));
     };
 
-    const avatars = store?.addchildui?.avatars;
-    const title = store?.addchildui?.choose_avatar_title;
+    const title = settings?.choose_avatar_title;
     const lastIndex = avatars?.length - 1;
 
     return (

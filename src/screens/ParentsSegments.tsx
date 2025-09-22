@@ -16,6 +16,7 @@ import TimeAndPuzzles from "./ParentsSegments/TimeAndPuzzles";
 import Back from "./ParentsSegments/Back";
 import ChosenPeriod from "./ParentsSegments/ChosenPeriod";
 import RenderAttributes from "./ParentsSegments/RenderAttributes";
+import { GetChildAttributes } from "../api/methods/attributes/attributes";
 
 const ParentsSegments = ({ route }) => {
 
@@ -107,35 +108,32 @@ const ParentsSegments = ({ route }) => {
             try {
                 if (chosenPeriod === 'day') {
                         if (isToday(new Date(formattedDate.split('.').reverse().join('-')))) {
-                            const attributes = await api.getAttributeByChild({
-                                attribute_id: id,
-                                child_id: store.playingChildId.id,
-                                token: store.token,
-                                lang: store.language
-                            });
-                            setData(attributes);
+                            const attributes = await GetChildAttributes(
+                                id,
+                                store.playingChildId.id,
+                            );
+                            setData(attributes.data);
                         } else {
                             const selectedDate = new Date(formattedDate.split('.').reverse().join('-'));
                             const fromDate = format(subDays(selectedDate, 1), 'dd.MM.yyyy');
                             const toDate = format(addDays(selectedDate, 1), 'dd.MM.yyyy');
                 
-                            const attributes = await api.getAttributeByChild({
-                                attribute_id: id,
-                                child_id: store.playingChildId.id,
-                                from: fromDate,
-                                to: toDate,
-                                token: store.token,
-                                lang: store.language
-                            });
-                            setData(attributes);
+                            const attributes = await GetChildAttributes(
+                                id,
+                                store.playingChildId.id,
+                                fromDate,
+                                toDate,
+                                
+                            );
+                            setData(attributes.data);
                         }
                     
                 } else if (chosenPeriod === 'week') {
-                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: weekRange.startDate, to: weekRange.endDate, token: store.token, lang: store.language})
-                    setData(attributes)
+                    const attributes = await GetChildAttributes(id, store.playingChildId.id, weekRange.startDate, weekRange.endDate)
+                    setData(attributes.data)
                 } else if (chosenPeriod === 'month') {
-                    const attributes = await api.getAttributeByChild({attribute_id: id, child_id: store.playingChildId.id, from: monthRange.startDate, to: monthRange.endDate, token: store.token, lang: store.language})
-                    setData(attributes)
+                    const attributes = await GetChildAttributes(id, store.playingChildId.id, monthRange.startDate, monthRange.endDate)
+                    setData(attributes.data)
                 }
             } catch (error) {
                 console.log(error)

@@ -5,9 +5,9 @@ import store from "../../store/store";
 
 const { width, height } = Dimensions.get('window');
 
-const ChildEngagementTime = ({ options, setOptions }) => {
+const ChildEngagementTime = ({ options, setOptions, settings }) => {
 
-    const title = store?.addchildui?.engagement_title
+    const title = settings?.engagement_title
     
     return (
         <Animated.View entering={SlideInRight} style={{width: '100%', height: '100%', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'column'}}>

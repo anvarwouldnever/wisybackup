@@ -4,6 +4,7 @@ import { playSound } from '../hooks/usePlayBase64Audio';
 import api from '../api/api';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
+import { AnswerObjectMatching } from '../api/methods/game/answer';
 
 export const useObjectMatchingAnswer = ({
   data,
@@ -64,17 +65,15 @@ export const useObjectMatchingAnswer = ({
       setThinking(true);
       setLock(true);
 
-      const response = await api.answerTaskObjectMatching({
-        task_id: data?.id,
+      const response = await AnswerObjectMatching(
+        data?.id,
         attempt,
-        child_id: store?.playingChildId?.id,
-        success: params.answer,
+        store?.playingChildId?.id,
         lead_time,
-        token: store.token,
-        lang: store.language,
-        pair_id: params?.pair_id,
-        target_pair_id: params?.target_pair_id,
-      });
+        params.answer,
+        params?.pair_id,
+        params?.target_pair_id,
+      );
 
       if (!isActive.current) return;
 
@@ -83,19 +82,19 @@ export const useObjectMatchingAnswer = ({
         if (!isFromAttributes) {
           onCompleteTask(subCollectionId, data?.next_task_id);
         }
-        setText(response?.hint);
+        setText(response?.data?.hint);
         try {
           setWisySpeaking(true);
-          await playSound(response?.sound);
+          await playSound(response?.data?.sound);
         } catch (e) {
           console.log(e);
         } finally {
           setText(null);
           setWisySpeaking(false);
           setTimeout(() => {
-            if (response?.stars) {
-              setStars(response?.stars);
-              setEarnedStars(response?.stars - response?.old_stars);
+            if (response?.data?.stars) {
+              setStars(response?.data?.stars);
+              setEarnedStars(response?.data?.stars - response?.data?.old_stars);
             }
             setLevel((prev) => prev + 1);
             setLock(false);
@@ -103,19 +102,19 @@ export const useObjectMatchingAnswer = ({
         }
       };
 
-      if (response?.success && response?.stars) {
+      if (response?.data?.success && response?.data?.stars) {
         await finish(true);
-      } else if (!response?.success && response?.stars) {
+      } else if (!response?.data?.success && response?.data?.stars) {
         await finish(false);
-      } else if (!response?.success && !response?.to_next) {
+      } else if (!response?.data?.success && !response?.data?.to_next) {
         start();
         vibrate();
-        setText(response?.hint);
-        playVoice(response?.sound);
+        setText(response?.data?.hint);
+        playVoice(response?.data?.sound);
         setAttempt('2');
-      } else if (response?.success && !response?.stars) {
+      } else if (response?.data?.success && !response?.data?.stars) {
         await finish(true);
-      } else if (!response?.success && response?.to_next) {
+      } else if (!response?.data?.success && response?.data?.to_next) {
         await finish(false);
         setAttempt('1');
       }

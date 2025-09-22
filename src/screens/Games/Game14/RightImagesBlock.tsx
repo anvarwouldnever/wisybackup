@@ -8,9 +8,14 @@ const RightImagesBlock = ({ images, mainContainerOffset, answered, lock, addCurv
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
+    const handleAddLine = (data) => {
+        setIsDrawing(false);
+        setLines((prev) => [...prev, data]);
+    };
+
     return (
         <View style={{width: windowWidth * (80 / 800), height: windowHeight * (272 / 360), alignItems: 'center', justifyContent: 'space-between', flexDirection: 'column'}}>
-            {images.length === 4 || images.length === 3 ? null : (
+            {images?.length === 4 || images?.length === 3 ? null : (
                 <View 
                     style={{ 
                         width: windowWidth * (80 / 800), 
@@ -21,7 +26,7 @@ const RightImagesBlock = ({ images, mainContainerOffset, answered, lock, addCurv
                         flexDirection: 'column' 
                     }}
                 >
-                    {(images.length === 5 || images.length === 6 ? images.slice(3) : []).map((item, index) => {
+                    {(images?.length === 5 || images?.length === 6 ? images.slice(3) : []).map((item, index) => {
 
                         const gesture = Gesture.Pan()
                         .onBegin((event) => {
@@ -49,7 +54,13 @@ const RightImagesBlock = ({ images, mainContainerOffset, answered, lock, addCurv
                                     lineStartY.value = answer.y + answer.height / 2 - mainContainerOffset.top;
                                 }
                         
-                                runOnJS(addCurvedLine)({ x1: lineStartX.value, y1: lineStartY.value, x2: newX, y2: newY, color: color }, setIsDrawing, setLines);
+                                runOnJS(handleAddLine)({
+                                    x1: lineStartX.value,
+                                    y1: lineStartY.value,
+                                    x2: newX,
+                                    y2: newY,
+                                    color
+                                });
 
                             } else {
                                 lineStartX.value = 0;

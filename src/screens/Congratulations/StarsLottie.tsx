@@ -7,7 +7,6 @@ import star2 from '../../lotties/2.json'
 import star3 from '../../lotties/3.json'
 import { useScale } from "../../hooks/useScale";
 
-
 const StarsLottie = ({ stars }) => {
 
     const { s, vs } = useScale()
@@ -25,8 +24,8 @@ const StarsLottie = ({ stars }) => {
         <LottieView
             ref={lottieRef}
             source={stars.length === 1? star1 : stars.length === 2? star2 : stars.length === 3? star3 : star0}
-            style={{ width: '100%', height: '100%', alignItems: 'center', alignSelf: 'center', transform: [{ scale: Platform.isPad? 1.5 : 1}], position: 'absolute', top: 0, marginRight: vs(30)}}
-            resizeMode='center'
+            style={{ width: '100%', height: '100%', alignItems: 'center', alignSelf: 'center', transform: [{ scale: 1.5 }], position: 'absolute', top: 0, marginRight: vs(30)}}
+            resizeMode='cover'
             autoPlay={false}
             loop={false}
         />

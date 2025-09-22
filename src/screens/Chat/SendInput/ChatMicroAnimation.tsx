@@ -5,6 +5,7 @@ import store from '../../../store/store';
 import microimg from '../../../images/micro.png'
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import api from '../../../api/api'
+import { Message } from '../../../api/methods/chat/message';
 
 const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
@@ -58,8 +59,8 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
                 }, 500);
 
                 try {
-                    const response = await api.sendMessage({ child_id: store.playingChildId.id, audio: uri, token: store.token, isText: false, lang: store.language });
-                    await store.setMessages({ type: 'text', text: response?.data?.content, author: 'MyWisy' });
+                    const response = await Message( store.playingChildId.id, false, '', uri);
+                    await store.setMessages({ type: 'text', text: response?.data?.data?.content, author: 'MyWisy' });
 
                     setTimeout(() => {
                         if (firstMessageRef?.current) {

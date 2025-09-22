@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { Modal, TouchableOpacity, TextInput, useWindowDimensions, View, KeyboardAvoidingView, TouchableWithoutFeedback, Text, Image } from "react-native";
-import api from '../../../api/api'
-import store from "../../../store/store";
+import { ChangePassword } from "../../../api/methods/auth/auth";
 
 const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal }) => {
 
@@ -37,7 +36,7 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
                                     newPassword.length <= 8 || !/[A-Z]/.test(newPassword) 
                                     ? () => {} 
                                     : () => {
-                                        const reset = api.changePassword(store.email, store.token, newPassword);
+                                        const reset = ChangePassword(newPassword);
                                         console.log(reset);
                                         setModal(false);
                                         setPopUpModal(true);

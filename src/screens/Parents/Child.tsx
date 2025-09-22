@@ -6,12 +6,17 @@ import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import translations from "../../../localization";
 import Animated, { FadeInUp } from "react-native-reanimated";
+import { getChildren } from "../ChoosePlayer/hooks/getChildren";
+import { getAvatars } from "../ChildParams/hooks/getAvatars";
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
 
 const Child = ({ setDropDown, dropDown }) => {
 
-        const completedSubs = store?.children?.find(child => child.id === store.playingChildId?.id)?.completed_sub_collections;
+        const { children, loading, error } = getChildren()
+        const { avatars } = getAvatars()
+
+        const completedSubs = children?.find(child => child.id === store.playingChildId?.id)?.completed_sub_collections;
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
         const calculateAge = (birthday) => {
@@ -32,11 +37,11 @@ const Child = ({ setDropDown, dropDown }) => {
         const age = calculateAge(store.playingChildId?.birthday)
 
         return (
-            <AnimatedTouchableOpacity entering={FadeInUp.duration(400)} activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
+            <AnimatedTouchableOpacity activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
                 
                 <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800), justifyContent: 'space-between', borderRadius: 12, backgroundColor: '#F8F8F8', flexDirection: 'row', gap: windowWidth * (12 / 360), alignItems: 'center'}}>
                     {(() => {
-                        const avatarObj = store.avatars.find(avatar => avatar?.id === store.playingChildId?.avatar_id);
+                        const avatarObj = avatars.find(avatar => avatar?.id === store.playingChildId?.avatar_id);
                         const avatarUrl = avatarObj ? avatarObj?.image?.url : dog;
                         const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 

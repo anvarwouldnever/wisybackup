@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { FlatList, useWindowDimensions, Platform, View, ActivityIndicator } from "react-native";
-import store from "../../store/store";
+import { gameStore } from "../Games/store/gameStore";
 import { observer } from "mobx-react-lite";
 import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
@@ -9,8 +9,10 @@ import loadingAnim from '../../../assets/6Vcbuw6I0c (1).json';
 import md5 from 'react-native-md5';
 import Collections from "./GamesList/Collections";
 import SubCollections from "./GamesList/SubCollections";
+import store from "../../store/store";
+import { GetSpeeches } from "../../api/methods/speeches/speech";
 
-const GamesList = ({ activeCategory, firstOpeningAction }) => {
+const GamesList = ({ firstOpeningAction }) => {
     
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
@@ -20,15 +22,16 @@ const GamesList = ({ activeCategory, firstOpeningAction }) => {
 
     const playSpeech = useCallback(async (speechKey) => {
         if (store.isFirstOpening) return
+        if (store.wisySpeaking) return
         try {
             await playSound.stop();
             store.setWisySpeaking(true);
             
-            const sound = await api.getSpeech(speechKey, store.language);
-            if (sound.length > 0) {
-                const randomIndex = Math.floor(Math.random() * sound.length);
-                store.setWisyMenuText(sound[randomIndex]?.text);
-                await playSound(sound[randomIndex]?.audio);
+            const response = await GetSpeeches(speechKey);
+            if (response.data?.data.length > 0) {
+                const randomIndex = Math.floor(Math.random() * response.data?.data.length);
+                store.setWisyMenuText(response.data?.data[randomIndex]?.text);
+                await playSound(response.data?.data[randomIndex]?.audio);
             }
         } catch (error) {
             console.log(error);
@@ -43,8 +46,8 @@ const GamesList = ({ activeCategory, firstOpeningAction }) => {
         const visibleLoadingItem = viewableItems.find(({ item }) => item?.isLoading);
 
         if (visibleLoadingItem) {
-            const currentCategory = store.categories.find(item => item.id === activeCategory);
-            const currentCollection = currentCategory?.collections.find(col => col.id === store.collectionId);
+            const currentCategory = gameStore.categories.find(item => item.id === gameStore.categoryId);
+            const currentCollection = currentCategory?.collections.find(col => col.id === gameStore.collectionId);
 
             const collectionId = currentCollection?.id;
             const categoryId = currentCategory?.id;
@@ -52,50 +55,50 @@ const GamesList = ({ activeCategory, firstOpeningAction }) => {
             if (collectionId && categoryId) {
                 hasTriggered.current = true;
 
-                store.getAndProcessSubCollections({ collectionId, categoryId })
+                gameStore.getAndProcessSubCollections({ collectionId, categoryId })
                     .finally(() => {
                         hasTriggered.current = false;
                     });
             }
         }
-    }, [activeCategory, store.collectionId]);
+    }, [gameStore.categoryId, gameStore.collectionId]);
 
     const handleGameCompletion = (id, starId, earnedStars) => {
         console.log('run handleGameCompletion')
-        const subCollection = store.subCollections.find(sub => sub?.id === starId);
+        const subCollection = gameStore.subCollections.find(sub => sub?.id === starId);
         if (subCollection) {
             subCollection.stars.earned += earnedStars;
         }
 
-        console.log(id, store.collectionId)
+        console.log(id, gameStore.collectionId)
     
-        store.completeGame(activeCategory, id, starId, earnedStars, store.collectionId);
+        gameStore.completeGame(gameStore.categoryId, id, starId, earnedStars, gameStore.collectionId);
     };
     
     const handleTaskCompletion = useCallback((id, nextTaskId) => {
         console.log('run handleTaskCompletion')
-        const collection = store.subCollections.find(item => item.id === id);
+        const collection = gameStore.subCollections.find(item => item.id === id);
     
         if (collection) {
             collection.current_task_id = nextTaskId !== null ? nextTaskId : collection.tasks[0]?.id;
         }
     
-        store.completeTask(activeCategory, store.collectionId, id, nextTaskId);
-    }, [activeCategory, store.collectionId]);
+        gameStore.completeTask(gameStore.categoryId, gameStore.collectionId, id, nextTaskId);
+    }, [gameStore.categoryId, gameStore.collectionId]);
 
-    const collections = store.categories.find(item => item.id === activeCategory)?.collections;
-    const availableSubCollections = collections?.find(col => col?.id === store.collectionId)?.available_sub_collections || [];
+    const collections = gameStore.categories.find(item => item?.id === gameStore.categoryId)?.collections;
+    const availableSubCollections = collections?.find(col => col?.id === gameStore.collectionId)?.available_sub_collections || [];
 
     useEffect(() => {
         if (store.isFirstOpening && collections?.length > 0) {
             const firstItem = collections[0];
-            store.enqueueGetAndProcessSubCollections({collectionId: firstItem?.id, categoryId: firstItem?.category?.id});
-            store.setCollectionId(firstItem.id);
-            store.setCollectionName(firstItem.name);
+            gameStore.enqueueGetAndProcessSubCollections({collectionId: firstItem?.id, categoryId: firstItem?.category?.id});
+            gameStore.setCollectionId(firstItem.id);
+            gameStore.setCollectionName(firstItem.name);
         }
     }, [store.isFirstOpening, collections]);
 
-    const listData = store.subCollections?.length > 0 ? store?.subCollections : collections;
+    const listData = gameStore.subCollections?.length > 0 ? gameStore?.subCollections : collections;
     
     const renderItem = useMemo(() => {
         return ({ item, index }) => {
@@ -107,19 +110,19 @@ const GamesList = ({ activeCategory, firstOpeningAction }) => {
                 );
             }
     
-            const shouldRenderSub = store?.subCollections?.length > 0;
+            const shouldRenderSub = gameStore?.subCollections?.length > 0;
     
             return shouldRenderSub ? (
-                <SubCollections firstOpeningAction={firstOpeningAction} item={item} index={index} onComplete={handleGameCompletion} onCompleteTask={handleTaskCompletion} availableSubCollections={availableSubCollections} setWasAnimated={setWasAnimated} activeCategory={activeCategory} wasAnimated={wasAnimated} playSpeech={playSpeech}/>
+                <SubCollections firstOpeningAction={firstOpeningAction} item={item} index={index} onComplete={handleGameCompletion} onCompleteTask={handleTaskCompletion} availableSubCollections={availableSubCollections} setWasAnimated={setWasAnimated} wasAnimated={wasAnimated} playSpeech={playSpeech}/>
             ) : (
                 <Collections item={item} index={index} playSpeech={playSpeech} />
             );
         };
-    }, [ store.subCollections?.length, store.isFirstOpening ? store.wisySpeaking : null, store.isFirstOpening, availableSubCollections, wasAnimated ]);
+    }, [ gameStore.subCollections?.length, store.isFirstOpening ? store.wisySpeaking : null, store.isFirstOpening, availableSubCollections, wasAnimated ]);
     
     return (
         <View style={{ width: windowWidth * (480 / 800), height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (180 / 360), position: 'absolute', top: Platform.isPad ? windowHeight * (224 / 834) : windowHeight * (104 / 360), left: windowWidth * (320 / 800), justifyContent: 'center', overflow: 'visible'}}>
-            {store.isSubCollectionsLoading || store.isCollectionLoading? 
+            {gameStore.isSubCollectionsLoading || gameStore.isCollectionLoading? 
                 <LottieView
                         loop={true}
                         autoPlay
@@ -130,7 +133,7 @@ const GamesList = ({ activeCategory, firstOpeningAction }) => {
                 <FlatList
                     horizontal
                     data={listData}
-                    extraData={[store.categories, store.subCollections?.length]}
+                    extraData={[gameStore.categories, gameStore.subCollections?.length]}
                     renderItem={renderItem}
                     keyExtractor={(item, index) => md5.hex_md5(`${item?.id}_${item?.image}`)}
                     showsHorizontalScrollIndicator={false}

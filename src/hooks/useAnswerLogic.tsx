@@ -1,9 +1,9 @@
 import { useCallback, useRef } from 'react';
 import { Vibration } from 'react-native';
 import { playSound } from '../hooks/usePlayBase64Audio';
-import api from '../api/api';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
+import { AnswerSimpleChoice } from '../api/methods/game/answer';
 
 export const useAnswerLogic = ({
   data,
@@ -64,15 +64,7 @@ export const useAnswerLogic = ({
       setLock(true);
       await playSound.stop();
 
-      const response = await api.answerTaskSC({
-        task_id: data.id,
-        attempt,
-        child_id: store.playingChildId.id,
-        answer,
-        lead_time,
-        token: store.token,
-        lang: store.language,
-      });
+      const response = await AnswerSimpleChoice(data.id, attempt, store.playingChildId.id, lead_time, answer);
 
       if (!isActive.current) return;
 
@@ -82,18 +74,18 @@ export const useAnswerLogic = ({
           onCompleteTask(subCollectionId, data?.next_task_id);
         }
         setId({ id: answer, result: correct ? 'correct' : 'wrong' });
-        setText(response?.hint);
+        setText(response.data?.hint);
         try {
           setWisySpeaking(true);
-          await playSound(response?.sound);
+          await playSound(response?.data?.sound);
         } catch (e) {
           console.log(e);
         } finally {
           setText(null);
           setWisySpeaking(false);
           setTimeout(() => {
-            setStars?.(response?.stars);
-            setEarnedStars?.(response?.stars - response?.old_stars);
+            setStars?.(response?.data?.stars);
+            setEarnedStars?.(response?.data?.stars - response?.data?.old_stars);
             setLevel?.((prev) => prev + 1);
             setLock(false);
             setId(null);
@@ -105,20 +97,20 @@ export const useAnswerLogic = ({
         start();
         setId({ id: answer, result: 'wrong' });
         vibrate();
-        setText(response?.hint);
-        await playVoice(response?.sound);
+        setText(response?.data?.hint);
+        await playVoice(response?.data?.sound);
         setAttempt?.('2');
       };
 
-      if (response?.success && response?.stars) {
+      if (response?.data?.success && response?.data?.stars) {
         await handleSuccess(true);
-      } else if (response?.success && response?.to_next && !response?.stars) {
+      } else if (response?.data?.success && response?.data?.to_next && !response?.data?.stars) {
         await handleSuccess(true);
-      } else if (!response?.success && response?.stars) {
+      } else if (!response?.data?.success && response?.data?.stars) {
         await handleSuccess(false);
-      } else if (!response?.success && !response?.to_next) {
+      } else if (!response?.data?.success && !response?.data?.to_next) {
         await handleRepeat();
-      } else if (!response?.success && response?.to_next) {
+      } else if (!response?.data?.success && response?.data?.to_next) {
         await handleSuccess(false);
         setAttempt?.('1');
       }

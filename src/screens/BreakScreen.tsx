@@ -8,6 +8,8 @@ import store from '../store/store';
 import { newPlaySound, stopCurrentSound } from '../hooks/newPlaySound';
 import { observer } from 'mobx-react-lite';
 import { Audio } from 'expo-av';
+import { gameStore } from './Games/store/gameStore';
+import fetchAnimation from './Break/FetchLottie';
 
 const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, categoryId, taskLevel }) => {
 
@@ -85,12 +87,12 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
         if (seconds <= 10 && !loadedOnce.current) {
             loadedOnce.current = true
             if (!isFromAttributes) {
-                const currentTaskGroup = store.tasks[taskLevel];
-                const indexInTasks = store.tasks.findIndex(group => group.id === currentTaskGroup.id);
-                const collectionId = store.collectionId
+                const currentTaskGroup = gameStore.tasks[taskLevel];
+                const indexInTasks = gameStore.tasks.findIndex(group => group.id === currentTaskGroup.id);
+                const collectionId = gameStore.collectionId
                     
-                if (indexInTasks >= store.tasks?.length - 3) {
-                    store.loadNextTasksChunk({ categoryId, collectionId });
+                if (indexInTasks >= gameStore.tasks?.length - 3) {
+                    gameStore.loadNextTasksChunk({ categoryId, collectionId });
                 }
             }
         } else {
@@ -107,18 +109,24 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
                 currentBreak = anyBreak?.dynamic_breaks[animationsOrder];
                 if (!currentBreak) return;
     
-                
+                animationData = await fetchAnimation(currentBreak?.animation);
             } catch (error) {
                 console.log(error);
             } finally {
-                if (currentBreak) {
-                    setAnimation(currentBreak?.animation);
+                if (animationData && currentBreak) {
+                    setAnimation(animationData);
                     setTextOrder(0);
-
-                    const timeoutId2 = setTimeout(() => {
+        
+                    const timeoutId1 = setTimeout(() => {
+                        animationRef.current?.reset();
+                        animationRef.current?.play();
+                      }, 1);
+                      timeoutIds.current.push(timeoutId1); // Сохраняем ID таймаута
+            
+                      const timeoutId2 = setTimeout(() => {
                         setAnimationOrders((prev) => prev + 1);
-                    }, currentBreak?.duration * 1000);
-                    timeoutIds.current.push(timeoutId2);
+                      }, currentBreak?.duration * 1000);
+                      timeoutIds.current.push(timeoutId2);
                 }
             }
         };
@@ -220,12 +228,12 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
                         autoPlay
                         loop
                         ref={animationRef}
-                        source={{ uri: animation }}
+                        source={animation}
                         style={{
-                        width: windowWidth * (315 / 800),
-                        height: windowHeight * (315 / 360),
-                        position: 'absolute',
-                        alignSelf: 'center',
+                            width: windowWidth * (315 / 800),
+                            height: windowHeight * (315 / 360),
+                            position: 'absolute',
+                            alignSelf: 'center',
                         }}
                     />
                 ) : (

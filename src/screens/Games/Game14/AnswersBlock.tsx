@@ -13,9 +13,14 @@ const AnswersBlock = ({ images, mainContainerOffset, answered, lock, addCurvedLi
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
+    const handleAddLine = (data) => {
+        setIsDrawing(false);
+        setLines((prev) => [...prev, data]);
+    };
+
     return (
         <View style={{width: windowWidth * (160 / 800), height: windowHeight * (300 / 360), alignItems: 'center', justifyContent: 'center', gap: images.length === 4 || images.length === 3 ? 12 : 16, flexDirection: 'column', overflow: 'visible'}}>
-            {answers.map((item, index) => {
+            {answers?.map((item, index) => {
 
                 const type = item?.text ? 'text' : 'image'
 
@@ -56,7 +61,13 @@ const AnswersBlock = ({ images, mainContainerOffset, answered, lock, addCurvedLi
                                 lineStartY.value = answer.y + answer.height / 2 - mainContainerOffset.top;
                             }
                     
-                            runOnJS(addCurvedLine)({ x1: lineStartX.value, y1: lineStartY.value, x2: newX, y2: newY, color: color }, setIsDrawing, setLines);
+                            runOnJS(handleAddLine)({
+                                x1: lineStartX.value,
+                                y1: lineStartY.value,
+                                x2: newX,
+                                y2: newY,
+                                color
+                            });
 
                         } else {
                             lineStartX.value = 0;

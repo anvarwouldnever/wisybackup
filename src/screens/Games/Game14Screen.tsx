@@ -19,8 +19,6 @@ import RightImagesBlock from "./Game14/RightImagesBlock";
 
 const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
-    // console.log(data?.content?.pairs[0]?.target_pair)
-    
     const [lines, setLines] = useState([]);
     const [answers, setAnswers] = useState([]);
     const [answered, setAnswered] = useState([]);
@@ -131,15 +129,15 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
 
-            <Animated.View entering={ZoomInEasyDown} style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
-                
-                <LeftImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
+                <Animated.View entering={ZoomInEasyDown} style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
+                    
+                    <LeftImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
 
-                <AnswersBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
+                    <AnswersBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
 
-                {images.length === 4 || images.length === 3 ? null : <RightImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
+                    {images.length === 4 || images.length === 3 ? null : <RightImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
 
-            </Animated.View>
+                </Animated.View>
 
             }   
             

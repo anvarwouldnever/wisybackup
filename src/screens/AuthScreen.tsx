@@ -14,10 +14,8 @@ const AuthScreen = ({ route }) => {
         navigation.navigate('EmailConfirmScreen')
     }
 
-    // console.log(store.categories)
-
     const playersScreen = (players) => {
-        navigation.navigate('ChoosePlayerScreen', {players: players})
+        navigation.navigate('ChoosePlayerScreen')
     }
 
     useFocusEffect(
@@ -33,7 +31,11 @@ const AuthScreen = ({ route }) => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <SafeAreaView style={{flex: 1, alignItems: 'center'}}>
                 <Logo />
-                {authOption === 'signup'? <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> : <AuthLogin playersScreen={playersScreen} proceed={proceed} toggleOption={setAuthOption}/>}       
+                {authOption === 'signup'? 
+                    <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> 
+                : 
+                    <AuthLogin playersScreen={playersScreen} proceed={proceed} toggleOption={setAuthOption}/>
+                }       
             </SafeAreaView>
         </TouchableWithoutFeedback>
     )

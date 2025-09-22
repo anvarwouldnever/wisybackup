@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo, useState } from "react";
+import React, { useEffect, useRef, useMemo } from "react";
 import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions } from "react-native";
 import reload from '../../images/tabler_reload.png';
 import LottieView from "lottie-react-native";
@@ -13,6 +13,8 @@ import speakingAndStanding from '../../lotties/speakingAndStanding.json';
 import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json';
 import { observer } from "mobx-react-lite";
 import bamboo from '../../lotties/panda bamboo eat5-F.json'
+import { gameStore } from "../Games/store/gameStore";
+import { GetSpeeches } from "../../api/methods/speeches/speech";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
         
@@ -28,11 +30,11 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
         try {
             playSound.stop()
             store.setWisySpeaking(true);
-            const sound = await api.getSpeech(name, store.language);
-            if (sound.length > 0) {
-                const randomIndex = Math.floor(Math.random() * sound.length);
-                store.setWisyMenuText(sound[randomIndex]?.text);
-                await playSound(sound[randomIndex]?.audio);
+            const response = await GetSpeeches(name);
+            if (response.data?.data?.length > 0) {
+                const randomIndex = Math.floor(Math.random() * response?.data?.data?.length);
+                store.setWisyMenuText(response.data?.data[randomIndex]?.text);
+                await playSound(response.data?.data[randomIndex]?.audio);
             }
         } catch (error) {
             console.log(error);
@@ -42,7 +44,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     };
 
     useEffect(() => {
-        if (store.isFirstOpening && marketCollections && !store.loadingCats ) {
+        if (store.isFirstOpening && marketCollections && !gameStore.loadingCats ) {
             playWelcomeSequenceMarket()
             return
         }
@@ -51,7 +53,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
             setAnimation(null);
         }
     
-        if (!store.isFirstOpening && marketCollections && !store.loadingCats && !store.wisySpeaking) {
+        if (!store.isFirstOpening && marketCollections && !gameStore.loadingCats && !store.wisySpeaking) {
             func('open_market');
         }
     }, [marketCollections]);
@@ -59,10 +61,10 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     const firstOpening = async(name: string) => {
         try {
             playSound.stop()
-            const sound = await api.getSpeech(name, store.language);
+            const sound = await GetSpeeches(name);
             store.setWisySpeaking(true);
-            store.setWisyMenuText(sound[0]?.text);
-            await playSound(sound[0]?.audio);
+            store.setWisyMenuText(sound.data?.data[0]?.text);
+            await playSound(sound.data?.data[0]?.audio);
         } catch (error) {
             console.log(error);
         } 
@@ -132,14 +134,14 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     useEffect(() => {
         if (store.isFirstOpening) return;
     
-        if (!store.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current && !welcomeSequenceDone.current) {
+        if (!gameStore.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current && !welcomeSequenceDone.current) {
             doneWelcomeSpeech.current = true;
             func('enter_collections_screen');
         }
-    }, [store.loadingCats]);    
+    }, [gameStore.loadingCats]);    
 
     useEffect(() => {
-        if (animationStart && !store.loadingCats) {
+        if (animationStart && !gameStore.loadingCats) {
             animationRef.current?.reset();
             animationHasFinishedOnceRef.current = false;
             const func = async () => {
@@ -158,12 +160,12 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
 
                 if (store.isFirstOpening) return
 
-                const sound = await api.getSpeech('market_item_purchase', store.language);
-                if (sound.length > 0) {
+                const sound = await GetSpeeches('market_item_purchase');
+                if (sound.data?.data?.length > 0) {
                     playSound.stop();
-                    const randomIndex = Math.floor(Math.random() * sound.length);
-                    store.setWisyMenuText(sound[randomIndex]?.text);
-                    await playSound(sound[randomIndex]?.audio);
+                    const randomIndex = Math.floor(Math.random() * sound.data?.data?.length);
+                    store.setWisyMenuText(sound.data?.data[randomIndex]?.text);
+                    await playSound(sound.data?.data[randomIndex]?.audio);
                 }
             };
             func();
@@ -248,17 +250,22 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     return (
             <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
                 <View style={{alignItems: 'center', position: 'absolute', bottom: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (10 / 360), left: Platform.isPad? 'auto' : windowWidth * (60 / 800), justifyContent: 'space-between', height: 'auto', gap: Platform.isPad? 20 : 0}}>
-                    {store.wisyMenuText && <Animated.View key={store.wisyMenuText} entering={ZoomInEasyDown} style={{width: windowWidth * (192 / 800), height: 'auto'}}>
-                        <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
-                            <Text style={{fontWeight: '500', fontSize: windowWidth * (14 / 800)}}>
-                                {store.wisyMenuText}
-                            </Text>
-                        </View>
-                        <View style={styles.triangle}/>
-                        <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
-                            <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
-                        </TouchableOpacity>
-                    </Animated.View>}
+                    {store.wisyMenuText && 
+
+                        <Animated.View key={store.wisyMenuText} entering={ZoomInEasyDown} style={{width: windowWidth * (192 / 800), height: 'auto'}}>
+                            <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
+                                <Text style={{fontWeight: '500', fontSize: windowWidth * (14 / 800)}}>
+                                    {store.wisyMenuText}
+                                </Text>
+                            </View>
+                            <View style={styles.triangle}/>
+                            <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
+                                <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
+                            </TouchableOpacity>
+                        </Animated.View>
+
+                    }
+
                     <LottieView
                         key={animation}
                         ref={animationRef}
@@ -269,6 +276,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
                             transform: [{ scale: 1.3 }]
                         }}
                     />
+                    
                 </View>
             </View>
         )

@@ -16,18 +16,16 @@ import Stars from "./Main/Stars";
 import { LinearGradient } from "expo-linear-gradient";
 import ModalConfirm from "./Main/ModalConfirm";
 import store from "../store/store";
+import { gameStore } from "./Games/store/gameStore";
 
 const MainScreen = () => {
-
-    const [activeCategory, setActiveCategory] = useState(0);
+    
     const [activeMarket, setActiveMarket] = useState(0);
     const [marketCollections, setMarketCollections] = useState(null);
     const [currentAnimation, setCurrentAnimation] = useState({animation: null, cost: null, id: null});
     const [animationStart, setAnimationStart] = useState(false);
     const [modal, setModal] = useState(false);
     const [animation, setAnimation] = useState(null);
-          
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions()
 
     useFocusEffect(
         useCallback(() => {
@@ -38,11 +36,13 @@ const MainScreen = () => {
         }, [])
     );
 
+    const { height: windowHeight, width: windowWidth } = useWindowDimensions()
+
     const firstOpeningAction = () => {
         setAnimation(null);
         setAnimationStart(false);
         setMarketCollections(!null);
-        store.resetSubCollection()
+        gameStore.resetSubCollection()
         store.setWisySpeaking(true)
     }
 
@@ -54,16 +54,16 @@ const MainScreen = () => {
                     <MarketCollections animationStart={animationStart} setModal={setModal} setAnimationStart={setAnimationStart} currentAnimation={currentAnimation} setCurrentAnimation={setCurrentAnimation} activeMarket={activeMarket}/>
                 }
                 <Back />
-                {store?.subCollections?.length > 0 && marketCollections == null? <HeaderCollection /> : <HeaderMenu setAnimation={setAnimation} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
+                {gameStore?.subCollections?.length > 0 && marketCollections == null? <HeaderCollection /> : <HeaderMenu setAnimation={setAnimation} marketCollections={marketCollections} setAnimationStart={setAnimationStart} setMarketCollections={setMarketCollections}/>}
                 {/* {marketCollections != null && <MarketCategories currentAnimation={currentAnimation}/>} */}
                 <View style={{top: windowHeight * (24 / 360), left: windowWidth * (653 / 800), position: 'absolute', flexDirection: 'row', gap: 7}}>
                     <Stars />
                     <GoParent setAnimationStart={setAnimationStart}/>
                 </View>
 
-                {marketCollections == null && <Categories activeCategory={activeCategory} setActiveCategory={setActiveCategory}/>}
+                {marketCollections == null && <Categories />}
 
-                {marketCollections == null && <GamesList activeCategory={activeCategory} firstOpeningAction={firstOpeningAction}/>}
+                {marketCollections == null && <GamesList firstOpeningAction={firstOpeningAction}/>}
                 {modal && <ModalConfirm setCurrentAnimation={setCurrentAnimation} setAnimationStart={setAnimationStart} setModal={setModal} modal={modal} currentAnimation={currentAnimation} setAnimation={setAnimation} />}
             </LinearGradient>
         </View>

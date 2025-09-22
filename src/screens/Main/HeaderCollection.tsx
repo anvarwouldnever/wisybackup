@@ -1,17 +1,16 @@
 import React from "react";
 import { View, TouchableOpacity, Image, Text, useWindowDimensions, Platform } from "react-native";
 import arrow from '../../images/arrow-left.png';
-import api from "../../api/api";
-import { playSound } from "../../hooks/usePlayBase64Audio";
 import store from "../../store/store";
 import { observer } from "mobx-react-lite";
+import { gameStore } from "../Games/store/gameStore";
 
 const HeaderCollection = () => {
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const func = async() => {
-            store.resetSubCollection()
+            gameStore.resetSubCollection()
             if (store.wisySpeaking) return
             // try {
             //     playSound.stop()
@@ -34,7 +33,7 @@ const HeaderCollection = () => {
                     <Image source={arrow} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360),}}/>
                 </TouchableOpacity>
                 <Text style={{fontWeight: '600', color: 'white', marginLeft: 20, fontSize: Platform.isPad? windowWidth * (20 / 800) : windowWidth * (20 / 800), textAlign: 'center', textAlignVertical: 'center', alignSelf: 'center'}}>
-                    {store.collectionName}
+                    {gameStore.collectionName}
                 </Text>
             </View>
         )

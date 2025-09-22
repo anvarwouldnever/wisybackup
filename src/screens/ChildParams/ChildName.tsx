@@ -6,7 +6,7 @@ import translations from "../../../localization";
 
 const { width, height } = Dimensions.get('window');
 
-const ChildName = ({ setKeyboardActive, setOptions, options, nameError, setNameError }) => {
+const ChildName = ({ setKeyboardActive, setOptions, options, nameError, setNameError, settings }) => {
 
     return (
         <Animated.View entering={SlideInRight} style={{flexDirection: 'column', justifyContent: 'space-between', width: width * 0.8666, height: height * (135 / 800)}}>
@@ -17,7 +17,7 @@ const ChildName = ({ setKeyboardActive, setOptions, options, nameError, setNameE
                 style={{fontWeight: '600', fontSize: height * (14 / 800), textAlign: 'center', borderRadius: 100, width: width * 0.8666, height: height * (56 / 800), borderColor: nameError? 'red' : '#E5E5E5', borderWidth: 1, padding: height * (16 / 800)}}
                 onFocus={() => setKeyboardActive(true)}
                 keyboardAppearance='dark'
-                placeholder={store?.addchildui?.child_name_placeholder}
+                placeholder={settings?.child_name_placeholder}
                 placeholderTextColor={'#B1B1B1'}
                 onEndEditing={() => setKeyboardActive(false)}
                 onChangeText={(text) => {

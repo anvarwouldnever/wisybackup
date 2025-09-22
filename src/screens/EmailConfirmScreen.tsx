@@ -5,6 +5,7 @@ import EmailModal from './EmailConfirm/EmailModal';
 import store from '../store/store';
 import api from '../api/api';
 import translations from '../../localization';
+import { ForgotPassword } from '../api/methods/auth/auth';
 
 const EmailConfirmScreen = () => {
 
@@ -15,11 +16,11 @@ const EmailConfirmScreen = () => {
 
     const resetPassword = async () => {
         try {
-        setIsButtonDisabled(true);
-        setTimer(20);
-        await api.forgotPassword(store.holdEmail);
+            setIsButtonDisabled(true);
+            setTimer(20);
+            await ForgotPassword(store.holdEmail);
         } catch (error) {
-        console.log(error);
+            console.log(error);
         }
     };
 

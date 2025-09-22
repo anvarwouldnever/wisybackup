@@ -1,11 +1,11 @@
 import { View, TouchableOpacity, Text, Image, useWindowDimensions } from "react-native";
-import store from "../../store/store";
 import * as ScreenOrientation from 'expo-screen-orientation';
 import Modal from 'react-native-modal'
 import circleX from '../../images/circleX.png'
 import { useNavigation } from "@react-navigation/native";
-import api from "../../api/api";
 import { useState } from "react";
+import { GetTasks } from "../../api/methods/game/tasks";
+import { gameStore } from "../Games/store/gameStore";
 
 const InformationModal = ({ modalData, setInformationModal, informationModal, setIsFrozen }) => {
 
@@ -20,13 +20,10 @@ const InformationModal = ({ modalData, setInformationModal, informationModal, se
             setIsFrozen(true)
             setIsLoading(true);
 
-            const response = await api.getTasks(
-                { id: modalData.id, token: store.token },
-                store.language
-            );
+            const response = await GetTasks(modalData.id);
 
-            await store.setTasks([{
-                tasks: response,
+            await gameStore.setTasks([{
+                tasks: response.data?.data,
                 current_task_id_index: 0,
                 id: modalData.id,
                 order: modalData?.order_column,

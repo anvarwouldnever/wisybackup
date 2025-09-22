@@ -6,8 +6,13 @@ import narrowup from '../../images/narrowup.png';
 import Modal from 'react-native-modal'
 import { SvgUri } from "react-native-svg";
 import translations from "../../../localization";
+import { getChildren } from "../ChoosePlayer/hooks/getChildren";
+import { getAvatars } from "../ChildParams/hooks/getAvatars";
 
 const DropDownModal = ({ setDropDown, dropDown }) => {
+
+    const { children } = getChildren()
+    const { avatars } = getAvatars()
 
         const calculateAge = (birthday) => {
             const today = new Date();
@@ -27,10 +32,10 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const renderChild = ({ item, index }) => {
-            const last = store.children?.length - 1;
+            const last = children?.length - 1;
             const age = calculateAge(item?.birthday);
         
-            const avatarObj = store.avatars.find(avatar => avatar.id === item.avatar_id);
+            const avatarObj = avatars.find(avatar => avatar.id === item.avatar_id);
             const avatarUrl = avatarObj ? avatarObj.image.url : dog;
             const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
         
@@ -119,13 +124,13 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
             <Modal backdropColor="black" backdropOpacity={0.3} hasBackdrop={true} onBackdropPress={() => setDropDown(prev => !prev)} style={{height: 'auto', alignSelf: 'center', width: windowWidth * (312 / 360), position: 'absolute', top: windowHeight * (76 / 800)}} isVisible={dropDown} animationIn={'fadeIn'} >
                 <View style={{height: windowHeight * (233 / 800), borderRadius: 12, overflow: 'hidden', backgroundColor: 'white'}}>
                     <FlatList 
-                        data={store.children.slice().sort((a, b) => {
+                        data={children.slice().sort((a, b) => {
                             if (a.id === store.playingChildId.id) return -1;
                             if (b.id === store.playingChildId.id) return 1;
                             return 0;
                         })}
                         renderItem={renderChild}
-                        scrollEnabled={store.children.length >= 3? true : false}
+                        scrollEnabled={children.length >= 3? true : false}
                         keyExtractor={(item, index) => index.toString()}
                         contentContainerStyle={{backgroundColor: 'transparent'}}
                     />

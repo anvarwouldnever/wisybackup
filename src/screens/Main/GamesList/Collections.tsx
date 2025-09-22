@@ -5,6 +5,7 @@ import api from '../../../api/api';
 import Animated, { Easing, FadeInRight } from 'react-native-reanimated';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import store from '../../../store/store';
+import { gameStore } from '../../Games/store/gameStore';
 
 const Collections = ({ item, index, playSpeech }) => {
 
@@ -27,7 +28,7 @@ const Collections = ({ item, index, playSpeech }) => {
     return (
         <Animated.View entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: 'auto', height: 'auto' }}>
             
-            <TouchableOpacity onPress={() => { try { store.enqueueGetAndProcessSubCollections({collectionId: item?.id, categoryId: item?.category?.id}); store.setCollectionId(item.id); store.setCollectionName(item?.name); func(); } catch (error) { console.log('Ошибка в onPress:', error); } }} style={{ backgroundColor: 'white', borderRadius: 12, width: windowWidthFactor, height: windowHeightFactor, marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F' }}>
+            <TouchableOpacity onPress={() => { try { gameStore.enqueueGetAndProcessSubCollections({collectionId: item?.id, categoryId: item?.category?.id}); gameStore.setCollectionId(item.id); gameStore.setCollectionName(item?.name); func(); } catch (error) { console.log('Ошибка в onPress:', error); } }} style={{ backgroundColor: 'white', borderRadius: 12, width: windowWidthFactor, height: windowHeightFactor, marginRight: 20, borderWidth: 1, borderColor: '#FFFFFF1F' }}>
                 
                 <Text style={{ fontWeight: '600', fontSize: textFontSize, textAlign: 'center', width: '100%', height: 'auto', color: 'black', position: 'absolute', top: isPad ? windowHeight * (12 / 360) : 12 }}>{item.name}</Text>
                 {api.baseUrl === 'https://tapimywisy.hostweb.uz/api/v1/app' && <Text style={{ fontWeight: '600', fontSize: textFontSize, color: 'blue', position: 'absolute', top: isPad ? windowHeight * (12 / 360) : 10, left: 10 }}>{item?.id}</Text>}

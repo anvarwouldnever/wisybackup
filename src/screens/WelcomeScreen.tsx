@@ -1,47 +1,22 @@
-import React, { useState, useCallback, useEffect} from "react";
+import React, { useState } from "react";
 import { View, SafeAreaView, ActivityIndicator } from "react-native";
 import Logo from "../components/Logo";
 import SlideShow from "./Welcome/SlideShow";
-import { useFocusEffect } from '@react-navigation/native';
-import * as ScreenOrientation from 'expo-screen-orientation';
-import store from "../store/store";
 import { observer } from "mobx-react-lite";
 import Buttons from "./Welcome/Buttons";
 import Dots from "./Welcome/Dots";
 import { useScale } from "../hooks/useScale";
+import useLockPortrait from "../hooks/useLockPortrait";
+import { getOnboardings } from "./Welcome/hooks/getSlides";
 
 const WelcomeScreen = () => {
 
     const [currentIndex, setCurrentIndex] = useState<number>(0);
-    const [loading, setLoading] = useState<boolean>(false);
-
+    
     const { s, vs } = useScale();
+    const { onboardings, loading, error } = getOnboardings()
 
-    useEffect(() => {
-        
-        const getSLides = async() => {
-            try {
-                setLoading(true)
-                await store.loadSlides()
-            } catch (error) {
-                console.log(error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        getSLides()
-
-    }, []);
-
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    useLockPortrait()
 
     return (
         <SafeAreaView style={{ backgroundColor: 'white', flex: 1, justifyContent: 'space-between' }}>
@@ -52,11 +27,11 @@ const WelcomeScreen = () => {
                 {loading? 
                     <ActivityIndicator size={'large'} color={'purple'}/> 
                 : 
-                    <SlideShow onPageChange={setCurrentIndex}/>
+                    <SlideShow onboardings={onboardings} onPageChange={setCurrentIndex}/>
                 }
             </View>
 
-            <Dots currentIndex={currentIndex} />
+            <Dots onboardings={onboardings} currentIndex={currentIndex} />
 
             <Buttons />
 

@@ -11,6 +11,7 @@ import OverlayHint from './components/OverlayHint';
 import SkipButton from './components/SkipButton';
 import TutorialOverlay from './components/TutorialOverlay';
 import WisyHint from './components/WisyHint';
+import { AnswerVoiceTask } from '../../api/methods/game/answer';
 
 const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {    
 
@@ -170,17 +171,15 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             setThinking(true);
             setLock(true);
     
-            const requestStatus = await api.answerTask(
+            const requestStatus = await AnswerVoiceTask(
                 data.id,
                 attempt,
-                uri,
                 `${store.playingChildId.id}`,
-                store.token,
                 lead_time,
-                store.language
+                uri
             );
     
-            return requestStatus;
+            return requestStatus.data;
     
         } catch (error) {
             setLock(false);

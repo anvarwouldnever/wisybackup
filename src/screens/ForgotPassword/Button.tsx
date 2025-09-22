@@ -5,6 +5,7 @@ import store from '../../store/store'
 import { useScale } from '../../hooks/useScale'
 import { useNavigation } from '@react-navigation/native'
 import api from '../../api/api'
+import { ForgotPassword } from '../../api/methods/auth/auth'
 
 const Button = ({ setError, email, isValidEmail }) => {
 
@@ -14,15 +15,14 @@ const Button = ({ setError, email, isValidEmail }) => {
     
     const resetPassword = async () => {
         try {
-            const response = await api.forgotPassword(email);
-            if (response.is_success) {
+            const response = await ForgotPassword(email);
+            if (response.data?.is_success) {
                 await store.setHoldEmail(email);
                 navigation.navigate("EmailConfirmScreen")
-            } else {
-                setError(response)
             }
         } catch (error) {
             console.log(error);
+            setError(error.response.data.message)
         }
     };
 

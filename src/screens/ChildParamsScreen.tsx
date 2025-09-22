@@ -11,12 +11,18 @@ import ChildAvatar from "./ChildParams/ChildAvatar";
 import ChildEngagementTime from "./ChildParams/ChildEngagementTime";
 import ChildGender from "./ChildParams/ChildGender";
 import ChildName from "./ChildParams/ChildName";
+import { AddChild, GetChildren } from "../api/methods/children/children";
+import { getAvatars } from "./ChildParams/hooks/getAvatars";
+import { getSettings } from "./ChildParams/hooks/getSignUpSettings";
+import { clearChildrenCache, getChildren } from "./ChoosePlayer/hooks/getChildren";
 
 const { width, height } = Dimensions.get('window');
 
 const ChildParams = () => {
 
-    const avatars = store?.addchildui?.avatars;
+    const { avatars } = getAvatars()
+    const { settings } = getSettings()
+    const { children } = getChildren()
 
     const [currentIndex, setCurrentIndex] = useState(0)
     const [keyboardActive, setKeyboardActive] = useState(false)
@@ -52,10 +58,10 @@ const ChildParams = () => {
     const addChild = async() => {
         try {
             setLoading(true)
-            const requestStatus = await api.addChild(options.name, `${currentAvatar}`, options.age, options.gender, options.engagement_time, store.token)
-            await store.setChildren(requestStatus.children)
-            await store.setNewChildren(requestStatus.newChild?.id)
-            if (requestStatus) {
+            const addedChild = await AddChild(options.name, `${currentAvatar}`, options.age, options.gender, options.engagement_time)
+            await store.setNewChildren(addedChild?.data?.data?.id)
+            if (addedChild.data) {
+                clearChildrenCache()
                 navigation.navigate('LoaderScreen')
             }
         } catch (error) {
@@ -68,7 +74,7 @@ const ChildParams = () => {
     const navigate = () => {
         const newName = options.name.trim().toLowerCase();
     
-        const nameExists = store.children.some(child => child.name.trim().toLowerCase() === newName);
+        const nameExists = children.some(child => child.name.trim().toLowerCase() === newName);
 
         if (nameExists) {
             setFocusComponent('name')
@@ -94,11 +100,11 @@ const ChildParams = () => {
                             {
                                 focusComponent === 'name' && ScreenOrientation.Orientation.PORTRAIT_UP ?
                                 <Animated.View key={ScreenOrientation.Orientation} style={{width: width, height: height * (180 / 800), alignItems: 'center'}}>
-                                    <ChildName nameError={nameError} setNameError={setNameError} setKeyboardActive={setKeyboardActive} setOptions={setOptions} options={options}/> 
+                                    <ChildName settings={settings} nameError={nameError} setNameError={setNameError} setKeyboardActive={setKeyboardActive} setOptions={setOptions} options={options}/> 
                                 </Animated.View>
                                 : focusComponent === 'avatar'?
                                 <View style={{width: width, height: height * (360 / 800)}}>
-                                    <ChildAvatar currentIndex={currentIndex} setCurrentIndex={setCurrentIndex}/> 
+                                    <ChildAvatar settings={settings} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex}/> 
                                 </View>
                                 : focusComponent === 'gender'?
                                 <View style={{width: width * 0.8666, height: height * (244 / 800)}}>
@@ -106,11 +112,11 @@ const ChildParams = () => {
                                 </View> 
                                 : focusComponent === 'engtime'?
                                 <View style={{width: width * 0.8666, height: height * (400 / 800), flexDirection: 'column', justifyContent: 'space-between'}}>
-                                    <ChildEngagementTime setOptions={setOptions} options={options}/>
+                                    <ChildEngagementTime settings={settings} setOptions={setOptions} options={options}/>
                                 </View> 
                                 :
                                 <View style={{height: height * (380 / 800), width: width, alignItems: 'center'}}>
-                                    <ChildAge setOptions={setOptions} options={options}/>
+                                    <ChildAge settings={settings} setOptions={setOptions} options={options}/>
                                 </View>
                             }
                         </View>

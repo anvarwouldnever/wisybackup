@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { SafeAreaView, View, Text, Image, Platform } from "react-native";
 import ParentsCancel from "./Parents/ParentsCancel";
 import { useFocusEffect } from "@react-navigation/native";
@@ -21,10 +21,13 @@ const ParentsCaptchaScreen = () => {
                 await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
             }
             changeScreenOrientation();
-            setAnswer([])
-            setError(false)
         }, [])
     );
+
+    useEffect(() => {
+        setAnswer([])
+        setError(false)
+    }, [])
     
     const [answer, setAnswer] = useState<number[]>([]);
     const [error, setError] = useState(false)

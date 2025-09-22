@@ -1,19 +1,16 @@
 import React from "react";
 import { FlatList, View, Image, Text, Dimensions } from "react-native";
-import store from "../../store/store";
 import LottieView from "lottie-react-native";
 import { SvgUri } from "react-native-svg";
 
 const { width, height } = Dimensions.get('window');
 
-const SlideShow = ({ onPageChange }) => {
-
-    const slides = store?.slides;
+const SlideShow = ({ onPageChange, onboardings }) => {
 
     const renderItem = ({ item }) => {
 
-        const isLottie = item.image.url.endsWith('json')
-        const isSvg = item.image.url.endsWith('svg')
+        const isLottie = item?.image?.url.endsWith('json')
+        const isSvg = item?.image?.url.endsWith('svg')
 
         return (
             <View style={{flexDirection: 'column', alignItems: 'center', width: width, height: 'auto'}}>
@@ -49,7 +46,7 @@ const SlideShow = ({ onPageChange }) => {
     return (
         <FlatList
             keyExtractor={item => item.id}
-            data={slides} 
+            data={onboardings} 
             renderItem={renderItem}
             horizontal={true}
             pagingEnabled={true}

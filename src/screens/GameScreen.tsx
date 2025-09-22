@@ -23,11 +23,12 @@ import Game17Screen from './Games/Game17Screen';
 import { observer } from 'mobx-react-lite';
 import BackButton from './Game/BackButton';
 import ProgressAnimation from './Game/ProgressAnimation';
+import { gameStore } from './Games/store/gameStore';
 
 const GameScreen = ({ route }) => {
 
     const { onComplete, onCompleteTask, breaks, isFromBreak, isFromAttributes, categoryId, firstOpeningAction, availableSubCollections } = route?.params;
-    const tasks = store?.tasks;
+    const tasks = gameStore?.tasks;
     const navigation = useNavigation();
     const [taskLevel, setTaskLevel] = useState(0);
     const [isFrozen, setIsFrozen] = useState(false);
@@ -45,8 +46,14 @@ const GameScreen = ({ route }) => {
     const introText = tasks[taskLevel]?.introText;
     const tutorials = tasks[taskLevel]?.tutorials;
     
-    const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
-    const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+    const ifCameFromBreak = breaks?.find(
+        b => b?.order === tasks[taskLevel]?.order &&
+             b?.parentCollectionId === gameStore.collectionId
+    );
+    const currentBreakContent = breaks?.find(
+        b => b?.order === tasks[taskLevel]?.order &&
+             b?.parentCollectionId === gameStore.collectionId
+    );    
 
     const incrementTaskLevel = () => {
 
@@ -64,7 +71,10 @@ const GameScreen = ({ route }) => {
                 return navigation.goBack();
             }
         
-            const isScheduledBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+            const isScheduledBreak = breaks?.find(
+                b => b?.order === tasks[taskLevel]?.order &&
+                     b?.parentCollectionId === gameStore.collectionId
+            );            
         
             if (isScheduledBreak && !cameFromBreak && !isBreak) {
                 setIsBreak(true);
@@ -247,7 +257,7 @@ const GameScreen = ({ route }) => {
     return (
         <View style={{flex: 1}}>
             {!isFromAttributes && (cameFromBreak || isBreak)? 
-                <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} collectionId={collectionId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
+                <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
             :
                 isFrozen ? <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}} />
             :

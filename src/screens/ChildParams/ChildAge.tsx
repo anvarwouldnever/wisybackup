@@ -9,7 +9,7 @@ import translations from "../../../localization";
 
 const { width, height } = Dimensions.get('window');
 
-const ChildAge = ({ setOptions, options }) => {
+const ChildAge = ({ setOptions, options, settings }) => {
 
     const [show, setShow] = useState(false);
     const [showAndroid, setShowAndroid] = useState(false)
@@ -21,7 +21,7 @@ const ChildAge = ({ setOptions, options }) => {
         }))
     }
 
-    const title = store?.addchildui?.child_age_placeholder
+    const title = settings?.child_age_placeholder
 
     return (
         <Animated.View entering={SlideInRight} style={{width: width * 0.8666, height: '100%', justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>

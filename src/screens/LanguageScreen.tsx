@@ -1,27 +1,19 @@
 import { View, Text, SafeAreaView } from 'react-native'
-import React, { useState, useCallback } from 'react'
+import React, { useState } from 'react'
 import Logo from '../components/Logo';
 import { observer } from 'mobx-react-lite';
-import { useFocusEffect } from "@react-navigation/native";
-import * as ScreenOrientation from 'expo-screen-orientation';
 import Button from './Language/Button';
 import Languages from './Language/Languages';
 import { useScale } from '../hooks/useScale';
+import useLockPortrait from '../hooks/useLockPortrait';
 
 const LanguageScreen = () => {
 
-    const [chosenLang, setChosenLang] = useState(null);
+    const [chosenLang, setChosenLang] = useState<string>('en');
 
     const { s, vs } = useScale()
 
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    useLockPortrait()
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: 'white'}}>

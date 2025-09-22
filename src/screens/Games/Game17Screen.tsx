@@ -45,8 +45,8 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, o
 
             if (hit) return;
 
-            translateX.value = withDelay(50, withSpring(0, { damping: 20, stiffness: 200 }));
-            translateY.value = withDelay(50, withSpring(0, { damping: 20, stiffness: 200 }));
+            translateX.value = withDelay(50, withSpring(0, { damping: 80, stiffness: 500 }));
+            translateY.value = withDelay(50, withSpring(0, { damping: 80, stiffness: 500 }));
         });
 
     const animatedStyleMove = useAnimatedStyle(() => {

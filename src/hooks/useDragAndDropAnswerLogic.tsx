@@ -4,6 +4,7 @@ import { playSound } from '../hooks/usePlayBase64Audio';
 import api from '../api/api';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
+import { AnswerDragAndDrop } from '../api/methods/game/answer';
 
 export const useDragAndDropAnswer = ({
   data,
@@ -60,27 +61,25 @@ export const useDragAndDropAnswer = ({
       stop();
       setThinking(true);
       setLock(true);
-      const response = await api.answerDragAndDrop({
-        task_id: data.id,
+      const response = await AnswerDragAndDrop(
+        data.id,
         attempt,
-        child_id: store.playingChildId.id,
-        success: params.answer,
+        store.playingChildId.id,
         lead_time,
-        token: store.token,
-        lang: store.language,
-        answer_id: params.answer_id,
-        image_id: params.image_id,
-      });
+        params.answer,
+        params.answer_id,
+        params.image_id,
+      );
       if (!isActive.current) return;
 
-      if (response?.success && response?.stars) return await finish(response, true);
-      if (!response?.success && response?.stars) return await finish(response, false);
-      if (!response?.success && !response?.to_next) {
-        start(); vibrate(); setText(response?.hint); playVoice(response?.sound); setAttempt('2'); return;
+      if (response?.data?.success && response?.data?.stars) return await finish(response.data, true);
+      if (!response?.data?.success && response?.data?.stars) return await finish(response.data, false);
+      if (!response?.data?.success && !response?.data?.to_next) {
+        start(); vibrate(); setText(response?.data?.hint); playVoice(response?.data?.sound); setAttempt('2'); return;
       }
-      if (response?.success && !response?.to_next) return await finish(response, true, { resetAttempt: true });
-      if (response?.success && response?.to_next) return await finish(response, true, { setId: true, resetAttempt: true });
-      if (!response?.success && response?.to_next) return await finish(response, false, { resetAttempt: true });
+      if (response?.data?.success && !response?.data?.to_next) return await finish(response, true, { resetAttempt: true });
+      if (response?.data?.success && response?.data?.to_next) return await finish(response, true, { setId: true, resetAttempt: true });
+      if (!response?.data?.success && response?.data?.to_next) return await finish(response, false, { resetAttempt: true });
     } catch (error) {
       console.log(error);
       setLock(false);

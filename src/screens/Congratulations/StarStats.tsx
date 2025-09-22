@@ -1,6 +1,6 @@
 import { Platform, Image, Text, useWindowDimensions } from "react-native";
 import { useEffect, useState } from "react";
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics'
 import store from "../../store/store";
 
@@ -27,8 +27,8 @@ const StarStats = ({ numStars, layoutCaptured, setLayoutCaptured }) => {
         setStars(prev => prev + 1)
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         bounceValue.value = withSequence(
-            withSpring(1.2, { stiffness: 200 }),
-            withSpring(1, { stiffness: 100 })
+            withTiming(1.2, { duration: 300 }),
+            withTiming(1, { duration: 300 })
         );
     };
 

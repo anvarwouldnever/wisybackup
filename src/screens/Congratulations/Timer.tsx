@@ -26,7 +26,7 @@ const Timer = () => {
             source={timerLot}
             autoPlay={true}
             loop={false}
-            style={{ width: vs(40), height: vs(40), alignSelf: 'center' }}
+            style={{ width: s(12), height: s(12), alignSelf: 'center' }}
         />
     )
 }

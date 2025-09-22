@@ -7,10 +7,12 @@ import store from "../../store/store";
 import { observer } from "mobx-react-lite";
 import translations from "../../../localization";
 import api from "../../api/api";
+import { useNavigation } from "@react-navigation/native";
 
 const ParentsSettings = ({ setScreen }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const navigation = useNavigation()
     const [modal, setModal] = useState(false);
     const [popUpModal, setPopUpModal] = useState(false);
     const [secure, setSecure] = useState(true);
@@ -51,6 +53,10 @@ const ParentsSettings = ({ setScreen }) => {
     const logout = async() => {
         await store.setToken(null)
         await store.setChildren(null)
+        navigation.reset({
+            index: 0,
+            routes: [{ name: 'LanguageScreen' }],
+        });
     };
 
     const settingsItems = [
