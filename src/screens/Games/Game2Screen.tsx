@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, useWindowDimensions } from "react-native"
+import { View } from "react-native"
 import Game2Animals1Animation from "./Game2/Game2Animals1Animation";
 import useTimer from "../../hooks/useTimer";
 import { useIntroSequence } from "../../hooks/useIntroSequence";
@@ -13,7 +13,6 @@ import { playSound } from '../../hooks/usePlayBase64Audio'
 
 const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow}) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false); 
@@ -52,25 +51,14 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />
             )}
 
             {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && (
-                <Game2Animals1Animation 
-                    lock={lock} 
-                    setLock={setLock} 
-                    id={id} 
-                    text={text} 
-                    answer={answer} 
-                    images={data?.content?.images} 
-                    animal={data?.content?.title} 
-                    setId={setId} 
-                    audio={data?.content?.title_audio} 
-                    voiceForTask={voiceForTask}
-                />
+                <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask} />
              )}
             
             <OverlayHint visible={store.isBlacked}>

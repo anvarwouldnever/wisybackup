@@ -17,9 +17,9 @@ const SlideShow = ({ onPageChange, onboardings }) => {
                 
                 {isLottie? 
                     <LottieView 
-                        source={{ uri: item.image.url }}
+                        source={{ uri: item?.image?.url }}
                         autoPlay
-                        style={{width:  width * 0.8666, height: height * 0.2575}}
+                        style={{width: width * 0.8666, height: height * 0.2575}}
                         loop={true}
                         resizeMode='contain'
                     /> 

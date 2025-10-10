@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Text, useWindowDimensions, ImageBackground, ActivityIndicator } from 'react-native';
+import { Text, ImageBackground, ActivityIndicator } from 'react-native';
 import LottieView from 'lottie-react-native';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import TimerLayout from './Break/TimerBreakLayout';
@@ -10,11 +10,13 @@ import { observer } from 'mobx-react-lite';
 import { Audio } from 'expo-av';
 import { gameStore } from './Games/store/gameStore';
 import fetchAnimation from './Break/FetchLottie';
+import { useScale } from '../hooks/useScale';
 
 const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, categoryId, taskLevel }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [seconds, setSeconds] = useState<number>();
+
+    const { s, vs, isTablet } = useScale()
 
     const animationRef = useRef<LottieView>();
     const isFirstRender = useRef(true);
@@ -88,7 +90,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
             loadedOnce.current = true
             if (!isFromAttributes) {
                 const currentTaskGroup = gameStore.tasks[taskLevel];
-                const indexInTasks = gameStore.tasks.findIndex(group => group.id === currentTaskGroup.id);
+                const indexInTasks = gameStore.tasks.findIndex(group => group?.id === currentTaskGroup?.id);
                 const collectionId = gameStore.collectionId
                     
                 if (indexInTasks >= gameStore.tasks?.length - 3) {
@@ -199,49 +201,100 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
         updatePlayback();
     }, [store?.breakMusicPlaying]);
 
+    const textPositions = [
+        'left_top',
+        'left_center',
+        'left_bottom',
+        'right_top',
+        'right_center',
+        'right_bottom',
+        'center_top',
+        'center_bottom',
+    ];
+      
+    const getPositionStyle = (textPos: string) => {
+        const style: any = {
+            position: 'absolute',
+            padding: 12,
+            backgroundColor: '#FFFFFF',
+            minHeight: s(15),
+            width: 'auto',
+            paddingHorizontal: s(5),
+            alignItems: 'center',
+            justifyContent: 'center',
+            maxWidth: s(70),
+            borderRadius: 16,
+            borderBottomLeftRadius: ['left_top', 'left_center', 'left_bottom'].includes(textPos) ? 16 : 0,
+            borderBottomRightRadius: ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? 16 : 0,
+        };
+    
+        // Левый блоки
+        if (textPos.startsWith('left')) {
+            style.left = s(70);
+        }
+        // Правые блоки
+        if (textPos.startsWith('right')) {
+            style.right = s(70);
+        }
+        // Центровые по горизонтали
+        if (textPos.startsWith('center')) {
+            style.left = '43%';
+        }
+    
+        // Верхние
+        if (textPos.endsWith('top')) {
+            style.top = vs(140);
+        }
+        // Центральные по вертикали
+        if (textPos.endsWith('center')) {
+            style.top = vs(350);
+        }
+        // Нижние
+        if (textPos.endsWith('bottom')) {
+            style.bottom = vs(120);
+        }
+        // Для варианта center_bottom
+        if (textPos === 'center_bottom') {
+            style.bottom = vs(80);
+        }
+
+        if (textPos === 'center_top') {
+            style.left = '43%';
+            style.top = vs(80);
+        }
+    
+        return style;
+    }
+
     return (
         <ImageBackground style={{flex: 1, justifyContent: 'center'}} source={{ uri: anyBreak?.background }}>
+            
             <BackButton />
-                {text && 
-                    <Animated.View key={text} entering={ZoomInEasyDown} style={{
-                        position: 'absolute',
-                        padding: 12,
-                        backgroundColor: '#FFFFFF',
-                        width: 'auto',
-                        maxWidth: windowWidth * (170 / 800),
-                        borderRadius: 16,
-                        borderBottomLeftRadius: ['left_top', 'left_center', 'left_bottom'].includes(textPos) ? 16 : 0,
-                        borderBottomRightRadius: ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? 16 : 0,
-                        left: ['left_top', 'left_center', 'left_bottom'].includes(textPos) ? windowWidth * (130 / 800) :
-                                ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? windowWidth * (600 / 800) : windowWidth * (100 / 800),
-                        top:  textPos == 'left_top' ? windowHeight * (60 / 360) :
-                                textPos == 'left_center' ? windowHeight * (100 / 360) :
-                                textPos == 'left_bottom' ? windowHeight * (140 / 360) : 'auto'
-                        }}
-                    >
-                        <Text>{text}</Text>
-                    </Animated.View>
-                }
+                
+            {text &&
+                <Animated.View
+                    key={textPos}
+                    entering={ZoomInEasyDown}
+                    style={getPositionStyle(textPos)}
+                >
+                    <Text style={{ fontSize: s(6), textAlign: 'center' }}>{text}</Text>
+                </Animated.View>
+            }
 
-                {animation ? (
-                    <LottieView
-                        autoPlay
-                        loop
-                        ref={animationRef}
-                        source={animation}
-                        style={{
-                            width: windowWidth * (315 / 800),
-                            height: windowHeight * (315 / 360),
-                            position: 'absolute',
-                            alignSelf: 'center',
-                        }}
-                    />
-                ) : (
-                    <ActivityIndicator style={{ position: 'absolute', alignSelf: 'center',}} size="large" color="white" />
-                )}
+            {animation ? 
+                <LottieView
+                    autoPlay
+                    loop
+                    ref={animationRef}
+                    source={animation}
+                    style={{ width: vs(700), height: vs(700), position: 'absolute', alignSelf: 'center' }}
+                />
+            :
+                <ActivityIndicator style={{ position: 'absolute', alignSelf: 'center' }} size="large" color="white" />
+            }
 
+            <TimerLayout animation={animation} formatTime={formatTime} seconds={seconds} setSeconds={setSeconds}/>
 
-                <TimerLayout animation={animation} formatTime={formatTime} seconds={seconds} setSeconds={setSeconds}/>
         </ImageBackground>
     )
 }

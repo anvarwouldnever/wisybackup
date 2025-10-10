@@ -1,12 +1,13 @@
-import { View, Text, Platform, Image, useWindowDimensions, PanResponder } from 'react-native'
+import { View, Text, Image, PanResponder } from 'react-native'
 import React from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
+import { useScale } from '../../../hooks/useScale'
 
 const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurrentLine, setLines }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
@@ -25,31 +26,35 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
     });
 
     return (
-        <Animated.View entering={ZoomInEasyDown} style={{width: windowWidth * (592 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
+        <Animated.View entering={ZoomInEasyDown} style={{width: 'auto', height: 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', columnGap: s(10)}}>
                     
-            <View style={{borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
-                {data.content.first_image.endsWith(".svg") ? 
-                <SvgUri uri={data?.content?.first_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/>
+            <View style={{borderRadius: 10, width: s(65), height: s(65), backgroundColor: 'white', padding: s(3), shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                
+                {data?.content?.first_image?.endsWith(".svg") ? 
+                    <SvgUri uri={data?.content?.first_image} width={'100%'} height={'100%'} style={{borderRadius: 10}}/>
                 : 
-                <Image source={{uri: data?.content?.first_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                    <Image source={{uri: data?.content?.first_image }} style={{width: '100%', height: '100%', borderRadius: 10}}/>
+                }
+                
             </View>
             
-            <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>{data?.content?.operation === 'addition'? '+' : ''}</Text>
+            <Text style={{fontSize: s(30), fontWeight: '600', color: '#555555' }}>{data?.content?.operation === 'addition'? '+' : ''}</Text>
             
-            <View style={{borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
-                {data.content.second_image.endsWith(".svg") ?
-                <SvgUri uri={data?.content?.second_image} width={ windowWidth * (136 / 800)} height={Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360)} style={{borderRadius: 10}}/> 
+            <View style={{borderRadius: 10, shadowColor: "#D0D0D0", width: s(65), height: s(65), backgroundColor: 'white', padding: s(3), shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                
+                {data?.content?.second_image?.endsWith(".svg") ?
+                    <SvgUri uri={data?.content?.second_image} width={'100%'} height={'100%'} style={{borderRadius: 10}}/> 
                 : 
-                <Image source={{uri: data?.content?.second_image }} style={{width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}/>}
+                    <Image source={{uri: data?.content?.second_image }} style={{width: '100%', height: '100%', borderRadius: 10}}/>
+                }
+
             </View>
 
             <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>=</Text>
 
-            <ViewShot ref={viewShotRef} style={{borderRadius: 10, backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}} options={{ format: 'png', quality: 1 }}>  
-                <View
-                    {...panResponder.panHandlers}
-                    style={{backgroundColor: id?.id == data?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data?.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: windowWidth * (136 / 800), height: Platform.isPad? windowWidth * (136 / 800) : windowHeight * (136 / 360), borderRadius: 10}}
-                >
+            <ViewShot ref={viewShotRef} style={{borderRadius: 10, width: s(65), height: s(65), backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}} options={{ format: 'png', quality: 1 }}>  
+                
+                <View {...panResponder.panHandlers} style={{backgroundColor: id?.id == data?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data?.id && id?.result == 'wrong'? '#D816164D' : 'white', borderWidth: 2, borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : 'white', width: '100%', height: '100%', borderRadius: 10}}>
                     <Svg height='100%' width='100%'>
                     {lines.map((line, index) => (
                         <Polyline
@@ -68,7 +73,9 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
                     />
                     </Svg>
                 </View>
+
             </ViewShot>
+            
         </Animated.View>
     )
 }

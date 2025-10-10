@@ -10,8 +10,10 @@ import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';
 import PlaceholderBlock from './Game17/PlaceholderBlock';
 import { useDragAndDropAnswer } from '../../hooks/useDragAndDropAnswerLogic';
+import { useScale } from '../../hooks/useScale';
 
-const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, opacity, draggingId, setDraggingId }) => {
+const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDraggingId, s, vs }) => {
+    
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
 
@@ -57,8 +59,8 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, o
 
     return (
         <GestureDetector gesture={dragGesture}>
-            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: windowWidth * (80 / 800), zIndex: draggingId == item.id? 1000 : 0, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}]}>
-                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: windowHeight * (64 / 360), height: Platform.isPad? windowWidth * (64 / 800) : windowHeight * (64 / 360), opacity: draggingId == item.id? opacity : 1, resizeMode: 'contain'}]} />
+            <Animated.View layout={LinearTransition.duration(500)} style={[{ width: s(40), zIndex: draggingId == item.id? 1000 : 0, height: s(40), borderRadius: 10, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}]}>
+                <Animated.Image source={{ uri: item?.image }} style={[animatedStyleMove, { width: s(30), height: s(30), opacity: draggingId == item.id? opacity : 1, resizeMode: 'contain'}]} />
             </Animated.View>
         </GestureDetector>
     );
@@ -67,6 +69,8 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone, lock, o
 const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const { start, reset } = useTimer();
 
@@ -80,10 +84,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [draggingId, setDraggingId] = useState(null);
 
     const shuffleArray = (array) => {
-        return array
-            .map(value => ({ value, sort: Math.random() }))
-            .sort((a, b) => a.sort - b.sort)
-            .map(({ value }) => value);
+        return array.map(value => ({ value, sort: Math.random() })).sort((a, b) => a.sort - b.sort).map(({ value }) => value);
     };
     
     const [draggableObjects, setDraggableObjects] = useState(() => {
@@ -198,15 +199,25 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     };
 
     return (
-        <View style={{ flex: 1, position: 'absolute', alignSelf: 'center', alignItems: 'center', width: windowWidth - 60, height: windowHeight - 45}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             
-            <PlaceholderBlock placeholderObjects={placeholderObjects} placeholderRefs={placeholderRefs} id={id} answered={answered} />
+            <View style={{ flexDirection: 'column', height: 'auto', alignSelf: 'center', rowGap: vs(70)}}>
+                
+                <PlaceholderBlock placeholderObjects={placeholderObjects} placeholderRefs={placeholderRefs} id={id} answered={answered} />
 
-            <Animated.View entering={ZoomInEasyDown} style={{ width: windowWidth * (560 / 800), height: windowHeight * (80 / 360), marginTop: windowHeight * (50 / 360), flexDirection: 'row', gap: 16, alignItems: 'center', justifyContent: 'center', position: 'absolute', alignSelf: 'center', bottom: 0}}>
-                {draggableObjects?.map((item) => (
-                    <DraggableItem key={item?.id} item={item} windowWidth={windowWidth} windowHeight={windowHeight} checkDropZone={checkDropZone} lock={lock} opacity={1} draggingId={draggingId} setDraggingId={setDraggingId}/>
-                ))}
-            </Animated.View>
+                {draggableObjects?.length === 0 ?
+                    <View style={{ height: s(40), width: s(250) }}>
+
+                    </View> 
+                :
+                    <Animated.View entering={ZoomInEasyDown} style={{ width: s(250), height: 'auto', flexDirection: 'row', columnGap: s(7), alignItems: 'center', justifyContent: 'center'}}>
+                        {draggableObjects?.map((item) => (
+                            <DraggableItem key={item?.id} item={item} checkDropZone={checkDropZone} lock={lock} opacity={1} draggingId={draggingId} setDraggingId={setDraggingId} s={s} vs={vs} />
+                        ))}
+                    </Animated.View>
+                }
+
+            </View>
 
             <OverlayHint visible={store.isBlacked}>
                 <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />

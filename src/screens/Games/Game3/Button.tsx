@@ -3,10 +3,13 @@ import React from 'react'
 import { SvgUri } from 'react-native-svg';
 import galochka from '../../../images/galochka.png'
 import x from '../../../images/wrongX.png'
+import { useScale } from '../../../hooks/useScale';
 
 const Button = ({ item, lock, answer, id }) => {
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const isSvg = item.url.endsWith('.svg');
     
@@ -29,9 +32,10 @@ const Button = ({ item, lock, answer, id }) => {
                 <Image source={{ uri: item?.url }} style={{ width: windowHeight * (108 / 360), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10 }} />
             )}
             {id?.id == item?.id && 
-            <View style={{width: windowWidth * (24 / 800), height: windowHeight * (24 / 360), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                <Image source={id?.result == 'correct'? galochka : x} style={{width: windowWidth * (16 / 800), height: windowHeight * (16 / 360)}}/>
-            </View>}
+                <View style={{width: s(12), height: s(12), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
+                    <Image source={id?.result == 'correct'? galochka : x} style={{width: s(10), height: s(10)}}/>
+                </View>
+            }
         </TouchableOpacity>
     )
 }

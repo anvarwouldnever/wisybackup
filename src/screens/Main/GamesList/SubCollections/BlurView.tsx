@@ -8,7 +8,6 @@ const Blur = ({ isLocked, forMarket }) => {
 
     const { windowHeight, windowWidth } = useScale()
 
-
     if (!isLocked) return null;
 
     return (

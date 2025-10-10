@@ -1,4 +1,4 @@
-import { View, useWindowDimensions } from 'react-native'
+import { View } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import Game4AnimalsAnimation from './Game4/Game4AnimalsAnimation'
 import store from '../../store/store'
@@ -14,7 +14,6 @@ import { useIntroSequence } from '../../hooks/useIntroSequence'
 
 const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, level, introTaskIndex, tutorials, tutorialShow, setTutorialShow, tasks }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -57,7 +56,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive, setLevel, tasks });
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (80 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
     
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />

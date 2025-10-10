@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import { FlatList, useWindowDimensions, Platform, View, ActivityIndicator } from "react-native";
+import { FlatList, View, ActivityIndicator } from "react-native";
 import { gameStore } from "../Games/store/gameStore";
 import { observer } from "mobx-react-lite";
-import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
 import LottieView from "lottie-react-native";
 import loadingAnim from '../../../assets/6Vcbuw6I0c (1).json';
@@ -11,10 +10,11 @@ import Collections from "./GamesList/Collections";
 import SubCollections from "./GamesList/SubCollections";
 import store from "../../store/store";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
+import { useScale } from "../../hooks/useScale";
 
 const GamesList = ({ firstOpeningAction }) => {
-    
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const [wasAnimated, setWasAnimated] = useState(false);
 
@@ -98,8 +98,8 @@ const GamesList = ({ firstOpeningAction }) => {
         }
     }, [store.isFirstOpening, collections]);
 
-    const listData = gameStore.subCollections?.length > 0 ? gameStore?.subCollections : collections;
-    
+    const listData = gameStore.subCollections?.length > 0 ? gameStore.subCollections : collections;
+
     const renderItem = useMemo(() => {
         return ({ item, index }) => {
             if (item?.isLoader) {
@@ -121,13 +121,13 @@ const GamesList = ({ firstOpeningAction }) => {
     }, [ gameStore.subCollections?.length, store.isFirstOpening ? store.wisySpeaking : null, store.isFirstOpening, availableSubCollections, wasAnimated ]);
     
     return (
-        <View style={{ width: windowWidth * (480 / 800), height: Platform.isPad ? windowHeight * (402 / 834) : windowHeight * (180 / 360), position: 'absolute', top: Platform.isPad ? windowHeight * (224 / 834) : windowHeight * (104 / 360), left: windowWidth * (320 / 800), justifyContent: 'center', overflow: 'visible'}}>
+        <View style={{ width: '62%', height: 'auto', position: 'absolute', top: vs(230), right: 0, justifyContent: 'center', overflow: 'visible'}}>
             {gameStore.isSubCollectionsLoading || gameStore.isCollectionLoading? 
                 <LottieView
-                        loop={true}
-                        autoPlay
-                        source={loadingAnim}
-                        style={{width: windowWidth * (50 / 800), height: windowHeight * (50 / 360), position: 'absolute', alignSelf: 'center'}}
+                    loop={true}
+                    autoPlay
+                    source={loadingAnim}
+                    style={{width: s(25), height: s(30), top: vs(110), position: 'absolute', alignSelf: 'center'}}
                 />
             :
                 <FlatList
@@ -135,7 +135,7 @@ const GamesList = ({ firstOpeningAction }) => {
                     data={listData}
                     extraData={[gameStore.categories, gameStore.subCollections?.length]}
                     renderItem={renderItem}
-                    keyExtractor={(item, index) => md5.hex_md5(`${item?.id}_${item?.image}`)}
+                    keyExtractor={(item) => md5.hex_md5(`${item?.id}_${item?.image}`)}
                     showsHorizontalScrollIndicator={false}
                     scrollEventThrottle={16}
                     removeClippedSubviews
@@ -143,6 +143,7 @@ const GamesList = ({ firstOpeningAction }) => {
                     viewabilityConfig={{
                         itemVisiblePercentThreshold: 50
                     }}
+                    contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20) }}
                 />
             }
         </View>

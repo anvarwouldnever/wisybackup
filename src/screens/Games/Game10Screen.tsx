@@ -67,7 +67,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - 60, height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />

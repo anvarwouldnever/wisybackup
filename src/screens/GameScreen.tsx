@@ -24,6 +24,7 @@ import { observer } from 'mobx-react-lite';
 import BackButton from './Game/BackButton';
 import ProgressAnimation from './Game/ProgressAnimation';
 import { gameStore } from './Games/store/gameStore';
+import { useScale } from '../hooks/useScale';
 
 const GameScreen = ({ route }) => {
 
@@ -45,15 +46,11 @@ const GameScreen = ({ route }) => {
     const introAudio = tasks[taskLevel]?.introAudio;
     const introText = tasks[taskLevel]?.introText;
     const tutorials = tasks[taskLevel]?.tutorials;
+
+    console.log(task[level]?.type, task[level]?.content?.sub_type)
     
-    const ifCameFromBreak = breaks?.find(
-        b => b?.order === tasks[taskLevel]?.order &&
-             b?.parentCollectionId === gameStore.collectionId
-    );
-    const currentBreakContent = breaks?.find(
-        b => b?.order === tasks[taskLevel]?.order &&
-             b?.parentCollectionId === gameStore.collectionId
-    );    
+    const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);
+    const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);    
 
     const incrementTaskLevel = () => {
 
@@ -119,6 +116,8 @@ const GameScreen = ({ route }) => {
     }, [taskLevel]);
 
     const { width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const RenderVoiceGame = () => {
         return (    
@@ -255,49 +254,62 @@ const GameScreen = ({ route }) => {
     };
 
     return (
-        <View style={{flex: 1}}>
+        <View style={{flex: 1 }}>
             {!isFromAttributes && (cameFromBreak || isBreak)? 
                 <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
             :
-                isFrozen ? <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}} />
+                isFrozen ? <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', paddingHorizontal: s(15), paddingVertical: s(12)}} />
             :
-                <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', padding: 30, paddingVertical: Platform.isPad? windowWidth * (15 / 800) : Platform.OS === 'ios'? 25 : 25, justifyContent: 'space-between'}}>
-                    {
-                        task && task[level] && task[level].type ? (
-                            task[level].type === 'voice_input' ?  
-                            <RenderVoiceGame /> :
-                            task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_image'?
-                            <RenderWithImageGame /> :
-                            task[level]?.type === 'single_choice' && task[level].content.sub_type === 'simple'?
-                            <RenderSimpleGame /> :
-                            task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_audio'?
-                            <RenderWithAudio /> :
-                            task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_title'?
-                            <RenderWithTitleGame /> :
-                            task[level]?.type === 'handwritten' && task[level].content.sub_type === 'simple'?
-                            <RenderHandWrittenSimpleGame /> :
-                            task[level]?.type === 'handwritten' && task[level].content.sub_type === 'repeat'?
-                            <RenderHandWrittenRepeatGame /> :
-                            task[level]?.type === 'handwritten' && task[level].content.sub_type === 'counting'?
-                            <RenderHandWrittenCountingGame /> :
-                            task[level]?.type === 'handwritten' && task[level].content.sub_type === 'word'?
-                            <RenderHandWrittenWordGame /> :
-                            task[level]?.type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
-                            <RenderObjectMatchingTextGame /> :
-                            task[level]?.type === 'puzzle'?
-                            <RenderPuzzleGame /> :
-                            task[level]?.type === 'drag_and_drop' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
-                            <RenderDragAndDropGame /> :
-                            task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
-                            <RenderTextSingleChoiceWithTitleImageGame /> :
-                            task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'simple'?
-                            <RenderTextSingleChoiceSimpleGame /> : 
-                            task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio' &&
-                            <RenderTextSingleChoiceWithAudioGame />
-                        ) : <CongratulationsScreen setLevel2={setLevel} taskLevel={taskLevel} categoryId={categoryId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
-                    }
-                        <BackButton setIsFrozen={setIsFrozen}/>
-                        {task && task[level] && task[level].type && <ProgressAnimation task={task} level={level}/>}
+                <ImageBackground source={bg} style={{ flex: 1, paddingHorizontal: s(15), paddingVertical: s(12) }}>
+                    
+                    <View style={{ flex: 1 }}>
+                        {
+                            task && task[level] && task[level].type ? (
+                                task[level].type === 'voice_input' ?  
+                                <RenderVoiceGame /> :
+                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_image'?
+                                <RenderWithImageGame /> :
+                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'simple'?
+                                <RenderSimpleGame /> :
+                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_audio'?
+                                <RenderWithAudio /> :
+                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_title'?
+                                <RenderWithTitleGame /> :
+                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'simple'?
+                                <RenderHandWrittenSimpleGame /> :
+                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'repeat'?
+                                <RenderHandWrittenRepeatGame /> :
+                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'counting'?
+                                <RenderHandWrittenCountingGame /> :
+                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'word'?
+                                <RenderHandWrittenWordGame /> :
+                                task[level]?.type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
+                                <RenderObjectMatchingTextGame /> :
+                                task[level]?.type === 'puzzle'?
+                                <RenderPuzzleGame /> :
+                                task[level]?.type === 'drag_and_drop' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
+                                <RenderDragAndDropGame /> :
+                                task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_image'?
+                                <RenderTextSingleChoiceWithTitleImageGame /> :
+                                task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'simple'?
+                                <RenderTextSingleChoiceSimpleGame /> : 
+                                task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio' &&
+                                <RenderTextSingleChoiceWithAudioGame />
+                            ) : <CongratulationsScreen setLevel2={setLevel} taskLevel={taskLevel} categoryId={categoryId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                        }
+
+                        <View style={{ position: 'absolute', top: 0, width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
+                            
+                            <BackButton setIsFrozen={setIsFrozen}/>
+
+                            {task && task[level] && task[level].type && 
+                                <ProgressAnimation task={task} level={level}/>
+                            }
+
+                        </View>
+
+                    </View>
+
                 </ImageBackground>
             }
         </View>

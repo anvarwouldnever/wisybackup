@@ -1,7 +1,6 @@
-import { TouchableOpacity, Platform, View, Text, Image, useWindowDimensions } from "react-native";
+import { TouchableOpacity, View, Text, Image } from "react-native";
 import store from "../../store/store";
 import { useNavigation } from "@react-navigation/native";
-import dog from '../../images/Dog.png'
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import { gameStore } from "../Games/store/gameStore";
@@ -11,29 +10,30 @@ import { useScale } from "../../hooks/useScale";
 const Back = () => {
 
         const navigation = useNavigation();
-        const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
         const { s, vs } = useScale()
 
         const { avatars, error, loading } = getAvatars()
 
         const goBack = () => {
+            if (store.isFirstOpening) return; 
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'ChoosePlayerScreen' }],
             });
             gameStore.resetSubCollection()
         }
-        
 
         return (
-            <TouchableOpacity onPress={store.isFirstOpening ? () => {} : () => goBack()} style={{width: s(60), alignItems: 'center', flexDirection: 'row', height: s(24), position: 'absolute', left: windowWidth * (60 / 800), top: windowHeight * (20 / 360)}}>
-                <View style={{width: windowWidth * (100 / 800), justifyContent: 'center', alignItems: 'center', position: 'absolute', alignSelf: 'center', right: 0, borderRadius: 100, height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), backgroundColor: '#FFFFFF'}}>
-                    <Text style={{fontWeight: '600', fontSize: windowWidth * (12 / 800), color: '#000000'}}>{store.playingChildId.name}</Text>
+            <TouchableOpacity onPress={() => goBack()} style={{width: 'auto', height: s(26), alignItems: 'center', alignSelf: 'center', justifyContent: 'center', flexDirection: 'row'}}>
+                
+                <View style={{width: s(65), justifyContent: 'center', alignItems: 'center', borderRadius: 100, height: s(20), backgroundColor: '#FFFFFF'}}>
+                    <Text ellipsizeMode='tail' style={{fontWeight: '600', fontSize: s(7), color: '#000000', marginLeft: s(15), width: '50%', textAlign: 'center'}}>{store.playingChildId?.name}</Text>
                 </View>
+
                 {(() => {
-                    const avatarObj = avatars?.find(avatar => avatar.id === store.playingChildId?.avatar_id);
-                    const avatarUrl = avatarObj ? avatarObj.image?.url : dog;
+                    const avatarObj = avatars?.find(avatar => avatar?.id === store.playingChildId?.avatar_id);
+                    const avatarUrl = avatarObj.image?.url
                     const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 
                     return isSvg ? (
@@ -41,6 +41,7 @@ const Back = () => {
                             uri={avatarUrl} 
                             width={s(24)}
                             height={s(24)}
+                            style={{ position: 'absolute', left: 0 }}
                         />
                     ) : (
                         <Image 
@@ -48,11 +49,14 @@ const Back = () => {
                             style={{
                                 width: s(24), 
                                 height: s(24), 
-                                resizeMode: 'contain'
+                                resizeMode: 'contain',
+                                position: 'absolute', 
+                                left: 0
                             }}
                         />
                     );
                 })()}
+
             </TouchableOpacity>
         )
     }

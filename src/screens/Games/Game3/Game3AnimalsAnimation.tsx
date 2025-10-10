@@ -2,12 +2,15 @@ import { useWindowDimensions, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import RenderItem from './RenderItem';
+import { useScale } from '../../../hooks/useScale';
 
 const Game3AnimalsAnimation = ({ answer, id, images,  lock }) => {
 
     const [key, setKey] = useState(0);
 
-    const [shuffledImages, setShuffledImages] = useState();
+    const [shuffledImages, setShuffledImages] = useState([]);
+
+    const { s, vs } = useScale()
     
     const shuffleArray = (array) => {
         let shuffledArray = [...array];
@@ -26,28 +29,25 @@ const Game3AnimalsAnimation = ({ answer, id, images,  lock }) => {
     useEffect(() => {
         setKey(prevKey => prevKey + 1);
     }, [images]);
-    
-    const { width: windowWidth } = useWindowDimensions();
 
     return (
-        <Animated.View entering={ZoomInEasyDown} style={{width: 'auto', height: 'auto', justifyContent: 'center', alignItems: 'center', flexDirection: 'row', alignSelf: 'center', position: 'absolute', padding: 5}}>
-            <FlatList 
-                data={shuffledImages?.slice(0, 5)}
-                renderItem={({ item }) => (
-                    <RenderItem
-                        item={item}
-                        lock={lock}
-                        answer={answer}
-                        
-                        id={id}
-                    />
-                )}
-                horizontal
-                keyExtractor={(item, index) => index.toString()}
-                scrollEnabled={false}
-                contentContainerStyle={{width: '100%', justifyContent: 'center', alignItems: 'center', gap: windowWidth * (15 / 800), padding: 10}}
-            />
-        </Animated.View>
+        <Animated.FlatList 
+            entering={ZoomInEasyDown}
+            data={shuffledImages?.slice(0, 5)}
+            renderItem={({ item }) => (
+                <RenderItem
+                    item={item}
+                    lock={lock}
+                    answer={answer}
+                    id={id}
+                />
+            )}
+            horizontal
+            keyExtractor={(item, index) => index.toString()}
+            scrollEnabled={false}
+            contentContainerStyle={{width: '100%', justifyContent: 'center', alignItems: 'center', alignSelf: 'center', columnGap: s(5) }}
+            style={{ width: 'auto', height: 'auto', flexDirection: 'row', alignSelf: 'center', position: 'absolute' }}
+        />
     )
 }
 

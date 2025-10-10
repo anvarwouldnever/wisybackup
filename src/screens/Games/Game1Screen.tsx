@@ -12,6 +12,7 @@ import SkipButton from './components/SkipButton';
 import TutorialOverlay from './components/TutorialOverlay';
 import WisyHint from './components/WisyHint';
 import { AnswerVoiceTask } from '../../api/methods/game/answer';
+import { GetSpeeches } from '../../api/methods/speeches/speech';
 
 const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {    
 
@@ -125,14 +126,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     const incorrectAnswer = async(hint, voice) => {
         if (!isActive.current) return
         start();
-        console.log('3')
         setText(hint);
         playVoice(voice)
         setAttempt('2'); 
     };
 
     const incorrectAnswerToNext = async(hint, stars, voice, old_stars) => {
-        console.log('4')
         if (!isActive.current) return
         reset();
         if (isFromAttributes) {
@@ -143,8 +142,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         vibrate()
         setText(hint)
         try {
-            setWisySpeaking(true)
-            await playSound(voice)
+
+        setWisySpeaking(true)
+        const speech = await GetSpeeches('no_more_hints')   
+        setText(speech.data?.data[0]?.text);
+        await playSound(speech?.data?.data[0]?.audio);
+            
         } catch (error) {
             console.log(error)
         } finally {
@@ -200,7 +203,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
     };
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, alignItems: 'center', justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />

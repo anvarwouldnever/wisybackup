@@ -2,7 +2,7 @@ import settings from '../../images/settings.png';
 import settingsActive from '../../images/settingsActive.png';
 import chat from '../../images/chat.png';
 import React from "react";
-import { View, TouchableOpacity, Image, Text, FlatList, Platform } from "react-native";
+import { View, TouchableOpacity, Image, Text, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import store from "../../store/store";
 import { Svg, Path } from "react-native-svg";
@@ -37,7 +37,7 @@ const BottomTabs = ({ screen, setScreen }) => {
                         <Path
                             key={index}
                             d={path.d}
-                            stroke={screen.name === item.name? "white" : "#504297"}
+                            stroke={screen?.name === item?.name? "white" : "#504297"}
                             strokeWidth={2}
                             strokeLinecap={'round'}
                             strokeLinejoin={'round'}
@@ -77,7 +77,7 @@ const BottomTabs = ({ screen, setScreen }) => {
                 
             </View>
             
-            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: Platform.isPad? vs(56) : s(112), height: vs(56), gap: vs(8), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
+            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: s(112), height: vs(56), columnGap: vs(10), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
                 <Image source={chat} style={{width: vs(24), height: vs(24), aspectRatio: 1}}/>
                 <Text style={{fontWeight: '600', fontSize: vs(12), lineHeight: vs(24), color: '#504297'}}>Chat</Text>
             </TouchableOpacity>

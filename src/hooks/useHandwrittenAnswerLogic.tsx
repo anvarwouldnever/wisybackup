@@ -1,10 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { Vibration } from 'react-native';
 import { playSound } from '../hooks/usePlayBase64Audio';
-import api from '../api/api';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
 import { AnswerHandWritten } from '../api/methods/game/answer';
+import { GetSpeeches } from '../api/methods/speeches/speech';
 
 export const useHandwrittenAnswerLogic = ({
   data,
@@ -84,10 +84,17 @@ export const useHandwrittenAnswerLogic = ({
           onCompleteTask(subCollectionId, data?.next_task_id);
         }
         setId({ id: data.id, result: correct ? 'correct' : 'wrong' });
-        setText(response?.data?.hint);
         try {
           setWisySpeaking(true);
-          await playSound(response?.data?.sound);
+          if (!correct) {
+            // отдельный спич для false-сценария
+            const speech = await GetSpeeches('no_more_hints');
+            setText(speech.data?.data[0]?.text);
+            await playSound(speech?.data?.data[0]?.audio);
+          } else {
+            setText(response?.data?.hint);
+            await playSound(response?.data?.sound);
+          }
         } catch (e) {
           console.log(e);
         } finally {

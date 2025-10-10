@@ -43,7 +43,7 @@ const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }, []);                  
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />

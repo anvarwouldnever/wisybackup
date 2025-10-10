@@ -1,31 +1,41 @@
-import { View, Platform, TouchableOpacity, Image, useWindowDimensions } from "react-native";
-import tabler from '../../images/activeTabler.png';
-import building from '../../images/tabler_building-store.png';
-import tabler2 from '../../images/tablerInactive.png';
-import activeBuilding from '../../images/activeBuilding2.png'
+import { View, TouchableOpacity, Image } from "react-native";
 import { observer } from "mobx-react-lite";
 import store from "../../store/store";
+import { useScale } from "../../hooks/useScale";
 
 const HeaderMenu = ({ setMarketCollections, setAnimationStart, marketCollections, setAnimation }) => {
 
-        const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+        const { s, vs } = useScale()
+
+        const onPressMenu = () => {
+            if (store.isFirstOpening) return
+            setAnimation(null)
+            setAnimationStart(false)
+            setMarketCollections(null)
+        }
+
+        const onPressMarket = () => {
+            if (store.isFirstOpening) return
+            setAnimation(null)
+            setAnimationStart(false)
+            setMarketCollections(!null)
+        }
 
         return (
-            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F8F8', borderRadius: 100, gap: 4, width: Platform.isPad? windowWidth * (184 / 1194) :  windowHeight * (100 / 360), height: Platform.isPad? windowWidth * (104 / 1194) : windowHeight * (56 / 360), position: 'absolute', top: windowHeight * (16 / 360), left: windowWidth * (320 / 800)}}>
-                <TouchableOpacity onPress={store.isFirstOpening ? () => {} : () => {
-                    setAnimation(null)
-                    setAnimationStart(false)
-                    setMarketCollections(null)
-                }} style={{borderRadius: 100, backgroundColor: marketCollections === null? '#504297' : '#F8F8F8', justifyContent: 'center', alignItems: 'center', width: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowWidth * (68 / 1194) : windowHeight * (40 / 360), borderColor: 'black'}}>
-                    <Image source={marketCollections === null? tabler : tabler2} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
+            <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center', backgroundColor: '#F8F8F8', borderRadius: 100, columnGap: vs(6), width: 'auto', height: 'auto', padding: vs(14)}}>
+                
+                <TouchableOpacity onPress={() => onPressMenu()} style={{borderRadius: 100, backgroundColor: marketCollections === null? '#504297' : '#F8F8F8', justifyContent: 'center', alignItems: 'center', width: s(20), height: s(20)}}>
+                    
+                    <Image source={marketCollections === null? require('../../images/activeTabler.png') : require('../../images/tablerInactive.png')} style={{ width: s(12), height: s(12) }}/>
+                
                 </TouchableOpacity>
-                <TouchableOpacity onPress={store.isFirstOpening ? () => {} : () => {
-                    setAnimation(null)
-                    setAnimationStart(false)
-                    setMarketCollections(!null)
-                }} style={{justifyContent: 'center', backgroundColor: marketCollections === null? '#F8F8F8' : '#504297', alignItems: 'center', borderRadius: 100, width: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowHeight * (68 / 834) : windowHeight * (40 / 360),}}>
-                    <Image source={marketCollections === null? building : activeBuilding} style={{width: Platform.isPad? windowWidth * (40 / 1194) : windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (40 / 1194) : windowHeight * (24 / 360), aspectRatio: 24 / 24}}/>
+
+                <TouchableOpacity onPress={() => onPressMarket()} style={{justifyContent: 'center', backgroundColor: marketCollections === null? '#F8F8F8' : '#504297', alignItems: 'center', borderRadius: 100, width: s(20), height: s(20)}}>
+                    
+                    <Image source={marketCollections === null? require('../../images/tabler_building-store.png') : require('../../images/activeBuilding2.png')} style={{ width: s(12), height: s(12) }}/>
+                
                 </TouchableOpacity>
+
             </View>
         )
     }

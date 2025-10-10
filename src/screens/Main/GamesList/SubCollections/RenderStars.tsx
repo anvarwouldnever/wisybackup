@@ -1,24 +1,26 @@
-import { View, Image, Platform, useWindowDimensions } from 'react-native'
+import { View, Image } from 'react-native'
 import React from 'react'
+import { useScale } from '../../../../hooks/useScale';
 
 const RenderStars = ({ earned, total }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
+
+    if (!total) {
+        return (
+            <View style={{ width: vs(38),height: vs(38)}} />
+        )
+    }
 
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', top: Platform.isPad ? 8 : 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', columnGap: vs(5) }}>
             {[...Array(total)].map((_, index) => {
                 const starImage = index < earned ? require('../../../../images/filledStar.png') : require('../../../../images/emptyStar.png');
                 return (
                     <Image
                         key={index}
                         source={starImage}
-                        style={{
-                            width: Platform.isPad ? windowWidth * (22 / 800) : windowWidth * (16 / 800),
-                            height: Platform.isPad ? windowHeight * (22 / 360) : windowHeight * (16 / 360),
-                            marginHorizontal: 2,
-                            resizeMode: 'contain'
-                        }}
+                        style={{ width: vs(38),height: vs(38), resizeMode: 'contain'}}
                     />
                 );
             })}

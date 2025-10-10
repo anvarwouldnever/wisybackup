@@ -1,4 +1,5 @@
 import axios from "axios";
+import store from "../store/store";
 
 const BASE_URL = 'https://apimywisy.hostweb.uz/api/v1/app';
 const BASE_TOKEN_PROD = '616|O9tjAOn5GVJGEBNOGTfjtD13giLgUmjV0xuZya0768fe3751';
@@ -11,15 +12,16 @@ const api2 = axios.create({
 api2.interceptors.request.use(
     async (config: any) => {
 
-        // const token = store.token;
+        const token = store.token;
+        const language = store.language
         
         if (!config.skipAuth) {
             if (BASE_TOKEN_PROD) {
-                config.headers.Authorization = `Bearer ${BASE_TOKEN_PROD}`;
+                config.headers.Authorization = `Bearer ${token}`;
             }
         }
 
-        config.headers['X-localization'] = 'en';
+        config.headers['X-localization'] = language;
         
         return config;
     },

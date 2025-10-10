@@ -4,6 +4,7 @@ import store from "../../../store/store";
 import { observer } from "mobx-react-lite";
 import AnimatedPaw from "../../../components/AnimatedPaw";
 import Blur from "../GamesList/SubCollections/BlurView";
+import { useScale } from "../../../hooks/useScale";
 
 const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, animationStart, index }) => {
 
@@ -20,37 +21,44 @@ const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, an
         )
     }
 
+    const { s, vs, isTablet } = useScale()
+
+    const onPress = () => {
+        if (shadow || (store.isFirstOpening && index != 0)) return
+        setCurrentAnimation({animation: item?.animation, cost: item?.cost, id: item?.id})
+        setAnimationStart(false)
+        setModal(true)
+    }
+
     return (
-        <TouchableOpacity onPress={shadow || (store.isFirstOpening && index != 0)? () => {} : () => {
-            setCurrentAnimation({animation: item?.animation, cost: item?.cost, id: item?.id})
-            setAnimationStart(false)
-            setModal(true)
-        }} style={{width: windowHeight * (136 / 360), height: windowHeight * (176 / 360), padding: 12, justifyContent: 'space-between', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', position: 'relative', opacity: shadow? 0.6 : 1 }}>
-            {isSvg ? (
-                <SvgUri
-                    uri={item.image}
-                    width={windowHeight * (112 / 360)}
-                    height={windowHeight * (112 / 360)}
-                />
-            ) : (
-                <Image
-                    source={{ uri: item?.image }}
-                    style={{
-                        width: windowHeight * (112 / 360),
-                        height: windowHeight * (112 / 360),
-                        resizeMode: 'contain',
-                    }}
-                />
-            )}
-            <View style={{width: windowWidth * (112 / 800), height: windowHeight * (16 / 360), alignSelf: 'center', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', position: 'absolute', bottom: windowHeight * (10 / 360)}}>
-                <Text style={{fontSize: 12, fontWeight: '600', color: 'white'}}>{item.name}</Text>
-                <View style={{width: 'auto', gap: 4, height: '100%', flexDirection: 'row', alignItems: 'center'}}>
-                    <Image source={require('../../../images/tabler_star-filled.png')} style={{resizeMode: 'contain',  width: windowWidth * (12 / 800), height: windowHeight * (12 / 360)}}/>
-                    <Text style={{fontSize: 12, fontWeight: '600', color: 'white'}}>{item.cost}</Text>
-                </View>
+        <TouchableOpacity onPress={() => onPress()} style={{width: vs(320), height: vs(370), justifyContent: 'space-between', paddingHorizontal: 0, paddingTop: s(5), paddingBottom: s(8), flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: s(4), borderColor: '#FFFFFF1F', alignItems: 'center', opacity: shadow? 0.6 : 1 }}>
+            
+            <View style={{ width: '100%', height: '75%', alignItems: 'center', justifyContent: 'center'}}>
+                {isSvg ? 
+                    <SvgUri uri={item?.image} width={'100%'} height={'100%'} />
+                : 
+                    <Image source={{ uri: item?.image }} style={{ width: '100%', height: '100%', resizeMode: 'contain'}} />
+                }
             </View>
-            { shadow? <></> : store.isFirstOpening && index === 0 && !store.wisySpeaking && <AnimatedPaw /> }
+
+            <View style={{width: '100%', height: 'auto', alignSelf: 'center', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: s(8)}}>
+                
+                <Text style={{fontSize: isTablet ? s(6) : s(5), fontWeight: '600', color: 'white'}}>{item?.name}</Text>
+                
+                <View style={{width: 'auto', columnGap: s(2), height: '100%', flexDirection: 'row', alignItems: 'center'}}>
+                    
+                    <Image source={require('../../../images/tabler_star-filled.png')} style={{resizeMode: 'contain',  width: s(7), height: s(7)}}/>
+                    
+                    <Text style={{fontSize: s(6), fontWeight: '600', color: 'white'}}>{item?.cost}</Text>
+
+                </View>
+
+            </View>
+
+            { shadow ? <></> : store.isFirstOpening && index === 0 && !store.wisySpeaking && <AnimatedPaw /> }
+
             { store.isFirstOpening && <Blur forMarket={true} isLocked={index != 0} /> }
+
         </TouchableOpacity>
     )
 }

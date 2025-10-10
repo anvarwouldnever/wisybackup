@@ -1,15 +1,20 @@
 import React, { useState, useCallback } from "react";
-import { Keyboard, SafeAreaView, TouchableWithoutFeedback } from "react-native";
+import { Keyboard, TouchableWithoutFeedback } from "react-native";
 import Logo from "../components/Logo";
 import AuthLogin from "./Auth/AuthLogin";
 import AuthSignup from "./Auth/AuthSignup";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from 'expo-screen-orientation';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useScale } from "../hooks/useScale";
 
 const AuthScreen = ({ route }) => {
 
     const [authOption, setAuthOption] = useState(route?.params?.authOption === undefined? 'signup' : route.params.authOption)
     const navigation = useNavigation()
+
+    const { s, vs } = useScale()
+
     const proceed = () => {
         navigation.navigate('EmailConfirmScreen')
     }
@@ -29,7 +34,7 @@ const AuthScreen = ({ route }) => {
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <SafeAreaView style={{flex: 1, alignItems: 'center'}}>
+            <SafeAreaView style={{flex: 1, alignItems: 'center', paddingHorizontal: vs(20)}}>
                 <Logo />
                 {authOption === 'signup'? 
                     <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> 

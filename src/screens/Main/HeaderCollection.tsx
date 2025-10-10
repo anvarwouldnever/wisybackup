@@ -4,10 +4,13 @@ import arrow from '../../images/arrow-left.png';
 import store from "../../store/store";
 import { observer } from "mobx-react-lite";
 import { gameStore } from "../Games/store/gameStore";
+import { useScale } from "../../hooks/useScale";
 
 const HeaderCollection = () => {
 
         const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+        const { s, vs } = useScale()
 
         const func = async() => {
             gameStore.resetSubCollection()
@@ -26,7 +29,7 @@ const HeaderCollection = () => {
         }
 
         return (
-            <View style={{flexDirection: 'row', alignItems: 'center', width: 'auto', justifyContent: 'space-between', position: 'absolute', top: windowHeight * (24 / 360), left: windowWidth * (320 / 800)}}>
+            <View style={{flexDirection: 'row', alignItems: 'center', width: 'auto', justifyContent: 'space-between'}}>
                 <TouchableOpacity onPress={store.isFirstOpening ? () => {return} : () => 
                     func()
                 } style={{width: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), height: Platform.isPad? windowWidth * (72 / 1194) : windowHeight * (40 / 360), backgroundColor: 'white', borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>

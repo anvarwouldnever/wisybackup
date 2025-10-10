@@ -1,9 +1,9 @@
 import { runOnJS } from "react-native-reanimated";
 
-const IsPointInsideAnswerRight = (x, y, key, id, mainContainerOffset, answersLayouts, answers, answered, answer, setWrongObject, addToAnswered) => {
+const IsPointInsideAnswerRight = (x, y, key, id, offsets, answersLayouts, answers, answered, answer, setWrongObject, addToAnswered) => {
         'worklet';
-        const adjustedX = x + 30; // Учитываем смещение по X
-        const adjustedY = y + mainContainerOffset.top;  
+        const adjustedX = x + offsets.horizontal; // Учитываем смещение по X
+        const adjustedY = y + offsets.vertical;  
         
         for (let i = 0; i < answersLayouts.value.length; i++) {
             const answerLayout = answersLayouts.value[i];
@@ -27,8 +27,8 @@ const IsPointInsideAnswerRight = (x, y, key, id, mainContainerOffset, answersLay
 
                     return {
                         inside: true,
-                        newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
-                        newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                        newX: answerLayout.x + answerLayout.width - offsets.horizontal, // Правая граница объекта
+                        newY: answerLayout.y + answerLayout.height / 2 - offsets.vertical,
                         targetIndex: i,
                         color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     };
@@ -37,8 +37,8 @@ const IsPointInsideAnswerRight = (x, y, key, id, mainContainerOffset, answersLay
                 runOnJS(addToAnswered)(key);
                 return {
                     inside: true,
-                    newX: answerLayout.x + answerLayout.width - 30, // Правая граница объекта
-                    newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                    newX: answerLayout.x + answerLayout.width - offsets.horizontal, // Правая граница объекта
+                    newY: answerLayout.y + answerLayout.height / 2 - offsets.vertical,
                     targetIndex: i,
                     color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };

@@ -10,13 +10,10 @@ import WisyHint from './components/WisyHint'
 import { useAnswerLogic } from '../../hooks/useAnswerLogic'
 import store from '../../store/store'
 import OverlayHint from './components/OverlayHint'
-import { playSound } from '../../hooks/usePlayBase64Audio'
-import { playSoundWithoutStopping } from '../../hooks/usePlayWithoutStoppingBackgrounds'
 import { useIntroSequence } from '../../hooks/useIntroSequence'
 
 const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, tutorials, tutorialShow, setTutorialShow, level }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -59,15 +56,15 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />
             )}
 
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderComponent animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> }
-            
-            {/* {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking}/>} */}
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
+                <RenderComponent animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> 
+            }
             
             <OverlayHint visible={store.isBlacked}>
                 <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />

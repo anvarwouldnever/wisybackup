@@ -1,22 +1,30 @@
-import { Text, TouchableOpacity, useWindowDimensions, Platform, Image } from 'react-native';
+import { Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import store from '../../store/store';
 import { stopCurrentSound } from '../../hooks/newPlaySound';
+import { useScale } from '../../hooks/useScale';
+import translations from '../../../localization';
 
 const BackButton = () => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation()
+
+    const { s, vs } = useScale()
+
+    const onPress = () => {
+        stopCurrentSound()
+        store.setBreakPlayingMusic(false);
+        store.setPlayingMusic(true);
+        navigation.goBack() 
+    }
     
     return (
-        <TouchableOpacity onPress={() => { 
-            stopCurrentSound()
-            store.setBreakPlayingMusic(false);
-            store.setPlayingMusic(true);
-            navigation.goBack() 
-        }} style={{backgroundColor: 'white', width: windowWidth * (85 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), borderRadius: 100, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', gap: windowWidth * (8 / 800), position: 'absolute', left: 40, top: 30}}>
-            <Image source={require('../../images/narrowleft-purple.png')} style={{width: 24, height: 24, aspectRatio: 24 / 24}}/>
-            <Text style={{fontWeight: '600', fontSize: Platform.isPad? windowWidth * (12 / 800) : windowHeight * (12 / 360), lineHeight: windowHeight * (20 / 360), color: '#504297'}}>Exit</Text>
+        <TouchableOpacity onPress={() => onPress()} style={{backgroundColor: 'white', width: 'auto', height: 'auto', columnGap: s(4), paddingHorizontal: s(10), paddingVertical: s(5), borderRadius: 100, justifyContent: 'center', flexDirection: 'row', alignItems: 'center', position: 'absolute', left: s(15), top: s(12)}}>
+            
+            <Image source={require('../../images/narrowleft-purple.png')} style={{width: s(10), height: s(10)}}/>
+
+            <Text style={{fontWeight: '600', fontSize: s(6), color: '#504297'}}>{translations?.[store.language]?.exit}</Text>
+
         </TouchableOpacity>
     )
 }

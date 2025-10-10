@@ -1,10 +1,10 @@
 import { useCallback, useRef } from 'react';
 import { Vibration } from 'react-native';
 import { playSound } from '../hooks/usePlayBase64Audio';
-import api from '../api/api';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
 import { AnswerObjectMatching } from '../api/methods/game/answer';
+import { GetSpeeches } from '../api/methods/speeches/speech';
 
 export const useObjectMatchingAnswer = ({
   data,
@@ -82,10 +82,16 @@ export const useObjectMatchingAnswer = ({
         if (!isFromAttributes) {
           onCompleteTask(subCollectionId, data?.next_task_id);
         }
-        setText(response?.data?.hint);
         try {
           setWisySpeaking(true);
-          await playSound(response?.data?.sound);
+          if (!isCorrect) {
+            const speech = await GetSpeeches('no_more_hints');
+            setText(speech.data?.data[0]?.text);
+            await playSound(speech?.data?.data[0]?.audio);
+          } else {
+            setText(response?.data?.hint);
+            await playSound(response?.data?.sound);
+          }
         } catch (e) {
           console.log(e);
         } finally {

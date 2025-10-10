@@ -1,9 +1,9 @@
 import { runOnJS } from "react-native-reanimated";
 
-const IsPointInsideAnswerLeft = (x, y, key, id, mainContainerOffset, answersLayouts, answers, answered, answer, setWrongObject, addToAnswered) => {
+const IsPointInsideAnswerLeft = (x, y, key, id, offsets, answersLayouts, answers, answered, answer, setWrongObject, addToAnswered) => {
         'worklet';
-        const adjustedX = x + 30;
-        const adjustedY = y + mainContainerOffset.top;
+        const adjustedX = x + offsets.horizontal;
+        const adjustedY = y + offsets.vertical;
     
         for (let i = 0; i < answersLayouts.value.length; i++) {
             const answerLayout = answersLayouts.value[i];
@@ -25,8 +25,8 @@ const IsPointInsideAnswerLeft = (x, y, key, id, mainContainerOffset, answersLayo
                     runOnJS(setWrongObject)(answerLayout.key)
                     return {
                         inside: true,
-                        newX: answerLayout.x - 30,
-                        newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                        newX: answerLayout.x - offsets.horizontal,
+                        newY: answerLayout.y + answerLayout.height / 2 - offsets.vertical,
                         targetIndex: i,
                         color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     };
@@ -35,8 +35,8 @@ const IsPointInsideAnswerLeft = (x, y, key, id, mainContainerOffset, answersLayo
                 runOnJS(addToAnswered)(key);
                 return {
                     inside: true,
-                    newX: answerLayout.x - 30,
-                    newY: answerLayout.y + answerLayout.height / 2 - mainContainerOffset.top,
+                    newX: answerLayout.x - offsets.horizontal,
+                    newY: answerLayout.y + answerLayout.height / 2 - offsets.vertical,
                     targetIndex: i,
                     color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };

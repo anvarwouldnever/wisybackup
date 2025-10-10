@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import translations from '../../../localization';
 import store from '../../store/store';
 import Animated, { SlideInRight } from 'react-native-reanimated';
+import { gameStore } from '../Games/store/gameStore';
 
 const LanguageComponent = ({ setScreen }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [chosenLang, setChosenLang] = useState(null);
-    const [loading, setLoading] = useState(false); // Состояние для загрузки
+    const [loading, setLoading] = useState(false);
 
     const func = async(tag) => {
         setLoading(true);
         await store.setLanguage(tag);
+        gameStore.resetSubCollection()
         setTimeout(() => {
             setLoading(false);
             setScreen('Settings');

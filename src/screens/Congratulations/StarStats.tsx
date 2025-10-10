@@ -1,14 +1,17 @@
-import { Platform, Image, Text, useWindowDimensions } from "react-native";
+import { Image, Text } from "react-native";
 import { useEffect, useState } from "react";
-import Animated, { useSharedValue, useAnimatedStyle, withSequence, withSpring, withTiming } from "react-native-reanimated";
+import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics'
 import store from "../../store/store";
+import { useScale } from "../../hooks/useScale";
 
 const StarStats = ({ numStars, layoutCaptured, setLayoutCaptured }) => {
 
     const bounceValue = useSharedValue(1);
     const storeStars = store.playingChildId?.stars
     const [stars, setStars] = useState(storeStars)
+
+    const { s, vs } = useScale()
 
     const handleLayout = (event) => {
         event.persist()
@@ -38,12 +41,13 @@ const StarStats = ({ numStars, layoutCaptured, setLayoutCaptured }) => {
         }
     }, [numStars]);
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-
     return (
-        <Animated.View onLayout={(event) => handleLayout(event)} style={[animatedStyle, {position: 'absolute', right: 30, top: 0, backgroundColor: 'white', width: windowWidth * (75 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360), borderRadius: 100, flexDirection: 'row', justifyContent: 'space-evenly'}]}>
-            <Image source={require('../../images/tabler_star-filled.png')} style={{width: windowWidth * (24 / 800), height: Platform.isPad? windowWidth * (24 / 800) : windowHeight * (24 / 360), aspectRatio: 24 / 24, alignSelf: 'center'}}/>
-            <Text style={{fontWeight: '600', fontSize: windowWidth * (20 / 800), color: 'black', textAlign: 'center', alignSelf: 'center'}}>{stars}</Text>
+        <Animated.View onLayout={(event) => handleLayout(event)} style={[animatedStyle, {position: 'absolute', right: 0, top: 0, backgroundColor: 'white', width: 'auto', height: s(20), borderRadius: 100, columnGap: s(3), paddingHorizontal: s(4), flexDirection: 'row', justifyContent: 'space-evenly'}]}>
+            
+            <Image source={require('../../images/tabler_star-filled.png')} style={{width: s(10), height: s(10), alignSelf: 'center'}}/>
+            
+            <Text style={{fontWeight: '600', fontSize: s(10), color: 'black', textAlign: 'center', alignSelf: 'center'}}>{stars}</Text>
+
         </Animated.View>
     )
 }

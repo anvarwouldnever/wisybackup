@@ -52,7 +52,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             console.error("Error saving and sharing image:", error);
             return [];
         }
-    };    
+    };
 
     const { answer, isActive } = useHandwrittenAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }, saveAndShareImage, setLines });
     
@@ -69,7 +69,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, [])
     
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center', alignItems: 'center', paddingTop: 50}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />

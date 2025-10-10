@@ -4,16 +4,9 @@ import { playSound } from '../hooks/usePlayBase64Audio';
 import store from '../store/store';
 import useTimer from '../hooks/useTimer';
 import { AnswerSimpleChoice } from '../api/methods/game/answer';
+import { GetSpeeches } from '../api/methods/speeches/speech';
 
-export const useAnswerLogic = ({
-  data,
-  subCollectionId,
-  onCompleteTask,
-  isFromAttributes = false,
-  levelHandlers,
-  uiHandlers,
-  attemptState,
-}) => {
+export const useAnswerLogic = ({ data, subCollectionId, onCompleteTask, isFromAttributes = false, levelHandlers, uiHandlers, attemptState,}) => {
   const isActive = useRef(true);
   const { getTime, start, stop, reset } = useTimer();
 
@@ -74,10 +67,17 @@ export const useAnswerLogic = ({
           onCompleteTask(subCollectionId, data?.next_task_id);
         }
         setId({ id: answer, result: correct ? 'correct' : 'wrong' });
-        setText(response.data?.hint);
+        setWisySpeaking(true);
         try {
-          setWisySpeaking(true);
-          await playSound(response?.data?.sound);
+          if (!correct) {
+              const speech = await GetSpeeches('no_more_hints')
+              
+              setText(speech.data?.data[0]?.text);
+              await playSound(speech?.data?.data[0]?.audio);
+          } else {
+              setText(response.data?.hint);
+              await playSound(response?.data?.sound);
+          }
         } catch (e) {
           console.log(e);
         } finally {

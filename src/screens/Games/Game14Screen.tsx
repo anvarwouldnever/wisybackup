@@ -10,12 +10,12 @@ import TutorialOverlay from "./components/TutorialOverlay";
 import WisyHint from "./components/WisyHint";
 import OverlayHint from "./components/OverlayHint";
 import Lines from "./Game14/Lines";
-import { addCurvedLine } from "./Game14/Functions";
 import { useIntroSequence } from "../../hooks/useIntroSequence";
 import { useObjectMatchingAnswer } from "../../hooks/useObjectMatchingAnswerLogic";
 import LeftImagesBlock from "./Game14/LeftImagesBlock";
 import AnswersBlock from "./Game14/AnswersBlock";
 import RightImagesBlock from "./Game14/RightImagesBlock";
+import { useScale } from "../../hooks/useScale";
 
 const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
@@ -30,9 +30,10 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const lineEndX = useSharedValue(0);
     const lineEndY = useSharedValue(0);
 
-    const mainContainerOffset = { top: 24 };
+    const { s, vs } = useScale()
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const offsets = { vertical: s(12), horizontal: s(15) };
+
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -67,7 +68,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     }));
     
     useEffect(() => {
-        if (answers.length === 0) { // Только первый раз перемешиваем
+        if (answers?.length === 0) { // Только первый раз перемешиваем
             setAnswers(
                 images
                     .map((item) => ({ ...item.target_pair, key: item.key }))
@@ -120,7 +121,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     };
     
     return (
-        <View style={{top: mainContainerOffset.top, width: windowWidth - 60, height: windowHeight - 60, position: "absolute", alignItems: "center"}}>
+        <View style={{  width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             <Lines lines={lines} isDrawing={isDrawing} lineEndX={lineEndX} lineEndY={lineEndY} lineStartX={lineStartX} lineStartY={lineStartY} />
 
             {tutorialShow && tutorials?.length > 0 && (
@@ -129,13 +130,13 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
 
-                <Animated.View entering={ZoomInEasyDown} style={{width: windowWidth * (448 / 800), height: windowHeight * (300 / 360), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
+                <Animated.View entering={ZoomInEasyDown} style={{width: s(210), height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
                     
-                    <LeftImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
+                    <LeftImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
 
-                    <AnswersBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
+                    <AnswersBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
 
-                    {images.length === 4 || images.length === 3 ? null : <RightImagesBlock images={images} mainContainerOffset={mainContainerOffset} answered={answered} lock={lock} addCurvedLine={addCurvedLine} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
+                    {images?.length === 4 || images?.length === 3 || images?.length === 2 || images?.length === 1 ? null : <RightImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
 
                 </Animated.View>
 

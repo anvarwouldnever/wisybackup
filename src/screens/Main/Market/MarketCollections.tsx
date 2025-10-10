@@ -1,28 +1,29 @@
-import { View, useWindowDimensions } from 'react-native'
+import { View } from 'react-native'
 import React from 'react'
 import store from '../../../store/store';
 import Animated, { FadeInRight, Easing } from 'react-native-reanimated';
 import { observer } from 'mobx-react-lite';
 import RenderItem from './RenderItem';
 import LottieView from 'lottie-react-native';
+import { useScale } from '../../../hooks/useScale';
 
 const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, animationStart }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     const items = store?.market
 
         return (
-            <View style={{position: 'absolute', top: windowHeight * (100 / 360), left: windowWidth * (320 / 800), width: windowWidth * (480 / 800), height: windowHeight * (197 / 360), justifyContent: 'center'}}>
-                {store?.loadingCats
+            <View style={{position: 'absolute', top: vs(230), right: 0, width: '62%', height: 'auto', justifyContent: 'center', overflow: 'visible'}}>
+                {store?.loadingMarketItems
                     ? (
                         <LottieView
                             loop={true}
                             autoPlay
                             source={require('../../../../assets/6Vcbuw6I0c (1).json')}
                             style={{
-                                width: windowWidth * (50 / 800),
-                                height: windowHeight * (50 / 360),
+                                width: s(25), 
+                                height: s(30),
                                 position: 'absolute',
                                 alignSelf: 'center'
                             }}
@@ -44,7 +45,7 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
                             )}
                             scrollEnabled
                             horizontal
-                            contentContainerStyle={{ gap: 16 }}
+                            contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20) }}
                             showsHorizontalScrollIndicator={false}
                         />
                     )

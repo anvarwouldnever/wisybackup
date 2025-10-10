@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useMemo } from "react";
-import { View, Platform, TouchableOpacity, Text, Image, StyleSheet, useWindowDimensions } from "react-native";
-import reload from '../../images/tabler_reload.png';
+import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 import store from "../../store/store";
 import lot from '../../lotties/panda anim 2.json'
 import fetchAnimation from "./FetchLottie";
-import api from "../../api/api";
 import { playSound } from "../../hooks/usePlayBase64Audio";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import standingWisy from '../../lotties/standingWisy.json';
@@ -15,16 +13,18 @@ import { observer } from "mobx-react-lite";
 import bamboo from '../../lotties/panda bamboo eat5-F.json'
 import { gameStore } from "../Games/store/gameStore";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
+import { useScale } from "../../hooks/useScale";
+import Back from "./Back";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
-        
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+       
     const animationRef = useRef<LottieView>(null);
     const doneWelcomeSpeech = useRef<any>(null);
     const welcomeSequenceDone = useRef(false);
-    // const [durationOfAnimation, setDurationOfAnimation] = useState()
 
     const animationHasFinishedOnceRef = useRef<boolean>(false);
+
+    const { s, vs, isTablet } = useScale();
 
     const func = async (name: string) => {
         try {
@@ -248,20 +248,32 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     }, [animation, marketCollections, store.wisySpeaking, modal]);
     
     return (
-            <View style={{backgroundColor: '#F8F8F8', height: windowHeight, width: windowWidth * (280 / 800), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center'}}>
-                <View style={{alignItems: 'center', position: 'absolute', bottom: Platform.isPad? windowWidth * (20 / 800) : windowHeight * (10 / 360), left: Platform.isPad? 'auto' : windowWidth * (60 / 800), justifyContent: 'space-between', height: 'auto', gap: Platform.isPad? 20 : 0}}>
+            <View style={{backgroundColor: '#F8F8F8', height: '100%', width: s(125), borderTopRightRadius: 24, borderBottomRightRadius: 24, alignItems: 'center', paddingLeft: isTablet ? 0 : s(15), paddingTop: vs(50), justifyContent: 'space-between'}}>
+                
+                <Back />
+                
+                <View style={{ alignItems: 'center', height: 'auto' }}>
+                    
                     {store.wisyMenuText && 
 
-                        <Animated.View key={store.wisyMenuText} entering={ZoomInEasyDown} style={{width: windowWidth * (192 / 800), height: 'auto'}}>
-                            <View style={{borderRadius: 16, backgroundColor: '#C4DF84', padding: 13, width: windowWidth * (192 / 800), height: 'auto'}}>
-                                <Text style={{fontWeight: '500', fontSize: windowWidth * (14 / 800)}}>
-                                    {store.wisyMenuText}
+                        <Animated.View key={store.wisyMenuText} entering={ZoomInEasyDown} style={{width: 'auto', height: 'auto', zIndex: 1000}}>
+                            
+                            <View style={{borderRadius: s(6), backgroundColor: '#C4DF84', padding: isTablet ? s(6) : s(5), width: 'auto', minWidth: s(60), maxWidth: s(90), maxHeight: s(35), height: 'auto', alignItems: 'center', justifyContent: 'center'}}>
+                                
+                                <Text style={{ fontWeight: '500', fontSize: isTablet ? s(7) : s(6), lineHeight: isTablet ? s(9) : s(8) }}>
+                                    {store?.wisyMenuText}
                                 </Text>
+                                
                             </View>
+
                             <View style={styles.triangle}/>
-                            <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -10, right: -10, backgroundColor: '#F8F8F8', width: windowWidth * (32 / 800), height: Platform.isPad? windowWidth * (32 / 800) : windowHeight * (32 / 360), borderWidth: 1, borderColor: '#0000001A'}}>
-                                <Image source={reload} style={{width: windowWidth * (16 / 800), height: Platform.isPad? windowWidth * (16 / 800) : windowHeight * (16 / 360), aspectRatio: 16 / 16}}/>
+                            
+                            <TouchableOpacity style={{borderRadius: 100, justifyContent: 'center', alignItems: 'center', position: 'absolute', bottom: -s(3), right: -s(3), backgroundColor: '#F8F8F8', width: s(14), height: s(14), borderWidth: 1, borderColor: '#0000001A'}}>
+                                
+                                <Image source={require('../../images/tabler_reload.png')} style={{width: s(8), height: s(8)}}/>
+                            
                             </TouchableOpacity>
+                            
                         </Animated.View>
 
                     }
@@ -271,13 +283,14 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
                         ref={animationRef}
                         {...animationProps}
                         style={{
-                            minWidth: windowWidth * (190 / 800),
-                            minHeight: Platform.isPad ? windowWidth * (190 / 800) : windowHeight * (190 / 360),
+                            width: vs(500),
+                            height: vs(430),
                             transform: [{ scale: 1.3 }]
                         }}
                     />
                     
                 </View>
+
             </View>
         )
     }

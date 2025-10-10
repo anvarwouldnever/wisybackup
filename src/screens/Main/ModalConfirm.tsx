@@ -1,15 +1,11 @@
-import { View, Text, Platform, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
+import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import Modal from 'react-native-modal'
 import store from '../../store/store'
 import api from '../../api/api'
-import star from '../../images/tabler_star-filled.png';
-import x from '../../images/xConfirmModal.png';
-import galka from '../../images/galkaConfirmModal.png'
+import { useScale } from '../../hooks/useScale'
 
 const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, setAnimation, setCurrentAnimation }) => {
-
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const purchaseItem = async() => {
             try {
@@ -27,27 +23,49 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, se
             } catch (error) {
                 // console.log(error)
             }
-        }
+    }
+
+    const { s, vs } = useScale();
 
     return (
-            <Modal backdropOpacity={0.1} onBackdropPress={() => setModal(false)} isVisible={modal} style={{width: windowWidth * (268 / 800), height: Platform.isPad? windowWidth * (216 / 800) : windowHeight * (216 / 360), backgroundColor: 'white', borderRadius: 10, position: 'absolute', top: windowHeight * (40 / 360), left: windowWidth * (394 / 800), alignItems: 'center'}}>
-                <Text style={{fontWeight: '600', color: '#000000', fontSize: 24, textAlign: 'center', position: 'absolute', alignSelf: 'center', top: windowHeight * (30 / 360)}}>Please Confirm</Text>
-                <View style={{width: windowWidth * (63 / 800), height: windowHeight * (38 / 360), flexDirection: 'row', justifyContent: 'space-between', position: 'absolute', alignSelf: 'center', top: windowHeight * (60 / 360)}}>
-                    <Image source={star} style={{width: windowWidth * (38 / 800), height: windowHeight * (38 / 360)}}/>
-                    <Text style={{color: '#000000', fontSize: windowHeight * (32 / 360), fontWeight: '600', textAlign: 'center', textAlignVertical: 'center'}}>
-                        {currentAnimation?.cost}
-                    </Text>
+            <Modal backdropOpacity={0.2} onBackdropPress={() => setModal(false)} isVisible={modal} style={{ width: '60%', height: 'auto', alignItems: 'center', alignSelf: 'flex-end' }}>
+                
+                <View style={{ width: s(120), height: s(100), backgroundColor: 'white', borderRadius: 10, justifyContent: 'space-between', padding: s(12) }}>
+                    
+                    <View style={{ width: '100%', rowGap: s(5), alignItems: 'center', justifyContent: 'center' }}>
+                        
+                        <Text style={{ fontWeight: '600', color: '#000000', fontSize: s(10), textAlign: 'center' }}>Please Confirm</Text>
+
+                        <View style={{ flexDirection: 'row', width: '100%', columnGap: s(3), alignItems: 'center', justifyContent: 'center'  }}>
+
+                            <Image source={require('../../images/tabler_star-filled.png')} style={{width: s(15), height: s(15)}}/>
+                            
+                            <Text style={{ color: '#000000', fontSize: s(15), fontWeight: '600', textAlign: 'center', textAlignVertical: 'center' }}>
+                                {currentAnimation?.cost}
+                            </Text>
+
+                        </View>
+
+                    </View>
+
+                    <View style={{ alignSelf: 'center', alignItems: 'center', flexDirection: 'row', width: '100%', justifyContent: 'center', columnGap: s(10) }}>
+                        
+                        <TouchableOpacity onPress={() => setModal(false)} style={{ backgroundColor: '#E94343', width: s(25), height: s(25), borderRadius: 100, justifyContent: 'center', alignItems: 'center', padding: s(5) }}>
+                            
+                            <Image source={require('../../images/xConfirmModal.png')} style={{ width: '100%', height: '100%', resizeMode: 'contain'}}/>
+                        
+                        </TouchableOpacity>
+
+                        <TouchableOpacity onPress={() => purchaseItem()} style={{ backgroundColor: '#28B752', width: s(25), height: s(25), borderRadius: 100, justifyContent: 'center', alignItems: 'center', padding: s(5) }}>
+                            
+                            <Image source={require('../../images/galkaConfirmModal.png')} style={{ width: '100%', height: '100%', resizeMode: 'contain'}}/>
+                        
+                        </TouchableOpacity>
+
+                    </View>
+
                 </View>
-                <View style={{width: windowWidth * (129 / 800), height: windowHeight * (53 / 360), position: 'absolute', alignSelf: 'center', bottom: windowHeight * (25 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between'}}>
-                    <TouchableOpacity onPress={() => {
-                            setModal(false)
-                        }} style={{backgroundColor: '#E94343', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
-                        <Image source={x} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
-                    </TouchableOpacity>
-                    <TouchableOpacity onPress={() => purchaseItem()} style={{backgroundColor: '#28B752', width: windowWidth * (53 / 800), height: windowHeight * (53 / 360), borderRadius: 100, justifyContent: 'center', alignItems: 'center'}}>
-                        <Image source={galka} style={{width: windowWidth * (36 / 800), height: windowHeight * (32 / 360), resizeMode: 'contain'}}/>
-                    </TouchableOpacity>
-                </View>
+
             </Modal>
     )
 }

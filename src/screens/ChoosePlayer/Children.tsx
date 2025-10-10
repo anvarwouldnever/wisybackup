@@ -1,65 +1,75 @@
 import store from '../../store/store'
-import rabbit from '../../images/Rabbit.png'
-import plus from '../../images/Button.png'
-import { FlatList, TouchableOpacity, View, Text, Image, Platform, useWindowDimensions } from 'react-native';
+import { FlatList, TouchableOpacity, View, Text, Image } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { observer } from 'mobx-react-lite';
 import { getAvatars } from '../ChildParams/hooks/getAvatars';
+import { useScale } from '../../hooks/useScale';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { getChildren } from './hooks/getChildren';
 
-function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children }) {
+function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) {
     
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
 
-    const { avatars, error, loading } = getAvatars()
+    const { s, vs, isTablet } = useScale()
 
-    const renderItem = ({ item, index }) => {
+    const { avatars } = getAvatars()
+    const { children } = getChildren()
+
+    const onPress = (item, isNew) => {
+        setChosenPlayerIndex(item?.id);
+        setChosenPlayer(item);
+        if (isNew) {
+            store.setIsFirstOpening(true)
+            store.setIsBlacked(true)
+        } else {
+            store.setIsFirstOpening(false)
+            store.setIsBlacked(false)
+        }
+    }
+
+    const renderItem = ({ item }) => {
         
         if (item?.isAddButton) {
             return (
-                <TouchableOpacity onPress={() => navigation.navigate('ChildParamsScreen')} style={{ width: Platform.isPad ? windowWidth * (96 / 800) : windowWidth * (96 / 800),  height: Platform.isPad ? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center', marginRight: 150}}>
-                    <Image source={plus} style={{width: Platform.isPad ? windowHeight * (96 / 360) : windowWidth * (96 / 800), height: Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360), aspectRatio: 96 / 96}}/>
-                    <Text style={{ color: '#504297', width: 'auto', height: windowHeight * (24 / 360), fontSize: 14, lineHeight: 24, fontWeight: '600'}}>
+                <View style={{ alignItems: 'center', rowGap: vs(20) }}>
+
+                    <TouchableOpacity onPress={() => navigation.navigate('ChildParamsScreen')} style={{ width: s(46), height: s(46), justifyContent: 'center', flexDirection: 'column', alignItems: 'center', borderRadius: 100, backgroundColor: 'white', shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.20, shadowRadius: 1.41, elevation: 2}}>
+                        <Ionicons name='add' size={s(22)} color={'#504297'} />
+                    </TouchableOpacity>
+
+                    <Text style={{ color: '#504297', fontSize: vs(22), fontWeight: '600'}}>
                         Add new user
                     </Text>
-                </TouchableOpacity>
+
+                </View>
             );
         }
 
-        const avatarObj = avatars?.find(avatar => avatar.id === item.avatar_id);
-        const avatarImage = avatarObj ? avatarObj.image : rabbit;
+        const avatarObj = avatars?.find(avatar => avatar?.id === item?.avatar_id);
+        const avatarImage = avatarObj?.image
         const avatarUrl = typeof avatarImage === 'string' ? avatarImage : avatarImage?.url; 
         const isSvg = avatarUrl?.endsWith('.svg');
 
-        const isNew = store?.newChildren?.includes(item?.id)   
+        const isNew = store?.newChildren?.includes(item?.id) 
 
         return (
-            <View key={index} style={{ width: Platform.isPad ? windowWidth * (96 / 800) : windowWidth * (96 / 800), height: Platform.isPad ? windowWidth * (136 / 800) : windowHeight * (136 / 360), justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center', marginLeft: index === 0 ? 150 : 0}}>
+            <View style={{ alignItems: 'center', rowGap: vs(20)}}>
                 
-                <TouchableOpacity activeOpacity={1} 
-                    onPress={() => { 
-                        setChosenPlayerIndex(index);
-                        setChosenPlayer(item);
-                        if (isNew) {
-                            store.setIsFirstOpening(true)
-                            store.setIsBlacked(true)
-                        } else {
-                            store.setIsFirstOpening(false)
-                            store.setIsBlacked(false)
-                        }
-                    }} 
-                    style={{ width: 'auto', height: 'auto', alignItems: 'center', justifyContent: 'center'}}
-                >
+                <TouchableOpacity activeOpacity={1} onPress={() => onPress(item, isNew)} style={{ alignItems: 'center', justifyContent: 'center'}}>
+                    
                     {isSvg ? (
-                        <SvgUri uri={avatarUrl} width={Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360)} height={Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360)} style={{ borderWidth: 3,  borderColor: chosenPlayerIndex === index ? '#504297' : '#F4E3F1', borderRadius: 100}}/>
+                        <View style={{ width: s(46), height: s(46), borderRadius: 100, overflow: 'hidden', borderWidth: 3, borderColor: chosenPlayerIndex === item?.id ? '#504297' : '#F4E3F1' }}>
+                            <SvgUri uri={avatarUrl} width="100%" height="100%" />
+                        </View>
                     ) : (
-                        <Image source={{ uri: avatarUrl }} style={{ borderWidth: 2, borderColor: 'white', borderRadius: 100, width: Platform.isPad ? windowHeight * (96 / 360) : windowWidth * (96 / 800), height: Platform.isPad ? windowWidth * (96 / 800) : windowHeight * (96 / 360), aspectRatio: 1}}/>
+                        <Image source={{ uri: avatarUrl }} style={{ borderWidth: 2, borderColor: 'white', borderRadius: 100, width: s(46), height: s(46)}}/>
                     )}
 
                 </TouchableOpacity>
 
-                <Text style={{ color: '#504297', width: 'auto', height: windowHeight * (24 / 360), fontSize: 14, lineHeight: 24, fontWeight: '600', textAlign: 'center'}}>
+                <Text style={{ color: '#504297', fontSize: vs(22), fontWeight: '600', textAlign: 'center'}}>
                     {item?.name}
                 </Text>
 
@@ -69,11 +79,12 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
 
     return (
         <FlatList
-            data={[...(children || []), { isAddButton: true }]}
-            keyExtractor={(item, index) => index.toString()}
+            data={[...(children || []), { id: 'add-btn', isAddButton: true }]}
+            keyExtractor={(item) => item?.id.toString()}
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 10, alignSelf: 'center', alignItems: 'center', width: 'auto', height: Platform.isPad ? windowWidth * (136 / 800) : windowHeight * (136 / 360), gap: 32}}
+            style={{ width: 'auto' }}
+            contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', columnGap: vs(30), paddingHorizontal: vs(170)}}
             renderItem={renderItem}
         />
     );

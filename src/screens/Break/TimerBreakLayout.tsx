@@ -1,8 +1,8 @@
-import { View, Text, Image, useWindowDimensions } from 'react-native';
+import { View, Text, Image } from 'react-native';
 import { useEffect } from 'react';
+import { useScale } from '../../hooks/useScale';
 
 const TimerLayout = ({ formatTime, seconds, setSeconds, animation }) => {
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     useEffect(() => {
         if (!animation || seconds === null || seconds === undefined || isNaN(seconds)) return;
@@ -16,35 +16,19 @@ const TimerLayout = ({ formatTime, seconds, setSeconds, animation }) => {
         }
     }, [seconds, animation]);
 
+    const { s, vs } = useScale()
+
     return (
-        <View
-            style={{
-                width: windowWidth * (86 / 800),
-                height: windowHeight * (40 / 360),
-                gap: 4,
-                flexDirection: 'row',
-                position: 'absolute',
-                right: windowWidth * (20 / 800),
-                top: 30,
-                padding: 8,
-                backgroundColor: '#C4DF84',
-                borderRadius: 100,
-                alignItems: 'center',
-                justifyContent: 'center',
-            }}>
-            <Image
-                source={require('../../images/CLOCK.png')}
-                style={{
-                    width: windowWidth * (24 / 800),
-                    height: windowHeight * (24 / 360),
-                    resizeMode: 'contain',
-                }}
-            />
+        <View style={{ width: 'auto', height: s(20), flexDirection: 'row', position: 'absolute', right: s(15), top: s(10), backgroundColor: '#C4DF84', borderRadius: 100, alignItems: 'center', justifyContent: 'center', columnGap: s(3)}}>
+            
+            <Image source={require('../../images/CLOCK.png')} style={{ width: s(12), height: s(12), resizeMode: 'contain'}}/>
+            
             {typeof seconds === 'number' && !isNaN(seconds) && (
-                <Text style={{ color: '#222222', fontWeight: '600', fontSize: 20 }}>
+                <Text style={{ color: '#222222', fontWeight: '600', fontSize: s(8) }}>
                     {formatTime(seconds)}
                 </Text>
             )}
+
         </View>
     );
 };

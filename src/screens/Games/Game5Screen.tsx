@@ -12,7 +12,6 @@ import OverlayHint from './components/OverlayHint'
 
 const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(null);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -38,7 +37,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, [])
 
     return (
-        <View style={{position: 'absolute', top: 24, width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 60, justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />
@@ -47,9 +46,7 @@ const Game5Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && (
                 <Game5AnimalsAnimation 
                     lock={lock} 
-                    setLock={setLock} 
                     id={id} 
-                    thinking={thinking} 
                     answer={answer}
                     animal={data?.content?.question_image} 
                     images={data?.content?.images} 

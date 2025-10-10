@@ -1,16 +1,17 @@
-import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform, Dimensions } from 'react-native'
+import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import speaker from '../../../images/speaker2.png'
 import RenderItem from './RenderItem';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
+import { useScale } from '../../../hooks/useScale';
 
 const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceForTask }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     const [key, setKey] = useState(0);
 
-    const [shuffledImages, setShuffledImages] = useState();
+    const [shuffledImages, setShuffledImages] = useState([]);
 
     const shuffleArray = (array) => {
         let shuffledArray = [...array];
@@ -31,11 +32,13 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceFo
     }, [images, audio]);
     
     return (
-        <Animated.View key={key} entering={ZoomInEasyDown} style={{width: windowWidth * (664 / 800), height: Platform.isPad? windowWidth * (232 / 800) : windowHeight * (232 / 360), position: 'absolute', alignSelf: 'center', alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
-            <TouchableOpacity onPress={lock? () => {} : () => voiceForTask(audio)} style={{width: Platform.isPad ? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderWidth: 1, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
-                <Image source={speaker} style={{width: windowWidth * (40 / 800), height: Platform.isPad? windowWidth * (40 / 800) : windowHeight * (40 / 360)}}/>
+        <Animated.View key={key} entering={ZoomInEasyDown} style={{width: 'auto', height: 'auto', alignItems: 'center', flexDirection: 'column', rowGap: s(13)}}>
+            
+            <TouchableOpacity onPress={lock? () => {} : () => voiceForTask(audio)} style={{width: s(35), height: s(35), borderWidth: 1, padding: s(8), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
+                <Image source={speaker} style={{width: '100%', height: '100%'}}/> 
             </TouchableOpacity>
-            <View style={{height: Platform.isPad? windowWidth * (135 / 800) : windowHeight * (138 / 360), alignItems: 'center', width: 'auto'}}>
+            
+            <View style={{ alignItems: 'center' }}>
                 <FlatList 
                     data={shuffledImages?.slice(0, 5)}
                     renderItem={({ item }) => (
@@ -50,9 +53,11 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceFo
                     horizontal={true}
                     keyExtractor={(item, index) => index.toString()}
                     scrollEnabled={false}
-                    contentContainerStyle={{width: '100%', justifyContent: 'center', height: 'auto', gap: windowWidth * (25 / 800), alignItems: 'center'}}
+                    contentContainerStyle={{ justifyContent: 'center', columnGap: s(8), alignItems: 'center' }}
+                    style={{ flexGrow: 0 }}
                 />
             </View>
+
         </Animated.View>
     )
 }

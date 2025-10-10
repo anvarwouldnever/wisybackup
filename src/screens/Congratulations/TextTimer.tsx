@@ -12,7 +12,7 @@ const TextTimer = ({ complete }) => {
     const { s, vs } = useScale()
 
     return (
-        <TouchableOpacity disabled={gameStore.loadingGames} onPress={() => complete()} style={{width: '75%', height: '100%', backgroundColor: '#504297', borderRadius: 100, alignSelf: 'center', paddingHorizontal: vs(28), flexDirection: 'row', justifyContent: 'space-between'}}>
+        <TouchableOpacity disabled={gameStore.loadingGames} onPress={() => complete()} style={{width: '75%', height: '100%', backgroundColor: '#504297', borderRadius: 100, alignSelf: 'center', paddingHorizontal: s(8), flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={{fontSize: s(6), fontWeight: '600', color: 'white', alignSelf: 'center'}}>{translations?.[store.language]?.continue}</Text>
             { gameStore.loadingGames ?
                 <ActivityIndicator size={'small'} color={'white'} />

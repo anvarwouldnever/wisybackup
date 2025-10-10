@@ -1,9 +1,9 @@
 import { runOnJS } from "react-native-reanimated";
 
-const IsPointInsideImage = (x, y, key, mainContainerOffset, imageLayouts, answered, answer, setWrongObject, addToAnswered, images) => {
+const IsPointInsideImage = (x, y, key, offsets, imageLayouts, answered, answer, setWrongObject, addToAnswered, images) => {
     'worklet';
-        const adjustedX = x + 30; // Учитываем смещение по X
-        const adjustedY = y + mainContainerOffset.top; // Учитываем смещение по Y
+        const adjustedX = x + offsets.horizontal; // Учитываем смещение по X
+        const adjustedY = y + offsets.vertical; // Учитываем смещение по Y
         const totalImages = imageLayouts.value.length;
     
         let rightSideThreshold = 0;
@@ -38,8 +38,8 @@ const IsPointInsideImage = (x, y, key, mainContainerOffset, imageLayouts, answer
                     runOnJS(setWrongObject)(key)
                     return {
                         inside: true,
-                        newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
-                        newY: image.y + image.height / 2 - mainContainerOffset.top,
+                        newX: isRightSide ? image.x - offsets.horizontal : image.x + image.width - offsets.horizontal,
+                        newY: image.y + image.height / 2 - offsets.vertical,
                         targetIndex: i,
                         color: isCorrect ? '#ADD64D' : '#EA6E6E',
                     }; 
@@ -49,8 +49,8 @@ const IsPointInsideImage = (x, y, key, mainContainerOffset, imageLayouts, answer
     
                 return {
                     inside: true,
-                    newX: isRightSide ? image.x - 30 : image.x + image.width - 30,
-                    newY: image.y + image.height / 2 - mainContainerOffset.top,
+                    newX: isRightSide ? image.x - offsets.horizontal : image.x + image.width - offsets.horizontal,
+                    newY: image.y + image.height / 2 - offsets.vertical,
                     targetIndex: i,
                     color: isCorrect ? '#ADD64D' : '#EA6E6E',
                 };

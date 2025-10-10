@@ -24,11 +24,12 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
     // const earnedStars = [1, 2, 3]
 
+    const [layoutCaptured, setLayoutCaptured] = useState<{ x: number; y: number }>();
+
     const { s, vs } = useScale()
-    
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
     const [numStars, setNumStars] = useState(0);
-    const [starsContainerLayout, setStarsContainerLayout] = useState({});
+    const [starsContainerLayout, setStarsContainerLayout] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
     const starsContainerRef = useRef(null);
 
@@ -36,12 +37,10 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
         if (starsContainerRef.current) {
             starsContainerRef.current.measure((x, y, width, height, pageX, pageY) => {
-                const centerX = pageX + (width / 6);
-                const centerY = pageY - (height / 4);
+                const centerX = pageX - s(10)
+                const centerY = pageY - s(7)
         
                 setStarsContainerLayout({ x: centerX, y: centerY });
-        
-                // console.log({ centerX, centerY }); // Для отладки
             });
         }
 
@@ -49,8 +48,6 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
             store.setPlayingChildStars(earnedStars.length);
         };
     }, []);    
-
-    const [layoutCaptured, setLayoutCaptured] = useState();
 
     useEffect(() => {
         
@@ -124,7 +121,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                 const delayTimer = setTimeout(() => {
                     starsContainerOpacity.value = withTiming(0, { duration: 500 });
                     animatedValues.current[index].y.value = withTiming(layoutCaptured.y, { duration: 600 });
-                    animatedValues.current[index].x.value = withTiming(layoutCaptured.x + 30, { duration: 600 }, () => {
+                    animatedValues.current[index].x.value = withTiming(layoutCaptured.x + s(15), { duration: 600 }, () => {
                         runOnJS(Nums)()
                     });
                 }, delay);
@@ -141,15 +138,15 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
     });
 
     return (
-        <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center' }}>
+        <View style={{ flex: 1, flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
 
             <ConfettiLottie />
             
-            <Animated.View entering={BounceIn.delay(800).duration(700)} style={{ position: 'absolute', backgroundColor: 'white', width: vs(520), height: vs(510), alignSelf: 'center', borderRadius: 20, flexDirection: 'column', padding: vs(50), justifyContent: 'flex-end'}}>
+            <Animated.View entering={BounceIn.delay(800).duration(700)} style={{ position: 'absolute', backgroundColor: 'white', width: s(120), height: s(110), alignSelf: 'center', borderRadius: 20, flexDirection: 'column', padding: s(10), justifyContent: 'flex-end'}}>
                 
                 <StarsLottie stars={stars}/>
                 
-                {earnedStars.length > 0 && <EarnedStars earnedStars={earnedStars} starsContainerOpacity={starsContainerOpacity} starsContainerRef={starsContainerRef} />}
+                {earnedStars?.length > 0 && <EarnedStars earnedStars={earnedStars} starsContainerOpacity={starsContainerOpacity} starsContainerRef={starsContainerRef} />}
                 
                 <Description stars={stars} />
                 
@@ -163,11 +160,11 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
             </Animated.View>
 
-            {earnedStars.map((item, index) => {
+            {earnedStars.map((star, index) => {
                 return (
-                    <Animated.Image key={index} entering={FadeIn.delay(1700)} source={require('../images/tabler_star-filled.png')} style={[animatedStyles[index], { width: Platform.isPad? windowHeight * (20 / 360) : windowWidth * (20 / 800), height: Platform.isPad? windowHeight * (20 / 800) : windowHeight * (20 / 360), resizeMode: 'contain', alignSelf: 'center', position: 'absolute'}]}
-                />
-            )})}
+                    <Animated.Image key={index} entering={FadeIn.delay(1700)} source={require('../images/tabler_star-filled.png')} style={[animatedStyles[index], { width: s(10), height: s(10), resizeMode: 'contain', alignSelf: 'center', position: 'absolute'}]}/>
+                )
+            })}
             
             <StarStats numStars={numStars} layoutCaptured={layoutCaptured} setLayoutCaptured={setLayoutCaptured}/>
 

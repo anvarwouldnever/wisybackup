@@ -1,4 +1,4 @@
-import { useWindowDimensions, View } from 'react-native'
+import { View } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import Game3AnimalsAnimation from './Game3/Game3AnimalsAnimation'
 import useTimer from '../../hooks/useTimer'
@@ -12,7 +12,6 @@ import OverlayHint from './components/OverlayHint'
 
 const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -39,7 +38,7 @@ const Game3Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, []);
 
     return (
-        <View style={{top: 24, width: windowWidth - 60, height: windowHeight - 60, position: 'absolute', paddingTop: 50, flexDirection: 'row', justifyContent: 'center'}}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />
