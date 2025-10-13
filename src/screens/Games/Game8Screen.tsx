@@ -6,7 +6,7 @@ import useTimer from '../../hooks/useTimer';
 import { useHandwrittenAnswerLogic } from '../../hooks/useHandwrittenAnswerLogic';
 import { useIntroSequence } from '../../hooks/useIntroSequence';
 import TutorialOverlay from './components/TutorialOverlay'
-import SkipButton from './components/SkipButton'
+import SkipButton from './components/SkipButton';
 import store from '../../store/store';
 import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';

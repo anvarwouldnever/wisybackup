@@ -1,32 +1,44 @@
-import React, { useMemo, useCallback } from 'react';
-import { View, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
-import ArrowLeft from './ArrowLeft';
+import React, { useCallback } from 'react';
+import { View, TouchableOpacity } from 'react-native';
 import ChosenPeriodText from './ChosenPeriodText';
-import narrowright from '../../images/narrowright.png'
-import calendar from '../../images/tabler_calendar-month.png'
+import { useScale } from '../../hooks/useScale';
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ChosenPeriod = ({ changeDate, setShow, chosenPeriod, monthRange, weekRange, formattedDate }) => {
-
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const handlePrevDate = useCallback(() => changeDate(-1), [changeDate]);
     const handleNextDate = useCallback(() => changeDate(1), [changeDate]);
     const handleShowCalendar = useCallback(() => setShow(true), [setShow]);
 
+    const { s, vs } = useScale()
+
     return (
-        <View style={{ width: windowWidth * (312 / 360), height: windowHeight * (24 / 800), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-            <View style={{ width: 'auto', height: windowHeight * (52 / 800), flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+        <View style={{ width: '100%', height: 'auto', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+            
+            <View style={{ width: 'auto', height: 'auto', flexDirection: 'row', columnGap: vs(5), alignItems: 'center' }}>
+                
                 <TouchableOpacity onPress={() => handlePrevDate()}>
-                    <ArrowLeft />
+                    
+                    <Ionicons name='chevron-back' size={vs(24)} />
+                
                 </TouchableOpacity>
-                    <ChosenPeriodText chosenPeriod={chosenPeriod} monthRange={monthRange} weekRange={weekRange} formattedDate={formattedDate} />
+                    
+                <ChosenPeriodText chosenPeriod={chosenPeriod} monthRange={monthRange} weekRange={weekRange} formattedDate={formattedDate} />
+                
                 <TouchableOpacity onPress={() => handleNextDate()}>
-                    <Image source={narrowright} style={{ width: windowHeight * (24 / 800), height: windowHeight * (24 / 800) }} />
+                    
+                    <Ionicons name='chevron-forward' size={vs(24)} />
+                
                 </TouchableOpacity>
+
             </View>
-            <TouchableOpacity  onPress={() => handleShowCalendar()}>
-                <Image source={calendar} style={{ width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24 }} />
+
+            <TouchableOpacity onPress={() => handleShowCalendar()}>
+                
+                <Ionicons name='calendar-number-outline' size={vs(24)} color={'#504297'} />
+            
             </TouchableOpacity>
+
         </View>
     );
 };

@@ -1,8 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { SafeAreaView, View, Text, Image, Platform } from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Image } from "react-native";
 import ParentsCancel from "./Parents/ParentsCancel";
-import { useFocusEffect } from "@react-navigation/native";
-import * as ScreenOrientation from 'expo-screen-orientation';
 import translations from "../../localization";
 import store from "../store/store";
 import { observer } from "mobx-react-lite";
@@ -10,19 +8,14 @@ import Pad from "./ParentsCaptcha/Pad";
 import { useScale } from "../hooks/useScale";
 import Inputs from "./ParentsCaptcha/Inputs";
 import NumbersText from "./ParentsCaptcha/NumbersText";
+import { SafeAreaView } from "react-native-safe-area-context";
+import useLockPortrait from "../hooks/useLockPortrait";
 
 const ParentsCaptchaScreen = () => {
 
     const { s, vs } = useScale()
 
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    useLockPortrait()
 
     useEffect(() => {
         setAnswer([])
@@ -32,17 +25,16 @@ const ParentsCaptchaScreen = () => {
     const [answer, setAnswer] = useState<number[]>([]);
     const [error, setError] = useState(false)
 
-
     return (
-        <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', flexDirection: 'column', paddingTop: Platform.OS === 'android' ? 40 : 0 }}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', flexDirection: 'column', paddingHorizontal: vs(20), rowGap: vs(20) }}>
             
             <ParentsCancel />
             
-            <Image source={require('../images/Rotate.png')} style={{ marginVertical: vs(15), width: s(244), height: vs(244), aspectRatio: 1}} />
+            <Image source={require('../images/Rotate.png')} style={{ width: vs(244), height: vs(244)}} />
             
-            <View style={{justifyContent: 'space-evenly', alignItems: 'center', width: s(312), height: vs(166) }}>
+            <View style={{ alignItems: 'center', width: '100%', height: 'auto', rowGap: vs(18) }}>
                 
-                <Text style={{ fontWeight: '600', marginBottom: vs(15), fontSize: vs(24), lineHeight: vs(24), textAlign: 'center' }}>{translations[store.language]?.enterTheCode ?? "Enter the code"}</Text>
+                <Text style={{ fontWeight: '600', marginBottom: vs(14), fontSize: vs(24), textAlign: 'center'}}>{translations[store.language]?.enterTheCode ?? "Enter the code"}</Text>
                 
                 <NumbersText answer={answer} setError={setError} />
 

@@ -1,27 +1,40 @@
-import { Text, View, Image, TouchableOpacity, useWindowDimensions } from 'react-native'
+import { Text, View, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import translations from '../../../../localization';
 import store from '../../../store/store';
 import { observer } from 'mobx-react-lite';
+import { useScale } from '../../../hooks/useScale';
 
 const GetToKnowYourChild = () => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
 
+    const { s, vs, isTablet } = useScale()
+
     return (
-        <View style={{backgroundColor: '#C4DF84', flexDirection: 'row', gap: windowWidth * (16 / 360), padding: windowHeight * (16 / 800), alignSelf: 'center', borderRadius: 12, width: windowWidth * (312 / 360), height: windowHeight * (152 / 800)}}>
-            <Image source={require('../../../images/Winking.png')} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), aspectRatio: 40 / 40}}/>
-            <View style={{width: windowWidth * (224 / 360), height: windowHeight * (120 / 800), justifyContent: 'space-between'}}>
-                <View style={{width: windowWidth * (224 / 360), height: windowHeight * (64 / 800), alignSelf: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
-                    <Text style={{fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (20 / 800)}}>{translations?.[store.language].getToKnowYourChild}</Text>
-                    <Text style={{fontWeight: '600', color: '#555555', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), height: windowHeight * (40 / 800)}}>{translations?.[store.language].tenInsights}</Text>
+        <View style={{ backgroundColor: '#C4DF84', flexDirection: 'row', columnGap: vs(16), padding: vs(14), alignSelf: 'center', borderRadius: vs(16), width: '100%', height: 'auto' }}>
+            
+            <Image source={require('../../../images/Winking.png')} style={{ width: vs(46), height: vs(46) }}/>
+            
+            <View style={{ width: '75%', height: 'auto', justifyContent: 'center', rowGap: vs(16) }}>
+                
+                <View style={{ width: '100%', height: 'auto', alignSelf: 'center', flexDirection: 'column', justifyContent: 'center', rowGap: vs(6) }}>
+                    
+                    <Text style={{ fontWeight: '600', fontSize: vs(16), height: 'auto', lineHeight: vs(20) }}>{translations?.[store.language].getToKnowYourChild}</Text>
+                    
+                    <Text style={{ fontWeight: '600', color: '#555555', fontSize: isTablet ? vs(14) : vs(12), height: 'auto', lineHeight: vs(20) }}>{translations?.[store.language].tenInsights}</Text>
+                
                 </View>
-                <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")} style={{width: windowWidth * (96 / 360), height: windowHeight * (40 / 800), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
-                    <Text style={{color: '#504297', fontWeight: '600', fontSize: windowHeight * (12 / 800)}}>{translations?.[store.language]?.openChat}</Text>
+
+                <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")} style={{width: vs(110), height: vs(40), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
+                    
+                    <Text style={{ color: '#504297', fontWeight: '600', fontSize: vs(12) }}>{translations?.[store.language]?.openChat}</Text>
+                
                 </TouchableOpacity>
+
             </View>
+
         </View>
     )
 }

@@ -1,13 +1,12 @@
-import { View, Text, useWindowDimensions } from 'react-native'
 import React, { useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
-import lapa from '../images/paw.png'
+import { useScale } from '../hooks/useScale'
 
 const AnimatedPaw = () => {
 
     const scale = useSharedValue(1);
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     useEffect(() => {
         scale.value = withRepeat(
@@ -23,14 +22,14 @@ const AnimatedPaw = () => {
 
     return (
         <Animated.Image
-            source={lapa}
+            source={require('../images/paw.png')}
             style={[
                 {
-                    width: windowHeight * (60 / 360),
-                    height: windowHeight * (60 / 360),
+                    width: s(25),
+                    height: s(25),
                     position: 'absolute',
-                    right: -20,
-                    bottom: -30,
+                    right: -s(10),
+                    bottom: -s(10),
                 },
                 animatedStyle
             ]}

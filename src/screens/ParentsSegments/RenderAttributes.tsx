@@ -1,62 +1,39 @@
-import { TouchableOpacity, View, Image, Text, useWindowDimensions,  } from "react-native";
-import numbers from '../../images/Numbers.png'
-import narrowright from '../../images/narrowright.png'
+import { TouchableOpacity, View, Image, Text,  } from "react-native";
+import { useScale } from "../../hooks/useScale";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const RenderAttributes = ({ item, setModalData, setInformationModal }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const onPress = () => {
+        setModalData(item);
+        setInformationModal(true);
+    }
+
+    const { s, vs } = useScale()
 
     return (
-        <TouchableOpacity onPress={() => {
-            setModalData(item);
-            setInformationModal(true);
-        }} style={{ width: windowWidth * (312 / 360), height: windowHeight * (76 / 800), backgroundColor: '#F8F8F8', borderRadius: 10, padding: windowWidth * (16 / 360), gap: windowWidth * (16 / 360), alignItems: 'center', flexDirection: 'row', marginBottom: windowHeight * (8 / 800)}}>
-            <Image 
-                source={numbers} 
-                style={{
-                    width: windowHeight * (40 / 800), 
-                    height: windowHeight * (40 / 800), 
-                    aspectRatio: 40 / 40
-                }}
-            />
-            <View 
-                style={{
-                    width: windowWidth * (184 / 360), 
-                    height: windowHeight * (44 / 800), 
-                    justifyContent: 'space-between',
+        <TouchableOpacity onPress={() => onPress()} style={{ width: '100%', height: 'auto', backgroundColor: '#F8F8F8', borderRadius: vs(12), padding: vs(16), alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+            
+            <View style={{ flexDirection: 'row', columnGap: vs(14) }}>
+
+                <Image source={require('../../images/Numbers.png')} style={{ width: vs(40), height: vs(40) }} />
+                
+                <View style={{ width: '70%', height: 'auto', rowGap: vs(6), justifyContent: 'center' }}>
                     
-                }}
-            >
-                <Text 
-                    style={{
-                        color: '#222222', 
-                        fontWeight: '600', 
-                        fontSize: windowHeight * (14 / 800), 
-                        lineHeight: windowHeight * (20 / 800),
-                        width: windowWidth * (184 / 360),
-                    }}
-                    numberOfLines={1}
-                >
-                    {item.name}
-                </Text>
-                <Text 
-                    style={{
-                        color: '#222222', 
-                        fontWeight: '400', 
-                        fontSize: windowHeight * (12 / 800), 
-                        lineHeight: windowHeight * (20 / 800)
-                    }}
-                >
-                    {item.mistakes} mistakes
-                </Text>
+                    <Text numberOfLines={1} style={{ color: '#222222', fontWeight: '600', fontSize: vs(14) }}>
+                        {item?.name}
+                    </Text>
+
+                    <Text style={{ color: '#222222', fontWeight: '400', fontSize: vs(12) }}>
+                        {item?.mistakes} mistakes
+                    </Text>
+
+                </View>
+
             </View>
-            <Image 
-                source={narrowright} 
-                style={{
-                    width: windowHeight * (24 / 800), 
-                    height: windowHeight * (24 / 800)
-                }}
-            />
+            
+           <Ionicons name='chevron-forward' size={vs(24)} />
+
         </TouchableOpacity>
     )
 } 

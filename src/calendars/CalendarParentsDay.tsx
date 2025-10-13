@@ -1,59 +1,63 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import store from '../store/store';
 import translations from '../../localization';
 import { observer } from 'mobx-react-lite';
+import { useScale } from '../hooks/useScale';
 
 const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
 
     LocaleConfig.locales['lv'] = {
+        
         monthNames: [
-          'Janvāris',
-          'Februāris',
-          'Marts',
-          'Aprīlis',
-          'Maijs',
-          'Jūnijs',
-          'Jūlijs',
-          'Augusts',
-          'Septembris',
-          'Oktobris',
-          'Novembris',
-          'Decembris'
+            'Janvāris',
+            'Februāris',
+            'Marts',
+            'Aprīlis',
+            'Maijs',
+            'Jūnijs',
+            'Jūlijs',
+            'Augusts',
+            'Septembris',
+            'Oktobris',
+            'Novembris',
+            'Decembris'
         ],
         monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'Mai.', 'Jūn.', 'Jūl.', 'Aug.', 'Sept.', 'Okt.', 'Nov.', 'Dec.'],
         dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
         dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
         today: "Šodien"
+
     };
       
     LocaleConfig.locales['en'] = {
+        
         monthNames: [
-          'January',
-          'February',
-          'March',
-          'April',
-          'May',
-          'June',
-          'July',
-          'August',
-          'September',
-          'October',
-          'November',
-          'December'
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
         ],
         monthNamesShort: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'Jun.', 'Jul.', 'Aug.', 'Sep.', 'Oct.', 'Nov.', 'Dec.'],
         dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
         today: "Today"
+
     };
       
     LocaleConfig.defaultLocale = store.language;
 
     const [selectedDate, setSelectedDate] = useState(null);
-    const { height, width } = useWindowDimensions();
 
     const cancel = () => {
         setShow(false)
@@ -67,101 +71,48 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
         setShow(false);
     };
 
+    const { s, vs } = useScale()
+
     return (
-        <View
-            style={{
-                width: width * (314 / 360),
-                maxWidth: 445,
-                height: 'auto',
-                alignItems: 'center',
-                borderRadius: 20,
-                backgroundColor: 'white',
-                position: 'absolute',
-                // top: height * (230 / 932), она и так центрируется
-                alignSelf: 'center',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                shadowColor: 'black',
-                shadowRadius: 400,
-                shadowOffset: { width: 1, height: 1 },
-                shadowOpacity: 1,
-                elevation: 100
-            }}
-        >
+        <View style={{ width: vs(314), height: 'auto', padding: vs(14), rowGap: vs(16), alignItems: 'center', borderRadius: 20, backgroundColor: 'white', position: 'absolute', alignSelf: 'center', flexDirection: 'column', shadowColor: 'black', shadowRadius: 400, shadowOffset: { width: 1, height: 1 }, shadowOpacity: 1, elevation: 100 }}>
+            
             <Calendar
                 onDayPress={(day) => {
-                    setSelectedDate(day); // Сохранить выбранную дату
+                    setSelectedDate(day);
                 }}
-                style={{
-                    width: width * (314 / 360),
-                    height: 'auto',
-                    alignSelf: 'center',
-                    borderRadius: 10,
-                }}
-                theme={{
-                    todayTextColor: 'black',
-                }}
+                style={{ width: vs(310), height: 'auto', alignSelf: 'center', rowGap: vs(16) }}
+                theme={{ textSectionTitleColor: '#504297', arrowColor: '#504297', indicatorColor: '#504297', todayTextColor: '#504297', textDayFontSize: vs(16), textDayHeaderFontSize: vs(10), textMonthFontSize: vs(14), todayButtonFontSize: vs(16) }}
                 markedDates={{
                     [selectedDate?.dateString]: {
                         selected: true,
                         selectedColor: '#504297',
                     },
                 }}
+                
                 locale={store.language}
                 monthFormat={'MMMM yyyy'}
             />
-            <View
-                style={{
-                    width: width * (314 / 360),
-                    maxWidth: 460,
-                    paddingHorizontal: 16,
-                    height: height * (44 / 800),
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    borderBottomLeftRadius: 20,
-                    borderBottomRightRadius: 20,
-                }}
-            >
-                <TouchableOpacity
-                    onPress={cancel}
-                    style={{
-                        width: width * (53 / 360),
-                        height: height * (24 / 800),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            color: '#504297',
-                            fontSize: height * (17 / 800),
-                            fontWeight: '400',
-                        }}
-                    >
+
+            <View style={{ width: '100%', height: 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+                
+                <TouchableOpacity onPress={cancel} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    
+                    <Text style={{ color: '#504297', fontSize: vs(16), fontWeight: '400' }}>
                         {translations?.[store.language]?.cancel}
                     </Text>
+
                 </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={done}
-                    style={{
-                        width: width * (43 / 360),
-                        height: height * (24 / 800),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            color: '#504297',
-                            fontSize: height * (17 / 800),
-                            fontWeight: '600',
-                        }}
-                    >
+
+                <TouchableOpacity onPress={done} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    
+                    <Text style={{ color: '#504297', fontSize: vs(16), fontWeight: '600' }}>
                         {translations?.[store.language]?.done}
                     </Text>
+
                 </TouchableOpacity>
+
             </View>
+
         </View>
     );
 };

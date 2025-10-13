@@ -1,16 +1,15 @@
-import { View, Text, TouchableOpacity, Image, useWindowDimensions, Keyboard } from 'react-native'
+import { TouchableOpacity, Keyboard } from 'react-native'
 import React, { useState, useRef } from 'react'
 import Animated, { useAnimatedStyle, withTiming } from 'react-native-reanimated'
 import store from '../../../store/store';
-import microimg from '../../../images/micro.png'
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
-import api from '../../../api/api'
 import { Message } from '../../../api/methods/chat/message';
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useScale } from '../../../hooks/useScale';
 
 const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const { startRecording, stopRecording, resetMicrophone } = useAudioRecorder();
+    const { startRecording, stopRecording } = useAudioRecorder();
 
     const [thinking, setThinking] = useState(false)
     const [microOn, setMicroOn] = useState(false);
@@ -18,11 +17,12 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
     let pressTimeout = useRef(null);
     let isRecordingStarted = useRef(false);
 
+    const { s, vs } = useScale()
+
     const animatedMicro = useAnimatedStyle(() => {
         
         const scaleX = withTiming(microOn ? 1.5 : 1, {duration: 100})
         const scaleY = withTiming(microOn ? 1.5 : 1, {duration: 100})
-        // const backgroundColor = withTiming(microOn? "grey" : "white", { duration: 100 })
     
         return {
             transform: [
@@ -100,9 +100,13 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
     return (
         <Animated.View style={[animatedMicro]}>
-            <TouchableOpacity disabled={thinking} onPressIn={PressIn} onPressOut={PressOut} style={{width: windowHeight * (40 / 800), height: windowHeight * (40 / 800), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
-                <Image source={microimg} style={{width: windowHeight * (13 / 800), height: windowHeight * (22 / 800)}}/>
+
+            <TouchableOpacity disabled={thinking} onPressIn={PressIn} onPressOut={PressOut} style={{width: vs(40), height: vs(40), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: text === ''? '#E5E5E5' : '#C4DF84'}}>
+                
+                <Ionicons name='mic-outline' size={vs(20)} />
+            
             </TouchableOpacity> 
+
         </Animated.View>
     )
 }

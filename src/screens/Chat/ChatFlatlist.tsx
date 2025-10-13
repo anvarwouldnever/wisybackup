@@ -1,16 +1,14 @@
-import { View, Text, FlatList, useWindowDimensions, Image } from 'react-native'
+import { View, Text, FlatList, Image } from 'react-native'
 import React from 'react'
 import store from '../../store/store'
 import PlayVoiceMessage from './utils/PlayVoiceMessage'
 import DotsAnimation from './ChatFlatlist/DotsAnimation'
-import wisypfp from '../../images/wisypfp.png'
-import dog from '../../images/Dog.png'
 import { observer } from 'mobx-react-lite'
-import RenderItemMessage from './ChatFlatlistRender'
+import { useScale } from '../../hooks/useScale'
 
 const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     const renderItemMessage = ({ item, index }) => {
         
@@ -19,43 +17,50 @@ const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
     
         return (
             messageType === 'text' || messageType === 'thinking'? (
-                <View ref={index === 0 ? firstMessageRef : null} style={{ width: 'auto', height: 'auto', flexDirection: item.author === 'MyWisy' ? 'row' : 'row-reverse', gap: windowWidth * (8 / 360)}}>
-                    <Image source={item.author === 'MyWisy' ? wisypfp : dog} style={{ width: windowHeight * (24 / 800), height: windowHeight * (24 / 800), aspectRatio: 24 / 24 }} />
-                    <View style={{ width: 'auto', maxWidth: windowWidth * (250 / 360), height: 'auto', gap: windowWidth * (8 / 360), flexDirection: 'column' }}>
-                        <Text style={{ color: '#555555', fontWeight: '600', fontSize: windowHeight * (14 / 800), lineHeight: windowHeight * (24 / 800), textAlign: item.author === 'MyWisy' ? 'left' : 'right' }}>{item.author}</Text>
-                        <View style={{flexDirection: 'row', alignItems: 'center'}}>
-                            <Text style={{ color: '#555555', fontSize: windowHeight * (14 / 800), fontWeight: '400', lineHeight: windowHeight * (24 / 800), textAlign: item.author === 'MyWisy' ? 'left' : 'left', writingDirection: 'ltr'}}>{item.text}</Text>
-                            {messageType === 'thinking' && <View style={{ marginTop: 3 }}>
-                                <DotsAnimation />
-                            </View>}
-                        </View>
+                
+                <View ref={index === 0 ? firstMessageRef : null} style={{ width: 'auto', height: 'auto', flexDirection: 'column', rowGap: vs(5) }}>
+                    
+                    <View style={{ flexDirection: item.author === 'MyWisy' ? 'row' : 'row-reverse', alignItems: 'center', columnGap: vs(6) }} >
+                        
+                        <Image source={item.author === 'MyWisy' ? require('../../images/wisypfp.png') : require('../../images/Dog.png')} style={{ width: vs(24), height: vs(24) }} />
+                    
+                        <Text style={{ color: '#555555', fontWeight: '600', fontSize: vs(14), textAlign: item?.author === 'MyWisy' ? 'left' : 'right' }}>{item?.author}</Text>
+                    
                     </View>
+                        
+                    <View style={{ width: 'auto', maxWidth: s(250), flexDirection: 'row', alignItems: 'center', paddingLeft: item?.author === "MyWisy" ? vs(30) : 0, paddingRight: item?.author === "MyWisy" ? 0 : vs(30), alignSelf: item?.author === "MyWisy" ? 'flex-start' : 'flex-end' }}>
+                            
+                        <Text style={{ color: '#555555', fontSize: vs(14), fontWeight: '400', lineHeight: vs(22), textAlign: item?.author === 'MyWisy' ? 'left' : 'right', writingDirection: 'auto'}}>
+                            {item?.text}
+                        </Text>
+                            
+                        {messageType === 'thinking' && 
+                            <View style={{ marginTop: vs(5) }}>
+                                <DotsAnimation />
+                            </View>
+                        }
+
+                    </View>
+
                 </View>
+
             ) : <PlayVoiceMessage animated={isLastVoiceMessage} uri={item.text} index={index}/>
         )
     }
 
     return (
-        <View style={{width: windowWidth * (328 / 360), height: windowHeight * (630 / 800), alignSelf: 'center'}}>
-            <FlatList
-                ref={flatListRef}
-                data={store.messages}
-                renderItem={renderItemMessage}
-                keyExtractor={(item, index) => index.toString()}
-                contentContainerStyle={{gap: windowHeight * (24 / 800), paddingBottom: windowHeight * (60 / 800), paddingTop: windowHeight * (30 / 800) }}
-                scrollEnabled={true}
-                showsVerticalScrollIndicator={false}
-                inverted={true} 
-                scrollsToTop={false}
-            />
-        </View>
+        <FlatList
+            ref={flatListRef}
+            data={store.messages}
+            renderItem={renderItemMessage}
+            keyExtractor={(item, index) => index.toString()}
+            contentContainerStyle={{ rowGap: vs(16), paddingVertical: vs(30) }}
+            scrollEnabled={true}
+            showsVerticalScrollIndicator={false}
+            inverted={true} 
+            scrollsToTop={false}
+        />
     )
 }
 
 export default observer(ChatFlatlist);
-
-// renderItem={({ item, index }) => {
-//     return (
-//         <RenderItemMessage index={index}/>
-//     )
-// }}

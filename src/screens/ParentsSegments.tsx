@@ -1,12 +1,11 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Image, SafeAreaView, ScrollView, Text, TouchableOpacity, View, useWindowDimensions, FlatList, ActivityIndicator } from "react-native";
+import { View, FlatList, ActivityIndicator } from "react-native";
 import CalendarParentsWeek from "../calendars/CalendarParentsWeek";
 import CalendarParentsDay from "../calendars/CalendarParentsDay";
 import { useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from 'expo-screen-orientation';
 import Modal from 'react-native-modal'
 import { startOfWeek, endOfWeek, addDays, format, parse, startOfMonth, endOfMonth, addMonths, isToday, subDays } from "date-fns";
-import api from '../api/api';
 import store from "../store/store";
 import CalendarParentsMonth from "../calendars/CalendarParentsMonth";
 import InformationModal from "./ParentsSegments/InformationModal";
@@ -17,12 +16,15 @@ import Back from "./ParentsSegments/Back";
 import ChosenPeriod from "./ParentsSegments/ChosenPeriod";
 import RenderAttributes from "./ParentsSegments/RenderAttributes";
 import { GetChildAttributes } from "../api/methods/attributes/attributes";
+import { useScale } from "../hooks/useScale";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const ParentsSegments = ({ route }) => {
 
     const id = route?.params?.screen?.id
     const name = route?.params?.screen?.name
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     useFocusEffect(
         useCallback(() => {
@@ -42,14 +44,8 @@ const ParentsSegments = ({ route }) => {
     const [isFrozen, setIsFrozen] = useState(false)
     const [chosenPeriod, setChosenPeriod] = useState('day');
     const [formattedDate, setFormatedDate] = useState(format(new Date(), 'dd.MM.yyyy'));
-    const [weekRange, setWeekRange] = useState({
-        startDate: format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'dd.MM.yyyy'),
-        endDate: format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'dd.MM.yyyy'),
-    });
-    const [monthRange, setMonthRange] = useState({
-        startDate: format(startOfMonth(new Date()), 'dd.MM.yyyy'),
-        endDate: format(endOfMonth(new Date()), 'dd.MM.yyyy'),
-    });
+    const [weekRange, setWeekRange] = useState({ startDate: format(startOfWeek(new Date(), { weekStartsOn: 1 }), 'dd.MM.yyyy'), endDate: format(endOfWeek(new Date(), { weekStartsOn: 1 }), 'dd.MM.yyyy') });
+    const [monthRange, setMonthRange] = useState({ startDate: format(startOfMonth(new Date()), 'dd.MM.yyyy'), endDate: format(endOfMonth(new Date()), 'dd.MM.yyyy')});
 
     const updateWeekRange = (direction) => {
         const currentStartDate = parse(weekRange.startDate, 'dd.MM.yyyy', new Date());
@@ -142,7 +138,6 @@ const ParentsSegments = ({ route }) => {
         getData()
     }, [chosenPeriod, monthRange, weekRange, formattedDate])
 
-
     if (isFrozen) {
         return (
             <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
@@ -152,41 +147,52 @@ const ParentsSegments = ({ route }) => {
     }
 
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: 'white', alignItems: 'center', gap: windowHeight * (16 / 800)}}>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', rowGap: vs(20), paddingHorizontal: vs(20), paddingVertical: vs(10)}}>
+            
             <Back name={name}/>
-            <Modal visible={show} animationType="fade" transparent>
+            
+            <Modal isVisible={show} animationIn='fadeIn' animationInTiming={1} animationOutTiming={1}>
+                
                 {chosenPeriod === 'day' && <CalendarParentsDay setShow={setShow} setFormattedDate={setFormatedDate} />}
+
                 {chosenPeriod === 'week' && <CalendarParentsWeek setShow={setShow} setWeekRange={setWeekRange} />}
+
                 {chosenPeriod ==='month' && <CalendarParentsMonth setShow={setShow} setMonthRange={setMonthRange} />}
+
             </Modal>
+
             <Periods chosenPeriod={chosenPeriod} setChosenPeriod={setChosenPeriod}/>
+
             <ChosenPeriod changeDate={changeDate} setShow={setShow} chosenPeriod={chosenPeriod} monthRange={monthRange} weekRange={weekRange} formattedDate={formattedDate}/>
-                <View style={{width: windowWidth * (312 / 360), height: windowHeight * (606 / 800), gap: windowWidth * (24 / 360), alignItems: 'center'}}>
-                    <TimeAndPuzzles data={data}/>
-                    <View style={{width: windowWidth * (312 / 360), height: windowHeight * (232 / 800), alignItems: 'center', justifyContent: 'space-between'}}>
-                        <NonAndMistakes chosenMistakesOption={chosenMistakesOption} setChosenMistakesOption={setChosenMistakesOption}/>
-                        <View style={{width: windowWidth * (312 / 360), height: windowHeight * (370 / 800), marginTop: 20, alignItems: 'center'}}>
-                        <FlatList
-                            scrollEnabled
-                            data={data?.data?.filter(item => chosenMistakesOption ? item?.mistakes > 0 : item?.mistakes === 0)}
-                            showsVerticalScrollIndicator={false}
-                            keyExtractor={(item, index) => index.toString()}
-                            renderItem={({ item }) => {
-                                return <RenderAttributes item={item} setInformationModal={setInformationModal} setModalData={setModalData}/>
-                            }}
-                            contentContainerStyle={{
-                                height: 'auto',
-                                gap: 5
-                            }}
-                            style={{
-                                width: windowWidth * (312 / 360),
-                                height: '100%',
-                            }}
-                        />
-                        </View>
-                    </View>
+                
+            <View style={{width: '100%', height: 'auto', rowGap: vs(12), alignItems: 'center' }}>
+                    
+                <TimeAndPuzzles data={data}/>
+                
+                <View style={{ width: '100%', height: 'auto', alignItems: 'center', justifyContent: 'center', rowGap: vs(16) }}>
+                        
+                    <NonAndMistakes chosenMistakesOption={chosenMistakesOption} setChosenMistakesOption={setChosenMistakesOption}/>
+                    
+                    <FlatList
+                        scrollEnabled
+                        data={data?.data?.filter(item => chosenMistakesOption ? item?.mistakes > 0 : item?.mistakes === 0)}
+                        showsVerticalScrollIndicator={false}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => {
+                            return <RenderAttributes item={item} setInformationModal={setInformationModal} setModalData={setModalData}/>
+                        }}
+                        contentContainerStyle={{ height: 'auto', rowGap: vs(12) }}
+                        style={{ width: '100%', height: vs(330) }}
+                    />
+            
                 </View>
-            {informationModal && <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal} setIsFrozen={setIsFrozen}/>}
+
+            </View>
+
+            {informationModal && 
+                <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal} setIsFrozen={setIsFrozen}/>
+            }
+
         </SafeAreaView>
     )
 }

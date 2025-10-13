@@ -1,10 +1,9 @@
-import { View, Text, FlatList, useWindowDimensions, TouchableOpacity,  } from 'react-native'
-import React, { useState } from 'react'
+import { Text, FlatList, TouchableOpacity,  } from 'react-native'
+import React from 'react'
 import store from '../../store/store';
+import { useScale } from '../../hooks/useScale';
 
 const ChatRecsFlatlist = ({ sendMessage }) => {
-
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const recs = store.language === 'lv' ? [
         { header: 'Es vēlos iepriekšējās nedēļas kopsavilkumu.' },
@@ -18,28 +17,26 @@ const ChatRecsFlatlist = ({ sendMessage }) => {
         { header: 'How much time my child spent learning this week?' }
     ];
 
-        const renderItem = ({ item }) => {
+    const { s, vs } = useScale()
+
+    const renderItem = ({ item }) => {
         
-                return (
-                    <TouchableOpacity onPress={() => {
-                        sendMessage(item.header)
-                    }} activeOpacity={0.6} style={{marginRight: windowWidth * (16 / 932), width: windowWidth * (264 / 360), height: windowHeight * (60 / 800), paddingHorizontal: windowWidth * (10 / 360), paddingVertical: windowHeight * (16 / 932), gap: windowWidth * (4 / 360), borderRadius: 8, backgroundColor: '#F0F0F0', justifyContent: 'center'}}>
-                        <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#222222'}}>{item.header}</Text>
-                    </TouchableOpacity>
-                )
-            }
+        return (
+            <TouchableOpacity onPress={() => { sendMessage(item.header)}} activeOpacity={0.6} style={{ width: 'auto', height: 'auto', paddingHorizontal: vs(10), paddingVertical: vs(20), borderRadius: 8, backgroundColor: '#F0F0F0', justifyContent: 'center'}}>
+                <Text style={{fontWeight: '400', fontSize: vs(12), color: '#222222'}}>{item.header}</Text>
+            </TouchableOpacity>
+        )
+    }
 
     return (
-        <View style={{width: windowWidth, height: windowHeight * (60 / 800)}}>
-            <FlatList 
-                data={recs}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => index.toString()}
-                horizontal={true}
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{marginLeft: windowWidth * (45 / 932)}}
-            />
-        </View>
+        <FlatList 
+            data={recs}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ columnGap: vs(10) }}
+        />
     )
 }
 

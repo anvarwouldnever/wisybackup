@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
-import speaker from '../../../images/tabler_speakerphone.png'
 import RenderItem from "./AnswerButton";
 import { useScale } from "../../../hooks/useScale";
 
@@ -37,12 +36,12 @@ const Game2Animals1Animation = ({ answer, id, images, animal, setId, audio, lock
                 {audio? 
                     <View style={{borderRadius: 0, flexDirection: 'row', columnGap: s(2)}}>
                         
-                        <View style={{ minHeight: s(20), minWidth: s(60), maxWidth: s(200), borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0, backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
+                        <View style={{ minHeight: s(20), minWidth: s(60), maxWidth: s(200), borderRadius: 100, borderTopRightRadius: 0, borderBottomRightRadius: 0, paddingHorizontal: s(5), backgroundColor: id?.result == 'correct'? '#ADD64D' : id?.result == 'wrong'? '#EC6567' : 'white', justifyContent: 'center', alignItems: 'center'}}>
                             <Text style={{color: id?.result == 'correct'? '#222222' : id?.result == 'wrong'? 'white' : '#222222', fontSize: s(7), fontWeight: '500', textAlign: 'center'}}>{animal}</Text>
                         </View>
 
                         <TouchableOpacity onPress={lock? () => {return} : () => voiceForTask(audio)} style={{ paddingHorizontal: s(6), backgroundColor: '#B3ABDB', alignItems: 'center', justifyContent: 'center', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0}}>
-                            <Image source={speaker} style={{width: s(12), height: s(12)}}/>
+                            <Image source={require('../../../images/tabler_speakerphone.png')} style={{width: s(12), height: s(12)}}/>
                         </TouchableOpacity>
 
                     </View>

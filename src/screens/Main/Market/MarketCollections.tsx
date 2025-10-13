@@ -25,7 +25,8 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
                                 width: s(25), 
                                 height: s(30),
                                 position: 'absolute',
-                                alignSelf: 'center'
+                                alignSelf: 'center',
+                                top: vs(110)
                             }}
                         />
                     ) : (

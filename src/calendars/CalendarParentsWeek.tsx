@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, useWindowDimensions } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 import moment from 'moment';
 import { format } from 'date-fns';
 import store from '../store/store';
 import { observer } from 'mobx-react-lite';
 import translations from '../../localization';
+import { useScale } from '../hooks/useScale';
 
 const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
+
+    LocaleConfig.defaultLocale = store.language;
 
     LocaleConfig.locales['lv'] = {
         monthNames: [
@@ -28,10 +31,9 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
         dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
         dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
         today: "Šodien"
-      };
+    };  
       
-      // Локаль для английского языка
-      LocaleConfig.locales['en'] = {
+    LocaleConfig.locales['en'] = {
         monthNames: [
           'January',
           'February',
@@ -50,13 +52,11 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
         dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
         today: "Today"
-      };
-      
-      // Устанавливаем дефолтный язык как латышский (или английский)
-      LocaleConfig.defaultLocale = store.language;
+    };
 
     const [markedDates, setMarkedDates] = useState({});
-    const { height, width } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const cancel = () => {
         setShow(false);
@@ -108,96 +108,37 @@ const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
     };    
 
     return (
-        <View
-            style={{
-                width: width * (314 / 360),
-                maxWidth: 445,
-                height: 'auto',
-                alignItems: 'center',
-                borderRadius: 20,
-                backgroundColor: 'white',
-                position: 'absolute',
-                alignSelf: 'center',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                shadowColor: 'black',
-                shadowRadius: 400,
-                shadowOffset: { width: 1, height: 1 },
-                shadowOpacity: 1,
-                elevation: 100,
-            }}
-        >
+        <View style={{ width: vs(314), height: 'auto', padding: vs(14), rowGap: vs(16), alignItems: 'center', borderRadius: 20, backgroundColor: 'white', position: 'absolute', alignSelf: 'center', flexDirection: 'column', shadowColor: 'black', shadowRadius: 400, shadowOffset: { width: 1, height: 1 }, shadowOpacity: 1, elevation: 100 }}>
+            
             <Calendar
-                onDayPress={(day) => {
-                    highlightWeek(day.dateString); // Вызываем функцию подсветки недели
-                }}
-                style={{
-                    width: width * (314 / 360),
-                    height: 'auto',
-                    alignSelf: 'center',
-                    borderRadius: 10,
-                }}
-                theme={{
-                    textSectionTitleColor: '#504297',
-                    arrowColor: '#504297',
-                    indicatorColor: '#504297',
-                }}
+                onDayPress={(day) => highlightWeek(day.dateString)}
+                style={{ width: vs(310), height: 'auto', alignSelf: 'center' }}
+                theme={{ textSectionTitleColor: '#504297', arrowColor: '#504297', indicatorColor: '#504297', todayTextColor: '#504297', textDayFontSize: vs(16), textDayHeaderFontSize: vs(10), textMonthFontSize: vs(14), todayButtonFontSize: vs(16) }}
                 markedDates={markedDates}
                 markingType="period"
                 monthFormat={'MMMM yyyy'}
             />
-            <View
-                style={{
-                    width: width * (314 / 360),
-                    maxWidth: 460,
-                    paddingHorizontal: 16,
-                    height: height * (44 / 800),
-                    alignItems: 'center',
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-                    borderBottomLeftRadius: 20,
-                    borderBottomRightRadius: 20,
-                }}
-            >
-                <TouchableOpacity
-                    onPress={cancel}
-                    style={{
-                        width: width * (53 / 360),
-                        height: height * (24 / 800),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            color: '#504297',
-                            fontSize: height * (17 / 800),
-                            fontWeight: '400',
-                        }}
-                    >
+
+            <View style={{ width: '100%', height: 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'space-between' }}>
+                
+                <TouchableOpacity onPress={cancel} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    
+                    <Text style={{ color: '#504297', fontSize: vs(16), fontWeight: '400' }}>
                         {translations?.[store.language]?.cancel}
                     </Text>
+
                 </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={done}
-                    style={{
-                        width: width * (43 / 360),
-                        height: height * (24 / 800),
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            color: '#504297',
-                            fontSize: height * (17 / 800),
-                            fontWeight: '600',
-                        }}
-                    >
+
+                <TouchableOpacity onPress={done} style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    
+                    <Text style={{ color: '#504297', fontSize: vs(16), fontWeight: '600' }}>
                         {translations?.[store.language]?.done}
                     </Text>
+
                 </TouchableOpacity>
+
             </View>
+
         </View>
     );
 };

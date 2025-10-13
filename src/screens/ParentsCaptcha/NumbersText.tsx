@@ -7,6 +7,7 @@ import { useNavigation } from '@react-navigation/native';
 const NumbersText = ({ answer, setError }) => {
 
     const numberToText = (num, lang) => {
+        
         const numberMap = {
             en: ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'],
             lv: ['nulle', 'viens', 'divi', 'trīs', 'četri', 'pieci', 'seši', 'septiņi', 'astoņi', 'deviņi'],

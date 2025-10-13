@@ -1,10 +1,12 @@
-import { Text, useWindowDimensions } from "react-native";
+import { Text } from "react-native";
 import { format, parse } from "date-fns";
 import translations from "../../../localization";
 import store from "../../store/store";
+import { useScale } from "../../hooks/useScale";
 
 const ChosenPeriodText = ({ formattedDate, monthRange, weekRange, chosenPeriod }) => {
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
 
     const getMonthName = (dateString) => {
         try {
@@ -29,15 +31,18 @@ const ChosenPeriodText = ({ formattedDate, monthRange, weekRange, chosenPeriod }
         }
     };
 
-    return <Text style={{ color: '#222222', fontWeight: '600', fontSize: windowHeight * (14 / 800) }}>
-                                {chosenPeriod === 'day'
-                                    ? formattedDate === format(new Date(), 'dd.MM.yyyy') 
-                                        ? translations[store.language]?.today
-                                        : formattedDate
-                                    : chosenPeriod === 'week'
-                                    ? `${weekRange.startDate} - ${weekRange.endDate}`
-                                    : getMonthName(monthRange.startDate)}
-                            </Text>
+    return ( 
+        <Text style={{ color: '#222222', fontWeight: '600', fontSize: vs(14) }}>
+            {chosenPeriod === 'day'
+                ? formattedDate === format(new Date(), 'dd.MM.yyyy') 
+                    ? translations[store.language]?.today
+                    : formattedDate
+                : chosenPeriod === 'week'
+                ? `${weekRange.startDate} - ${weekRange.endDate}`
+                : getMonthName(monthRange.startDate)
+            }
+        </Text>
+    )
 };
 
 export default ChosenPeriodText;

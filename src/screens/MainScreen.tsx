@@ -1,9 +1,7 @@
-import React, { useCallback, useState } from "react";
+import React, { useState } from "react";
 import { View } from "react-native";
-import * as ScreenOrientation from 'expo-screen-orientation';
 import GamesList from "./Main/GamesList";
 import Categories from "./Main/Categories";
-import { useFocusEffect } from "@react-navigation/native";
 import { observer } from "mobx-react-lite";
 import MarketCollections from "./Main/Market/MarketCollections";
 import MarketCategories from "./Main/Market/MarketCategories";
@@ -17,6 +15,7 @@ import ModalConfirm from "./Main/ModalConfirm";
 import store from "../store/store";
 import { gameStore } from "./Games/store/gameStore";
 import { useScale } from "../hooks/useScale";
+import useLockLandscape from "../hooks/useLockLandscape";
 
 const MainScreen = () => {
     
@@ -27,14 +26,7 @@ const MainScreen = () => {
     const [modal, setModal] = useState(false);
     const [animation, setAnimation] = useState(null);
 
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    useLockLandscape()
 
     const { s, vs, isTablet } = useScale()
 

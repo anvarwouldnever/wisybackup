@@ -12,7 +12,7 @@ const GoParent = ({ setAnimationStart }) => {
         const { s, vs } = useScale()
         
         return (
-            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', height: s(20), width: s(20), paddingHorizontal: s(5), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={store.isFirstOpening ? () => {} : () => {setAnimationStart(false); navigation.navigate('ParentsCaptchaScreen')}}>
+            <TouchableOpacity style={{justifyContent: 'center', alignItems: 'center', height: s(20), width: s(20), paddingHorizontal: s(5), backgroundColor: '#F8F8F833', borderRadius: 100, borderWidth: 1, borderColor: '#FFFFFF1F'}} onPress={store.isFirstOpening ? () => {} : () => {setAnimationStart(false); navigation.replace('ParentsCaptchaScreen')}}>
                 
                 <Image source={parent} style={{width: s(12), height: s(12)}}/>
             

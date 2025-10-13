@@ -34,14 +34,14 @@ const BottomTabs = ({ screen, setScreen }) => {
                         fill={'none'}
                     >
                         {svg.paths.map((path, index) => (
-                        <Path
-                            key={index}
-                            d={path.d}
-                            stroke={screen?.name === item?.name? "white" : "#504297"}
-                            strokeWidth={2}
-                            strokeLinecap={'round'}
-                            strokeLinejoin={'round'}
-                        />
+                            <Path
+                                key={index}
+                                d={path.d}
+                                stroke={screen?.name === item?.name? "white" : "#504297"}
+                                strokeWidth={2}
+                                strokeLinecap={'round'}
+                                strokeLinejoin={'round'}
+                            />
                     ))}
                     </Svg>
                 ) : (
@@ -54,14 +54,15 @@ const BottomTabs = ({ screen, setScreen }) => {
                         }}
                     />
                 )}
+                
             </TouchableOpacity>
         )
     }
 
     return (
-        <View style={{width: s(312), height: vs(56), flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+        <View style={{width: '100%', height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
             
-            <View style={{width: 'auto', height: vs(56), justifyContent: 'space-between', padding: 8, alignItems: 'center', flexDirection: 'row', backgroundColor: '#F8F8F8', borderRadius: 100}}>
+            <View style={{width: 'auto', height: '100%', padding: vs(8), alignItems: 'center', justifyContent: 'center', flexDirection: 'row', backgroundColor: '#F8F8F8', borderRadius: 100 }}>
                 
                 <FlatList 
                     data={attributes}
@@ -69,17 +70,23 @@ const BottomTabs = ({ screen, setScreen }) => {
                     keyExtractor={(item, index) => index.toString()}
                     scrollEnabled={false}
                     horizontal
+                    
                 />
 
-                <TouchableOpacity activeOpacity={1} onPress={() => setScreen('Settings')} style={{width: s(40), height: vs(40)}}>
-                    <Image source={screen === 'Settings' || screen === 'Lang'? settingsActive : settings} style={{width: s(40), height: vs(40), aspectRatio: 1 }}/>
+                <TouchableOpacity activeOpacity={1} onPress={() => setScreen('Settings')} style={{ width: vs(40), height: vs(40) }}>
+                   
+                   <Image source={screen === 'Settings' || screen === 'Lang'? settingsActive : settings} style={{ width: vs(40), height: vs(40) }}/>
+                
                 </TouchableOpacity>
                 
             </View>
             
-            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: s(112), height: vs(56), columnGap: vs(10), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
-                <Image source={chat} style={{width: vs(24), height: vs(24), aspectRatio: 1}}/>
+            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')} style={{width: vs(112), height: '100%', columnGap: vs(10), flexDirection: 'row', justifyContent: 'center', alignItems: 'center', backgroundColor: '#F8F8F8', borderRadius: 100}}>
+                
+                <Image source={require('../../images/chat.png')} style={{ width: vs(24), height: vs(24) }}/>
+               
                 <Text style={{fontWeight: '600', fontSize: vs(12), lineHeight: vs(24), color: '#504297'}}>Chat</Text>
+                
             </TouchableOpacity>
 
         </View>

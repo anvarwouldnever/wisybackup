@@ -1,7 +1,7 @@
 {
   "expo": {
     "scheme": "mywisy",
-    "name": "wisy",
+    "name": "MyWisy",
     "slug": "wisy",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -11,7 +11,8 @@
     "ios": {
       "requireFullScreen": true,
       "supportsTablet": true,
-      "bundleIdentifier": "com.anvarwouldnever3.wisy",
+      "buildNumber": "4",
+      "bundleIdentifier": "com.avtechsoftware.mywisy",
       "associatedDomains": [
         "applinks:mywisy.com"
       ],
@@ -42,7 +43,12 @@
           "fastmail",
           "protonmail"
         ],
-        "ITSAppUsesNonExemptEncryption": false
+        "CFBundleShortVersionString": "4",
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Allow MyWisy to access your camera to take photos or record videos.",
+        "NSMicrophoneUsageDescription": "Allow MyWisy to access your microphone while recording videos.",
+        "NSPhotoLibraryUsageDescription": "Allow MyWisy to access your photo library to upload or save media.",
+        "NSLocationWhenInUseUsageDescription": "Allow MyWisy to access your location data when capturing media to attach location information."
       }
     },
     "plugins": [

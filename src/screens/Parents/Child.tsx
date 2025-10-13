@@ -1,92 +1,69 @@
-import { TouchableOpacity, View, Image, Text, useWindowDimensions } from "react-native"
-import dog from '../../images/Dog.png';
-import narrowdown from '../../images/narrowdown.png';
+import { TouchableOpacity, View, Image, Text } from "react-native"
 import store from "../../store/store";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import translations from "../../../localization";
-import Animated, { FadeInUp } from "react-native-reanimated";
+import Animated from "react-native-reanimated";
 import { getChildren } from "../ChoosePlayer/hooks/getChildren";
 import { getAvatars } from "../ChildParams/hooks/getAvatars";
+import { useScale } from "../../hooks/useScale";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import { calculateAge } from "./utils/calculateAge";
+import { calculateAvatar } from "./utils/calculateAvatar";
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity)
 
 const Child = ({ setDropDown, dropDown }) => {
 
-        const { children, loading, error } = getChildren()
-        const { avatars } = getAvatars()
+    const { children } = getChildren()
+    const { avatars } = getAvatars()
 
-        const completedSubs = children?.find(child => child.id === store.playingChildId?.id)?.completed_sub_collections;
+    const { s, vs } = useScale()
 
-        const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-        const calculateAge = (birthday) => {
-            const today = new Date();
-            const birthDate = new Date(birthday);
-            let age = today.getFullYear() - birthDate.getFullYear();
-        
-            if (
-                today.getMonth() < birthDate.getMonth() || 
-                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())
-            ) {
-                age--;
-            }
-        
-            return age;
-        };
+    const completedSubs = children?.find(child => child.id === store.playingChildId?.id)?.completed_sub_collections;
 
-        const age = calculateAge(store.playingChildId?.birthday)
+    const { avatarUrl, isSvg } = calculateAvatar(avatars, store.playingChildId?.avatar_id);
 
-        return (
-            <AnimatedTouchableOpacity activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{height: 'auto', width: windowWidth * (312 / 360)}}>
-                
-                <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800), justifyContent: 'space-between', borderRadius: 12, backgroundColor: '#F8F8F8', flexDirection: 'row', gap: windowWidth * (12 / 360), alignItems: 'center'}}>
-                    {(() => {
-                        const avatarObj = avatars.find(avatar => avatar?.id === store.playingChildId?.avatar_id);
-                        const avatarUrl = avatarObj ? avatarObj?.image?.url : dog;
-                        const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
+    return (
+        <AnimatedTouchableOpacity activeOpacity={1} onPress={() => setDropDown(prev => !prev)} style={{ height: 'auto', width: '100%', borderRadius: vs(12), justifyContent: 'space-between', backgroundColor: '#F8F8F8', flexDirection: 'row', padding: vs(16), alignItems: 'center' }}>
+           
+            <View style={{ columnGap: vs(15), flexDirection: 'row' }}>
 
-                        return isSvg ? (
-                            <SvgUri 
-                                uri={avatarUrl} 
-                                width={windowHeight * (48 / 800)} 
-                                height={windowWidth * (48 / 800)} 
-                                style={{ aspectRatio: 1 }} 
-                            />
-                        ) : (
-                            <Image 
-                                source={{ uri: avatarUrl }} 
-                                style={{
-                                    width: windowHeight * (48 / 800), 
-                                    height: windowWidth * (48 / 800), 
-                                    aspectRatio: 1,
-                                    resizeMode: 'contain'
-                                }} 
-                            />
-                        );
-                    })()}
+                <View style={{ width: vs(48), height: vs(48), justifyContent: 'center', alignItems: 'center' }}>
+                    {isSvg ? 
+                        <SvgUri uri={avatarUrl} width={'100%'} height={'100%'} />
+                    :
+                        <Image source={{ uri: avatarUrl }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
+                    }
+                </View>
                     
-                    <View style={{width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), alignItems: 'center', flexDirection: 'column', justifyContent: 'space-between'}}>
+                    
+                <View style={{width: 'auto', height: 'auto', justifyContent: 'center', alignItems: 'flex-start', flexDirection: 'column', rowGap: vs(10) }}>
                         
-                        <View style={{width: windowWidth * (184 / 360), height: windowHeight * (20 / 800), flexDirection: 'row'}}>
-                            <Text style={{fontWeight: '600', color: '#000000', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800)}}>{store.playingChildId.name}</Text>
-                            <Text style={{color: '#555555', fontWeight: '400', fontSize: windowHeight * (12 / 800), lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>/ {translations?.[store.language].age} {age}</Text>
-                        </View>
-
-                        <View style={{width: windowWidth * (184 / 360), flexDirection: 'row', height: windowHeight * (20 / 800)}}>
-                            <Text style={{fontWeight: '600', color: '#222222', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (12 / 800)}}>{completedSubs}</Text>
-                            <Text style={{fontWeight: '400', fontSize: windowHeight * (12 / 800), color: '#555555', lineHeight: windowHeight * (20 / 800), marginLeft: 5}}>{translations?.[store.language].completedTasks}</Text>
-                        </View>
-
-                    </View>
+                    <View style={{width: 'auto', height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', columnGap: vs(5)}}>
+                        
+                        <Text style={{fontWeight: '600', color: '#000000', fontSize: vs(12) }}>{store.playingChildId.name}</Text>
+                        
+                        <Text style={{color: '#555555', fontWeight: '400', fontSize: vs(12) }}>/ {translations?.[store.language].age} {calculateAge(store.playingChildId?.birthday)}</Text>
                     
-                    <View style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), justifyContent: 'center', alignItems: 'center'}}>
-                        <Image source={narrowdown} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
+                    </View>
+
+                    <View style={{width: 'auto', height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', columnGap: vs(5) }}>
+                        
+                        <Text style={{fontWeight: '600', color: '#222222', fontSize: vs(12) }}>{completedSubs}</Text>
+                        
+                        <Text style={{fontWeight: '400', fontSize: vs(12), color: '#555555' }}>{translations?.[store.language].completedTasks}</Text>
+                    
                     </View>
 
                 </View>
 
-            </AnimatedTouchableOpacity>
-        )
-    }
+            </View>
+                
+            <Ionicons name='chevron-down' size={vs(24)} />
+
+        </AnimatedTouchableOpacity>
+    )
+}
 
 export default observer(Child);

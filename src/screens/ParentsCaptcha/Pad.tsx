@@ -24,18 +24,18 @@ const Pad = ({ onPress }) => {
                         alignItems: 'center'
                     }}>
                     {item === 'del'
-                        ? <Image source={require('../../images/tabler_backspace.png')} style={{ width: s(24), height: vs(24) }} />
-                        : <Text style={{ fontWeight: '600', fontSize: vs(24), lineHeight: vs(40), textAlign: 'center' }}>{item}</Text>
+                        ? <Image source={require('../../images/tabler_backspace.png')} style={{ width: vs(28), height: vs(28) }} />
+                        : <Text style={{ fontWeight: '600', fontSize: vs(24), textAlign: 'center' }}>{item}</Text>
                     }
                 </TouchableOpacity>
             )}
             numColumns={3}
             columnWrapperStyle={{ gap: vs(10) }}
-            contentContainerStyle={{ gap: vs(10) }}
+            contentContainerStyle={{ gap: vs(10), width: '100%' }}
             scrollEnabled={false}
             style={{ position: 'absolute', bottom: vs(40) }}
         />
     );
 };
 
-export default Pad
+export default Pad;

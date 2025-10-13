@@ -1,228 +1,118 @@
 import React, { useState } from "react";
-import { TouchableOpacity, View, useWindowDimensions, Image, Text } from "react-native";
+import { TouchableOpacity, View, Image, Text } from "react-native";
 import Animated, { withTiming, useAnimatedStyle, FadeInDown } from "react-native-reanimated";
-import NewPasswordModal from "./Settings/NewPasswordModal";
-import PopUpModal from "./Settings/PopUpModal";
-import store from "../../store/store";
 import { observer } from "mobx-react-lite";
+import { useNavigation } from "@react-navigation/native";
+import store from "../../store/store";
 import translations from "../../../localization";
 import api from "../../api/api";
-import { useNavigation } from "@react-navigation/native";
+import { useScale } from "../../hooks/useScale";
+import NewPasswordModal from "./Settings/NewPasswordModal";
+import PopUpModal from "./Settings/PopUpModal";
 
 const ParentsSettings = ({ setScreen }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const navigation = useNavigation()
+    const navigation = useNavigation();
     const [modal, setModal] = useState(false);
     const [popUpModal, setPopUpModal] = useState(false);
     const [secure, setSecure] = useState(true);
     const [musicToggleBlocked, setMusicToggleBlocked] = useState(false);
 
-    let voiceInstructions = store.voiceInstructions;
-    let backgroundMusic = store.musicTurnedOn;
+    const { s, vs } = useScale();
+
+    const voiceInstructions = store.voiceInstructions;
+    const backgroundMusic = store.musicTurnedOn;
 
     const handleToggleBackgroundMusic = () => {
         if (musicToggleBlocked) return;
-
         setMusicToggleBlocked(true);
         store.setMusicTurnedOn(!store.musicTurnedOn);
-
-        setTimeout(() => {
-            setMusicToggleBlocked(false);
-        }, 500);
-    }
-
-    const animatedToggleVoiceInstructions = useAnimatedStyle(() => {
-        return {
-            transform: [{
-                translateX: withTiming(voiceInstructions? windowHeight * (9 / 800) : 0, {duration: 300})
-            }],
-            backgroundColor: withTiming(!voiceInstructions? 'white' : 'black', {duration: 400})
-        }
-    })
-
-    const animatedToggleBackgroundMusic = useAnimatedStyle(() => {
-        return {
-            transform: [{
-                translateX: withTiming(backgroundMusic? windowHeight * (9 / 800) : 0, {duration: 300})
-            }],
-            backgroundColor: withTiming(!backgroundMusic? 'white' : 'black', {duration: 400})
-        }
-    })
-
-    const logout = async() => {
-        await store.setToken(null)
-        await store.setChildren(null)
-        navigation.reset({
-            index: 0,
-            routes: [{ name: 'LanguageScreen' }],
-        });
+        setTimeout(() => setMusicToggleBlocked(false), 500);
     };
 
-    const settingsItems = [
-        {
-            key: 'changeEmail',
-            icon: require('../../images/mail.png'),
-            onPress: () => {},
-        },
-        {
-            key: 'changePassword',
-            icon: require('../../images/password.png'),
-            onPress: () => setModal(true),
-        },
-        {
-            key: 'backgroundMusic',
-            icon: require('../../images/speaker.png'),
-            onPress: () => handleToggleBackgroundMusic(),
-            isBackgroundMusicSwitch: true,
-            value: store.musicTurnedOn,
-        },
-        {
-            key: 'voiceInstructions',
-            icon: require('../../images/speaker.png'),
-            isSwitch: true,
-            value: voiceInstructions,
-            onPress: () => store.setVoiceInstructions(!store.voiceInstructions),
-        },
-        {
-            key: 'textInstructions',
-            icon: require('../../images/text.png'),
-            isStaticSwitch: true,
-        },
-        {
-            key: 'support',
-            icon: require('../../images/message.png'),
-            onPress: () => {},
-        },
-        {
-            key: 'language',
-            icon: require('../../images/languageIcon.png'),
-            onPress: () => setScreen('Lang'),
-        },
-        {
-            key: 'logout',
-            icon: require('../../images/message.png'),
-            onPress: logout,
-            isLogout: true,
-        },
+    const logout = async () => {
+        await store.setToken(null);
+        await store.setChildren(null);
+        navigation.reset({ index: 0, routes: [{ name: "LanguageScreen" }] });
+    };
+
+    const dotMoveLength = vs(8)
+
+    const toggleVoiceStyle = useAnimatedStyle(() => (
+        { 
+            transform: [{ translateX: withTiming(voiceInstructions ? dotMoveLength : 0, { duration: 300 }) }], 
+            backgroundColor: withTiming(voiceInstructions ? "black" : "white", { duration: 400 }) 
+        }
+    ));
+
+    const toggleMusicStyle = useAnimatedStyle(() => (
+        {   
+            transform: [{ translateX: withTiming(backgroundMusic ? dotMoveLength : 0, { duration: 300 }) }], 
+            backgroundColor: withTiming(backgroundMusic ? "black" : "white", { duration: 400 }) 
+        }
+    ));
+
+    const items = [
+        { key: "changeEmail", icon: require("../../images/mail.png"), onPress: () => {} },
+        { key: "changePassword", icon: require("../../images/password.png"), onPress: () => setModal(true) },
+        { key: "backgroundMusic", icon: require("../../images/speaker.png"), onPress: handleToggleBackgroundMusic, animatedStyle: toggleMusicStyle },
+        { key: "voiceInstructions", icon: require("../../images/speaker.png"), onPress: () => store.setVoiceInstructions(!store.voiceInstructions), animatedStyle: toggleVoiceStyle },
+        { key: "textInstructions", icon: require("../../images/text.png"), staticSwitch: true },
+        { key: "support", icon: require("../../images/message.png"), onPress: () => {} },
+        { key: "language", icon: require("../../images/languageIcon.png"), onPress: () => setScreen("Lang") },
+        { key: "logout", icon: require("../../images/message.png"), onPress: logout, isLogout: true },
     ];
 
-    const renderItem = ({ item }) => {
-        if (item.isSwitch) {
-            return (
-                <TouchableOpacity activeOpacity={1} onPress={item.onPress} style={styles.touchable(windowWidth, windowHeight)}>
-                    <Image source={item.icon} style={styles.icon(windowHeight)} />
-                    <Text style={styles.text(windowWidth, windowHeight)}>{translations?.[store.language][item.key]}</Text>
-                    <View style={styles.switchContainer(windowHeight)}>
-                        <Animated.View style={[animatedToggleVoiceInstructions, styles.switchThumb(windowHeight)]} />
-                    </View>
-                </TouchableOpacity>
-            );
-        }
+    const renderSwitch = (animatedStyle, staticSwitch) => (
+        
+        <View style={{ width: vs(22), height: vs(14), borderWidth: vs(2), borderColor: "#222", borderRadius: 100, justifyContent: "center", padding: vs(2) }}>
+            
+            <Animated.View style={[{ width: vs(6), height: vs(6), borderWidth: vs(2), borderColor: "#222", borderRadius: 100, backgroundColor: "black" }, staticSwitch ? {} : animatedStyle]} />
+        
+        </View>
+    );
 
-        if (item.isStaticSwitch) {
-            return (
-                <TouchableOpacity activeOpacity={1} style={styles.touchable(windowWidth, windowHeight)}>
-                    <Image source={item.icon} style={styles.icon(windowHeight)} />
-                    <Text style={styles.text(windowWidth, windowHeight)}>{translations?.[store.language][item.key]}</Text>
-                    <View style={[styles.switchContainer(windowHeight), { alignItems: 'flex-end' }]}>
-                        <Animated.View style={styles.switchThumb(windowHeight)} />
-                    </View>
-                </TouchableOpacity>
-            );
-        }
-
-        if (item.isBackgroundMusicSwitch) {
-            return (
-                <TouchableOpacity activeOpacity={1} onPress={item.onPress} style={styles.touchable(windowWidth, windowHeight)}>
-                    <Image source={item.icon} style={styles.icon(windowHeight)} />
-                    <Text style={styles.text(windowWidth, windowHeight)}>{translations?.[store.language][item.key]}</Text>
-                    <View style={styles.switchContainer(windowHeight)}>
-                        <Animated.View style={[animatedToggleBackgroundMusic, styles.switchThumb(windowHeight)]} />
-                    </View>
-                </TouchableOpacity>     
-            )
-        }
-
-        return (
-            <TouchableOpacity onPress={item.onPress} style={styles.touchable(windowWidth, windowHeight)}>
-                <Image source={item.icon} style={styles.icon(windowHeight)} />
-                <Text style={[
-                    styles.text(windowWidth, windowHeight),
-                    item.isLogout ? { color: 'red' } : {}
-                ]}>
-                    {translations?.[store.language][item.key]}
-                </Text>
-                <Image source={require('../../images/narrowright.png')} style={styles.icon(windowHeight)} />
-            </TouchableOpacity>
-        );
-    };
+    const renderItem = ({ item }) => (
+        
+        <TouchableOpacity activeOpacity={0.8} onPress={item.onPress} style={{ width: '100%', height: vs(56), backgroundColor: "#F8F8F8", flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: vs(16), borderRadius: vs(16) }}>
+            
+            <View style={{ flexDirection: 'row', columnGap: vs(10), alignItems: 'center', justifyContent: 'center' }}>
+                
+                <Image source={item.icon} style={{ width: vs(24), height: vs(24), resizeMode: "contain" }} />
+            
+                <Text style={{ fontSize: vs(14), fontWeight: "600", color: item.isLogout ? "red" : "#222" }}>{translations?.[store.language][item.key]}</Text>
+            
+            </View>
+            
+            {item.animatedStyle || item.staticSwitch ? renderSwitch(item.animatedStyle, item.staticSwitch) : !item.isLogout && <Image source={require("../../images/narrowright.png")} style={{ width: vs(24), height: vs(24), resizeMode: "contain" }} />}
+            
+        </TouchableOpacity>
+        
+    );
 
     return (
-        <View style={{ width: windowWidth * (312 / 360), backgroundColor: 'white', alignItems: 'center', height: 'auto'}}>
-            <PopUpModal modal={popUpModal} setModal={setPopUpModal} />
-            <Text style={{
-                width: windowWidth * (312 / 360),
-                height: windowHeight * (24 / 800),
-                fontWeight: '600',
-                fontSize: windowHeight * (16 / 800),
-                lineHeight: windowHeight * (24 / 800),
-            }}>Settings</Text>
-            <Animated.FlatList
-                entering={FadeInDown}
-                data={settingsItems}
-                keyExtractor={(item) => item.key}
-                renderItem={renderItem}
-                contentContainerStyle={{ gap: 12, paddingVertical: 8, width: '100%' }}
-                showsVerticalScrollIndicator={false}
-                scrollEnabled={false}
-            />
-            <Text style={{fontSize: windowHeight * (18 / 800), color: 'grey', fontWeight: '600', margin: windowHeight * (20 / 800)}}>{api.baseUrl === 'https://tapimywisy.hostweb.uz/api/v1/app' ? 'Dev' : ''}</Text>
-            <NewPasswordModal secure={secure} modal={modal} setModal={setModal} setSecure={setSecure} setPopUpModal={setPopUpModal} />
-        </View>
-    )
-}
+        <View style={{ width: '100%', backgroundColor: "white", alignItems: "center" }}>
 
-const styles = {
-    touchable: (width, height) => ({
-        width: width * (312 / 360),
-        height: height * (56 / 800),
-        backgroundColor: '#F8F8F8',
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: height * (16 / 800),
-        borderRadius: 10,
-    }),
-    icon: (height) => ({
-        width: height * (24 / 800),
-        height: height * (24 / 800),
-        aspectRatio: 1,
-    }),
-    text: (width, height) => ({
-        fontSize: height * (14 / 800),
-        fontWeight: '600',
-        lineHeight: height * (20 / 800),
-        color: '#222222',
-        width: width * (216 / 360),
-    }),
-    switchContainer: (height) => ({
-        width: height * (22 / 800),
-        height: height * (14 / 800),
-        borderWidth: height * (2 / 800),
-        borderColor: '#222222',
-        borderRadius: 100,
-        justifyContent: 'center',
-        padding: 2,
-    }),
-    switchThumb: (height) => ({
-        backgroundColor: 'black',
-        borderWidth: height * (2 / 800),
-        borderColor: 'black',
-        width: height * (6 / 800),
-        height: height * (6 / 800),
-        borderRadius: 100,
-    }),
+            <PopUpModal modal={popUpModal} setModal={setPopUpModal} />
+
+            <Text style={{ width: "100%", fontWeight: "600", fontSize: vs(16), lineHeight: vs(24), marginBottom: vs(8) }}>Settings</Text>
+            
+            <Animated.FlatList 
+                entering={FadeInDown}
+                data={items} 
+                keyExtractor={(item) => item?.key} 
+                renderItem={renderItem} 
+                contentContainerStyle={{ gap: vs(10), paddingVertical: vs(8) }}
+                showsVerticalScrollIndicator={false} 
+                scrollEnabled={true} 
+            />
+            
+            {api?.baseUrl === "https://tapimywisy.hostweb.uz/api/v1/app" && <Text style={{ fontSize: vs(18), color: "grey", fontWeight: "600", margin: vs(20) }}>Dev</Text>}
+            
+            <NewPasswordModal secure={secure} modal={modal} setModal={setModal} setSecure={setSecure} setPopUpModal={setPopUpModal} />
+
+        </View>
+    );
 };
 
 export default observer(ParentsSettings);

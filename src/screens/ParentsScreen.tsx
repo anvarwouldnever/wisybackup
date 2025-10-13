@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
 import React, { useState, useCallback, useEffect } from "react";
-import { View, SafeAreaView, useWindowDimensions, Platform } from "react-native";
+import { View, Platform } from "react-native";
 import BottomTabs from "./Parents/BottomTabs";
 import Child from "./Parents/Child";
 import DropDownModal from "./Parents/DropDownModal";
@@ -10,14 +10,17 @@ import LanguageReturn from "./Parents/LanguageReturn";
 import ParentsCancel from "./Parents/ParentsCancel";
 import ParentsComponent from "./Parents/ParentsComponent";
 import ParentsSettings from "./Parents/ParentsSettings";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useScale } from "../hooks/useScale";
 
 const ParentsScreen = () => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [screen, setScreen] = useState(store?.attributes?.[0] || null);
     const [dropDown, setDropDown] = useState(null);
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState('')
+
+    const { s, vs } = useScale()
 
     useEffect(() => {
         const func = async () => {
@@ -45,19 +48,33 @@ const ParentsScreen = () => {
     }, [])
 
     return (
-        <SafeAreaView style={{flex: 1, alignItems: 'center', gap: 15, backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
+        <SafeAreaView style={{flex: 1, alignItems: 'center', rowGap: vs(15), paddingHorizontal: vs(20), backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             
-            {screen == 'Lang'? '' : <ParentsCancel />}
+            {screen !== 'Lang' && 
+                <ParentsCancel />
+            }
 
-            {screen == 'Lang'? <LanguageReturn setScreen={setScreen} /> : screen !== 'Settings' && !dropDown? <Child setDropDown={setDropDown} dropDown={dropDown}/> : screen === 'Settings'? null : <View style={{width: windowWidth * (312 / 360), padding: windowWidth * (16 / 360), height: windowHeight * (80 / 800)}}/>}
+            {screen == 'Lang' ? 
+                <LanguageReturn setScreen={setScreen} /> 
+            : screen !== 'Settings'? 
+                <Child setDropDown={setDropDown} dropDown={dropDown}/> 
+            : screen === 'Settings' &&
+                null
+            }
             
-            {screen !== 'Settings' && dropDown && <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>}
+            {screen !== 'Settings' && dropDown && 
+                <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>
+            }
             
-            {screen == 'Settings'?  <ParentsSettings setScreen={setScreen}/> : screen == 'Lang'? <LanguageComponent setScreen={setScreen}/> : <ParentsComponent loading={loading} screen={screen} error={error}/>}
+            {screen == 'Settings' ? 
+                <ParentsSettings setScreen={setScreen}/> 
+            : screen == 'Lang'? 
+                <LanguageComponent setScreen={setScreen}/> 
+            : 
+                <ParentsComponent loading={loading} screen={screen} error={error}/>
+            }
             
-            <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800)}} />
-            
-            <View style={{width: windowWidth * (312 / 360), height: windowHeight * (56 / 800), alignItems: 'center', position: 'absolute', bottom: Platform.OS === 'ios'? windowHeight * (40 / 932) : windowHeight * (15 / 932), alignSelf: 'center'}}>
+            <View style={{width: '100%', height: 'auto', alignItems: 'center', position: 'absolute', bottom: vs(35), alignSelf: 'center'}}>
                 {!loading && <BottomTabs screen={screen} setScreen={handleScreenChange} />}
             </View>
 

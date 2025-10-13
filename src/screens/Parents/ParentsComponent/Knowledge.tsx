@@ -1,65 +1,54 @@
-import React, { useEffect, useState } from "react";
-import { View, FlatList, useWindowDimensions, TouchableOpacity, Text, Image } from "react-native";
+import React from "react";
+import { View, FlatList, TouchableOpacity, Text, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { SvgUri } from "react-native-svg";
+import { useScale } from "../../../hooks/useScale";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Knowledge = ({ screen }) => {
+
     const color = screen?.color ?? 'white'
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
     const navigation = useNavigation();
 
-    const renderItem = React.useCallback(({ item }) => {
+    const { s, vs } = useScale()
+
+    const renderItem = ({ item }) => {
+
         const isSvg = item.image.endsWith(".svg");
 
         return (
-            <TouchableOpacity onPress={() => navigation.navigate('ParentsSegments', { screen: item })} style={{
-                width: windowWidth * (312 / 360),
-                height: windowHeight * (76 / 800),
-                borderRadius: 10,
-                padding: windowWidth * (16 / 360),
-                backgroundColor: '#F8F8F8',
-                flexDirection: 'row',
-                gap: windowWidth * (16 / 360),
-                alignItems: 'center'
-            }}>
-                <View style={{ backgroundColor: `${color}`, borderRadius: 10 }}>
-                    {isSvg ? (
-                        <SvgUri
-                            uri={item.image}
-                            width={windowHeight * (48 / 800)}
-                            height={windowHeight * (48 / 800)}
-                            stroke={`${color}`}
-                        />
-                    ) : (
-                        <Image
-                            source={item.image}
-                            style={{
-                                width: windowHeight * (48 / 800),
-                                height: windowHeight * (48 / 800),
-                                aspectRatio: 1,
-                                borderRadius: 10
-                            }}
-                        />
-                    )}
-                </View>
-                <View style={{ width: windowWidth * (184 / 360), height: windowHeight * (44 / 800), flexDirection: 'column', justifyContent: 'center' }}>
-                    <Text style={{ color: '#222222', fontWeight: '600', lineHeight: windowHeight * (20 / 800), fontSize: windowHeight * (14 / 800) }}>
-                        {item.name}
+            <TouchableOpacity onPress={() => navigation.navigate('ParentsSegments', { screen: item })} style={{ width: '100%', height: 'auto', borderRadius: vs(12), padding: vs(16), backgroundColor: '#F8F8F8', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between'}}>
+                
+                <View style={{ justifyContent: 'center', alignItems: 'center', columnGap: vs(14), flexDirection: 'row' }}>
+                    
+                    <View style={{ backgroundColor: `${color}`, borderRadius: vs(12), width: vs(48), height: vs(48) }}>
+                        {isSvg ? (
+                            <SvgUri uri={item?.image} width={'100%'} height={'100%'} stroke={`${color}`} />
+                        ) : (
+                            <Image source={item?.image} style={{ width: '100%', height: '100%', borderRadius: vs(12)}}/>
+                        )}
+                    </View>
+
+                    <Text style={{ color: '#222222', fontWeight: '600', fontSize: vs(14)}}>
+                        {item?.name}
                     </Text>
+
                 </View>
-                <View style={{ width: windowWidth * (24 / 360), justifyContent: 'center', alignItems: 'center', height: windowHeight * (24 / 800) }}>
-                    <Image source={require('../../../images/narrowright.png')} style={{ width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24 }} />
-                </View>
+                
+                <Ionicons name='chevron-forward' size={vs(20)} />
+
             </TouchableOpacity>
         );
-    }, [windowWidth, windowHeight, color, navigation]); // Мемоизируем renderItem для оптимизации
+
+    };
 
     return (
         <FlatList
             data={screen?.attributes}
             keyExtractor={(item, index) => index.toString()}
             renderItem={renderItem}
-            contentContainerStyle={{ gap: 16 }}
+            contentContainerStyle={{ rowGap: vs(12) }}
             showsVerticalScrollIndicator={false}
             scrollEnabled={false}
         />
