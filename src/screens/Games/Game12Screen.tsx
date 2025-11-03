@@ -1,11 +1,10 @@
-import { useWindowDimensions, View } from 'react-native'
+import { View } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
-import Animated, {ZoomInEasyDown} from 'react-native-reanimated';
-import { playSound } from '../../hooks/usePlayBase64Audio';
-import useTimer from '../../hooks/useTimer';
+import { playSound } from '../../hooks/usePlaySound';
+import useTimer from '../../hooks/utils/useTimer';
 import RenderGame12Component from './Game12/RenderComponent12';
 import { useIntroSequence } from '../../hooks/useIntroSequence'
-import { useAnswerLogic } from '../../hooks/useAnswerLogic'
+import { useAnswerLogic } from '../../hooks/answer/useAnswerLogic'
 import SkipButton from './components/SkipButton'
 import WisyHint from './components/WisyHint'
 import TutorialOverlay from './components/TutorialOverlay';
@@ -14,7 +13,6 @@ import OverlayHint from './components/OverlayHint';
 
 const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow, tasks }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
@@ -26,11 +24,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const { start, reset } = useTimer();
 
-    const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes,
-        levelHandlers: { setLevel, setStars, setEarnedStars },
-        uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking },
-        attemptState: { attempt, setAttempt },
-    });
+    const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
 
     useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, tasks, setLevel });
     

@@ -1,6 +1,6 @@
 import { TouchableOpacity } from 'react-native'
 import React from 'react'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 import Ionicons from '@expo/vector-icons/Ionicons'
 
 const ReloadButton = ({ replay }) => {

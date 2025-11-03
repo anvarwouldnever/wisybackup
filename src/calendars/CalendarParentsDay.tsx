@@ -5,7 +5,7 @@ import moment from 'moment';
 import store from '../store/store';
 import translations from '../../localization';
 import { observer } from 'mobx-react-lite';
-import { useScale } from '../hooks/useScale';
+import { useScale } from '../hooks/utils/useScale';
 
 const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
 

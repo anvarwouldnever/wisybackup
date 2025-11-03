@@ -6,7 +6,7 @@ import AuthSignup from "./Auth/AuthSignup";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import * as ScreenOrientation from 'expo-screen-orientation';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useScale } from "../hooks/useScale";
+import { useScale } from "../hooks/utils/useScale";
 
 const AuthScreen = ({ route }) => {
 
@@ -39,7 +39,7 @@ const AuthScreen = ({ route }) => {
                 {authOption === 'signup'? 
                     <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> 
                 : 
-                    <AuthLogin playersScreen={playersScreen} proceed={proceed} toggleOption={setAuthOption}/>
+                    <AuthLogin playersScreen={playersScreen} toggleOption={setAuthOption}/>
                 }       
             </SafeAreaView>
         </TouchableWithoutFeedback>

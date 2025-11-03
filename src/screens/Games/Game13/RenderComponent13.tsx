@@ -1,40 +1,59 @@
-import { View, Platform, TouchableOpacity, useWindowDimensions, Text } from "react-native";
+import { View, TouchableOpacity, Text } from "react-native";
 import { useRef, useEffect, useState } from "react";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const RenderComponent13 = ({ lock, data, answer, id, setId }) => {
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
     const timeoutRef = useRef(null);
     const [shuffledOptions, setShuffledOptions] = useState([]);
+    const { s } = useScale();
 
     useEffect(() => {
         if (data?.content?.options) {
             setShuffledOptions([...data.content.options].sort(() => Math.random() - 0.5));
         }
-    }, []);
+    }, [data]);
+
+    const onPress = (id) => {
+        if (lock) return;
+        answer({ answer: id });
+        if (timeoutRef.current) clearTimeout(timeoutRef.current);
+        setId(null);
+    };
 
     return (
-        <Animated.View entering={ZoomInEasyDown} style={{width: windowWidth * (592 / 800), height: Platform.isPad? windowWidth * (200 / 800) : windowHeight * (160 / 360), flexDirection: 'column', justifyContent: 'space-between'}}>
-            <View style={{width: '100%', height: windowHeight * (40 / 360), justifyContent: 'center', alignItems: 'center'}}>
-                <Text style={{color: '#222222', fontWeight: '600', fontSize: windowWidth * (24 / 800)}}>{data?.content?.question}</Text>
-            </View>
-            <View style={{width: 'auto', gap: 16, height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center'}}>
+        <Animated.View entering={ZoomInEasyDown} style={{ width: 'auto', height: 'auto', rowGap: s(12), flexDirection: 'column' }}>
+            
+            <Text adjustsFontSizeToFit numberOfLines={2} ellipsizeMode='tail' style={{ color: '#222222', fontWeight: '600', fontSize: s(11), width: s(150), maxWidth: s(200), textAlign: 'center' }}>
+                {data?.content?.question}
+            </Text>
+            
+            <View style={{ width: 'auto', height: 'auto', columnGap: s(6), alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                
                 {shuffledOptions?.map((option, index) => {
+                    const isSelected = id?.id === option?.id;
+                    const isCorrect = isSelected && id?.result === 'correct';
+                    const isWrong = isSelected && id?.result === 'wrong';
+
                     return (
-                        <TouchableOpacity onPress={lock? () => {return} : () => {
-                                answer({ answer: option.id })
-                                if (timeoutRef.current) {
-                                    clearTimeout(timeoutRef.current); // Сбрасываем таймер, если был установлен
-                                }
-                                setId(null);
-                            }} key={index} style={{width: windowWidth * (80 / 800), height: Platform.isPad? windowWidth * (80 / 800) : windowHeight * (80 / 360), backgroundColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? 'red' : 'white', borderColor: id?.id == option.id && id?.result == 'correct'? '#ADD64D' : id?.id == option.id && id?.result == 'wrong'? '#D81616' : 'white', borderWidth: 2, alignItems: 'center', justifyContent: 'center', borderRadius: 10, shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
-                            <Text style={{fontWeight: '600', fontSize: windowWidth * (24 / 800), color: id?.id == null? 'black' : id?.id != null && id?.id == option.id? 'black' : '#D4D1D1'}}>{option.text}</Text>
-                        </TouchableOpacity>
-                    )
+                        <View key={index} style={{ backgroundColor: 'white', overflow: 'hidden', borderRadius: s(5), shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4 }}>
+                            
+                            <TouchableOpacity onPress={() => onPress(option?.id)} style={{ width: s(38), height: s(38), borderRadius: s(5), backgroundColor: isCorrect ? '#ADD64D' : isWrong ? '#D816164D' : 'white', borderColor: isCorrect ? '#ADD64D' : isWrong ? '#D816164D' : 'white', borderWidth: 2, alignItems: 'center', justifyContent: 'center' }}>
+                                
+                                <Text style={{ fontWeight: '600', fontSize: s(10), color: '#000000' }}>{option?.text}</Text>
+                            
+                            </TouchableOpacity>
+
+                        </View>
+                    );
                 })}
+
             </View>
+
         </Animated.View>
-    )
+    );
 };
 
 export default RenderComponent13;
+

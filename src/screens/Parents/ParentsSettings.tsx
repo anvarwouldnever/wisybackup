@@ -4,11 +4,12 @@ import Animated, { withTiming, useAnimatedStyle, FadeInDown } from "react-native
 import { observer } from "mobx-react-lite";
 import { useNavigation } from "@react-navigation/native";
 import store from "../../store/store";
-import translations from "../../../localization";
-import api from "../../api/api";
-import { useScale } from "../../hooks/useScale";
+import translations from "../../../localization"
+import { useScale } from "../../hooks/utils/useScale";
 import NewPasswordModal from "./Settings/NewPasswordModal";
 import PopUpModal from "./Settings/PopUpModal";
+import { BASE_URL } from "../../api/api";
+import * as SecureStore from 'expo-secure-store';
 
 const ParentsSettings = ({ setScreen }) => {
 
@@ -31,8 +32,7 @@ const ParentsSettings = ({ setScreen }) => {
     };
 
     const logout = async () => {
-        await store.setToken(null);
-        await store.setChildren(null);
+        await SecureStore.deleteItemAsync('token')
         navigation.reset({ index: 0, routes: [{ name: "LanguageScreen" }] });
     };
 
@@ -107,7 +107,7 @@ const ParentsSettings = ({ setScreen }) => {
                 scrollEnabled={true} 
             />
             
-            {api?.baseUrl === "https://tapimywisy.hostweb.uz/api/v1/app" && <Text style={{ fontSize: vs(18), color: "grey", fontWeight: "600", margin: vs(20) }}>Dev</Text>}
+            {BASE_URL === "https://tapimywisy.hostweb.uz/api/v1/app" && <Text style={{ fontSize: vs(18), color: "grey", fontWeight: "600", margin: vs(20) }}>Dev</Text>}
             
             <NewPasswordModal secure={secure} modal={modal} setModal={setModal} setSecure={setSecure} setPopUpModal={setPopUpModal} />
 

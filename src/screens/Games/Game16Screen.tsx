@@ -1,16 +1,15 @@
-import { useWindowDimensions, View } from 'react-native'
+import { View } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
-import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
-import useTimer from '../../hooks/useTimer'
-import { playSound2 } from '../../hooks/usePlaySound2'
+import useTimer from '../../hooks/utils/useTimer'
 import RenderComponent from './Game16/RenderComponent'
 import SkipButton from './components/SkipButton'
 import TutorialOverlay from './components/TutorialOverlay'
 import WisyHint from './components/WisyHint'
-import { useAnswerLogic } from '../../hooks/useAnswerLogic'
+import { useAnswerLogic } from '../../hooks/answer/useAnswerLogic'
 import store from '../../store/store'
 import OverlayHint from './components/OverlayHint'
 import { useIntroSequence } from '../../hooks/useIntroSequence'
+import { playSound } from '../../hooks/usePlaySound'
 
 const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, tutorials, tutorialShow, setTutorialShow, level }) => {
 
@@ -30,7 +29,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     
     const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
     
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, setLevel });
+    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
         
     useEffect(() => {
         isActive.current = true;
@@ -46,7 +45,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         if (!sound) return
         try {
             setLock(true)
-            await playSound2(sound)
+            await playSound(sound)
         } catch (error) {
             setText('error loading the sound')
             setLock(false)

@@ -5,7 +5,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { GetTasks } from "../../api/methods/game/tasks";
 import { gameStore } from "../Games/store/gameStore";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const InformationModal = ({ modalData, setInformationModal, informationModal, setIsFrozen }) => {

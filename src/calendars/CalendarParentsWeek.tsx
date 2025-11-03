@@ -6,7 +6,7 @@ import { format } from 'date-fns';
 import store from '../store/store';
 import { observer } from 'mobx-react-lite';
 import translations from '../../localization';
-import { useScale } from '../hooks/useScale';
+import { useScale } from '../hooks/utils/useScale';
 
 const CalendarParentsWeek = ({ setShow, setWeekRange }) => {
 

@@ -2,15 +2,15 @@ import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, useWindowDimensions, TouchableOpacity, Platform} from 'react-native';
 import { Audio } from 'expo-av';
 import { captureRef } from 'react-native-view-shot';
-import useTimer from '../../hooks/useTimer';
-import { useHandwrittenAnswerLogic } from '../../hooks/useHandwrittenAnswerLogic';
+import useTimer from '../../hooks/utils/useTimer';
+import { useHandwrittenAnswerLogic } from '../../hooks/answer/useHandwrittenAnswerLogic';
 import { useIntroSequence } from '../../hooks/useIntroSequence';
 import WisyHint from './components/WisyHint';
 import SkipButton from './components/SkipButton';
 import TutorialOverlay from './components/TutorialOverlay';
 import store from '../../store/store';
 import OverlayHint from './components/OverlayHint';
-import { playSound } from '../../hooks/usePlayBase64Audio';
+import { playSound } from '../../hooks/usePlaySound';
 import MainContainerBlock from './Game11/MainContainerBlock';
 
 const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {

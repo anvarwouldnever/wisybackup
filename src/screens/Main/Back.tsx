@@ -5,7 +5,7 @@ import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
 import { gameStore } from "../Games/store/gameStore";
 import { getAvatars } from "../ChildParams/hooks/getAvatars";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const Back = () => {
 

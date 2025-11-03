@@ -2,8 +2,7 @@ import React, { useRef } from "react";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import { Text, View, useWindowDimensions, Platform } from "react-native";
 import LottieView from 'lottie-react-native'
-import lottie from '../../../../assets/6Vcbuw6I0c (1).json'
-import { useScale } from "../../../hooks/useScale";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const Game3TextAnimation = ({ text, thinking }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -15,7 +14,7 @@ const Game3TextAnimation = ({ text, thinking }) => {
         return (
             <LottieView
                 ref={animationRef}
-                source={lottie} 
+                source={require('../../../../assets/loading.json')} 
                 loop
                 autoPlay
                 style={{width: s(20), height: s(20), alignSelf: 'center'}}

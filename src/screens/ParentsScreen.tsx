@@ -1,81 +1,58 @@
 import { observer } from "mobx-react-lite";
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState } from "react";
 import { View, Platform } from "react-native";
 import BottomTabs from "./Parents/BottomTabs";
 import Child from "./Parents/Child";
 import DropDownModal from "./Parents/DropDownModal";
 import LanguageComponent from "./Parents/LanguageComponent";
-import store from "../store/store";
 import LanguageReturn from "./Parents/LanguageReturn";
 import ParentsCancel from "./Parents/ParentsCancel";
 import ParentsComponent from "./Parents/ParentsComponent";
 import ParentsSettings from "./Parents/ParentsSettings";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useScale } from "../hooks/useScale";
+import { useScale } from "../hooks/utils/useScale";
+import { getAttributes } from "./Parents/hooks/getAttributes";
 
 const ParentsScreen = () => {
 
-    const [screen, setScreen] = useState(store?.attributes?.[0] || null);
+    const { attributes, loading, error } = getAttributes()
+
+    const [index, setIndex] = useState<string | number>(0);
     const [dropDown, setDropDown] = useState(null);
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
+
+    const name = attributes?.[index]?.name;
 
     const { s, vs } = useScale()
-
-    useEffect(() => {
-        const func = async () => {
-            if (store?.attributes === null) {
-                try {
-                    setLoading(true);
-                    await store.loadAttributes()
-                        .then(() => {
-                            setScreen(store?.attributes?.[0]);
-                            setLoading(false);
-                        });
-                } catch (error) {
-                    setError(error)
-                }
-            }
-        };
-    
-        func();
-    }, []);    
-
-    const handleScreenChange = useCallback((newScreen) => setScreen(newScreen), []);
-
-    useEffect(() => {
-        store.loadDataFromStorageChildren();
-    }, [])
 
     return (
         <SafeAreaView style={{flex: 1, alignItems: 'center', rowGap: vs(15), paddingHorizontal: vs(20), backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             
-            {screen !== 'Lang' && 
+            {index !== 'Lang' && 
                 <ParentsCancel />
             }
 
-            {screen == 'Lang' ? 
-                <LanguageReturn setScreen={setScreen} /> 
-            : screen !== 'Settings'? 
+            {index == 'Lang' ? 
+                <LanguageReturn setScreen={setIndex} /> 
+            : index !== 'Settings'? 
                 <Child setDropDown={setDropDown} dropDown={dropDown}/> 
-            : screen === 'Settings' &&
+            : index === 'Settings' &&
                 null
             }
             
-            {screen !== 'Settings' && dropDown && 
+            {index !== 'Settings' && dropDown && 
                 <DropDownModal setDropDown={setDropDown} dropDown={dropDown}/>
             }
             
-            {screen == 'Settings' ? 
-                <ParentsSettings setScreen={setScreen}/> 
-            : screen == 'Lang'? 
-                <LanguageComponent setScreen={setScreen}/> 
+            {index == 'Settings' ? 
+                <ParentsSettings setScreen={setIndex}/> 
+            : index == 'Lang'? 
+                <LanguageComponent setScreen={setIndex}/> 
             : 
-                <ParentsComponent loading={loading} screen={screen} error={error}/>
+                <ParentsComponent attributes={attributes?.[index]} loading={loading} activeIndex={index} name={name} />
             }
             
             <View style={{width: '100%', height: 'auto', alignItems: 'center', position: 'absolute', bottom: vs(35), alignSelf: 'center'}}>
-                {!loading && <BottomTabs screen={screen} setScreen={handleScreenChange} />}
+                {!loading && <BottomTabs attributes={attributes} setScreen={setIndex} activeIndex={index} />}
             </View>
 
         </SafeAreaView>

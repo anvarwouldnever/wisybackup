@@ -2,15 +2,15 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from "react"
 import { FlatList, View, ActivityIndicator } from "react-native";
 import { gameStore } from "../Games/store/gameStore";
 import { observer } from "mobx-react-lite";
-import { playSound } from "../../hooks/usePlayBase64Audio";
+import { playSound } from "../../hooks/usePlaySound";
 import LottieView from "lottie-react-native";
-import loadingAnim from '../../../assets/6Vcbuw6I0c (1).json';
+import loadingAnim from '../../../assets/loading.json';
 import md5 from 'react-native-md5';
 import Collections from "./GamesList/Collections";
 import SubCollections from "./GamesList/SubCollections";
 import store from "../../store/store";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const GamesList = ({ firstOpeningAction }) => {
 

@@ -1,4 +1,4 @@
-import api2 from "../../api2";
+import api2 from "../../api";
 
 export const GetCollections = (categoryId: string, childId: string) => {
     return api2.get(`/collections`, {

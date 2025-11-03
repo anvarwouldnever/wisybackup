@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import ChosenPeriodText from './ChosenPeriodText';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const ChosenPeriod = ({ changeDate, setShow, chosenPeriod, monthRange, weekRange, formattedDate }) => {

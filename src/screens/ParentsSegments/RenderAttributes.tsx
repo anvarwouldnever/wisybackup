@@ -1,5 +1,5 @@
 import { TouchableOpacity, View, Image, Text,  } from "react-native";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const RenderAttributes = ({ item, setModalData, setInformationModal }) => {

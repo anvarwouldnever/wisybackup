@@ -3,7 +3,7 @@ import React from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
-import { useScale } from '../../../hooks/useScale'
+import { useScale } from '../../../hooks/utils/useScale'
 
 const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word, lines, viewShotRef, audio, voiceForTask, lock, id }) => {
 

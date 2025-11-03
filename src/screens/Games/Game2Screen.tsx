@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { View } from "react-native"
 import Game2Animals1Animation from "./Game2/Game2Animals1Animation";
-import useTimer from "../../hooks/useTimer";
+import useTimer from "../../hooks/utils/useTimer";
 import { useIntroSequence } from "../../hooks/useIntroSequence";
-import { useAnswerLogic } from "../../hooks/useAnswerLogic";
+import { useAnswerLogic } from "../../hooks/answer/useAnswerLogic";
 import TutorialOverlay from "./components/TutorialOverlay";
 import WisyHint from "./components/WisyHint";
 import SkipButton from "./components/SkipButton";
 import store from "../../store/store";
 import OverlayHint from "./components/OverlayHint";
-import { playSound } from '../../hooks/usePlayBase64Audio'
+import { playSound } from '../../hooks/usePlaySound'
 
 const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow}) => {
 

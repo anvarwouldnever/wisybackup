@@ -3,14 +3,14 @@ import { View, useWindowDimensions, Platform } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS, LinearTransition, withSpring, withDelay, ZoomInEasyDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics'
-import useTimer from '../../hooks/useTimer';
+import useTimer from '../../hooks/utils/useTimer';
 import store from '../../store/store';
 import { useIntroSequence } from '../../hooks/useIntroSequence';
 import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';
 import PlaceholderBlock from './Game17/PlaceholderBlock';
-import { useDragAndDropAnswer } from '../../hooks/useDragAndDropAnswerLogic';
-import { useScale } from '../../hooks/useScale';
+import { useDragAndDropAnswer } from '../../hooks/answer/useDragAndDropAnswerLogic';
+import { useScale } from '../../hooks/utils/useScale';
 
 const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDraggingId, s, vs }) => {
     

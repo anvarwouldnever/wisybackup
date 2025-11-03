@@ -3,7 +3,7 @@ import React from 'react'
 import { SvgUri } from 'react-native-svg';
 import galochka from '../../../images/galochka.png'
 import x from '../../../images/wrongX.png'
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const Button = ({ item, lock, answer, id }) => {
 

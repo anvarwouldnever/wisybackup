@@ -5,11 +5,11 @@ import translations from "../../localization";
 import store from "../store/store";
 import { observer } from "mobx-react-lite";
 import Pad from "./ParentsCaptcha/Pad";
-import { useScale } from "../hooks/useScale";
+import { useScale } from "../hooks/utils/useScale";
 import Inputs from "./ParentsCaptcha/Inputs";
 import NumbersText from "./ParentsCaptcha/NumbersText";
 import { SafeAreaView } from "react-native-safe-area-context";
-import useLockPortrait from "../hooks/useLockPortrait";
+import useLockPortrait from "../hooks/utils/useLockPortrait";
 
 const ParentsCaptchaScreen = () => {
 

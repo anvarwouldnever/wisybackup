@@ -4,9 +4,10 @@ import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { observer } from 'mobx-react-lite';
 import { getAvatars } from '../ChildParams/hooks/getAvatars';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getChildren } from './hooks/getChildren';
+import LottieView from 'lottie-react-native';
 
 function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) {
     
@@ -15,7 +16,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
     const { s, vs, isTablet } = useScale()
 
     const { avatars } = getAvatars()
-    const { children } = getChildren()
+    const { children, loading } = getChildren()
 
     const onPress = (item, isNew) => {
         setChosenPlayerIndex(item?.id);
@@ -77,6 +78,19 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
         );
     };
 
+    if (loading) {
+        return (
+            <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', borderWidth: 1, width: '100%', height: '100%' }}>
+                <LottieView
+                    loop={true}
+                    autoPlay
+                    source={require('../../../assets/loading.json')}
+                    style={{width: s(30), height: s(30), alignSelf: 'center'}}
+                />
+            </View>
+        );
+    }
+
     return (
         <FlatList
             data={[...(children || []), { id: 'add-btn', isAddButton: true }]}
@@ -84,7 +98,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
             horizontal
             showsHorizontalScrollIndicator={false}
             style={{ width: 'auto' }}
-            contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', columnGap: vs(30), paddingHorizontal: vs(170)}}
+            contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', columnGap: vs(30), paddingHorizontal: vs(170) }}
             renderItem={renderItem}
         />
     );

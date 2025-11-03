@@ -1,86 +1,31 @@
-import { makeAutoObservable, runInAction, reaction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import NetInfo from '@react-native-community/netinfo';
-import api from '../api/api';
-import useSvgParser from "../hooks/useSvgParser";
-import { Alert } from "react-native";
-import fetchAnimation from "../screens/Main/FetchLottie";
-import { GetChildren } from "../api/methods/children/children";
-import { GetCategories } from "../api/methods/market/categories";
-import { GetItems } from "../api/methods/market/items";
-import { GetConversation } from "../api/methods/chat/conversation";
-import { GetAttributes } from "../api/methods/attributes/attributes";
 
 class Store {
 
-    avatars = null;
-    attributes = null;
-    market = null;
     loading = true;
-    token = null;
     playingChildId = null;
     musicPlaying = true;
     musicTurnedOn = true;
     breakMusicPlaying = false;
     microOn = false;
     connectionState = false;
-    messages = [];
     language = null;
-    holdEmail = null;
-    playinVoiceMessageId = null;                                      
+    holdEmail = null;                             
     voiceInstructions = true;
     wisySpeaking = false;
     wisyMenuText = null;
     isFirstOpening = false;
     isBlacked = false;
     newChildren = [];
-    loadingMarketItems = false;
 
     constructor() {
         makeAutoObservable(this);
         this.initializeStore();
-
-        reaction(
-            () => this.language,
-            async () => {
-                const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
-                if (this.language !== null) {
-                    if (this.connectionState && this.playingChildId !== null && this.token !== null) {
-                        await this.loadAttributes();
-                        await delay(1000);
-
-                        await delay(2000);
-                    }
-    
-                    await this.loadAddChildUI();
-                    await delay(2000);
-                }
-            }
-        );
-
-        reaction(
-            () => ({
-                connectionState: this.connectionState,
-                playingChildId: this.playingChildId,
-                token: this.token
-            }),
-            async ({ connectionState, playingChildId, token }) => {
-                const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-                if (connectionState && playingChildId !== null && token !== null) {
-                    await this.loadMessages();
-                } else if (!connectionState && playingChildId !== null && token !== null) {
-                    await this.setLoadingCats(true)
-                } else if (this.connectionState && this.token !== null) {
-                    await this.loadMarket();
-                    await delay(2000);
-                }
-            }
-        );
     }             
 
     async initializeStore() {
-        await this.determineConnection();
+        await this.loadData();
     }
 
     async loadData() {
@@ -96,124 +41,6 @@ class Store {
             runInAction(() => {
                 this.loading = false
             })
-        }
-    }
-
-    async loadSlides() {
-        if (this.connectionState) {
-            try {
-                const request = await api.getSlides(this.language)
-                runInAction(() => {
-                    this.slides = request;
-                })
-            } catch (error) {
-                console.log(error)
-            }
-        }
-    }
-
-    async loadMarket() {
-        if(this.connectionState) {
-            try {
-                const request = await GetCategories();
-                runInAction(() => {
-                    this.market = request.data?.data?.map((market: any) => ({
-                        ...market,
-                        items: [],
-                    }));
-                });
-
-                await this.loadMarketItems()
-            } catch (error) {
-                console.log(error)
-            }
-        }
-    }
-
-    async loadMarketItems() {
-        if (!this.connectionState) return;
-    
-        try {
-    
-            const marketItemsPromises = this.market.map(async (category: any) => {
-                try {
-                    const response = await GetItems(category.id);
-    
-                    return { id: category.id, items: response.data?.data };
-                } catch (error) {
-                    console.log(`Ошибка загрузки элементов для категории ${category.id}:`, error);
-                    return { id: category.id, items: [] };
-                }
-            });
-    
-            const marketItems = await Promise.all(marketItemsPromises);
-    
-            runInAction(() => {
-                marketItems.forEach(({ id, items }) => {
-                    const category = this.market.find((cat: any) => cat.id === id);
-                    if (category) {
-                        category.items = items;
-                    }
-                });
-            });
-    
-            await this.loadMarketItemUri(); // отдельно загружаем URI
-        } catch (error) {
-            console.log(error);
-        }
-    }      
-
-    async loadMarketItemUri() {
-        try {
-            runInAction(() => {
-                this.loadingMarketItems = true;
-            });
-            const fetchPromises = this.market.flatMap((category: any) => {
-                return category.items?.map(async (item: any) => {
-                    if (item.animation) {
-                        try {
-                            const uri = await fetchAnimation(item.animation);
-                            item.animation = uri || item.animation;
-                        } catch (err) {
-                            console.log(`Ошибка загрузки animation ${item.id}:`, err);
-                        }
-                    }
-                }) || [];
-            });
-    
-            await Promise.all(fetchPromises);
-        } catch (error) {
-            console.log('Ошибка при загрузке URI для market items:', error);
-        } finally {
-            runInAction(() => {
-                this.loadingMarketItems = false;
-            });
-        }
-    }
-
-    async loadAttributes() {
-        if (this.connectionState) {
-            try {
-                const response = await GetAttributes();
-    
-                const parsedAttributes = await Promise.all(
-                    response.data.data?.map(async (item) => {
-                        if (item.image.endsWith('.svg')) {
-                            const parsedSvg = await useSvgParser(item?.image);
-                            return { ...item, svgData: parsedSvg };
-                        }
-                        return item;
-                    })
-                );
-    
-                runInAction(() => {
-                    this.attributes = parsedAttributes;
-                });
-            } catch (error) {
-                throw error
-            }
-        } else {
-            throw 'No internet conection'
         }
     }
 
@@ -262,70 +89,7 @@ class Store {
                 this.isBlacked = isBlacked
             }
         });
-    }
-
-    async loadDataFromStorageChildren() {
-        try {
-            if (this.connectionState && this.token != null) {
-                try {
-                    const children = await GetChildren()
-                    this.setChildren(children.data)
-                } catch (error) {
-                    console.log(error)
-                    throw error
-                }
-            } else if (!this.connectionState) {
-                const children = await this.loadDataFromStorage('children');
-                runInAction(() => {
-                    this.children = children
-                });
-            }
-        } catch (error) {
-            console.log(error);   
-        }
     }   
-
-    async loadMessages() {
-        if (this.connectionState) {
-            try {
-                runInAction(() => {
-                    this.messages = [];
-                });
-                const response = await GetConversation(this.playingChildId?.id);
-
-                // console.log(this.playingChildId?.id)
-    
-                const formattedMessages = response.data?.data?.map(item => {
-                    // console.log(item?.is_from_bot);
-                
-                    return {
-                        type: 'text',
-                        text: item.content,
-                        author: item.is_from_bot ? 'MyWisy' : 'You'
-                    };
-                });
-    
-                runInAction(() => {
-                    this.messages = formattedMessages.reverse();
-                });
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    }
-
-    async setMessages(message: any) {
-        runInAction(() => {
-            if (message.type == 'text' && message.author ==='MyWisy') {
-                this.messages = [
-                    { type: message.type, text: message.text, author: message.author },
-                    ...this.messages.slice(1),
-                ];
-            } else {
-                this.messages = [{ type: message.type, text: message.text, author: message.author}, ...this.messages]
-            }
-        })
-    }
 
     async loadDataFromStorage(key: any) {
         try {
@@ -336,28 +100,6 @@ class Store {
             return null;
         }
     }
-
-    async determineConnection() {
-        const state = await NetInfo.fetch();
-        runInAction(() => {
-            this.connectionState = state.isConnected;
-        });
-
-        if (this.connectionState) {
-            await this.loadData();
-        } else {
-            Alert.alert('Something went wrong', 'check your internet connection and try again later', [
-                {
-                    text: 'Retry',
-                    onPress: async () => await this.determineConnection()
-                },
-                {
-                    text: 'Ok',
-                    style: 'cancel'
-                }
-            ])
-        }
-    } 
 
     async setToken(token: string) {
         runInAction(() => {
@@ -387,35 +129,10 @@ class Store {
         });
     }  
 
-    async setMarket(market: any) {
-        runInAction(() => {
-            this.market = market;
-        });
-    }
-
-    async setPlayingVoiceMessageId(id: any) {
-        runInAction(() => {
-            this.playinVoiceMessageId = id;
-        });
-    }
-
-    async stopAllPlayingVoiceMessages() {
-        runInAction(() => {
-            this.playinVoiceMessageId = null;
-        });
-    }
-
     async setPlayingChildStars(stars: number) {
         runInAction(() => {
             this.playingChildId.stars += stars 
         })
-    }
-
-    async setChildren(children: any) {
-        runInAction(() => {
-            this.children = children
-        })
-        await AsyncStorage.setItem('children', JSON.stringify(children));
     }
 
     async setPlayingMusic(bool: boolean) {
@@ -492,12 +209,6 @@ class Store {
         } else {
             await AsyncStorage.removeItem('backgroundMusic');
         }
-    }
-
-    async setLoadingCats(bool: boolean) {
-        runInAction(() => {
-            this.loadingCats = bool;
-        });
     }
 
     async setWisySpeaking(bool: boolean) {

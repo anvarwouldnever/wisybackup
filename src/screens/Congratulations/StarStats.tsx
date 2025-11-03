@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Animated, { useSharedValue, useAnimatedStyle, withSequence, withTiming } from "react-native-reanimated";
 import * as Haptics from 'expo-haptics'
 import store from "../../store/store";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const StarStats = ({ numStars, layoutCaptured, setLayoutCaptured }) => {
 
@@ -44,7 +44,7 @@ const StarStats = ({ numStars, layoutCaptured, setLayoutCaptured }) => {
     return (
         <Animated.View onLayout={(event) => handleLayout(event)} style={[animatedStyle, {position: 'absolute', right: 0, top: 0, backgroundColor: 'white', width: 'auto', height: s(20), borderRadius: 100, columnGap: s(3), paddingHorizontal: s(4), flexDirection: 'row', justifyContent: 'space-evenly'}]}>
             
-            <Image source={require('../../images/tabler_star-filled.png')} style={{width: s(10), height: s(10), alignSelf: 'center'}}/>
+            <Image source={require('../../images/star.png')} style={{width: s(10), height: s(10), alignSelf: 'center'}}/>
             
             <Text style={{fontWeight: '600', fontSize: s(10), color: 'black', textAlign: 'center', alignSelf: 'center'}}>{stars}</Text>
 

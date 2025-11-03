@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, FlatList, Text, Image, TouchableOpacity } from "react-native";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import RenderItem from "./AnswerButton";
-import { useScale } from "../../../hooks/useScale";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const Game2Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voiceForTask }) => {
 

@@ -2,8 +2,8 @@ import { View, Text, useWindowDimensions, Platform, TouchableOpacity } from 'rea
 import React, { useState, useRef, useEffect } from 'react'
 import { captureRef } from 'react-native-view-shot';
 import * as FileSystem from 'expo-file-system';
-import useTimer from '../../hooks/useTimer';
-import { useHandwrittenAnswerLogic } from '../../hooks/useHandwrittenAnswerLogic';
+import useTimer from '../../hooks/utils/useTimer';
+import { useHandwrittenAnswerLogic } from '../../hooks/answer/useHandwrittenAnswerLogic';
 import { useIntroSequence } from '../../hooks/useIntroSequence';
 import WisyHint from './components/WisyHint';
 import SkipButton from './components/SkipButton';

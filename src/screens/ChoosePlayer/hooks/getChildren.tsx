@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { checkNetwork } from '../../../network/checkNetwork';
 import { GetChildren } from '../../../api/methods/children/children';
+import { alertHandler } from '../../../network/alertHandler';
 
 let cachedChildren: any = null;
 
@@ -23,7 +24,7 @@ export const getChildren = () => {
         const fetchchildren = async () => {
             try {
                 const network = await checkNetwork()
-                if (!network) return
+                if (!network) return alertHandler()
 
                 const response = await GetChildren()
                 cachedChildren = response?.data?.data;

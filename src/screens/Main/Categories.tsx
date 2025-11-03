@@ -2,13 +2,13 @@ import React, { useEffect, useRef, useCallback } from "react";
 import { FlatList, TouchableOpacity, View, Image } from "react-native";
 import { SvgUri } from "react-native-svg";
 import { observer } from "mobx-react-lite";
-import { playSound } from "../../hooks/usePlayBase64Audio";
+import { playSound } from "../../hooks/usePlaySound";
 import { useFocusEffect } from "@react-navigation/native";
 import Blur from "./GamesList/SubCollections/BlurView";
 import { gameStore } from "../Games/store/gameStore";
 import store from "../../store/store";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const Categories = () => {
 

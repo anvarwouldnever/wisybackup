@@ -1,12 +1,13 @@
 import { View, Text, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
-import api from '../api/api';
 import Logo from '../components/Logo';
 import { observer } from 'mobx-react-lite';
 import store from '../store/store';
+import api2 from '../api/api';
+import { ResetPassword } from '../api/methods/auth/auth';
 
-const ResetPassword = ({ route }) => {
+const ResetPasswordScreen = ({ route }) => {
 
     const token = route?.params?.token
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
@@ -23,8 +24,8 @@ const ResetPassword = ({ route }) => {
 
     const resetPassword = async () => {
         try {
-            const response = await api.resetPassword(store.holdEmail, token, confirmPassword, confirmPassword);
-            if (response.is_success) {
+            const response = await ResetPassword(store.holdEmail, token, confirmPassword, confirmPassword);
+            if (response.data?.is_success || response.data?.data?.is_success) {
                 navigation.navigate("ResettedPasswordScreen")
             }
         } catch (error) {
@@ -127,4 +128,4 @@ const ResetPassword = ({ route }) => {
     );
 }
 
-export default observer(ResetPassword);
+export default observer(ResetPasswordScreen);

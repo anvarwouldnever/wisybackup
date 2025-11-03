@@ -3,7 +3,7 @@ import React from 'react'
 import translations from '../../../localization'
 import store from '../../store/store'
 import Animated from 'react-native-reanimated'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 
 const LanguageReturn = ({ setScreen }) => {
 

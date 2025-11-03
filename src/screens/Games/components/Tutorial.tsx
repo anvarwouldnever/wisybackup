@@ -2,7 +2,7 @@ import { View, Image, FlatList, TouchableOpacity } from 'react-native';
 import React, { useRef, useState } from 'react';
 import AnimatedPaw from '../../../components/AnimatedPaw';
 import store from '../../../store/store';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 const Tutorial = ({ tutorials }) => {

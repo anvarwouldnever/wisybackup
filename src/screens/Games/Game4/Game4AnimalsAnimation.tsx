@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import speaker from '../../../images/speaker2.png'
 import RenderItem from './RenderItem';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceForTask }) => {
 

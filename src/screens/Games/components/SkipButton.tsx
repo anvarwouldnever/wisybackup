@@ -2,7 +2,7 @@ import React from 'react'
 import { Text, TouchableOpacity } from 'react-native'
 import { observer } from 'mobx-react-lite'
 import AnimatedPaw from '../../../components/AnimatedPaw'
-import { useScale } from '../../../hooks/useScale'
+import { useScale } from '../../../hooks/utils/useScale'
 
 type Props = {
     visible: boolean

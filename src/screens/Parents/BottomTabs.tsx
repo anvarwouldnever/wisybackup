@@ -1,28 +1,23 @@
-import settings from '../../images/settings.png';
-import settingsActive from '../../images/settingsActive.png';
-import chat from '../../images/chat.png';
 import React from "react";
 import { View, TouchableOpacity, Image, Text, FlatList } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import store from "../../store/store";
 import { Svg, Path } from "react-native-svg";
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
-const BottomTabs = ({ screen, setScreen }) => {
+const BottomTabs = ({ activeIndex, setScreen, attributes }) => {
 
     const navigation = useNavigation();
 
-    const attributes = store?.attributes
-
     const { s, vs } = useScale()
 
-    const renderItem = ({ item }) => {
+    const renderItem = ({ item, index }) => {
 
-        let isSvg = item?.image?.endsWith('.svg');
+        const isSvg = item?.image?.endsWith('.svg');
         const svg = item?.svgData
+        const isActive = index === activeIndex
 
         return (
-            <TouchableOpacity activeOpacity={1} onPress={() => setScreen(item)} style={{width: vs(40), height: vs(40), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: screen.name === item?.name? "#504297" : "#F8F8F8", marginHorizontal: 4}}>
+            <TouchableOpacity activeOpacity={1} onPress={() => setScreen(index)} style={{width: vs(40), height: vs(40), alignItems: 'center', justifyContent: 'center', borderRadius: 100, backgroundColor: isActive ? "#504297" : "#F8F8F8", marginHorizontal: 4}}>
                 {isSvg && svg ? (
                     <Svg
                         style={{
@@ -33,11 +28,11 @@ const BottomTabs = ({ screen, setScreen }) => {
                         height={vs(24)}
                         fill={'none'}
                     >
-                        {svg.paths.map((path, index) => (
+                        {svg?.paths.map((path, index) => (
                             <Path
                                 key={index}
                                 d={path.d}
-                                stroke={screen?.name === item?.name? "white" : "#504297"}
+                                stroke={isActive ? "white" : "#504297"}
                                 strokeWidth={2}
                                 strokeLinecap={'round'}
                                 strokeLinejoin={'round'}
@@ -70,12 +65,11 @@ const BottomTabs = ({ screen, setScreen }) => {
                     keyExtractor={(item, index) => index.toString()}
                     scrollEnabled={false}
                     horizontal
-                    
                 />
 
                 <TouchableOpacity activeOpacity={1} onPress={() => setScreen('Settings')} style={{ width: vs(40), height: vs(40) }}>
                    
-                   <Image source={screen === 'Settings' || screen === 'Lang'? settingsActive : settings} style={{ width: vs(40), height: vs(40) }}/>
+                   <Image source={activeIndex === 'Settings' || activeIndex === 'Lang'? require('../../images/settingsActive.png') : require('../../images/settings.png')} style={{ width: vs(40), height: vs(40) }}/>
                 
                 </TouchableOpacity>
                 

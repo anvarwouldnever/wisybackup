@@ -5,7 +5,8 @@ import store from '../../../store/store';
 import { useAudioRecorder } from '../../../hooks/useAudioRecorder';
 import { Message } from '../../../api/methods/chat/message';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
+import { chatStore } from '../store/chatStore';
 
 const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
@@ -21,8 +22,8 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
     const animatedMicro = useAnimatedStyle(() => {
         
-        const scaleX = withTiming(microOn ? 1.5 : 1, {duration: 100})
-        const scaleY = withTiming(microOn ? 1.5 : 1, {duration: 100})
+        const scaleX = withTiming(microOn ? 1.5 : 1, { duration: 100 })
+        const scaleY = withTiming(microOn ? 1.5 : 1, { duration: 100 })
     
         return {
             transform: [
@@ -40,7 +41,7 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
 
         if (!isRecordingStarted.current) {
             setMicroOn(false);
-            return; // Не начинали запись, значит, просто выходим
+            return;
         }
 
         setMicroOn(false);
@@ -51,16 +52,16 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
             const uri = await stopRecording();
             if (uri) {
                 setThinking(true);
-                store.setMessages({ type: 'voice', text: uri, author: 'You' });
+                chatStore.setMessage({ type: 'voice', text: uri, author: 'You' });
                 Keyboard.dismiss();
 
                 setTimeout(async () => {
-                    await store.setMessages({ type: 'thinking', text: 'Thinking', author: 'MyWisy' });
+                    await chatStore.setMessage({ type: 'thinking', text: 'Thinking', author: 'MyWisy' });
                 }, 500);
 
                 try {
                     const response = await Message( store.playingChildId.id, false, '', uri);
-                    await store.setMessages({ type: 'text', text: response?.data?.data?.content, author: 'MyWisy' });
+                    await chatStore.setMessage({ type: 'text', text: response?.data?.data?.content, author: 'MyWisy' });
 
                     setTimeout(() => {
                         if (firstMessageRef?.current) {
@@ -72,7 +73,7 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
                         }
                     }, 100);
                 } catch (error) {
-                    await store.setMessages({ type: 'text', text: "Something went wrong, try again later", author: 'MyWisy' });
+                    await chatStore.setMessage({ type: 'text', text: "Something went wrong, try again later", author: 'MyWisy' });
                     return
                 }
             }
@@ -80,7 +81,6 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
             console.error('Failed to stop recording', error);
         } finally {
             setThinking(false);
-            resetMicrophone()
         }
     }
 
@@ -95,7 +95,7 @@ const ChatMicroAnimation = ({text, flatListRef, firstMessageRef}) => {
             } catch (err) {
                 console.error('Failed to start recording', err);
             }
-        }, 200); // Минимальное время удержания
+        }, 200);
     }
 
     return (

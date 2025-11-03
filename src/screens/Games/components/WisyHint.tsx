@@ -3,7 +3,7 @@ import { View } from 'react-native';
 import LottieView from 'lottie-react-native';
 import speakingWisy from '../../../lotties/headv9.json';
 import Game3TextAnimation from '../Game3/Game3TextAnimation';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const WisyHint = ({ text, thinking, wisySpeaking }) => {
 

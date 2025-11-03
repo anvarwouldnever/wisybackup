@@ -1,7 +1,7 @@
 import { View, Image } from 'react-native'
 import React from 'react'
 import { SvgUri } from 'react-native-svg';
-import { useScale } from '../../../../hooks/useScale';
+import { useScale } from '../../../../hooks/utils/useScale';
 
 const RenderAttributes = ({ attributes }) => {
 

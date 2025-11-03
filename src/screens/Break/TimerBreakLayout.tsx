@@ -1,6 +1,6 @@
 import { View, Text, Image } from 'react-native';
 import { useEffect } from 'react';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const TimerLayout = ({ formatTime, seconds, setSeconds, animation }) => {
 

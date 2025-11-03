@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import LottieView from 'lottie-react-native'
 import timerLot from '../../lotties/5-0 фулл.json'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 
 const Timer = () => {
 

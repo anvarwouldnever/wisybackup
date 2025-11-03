@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react'
 import Animated, { useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
-import { useScale } from '../hooks/useScale'
+import { useScale } from '../hooks/utils/useScale'
 
 const AnimatedPaw = () => {
 

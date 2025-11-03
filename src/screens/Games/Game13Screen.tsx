@@ -1,18 +1,17 @@
-import { View, useWindowDimensions } from 'react-native'
+import { View } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 import store from '../../store/store'
-import useTimer from '../../hooks/useTimer'
+import useTimer from '../../hooks/utils/useTimer'
 import RenderComponent13 from './Game13/RenderComponent13'
 import SkipButton from './components/SkipButton'
 import WisyHint from './components/WisyHint'
 import { useIntroSequence } from '../../hooks/useIntroSequence'
-import { useAnswerLogic } from '../../hooks/useAnswerLogic'
+import { useAnswerLogic } from '../../hooks/answer/useAnswerLogic'
 import TutorialOverlay from './components/TutorialOverlay';
 import OverlayHint from './components/OverlayHint'
 
 const Game13Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);

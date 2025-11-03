@@ -1,8 +1,8 @@
 import { Text, TouchableOpacity, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import store from '../../store/store';
-import { stopCurrentSound } from '../../hooks/newPlaySound';
-import { useScale } from '../../hooks/useScale';
+import { playSound } from '../../hooks/usePlaySound';
+import { useScale } from '../../hooks/utils/useScale';
 import translations from '../../../localization';
 
 const BackButton = () => {
@@ -12,7 +12,7 @@ const BackButton = () => {
     const { s, vs } = useScale()
 
     const onPress = () => {
-        stopCurrentSound()
+        playSound.stop(true)
         store.setBreakPlayingMusic(false);
         store.setPlayingMusic(true);
         navigation.goBack() 

@@ -6,7 +6,7 @@ import translations from "../../../localization";
 import Animated from "react-native-reanimated";
 import { getChildren } from "../ChoosePlayer/hooks/getChildren";
 import { getAvatars } from "../ChildParams/hooks/getAvatars";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { calculateAge } from "./utils/calculateAge";
 import { calculateAvatar } from "./utils/calculateAvatar";

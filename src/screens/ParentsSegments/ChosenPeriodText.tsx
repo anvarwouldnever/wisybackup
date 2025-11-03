@@ -2,7 +2,7 @@ import { Text } from "react-native";
 import { format, parse } from "date-fns";
 import translations from "../../../localization";
 import store from "../../store/store";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const ChosenPeriodText = ({ formattedDate, monthRange, weekRange, chosenPeriod }) => {
 

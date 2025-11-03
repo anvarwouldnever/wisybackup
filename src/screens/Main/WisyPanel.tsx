@@ -4,7 +4,7 @@ import LottieView from "lottie-react-native";
 import store from "../../store/store";
 import lot from '../../lotties/panda anim 2.json'
 import fetchAnimation from "./FetchLottie";
-import { playSound } from "../../hooks/usePlayBase64Audio";
+import { playSound } from "../../hooks/usePlaySound";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import standingWisy from '../../lotties/standingWisy.json';
 import speakingAndStanding from '../../lotties/speakingAndStanding.json';
@@ -13,7 +13,7 @@ import { observer } from "mobx-react-lite";
 import bamboo from '../../lotties/panda bamboo eat5-F.json'
 import { gameStore } from "../Games/store/gameStore";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 import Back from "./Back";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {

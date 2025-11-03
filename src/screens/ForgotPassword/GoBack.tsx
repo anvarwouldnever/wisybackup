@@ -1,6 +1,6 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 import translations from '../../../localization'
 import store from '../../store/store'
 import { useNavigation } from '@react-navigation/native'

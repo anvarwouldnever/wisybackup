@@ -1,6 +1,6 @@
 import { Text, FlatList, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const Pad = ({ onPress }) => {
 

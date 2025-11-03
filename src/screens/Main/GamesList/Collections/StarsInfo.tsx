@@ -1,6 +1,6 @@
 import { View, Text, Image } from 'react-native'
 import React from 'react'
-import { useScale } from '../../../../hooks/useScale'
+import { useScale } from '../../../../hooks/utils/useScale'
 
 const StarsInfo = ({ item }) => {
 
@@ -9,7 +9,7 @@ const StarsInfo = ({ item }) => {
     return (
         <View style={{ width: '100%', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
                         
-            <Image source={require('../../../../images/tabler_star-filled.png')} style={{ width: vs(30),height: vs(30) }} resizeMode='contain' />
+            <Image source={require('../../../../images/star.png')} style={{ width: vs(30),height: vs(30) }} resizeMode='contain' />
                     
             <Text style={{ fontWeight: '600', fontSize: isTablet ? s(7) : s(6), color: 'black', marginLeft: vs(10) }}>{item?.stars?.earned}</Text>
                     
@@ -19,4 +19,4 @@ const StarsInfo = ({ item }) => {
     )
 }
 
-export default StarsInfo
+export default StarsInfo;

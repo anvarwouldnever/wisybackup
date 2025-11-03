@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { GetAvatars } from '../../../api/methods/avatars/avatars';
+import { alertHandler } from '../../../network/alertHandler';
+import { checkNetwork } from '../../../network/checkNetwork';
 
 // Простейший кеш в памяти модуля
 let cachedAvatars: any[] | null = null;
@@ -14,6 +16,9 @@ export const getAvatars = () => {
 
         const fetchAvatars = async () => {
             try {
+                const network = await checkNetwork()
+                if (!network) return alertHandler()
+
                 const response = await GetAvatars();
                 const newData = response?.data?.data || [];
 

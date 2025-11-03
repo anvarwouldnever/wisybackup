@@ -1,7 +1,7 @@
 import { View, Text, Platform, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 
 const Button = () => {
 

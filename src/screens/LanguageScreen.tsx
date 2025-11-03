@@ -1,12 +1,13 @@
-import { View, Text, StatusBar } from 'react-native'
+import { Text } from 'react-native'
 import React, { useState } from 'react'
 import Logo from '../components/Logo';
 import { observer } from 'mobx-react-lite';
 import Button from './Language/Button';
 import Languages from './Language/Languages';
-import { useScale } from '../hooks/useScale';
-import useLockPortrait from '../hooks/useLockPortrait';
+import { useScale } from '../hooks/utils/useScale';
+import useLockPortrait from '../hooks/utils/useLockPortrait';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { getAudios } from './ChoosePlayer/hooks/getAudios';
 
 const LanguageScreen = () => {
 
@@ -15,6 +16,8 @@ const LanguageScreen = () => {
     const { s, vs, isTablet } = useScale();
 
     useLockPortrait();
+
+    const { audio } = getAudios()
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: vs(20), rowGap: vs(20) }}>

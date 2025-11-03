@@ -2,14 +2,14 @@ import { View } from 'react-native'
 import React, { useState, useEffect, useRef } from 'react'
 import Game4AnimalsAnimation from './Game4/Game4AnimalsAnimation'
 import store from '../../store/store'
-import { playSound } from '../../hooks/usePlayBase64Audio'
-import useTimer from '../../hooks/useTimer'
+import { playSound } from '../../hooks/usePlaySound'
+import useTimer from '../../hooks/utils/useTimer'
 import OverlayHint from './components/OverlayHint'
 import { observer } from 'mobx-react-lite'
 import WisyHint from './components/WisyHint'
 import TutorialOverlay from './components/TutorialOverlay'
 import SkipButton from './components/SkipButton'
-import { useAnswerLogic } from '../../hooks/useAnswerLogic'
+import { useAnswerLogic } from '../../hooks/answer/useAnswerLogic'
 import { useIntroSequence } from '../../hooks/useIntroSequence'
 
 const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, level, introTaskIndex, tutorials, tutorialShow, setTutorialShow, tasks }) => {
@@ -44,7 +44,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         if (!sound) return;
         try {
             setLock(true)
-            await playSound(sound)
+            await playSound(sound, true)
         } catch (error) {
             setText('error loading the sound')
             setLock(false)
@@ -53,7 +53,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
         }
     }
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive, setLevel, tasks });
+    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
 
     return (
         <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>

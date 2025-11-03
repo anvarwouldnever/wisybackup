@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from "react";
-import { View, useWindowDimensions } from "react-native";
+import { View } from "react-native";
 import Animated, { useSharedValue, ZoomInEasyDown } from "react-native-reanimated";
 import { toJS } from "mobx";
-import useTimer from "../../hooks/useTimer";
+import useTimer from "../../hooks/utils/useTimer";
 import store from "../../store/store";
 import * as Haptics from 'expo-haptics'
 import SkipButton from "./components/SkipButton";
@@ -11,11 +11,11 @@ import WisyHint from "./components/WisyHint";
 import OverlayHint from "./components/OverlayHint";
 import Lines from "./Game14/Lines";
 import { useIntroSequence } from "../../hooks/useIntroSequence";
-import { useObjectMatchingAnswer } from "../../hooks/useObjectMatchingAnswerLogic";
+import { useObjectMatchingAnswer } from "../../hooks/answer/useObjectMatchingAnswerLogic";
 import LeftImagesBlock from "./Game14/LeftImagesBlock";
 import AnswersBlock from "./Game14/AnswersBlock";
 import RightImagesBlock from "./Game14/RightImagesBlock";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
@@ -62,16 +62,36 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         };
     }, [])
 
-    const images = toJS(data?.content?.pairs ?? []).map((item, index) => ({
+    const pairs = toJS(data?.content?.pairs ?? []);
+
+    let imageToImage = [];
+    let imageToText = [];
+
+    for (const item of pairs) {
+        const target = item?.target_pair;
+        if (item?.image && target?.image) {
+            imageToImage.push(item);
+        } else if (item?.image && target?.text) {
+            imageToText.push(item);
+        }
+    }
+
+    if (imageToImage.length > 3) {
+        imageToImage = imageToImage.slice(0, 3);
+    }
+
+    const limitedPairs = [...imageToImage, ...imageToText];
+
+    const images = limitedPairs.map((item, index) => ({
         ...item,
         key: String(index + 1),
     }));
-    
+
     useEffect(() => {
         if (answers?.length === 0) { // Только первый раз перемешиваем
             setAnswers(
                 images
-                    .map((item) => ({ ...item.target_pair, key: item.key }))
+                    .map((item) => ({ ...item?.target_pair, key: item?.key }))
                     .sort(() => Math.random() - 0.5)
             );
         }
@@ -136,7 +156,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
                     <AnswersBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
 
-                    {images?.length === 4 || images?.length === 3 || images?.length === 2 || images?.length === 1 ? null : <RightImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
+                    {images?.length <= 3 ? null : <RightImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
 
                 </Animated.View>
 

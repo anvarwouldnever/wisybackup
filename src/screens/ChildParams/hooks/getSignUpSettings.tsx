@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { GetSignUpSettings } from '../../../api/methods/auth/auth';
+import { alertHandler } from '../../../network/alertHandler';
+import { checkNetwork } from '../../../network/checkNetwork';
 
 // Простейший кеш в памяти модуля
 let cachedSettings: any[] | null = null;
@@ -14,6 +16,9 @@ export const getSettings = () => {
 
         const fetchsettings = async () => {
             try {
+                const network = await checkNetwork()
+                if (!network) return alertHandler()
+                    
                 const response = await GetSignUpSettings();
                 const newData = response?.data || [];
 

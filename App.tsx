@@ -1,12 +1,12 @@
-import React, { useEffect, useRef } from 'react';
-import { observer } from 'mobx-react-lite';
-import store from './src/store/store';
-import * as Linking from 'expo-linking';
+import React, { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import NetInfo from '@react-native-community/netinfo';
 import Navigation from './src/navigation/Navigation';
 import * as SplashScreen from 'expo-splash-screen';
+import { checkNetwork } from './src/network/checkNetwork';
+import NoNetworkScreen from './src/components/NoNetwork';
+import store from './src/store/store';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 
 SplashScreen.preventAutoHideAsync()
 
@@ -19,44 +19,23 @@ SplashScreen.setOptions({
 
 const App = () => {
 
-    const url = Linking.useURL();
+    const [hasNetwork, setHasNetwork] = useState<boolean | null>(null);
 
-    const navigationRef = useRef(null);
-
-    // AsyncStorage.clear();
-
-    useEffect(() => {
-        const unsubscribe = NetInfo.addEventListener(() => {
-            store.determineConnection()
-        });
-    
-        return () => {
-            unsubscribe();
-        };
-    }, []);
-
-    useEffect(() => {
-        const handleDeepLink = async (url) => {
-            if (url) {
-                const { queryParams, path, hostname } = Linking.parse(url);
-                if (store.token === null && queryParams?.token && store.holdEmail !== null && hostname === 'reset-password') {
-                    navigationRef.current?.navigate('ResetPassword', {token: queryParams.token});
-                } 
-                if (store.token === null && queryParams?.user_token && hostname === 'email-confirmation') {
-                    await store.setToken(queryParams.user_token)
-                }
+    const initialize = async () => {
+        try {
+            const network = await checkNetwork();
+            setHasNetwork(network);
+            if (!network) {
+                await SplashScreen.hideAsync();
             }
-        };
-        
-        Linking.getInitialURL().then(handleDeepLink);
-        const subscription = Linking.addEventListener('url', ({ url }) => handleDeepLink(url));
+        } catch (e) {
+            setHasNetwork(false);
+        }
+    };
 
-        return () => {
-            subscription.remove();
-        };
+    useEffect(() => {
+        initialize();
     }, []);
-
-    // console.log(store.children.length)
 
     useEffect(() => {
         if (!store.loading) {
@@ -64,15 +43,19 @@ const App = () => {
         }
     }, [store.loading])
 
-    if (store.loading) {
-        return null
+    if (hasNetwork === null) {
+        return null;
     }
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <Navigation navigationRef={navigationRef} />
+            {hasNetwork ? 
+                <Navigation />
+            :
+                <NoNetworkScreen onRetry={initialize} />
+            }
         </GestureHandlerRootView>
     )
 }
 
-export default observer(App);
+export default App;

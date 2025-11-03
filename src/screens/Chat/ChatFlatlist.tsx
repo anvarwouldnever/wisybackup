@@ -4,9 +4,13 @@ import store from '../../store/store'
 import PlayVoiceMessage from './utils/PlayVoiceMessage'
 import DotsAnimation from './ChatFlatlist/DotsAnimation'
 import { observer } from 'mobx-react-lite'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
+import { getMessages } from './hooks/getMessages'
+import { chatStore } from './store/chatStore'
 
 const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
+
+    const { loading, error } = getMessages(store.playingChildId.id)
 
     const { s, vs } = useScale()
 
@@ -51,7 +55,7 @@ const ChatFlatlist = ({ flatListRef, firstMessageRef }) => {
     return (
         <FlatList
             ref={flatListRef}
-            data={store.messages}
+            data={chatStore.messages}
             renderItem={renderItemMessage}
             keyExtractor={(item, index) => index.toString()}
             contentContainerStyle={{ rowGap: vs(16), paddingVertical: vs(30) }}

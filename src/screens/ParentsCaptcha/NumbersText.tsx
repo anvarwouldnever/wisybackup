@@ -1,6 +1,6 @@
 import { Text } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 import store from '../../store/store';
 import { useNavigation } from '@react-navigation/native';
 

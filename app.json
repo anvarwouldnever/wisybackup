@@ -9,9 +9,12 @@
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
     "ios": {
+      "config": {
+        "usesNonExemptEncryption": false
+      },
       "requireFullScreen": true,
       "supportsTablet": true,
-      "buildNumber": "4",
+      "buildNumber": "3",
       "bundleIdentifier": "com.avtechsoftware.mywisy",
       "associatedDomains": [
         "applinks:mywisy.com"
@@ -43,7 +46,8 @@
           "fastmail",
           "protonmail"
         ],
-        "CFBundleShortVersionString": "4",
+        "CFBundleShortVersionString": "2",
+        "CFBundleVersion": "3",
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Allow MyWisy to access your camera to take photos or record videos.",
         "NSMicrophoneUsageDescription": "Allow MyWisy to access your microphone while recording videos.",

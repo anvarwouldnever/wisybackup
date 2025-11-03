@@ -1,4 +1,4 @@
-import { StatusBar } from 'react-native'
+import { StatusBar } from 'react-native';
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import ChatScreen from '../screens/ChatScreen';
@@ -17,22 +17,25 @@ import ParentsSegments from '../screens/ParentsSegments';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import ResettedPasswordScreen from '../screens/ResettedPasswordScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
-import store from '../store/store';
 import LoginScreen from '../screens/AuthScreen';
 import TestScreen from '../screens/TestScreen';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { observer } from 'mobx-react-lite';
+import { navigationRef } from './utils/navigate';
+import * as SecureStore from 'expo-secure-store';
 
-const Navigation = ({ navigationRef }) => {
+const Navigation = () => {
 
     const Stack = createNativeStackNavigator();
+
+    const token = SecureStore.getItem('token');
 
     return (
         <NavigationContainer ref={navigationRef}>
             
             <StatusBar translucent={true} backgroundColor="transparent" barStyle='dark-content' hidden={false}/>
             
-            <Stack.Navigator initialRouteName={store?.token === null ? "LanguageScreen" : "ChoosePlayerScreen"} screenOptions={{ headerShown: false, animation: 'slide_from_bottom', animationDuration: 300}}>
+            <Stack.Navigator id={null} initialRouteName={token === null ? "LanguageScreen" : "ChoosePlayerScreen"} screenOptions={{ headerShown: false, animation: 'slide_from_bottom', animationDuration: 300}}>
                 
                 <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
                 <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
@@ -52,7 +55,7 @@ const Navigation = ({ navigationRef }) => {
                 <Stack.Screen name="ParentsSegments" component={ParentsSegments} />
                 <Stack.Screen name="GameScreen" component={GameScreen} />
                 <Stack.Screen name="TestScreen" component={TestScreen} />
-                
+        
             </Stack.Navigator>
 
         </NavigationContainer>

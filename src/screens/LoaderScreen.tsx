@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { SafeAreaView, Text, Platform } from "react-native";
 import Logo from "../components/Logo";
 import Loader from "./Loader/Loader";
-import { useScale } from "../hooks/useScale";
+import { useScale } from "../hooks/utils/useScale";
 import Button from "./Loader/Button";
 
 const LoaderScreen = () => {

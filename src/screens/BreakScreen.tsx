@@ -5,12 +5,12 @@ import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import TimerLayout from './Break/TimerBreakLayout';
 import BackButton from './Break/BackBreakButton';
 import store from '../store/store';
-import { newPlaySound, stopCurrentSound } from '../hooks/newPlaySound';
 import { observer } from 'mobx-react-lite';
 import { Audio } from 'expo-av';
 import { gameStore } from './Games/store/gameStore';
 import fetchAnimation from './Break/FetchLottie';
-import { useScale } from '../hooks/useScale';
+import { useScale } from '../hooks/utils/useScale';
+import { playSound } from '../hooks/usePlaySound';
 
 const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, categoryId, taskLevel }) => {
 
@@ -43,7 +43,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
     
         return () => {
           store.setBreakPlayingMusic(false);
-          stopCurrentSound();
+          playSound.stop(true)
           timeoutIds.current.forEach((id) => clearTimeout(id));
         };
     }, []);
@@ -61,7 +61,7 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
                     await sound.current.pauseAsync();
                 }
     
-                await newPlaySound(text);
+                await playSound(text, false, true);
     
                 const timeoutId = setTimeout(() => {
                     setText(null);
@@ -200,17 +200,6 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
       
         updatePlayback();
     }, [store?.breakMusicPlaying]);
-
-    const textPositions = [
-        'left_top',
-        'left_center',
-        'left_bottom',
-        'right_top',
-        'right_center',
-        'right_bottom',
-        'center_top',
-        'center_bottom',
-    ];
       
     const getPositionStyle = (textPos: string) => {
         const style: any = {
@@ -228,7 +217,6 @@ const BreakScreeen = ({ anyBreak, incrementTaskLevel, isFromAttributes, category
             borderBottomRightRadius: ['right_top', 'right_center', 'right_bottom'].includes(textPos) ? 16 : 0,
         };
     
-        // Левый блоки
         if (textPos.startsWith('left')) {
             style.left = s(70);
         }

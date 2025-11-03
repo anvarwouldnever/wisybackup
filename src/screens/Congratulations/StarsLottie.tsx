@@ -4,7 +4,7 @@ import star0 from '../../lotties/0.json'
 import star1 from '../../lotties/1.json'
 import star2 from '../../lotties/2.json'
 import star3 from '../../lotties/3.json'
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const StarsLottie = ({ stars }) => {
 

@@ -1,4 +1,4 @@
-import api2 from "../../api2";
+import api2 from "../../api";
 
 export const Purchase = (childId: string, itemId: any) => {
     return api2.post(`/market/purchase/${itemId}`, {

@@ -26,53 +26,45 @@ class Store {
     collectionQueue: (() => Promise<void>)[] = [];
     isCollectionLoading = false;
 
+    sounds: { wrong: string | null; correct: string | null } = { wrong: null, correct: null };
+
     constructor() {
         makeAutoObservable(this);
 
         reaction(
             () => ({
                 lang: store.language,
-                connected: store.connectionState,
                 child: store.playingChildId,
-                token: store.token,
             }),
-            async ({ lang, connected, child, token }) => {
-                if (lang !== null && connected && child !== null && token !== null) {
-                    this.loadCategories();
-                }
+            async ({ lang, child }) => {
+                this.loadCategories();
             }
         );
           
     }
 
     async loadCategories() {
-        if (store.connectionState) {
-            try {
-                runInAction(() => {
-                    this.loadingCats = true
-                })
-                const request = await GetCategories();
-    
-                runInAction(() => {
-                    this.categories = request.data?.data.map(category => ({
-                        ...category,
-                        collections: [],
-                    }));
-                });
-    
-            } catch (error) {
-                console.log(error);
-                runInAction(() => {
-                    store.setWisyMenuText('Probably server overload, try again later')
-                })
-            } finally {
-                runInAction(() => {
-                    this.loadingCats = false
-                })
-            }
-        } else {
+        try {
             runInAction(() => {
-                store.setWisyMenuText('Please check your internet connection and try again')
+                this.loadingCats = true
+            })
+            const request = await GetCategories();
+
+            runInAction(() => {
+                this.categories = request.data?.data.map(category => ({
+                    ...category,
+                    collections: [],
+                }));
+            });
+
+        } catch (error) {
+            console.log(error);
+            runInAction(() => {
+                store.setWisyMenuText('Probably server overload, try again later')
+            })
+        } finally {
+            runInAction(() => {
+                this.loadingCats = false
             })
         }
     }
@@ -471,6 +463,18 @@ class Store {
     async setCategoryId(id: any) {
         runInAction(() => {
             this.categoryId = id;
+        });
+    }
+
+    async setCorrectSound(sound: any) {
+        runInAction(() => {
+            this.sounds.correct = sound;
+        });
+    }
+
+    async setWrongSound(sound: any) {
+        runInAction(() => {
+            this.sounds.wrong = sound;
         });
     }
 

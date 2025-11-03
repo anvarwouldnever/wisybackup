@@ -2,7 +2,7 @@ import { useWindowDimensions, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import RenderItem from './RenderItem';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const Game3AnimalsAnimation = ({ answer, id, images,  lock }) => {
 

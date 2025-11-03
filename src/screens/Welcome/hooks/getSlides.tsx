@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { checkNetwork } from '../../../network/checkNetwork';
 import { GetOnboardings } from '../../../api/methods/onboardings.tsx/onboardings';
+import { alertHandler } from '../../../network/alertHandler';
 
 let cachedOnboardings: any = null;
 
@@ -19,7 +20,7 @@ export const getOnboardings = () => {
         const fetchOnboardings = async () => {
             try {
                 const network = await checkNetwork()
-                if (!network) return
+                if (!network) return alertHandler()
 
                 const response = await GetOnboardings()
                 cachedOnboardings = response?.data?.data;

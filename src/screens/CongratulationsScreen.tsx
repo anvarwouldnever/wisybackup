@@ -9,7 +9,7 @@ import TextTimer from './Congratulations/TextTimer';
 import ReloadButton from './Congratulations/ReloadButton';
 import Description from './Congratulations/Description';
 import EarnedStars from './Congratulations/EarnedStars';
-import { useScale } from '../hooks/useScale';
+import { useScale } from '../hooks/utils/useScale';
 import { gameStore } from './Games/store/gameStore';
 
 const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow, categoryId, taskLevel, setLevel2 }) => {
@@ -26,7 +26,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
     const [layoutCaptured, setLayoutCaptured] = useState<{ x: number; y: number }>();
 
-    const { s, vs } = useScale()
+    const { s, vs } = useScale();
 
     const [numStars, setNumStars] = useState(0);
     const [starsContainerLayout, setStarsContainerLayout] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -162,7 +162,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
 
             {earnedStars.map((star, index) => {
                 return (
-                    <Animated.Image key={index} entering={FadeIn.delay(1700)} source={require('../images/tabler_star-filled.png')} style={[animatedStyles[index], { width: s(10), height: s(10), resizeMode: 'contain', alignSelf: 'center', position: 'absolute'}]}/>
+                    <Animated.Image key={index} entering={FadeIn.delay(1700)} source={require("../images/star.png")} style={[animatedStyles[index], { width: s(10), height: s(10), resizeMode: 'contain', alignSelf: 'center', position: 'absolute'}]}/>
                 )
             })}
             

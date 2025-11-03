@@ -1,4 +1,4 @@
-import api2 from "../../api2";
+import api2 from "../../api";
 
 export const GetAttributes = () => {
     return api2.get(`/attributes`);

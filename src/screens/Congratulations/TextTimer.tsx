@@ -3,7 +3,7 @@ import React from 'react'
 import translations from '../../../localization'
 import Timer from './Timer'
 import store from '../../store/store'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 import { observer } from 'mobx-react-lite'
 import { gameStore } from '../Games/store/gameStore'
 

@@ -4,7 +4,7 @@ import SvgUri from 'react-native-svg';
 import React, { useState, useEffect, useRef } from 'react';
 import galochka from '../../../images/galochka.png'
 import x from '../../../images/wrongX.png'
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const Game5AnimalsAnimation = ({ answer, id, images, animal, setId, lock }) => {
 

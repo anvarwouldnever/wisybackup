@@ -1,11 +1,11 @@
 import React, { useState } from "react";
-import { View, Dimensions, Text, TouchableOpacity, TextInput, Image, ActivityIndicator } from "react-native";
+import { View, Text, TouchableOpacity, TextInput, ActivityIndicator } from "react-native";
 import Animated from "react-native-reanimated";
 import translations from "../../../localization";
 import store from "../../store/store";
 import { Register } from "../../api/methods/auth/auth";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 
 const AuthSignup = ({ proceed, toggleOption }) => {
 

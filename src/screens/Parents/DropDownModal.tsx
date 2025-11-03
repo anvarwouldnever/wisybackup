@@ -5,7 +5,7 @@ import { SvgUri } from "react-native-svg";
 import translations from "../../../localization";
 import { getChildren } from "../ChoosePlayer/hooks/getChildren";
 import { getAvatars } from "../ChildParams/hooks/getAvatars";
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { calculateAge } from "./utils/calculateAge";
 import { calculateAvatar } from "./utils/calculateAvatar";

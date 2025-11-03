@@ -1,7 +1,7 @@
 import { Text } from 'react-native'
 import React from 'react'
 import Animated, { BounceIn, useAnimatedStyle } from 'react-native-reanimated'
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const EarnedStars = ({ starsContainerRef, starsContainerOpacity, earnedStars }) => {
 

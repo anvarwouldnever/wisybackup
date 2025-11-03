@@ -16,7 +16,7 @@ import Back from "./ParentsSegments/Back";
 import ChosenPeriod from "./ParentsSegments/ChosenPeriod";
 import RenderAttributes from "./ParentsSegments/RenderAttributes";
 import { GetChildAttributes } from "../api/methods/attributes/attributes";
-import { useScale } from "../hooks/useScale";
+import { useScale } from "../hooks/utils/useScale";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const ParentsSegments = ({ route }) => {

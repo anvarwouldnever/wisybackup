@@ -2,7 +2,7 @@ import { StyleSheet, Platform } from 'react-native'
 import React from 'react'
 import { BlurView } from 'expo-blur'
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useScale } from '../../../../hooks/useScale';
+import { useScale } from '../../../../hooks/utils/useScale';
 
 const Blur = ({ isLocked, forMarket }) => {
 

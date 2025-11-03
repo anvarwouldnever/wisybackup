@@ -1,7 +1,7 @@
 import { View, Platform, useWindowDimensions } from 'react-native'
 import React from 'react'
 import Button from './Button';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const RenderItem = ({ item, lock, answer, id }) => {
 

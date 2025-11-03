@@ -1,25 +1,16 @@
-import { View, useWindowDimensions, Image, Text, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Image, Text, TouchableOpacity } from "react-native";
 import { SvgUri } from "react-native-svg";
 import store from "../../../store/store";
 import { observer } from "mobx-react-lite";
 import AnimatedPaw from "../../../components/AnimatedPaw";
 import Blur from "../GamesList/SubCollections/BlurView";
-import { useScale } from "../../../hooks/useScale";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, animationStart, index }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const shadow = store.wisySpeaking || animationStart
             
     const isSvg = item?.image?.endsWith('.svg')
-
-    if (store.loadingMarketItems) {
-        return (
-            <View style={{width: windowHeight * (136 / 360), height: windowHeight * (176 / 360), justifyContent: 'center', flexDirection: 'column', backgroundColor: '#D8F6FF33', borderRadius: 10, borderColor: '#FFFFFF1F', alignItems: 'center', position: 'relative' }}>
-                <ActivityIndicator color={'purple'} size={'small'} />
-            </View>
-        )
-    }
 
     const { s, vs, isTablet } = useScale()
 
@@ -47,7 +38,7 @@ const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, an
                 
                 <View style={{width: 'auto', columnGap: s(2), height: '100%', flexDirection: 'row', alignItems: 'center'}}>
                     
-                    <Image source={require('../../../images/tabler_star-filled.png')} style={{resizeMode: 'contain',  width: s(7), height: s(7)}}/>
+                    <Image source={require('../../../images/star.png')} style={{resizeMode: 'contain',  width: s(7), height: s(7)}}/>
                     
                     <Text style={{fontSize: s(6), fontWeight: '600', color: 'white'}}>{item?.cost}</Text>
 

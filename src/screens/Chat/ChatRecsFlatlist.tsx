@@ -1,7 +1,7 @@
 import { Text, FlatList, TouchableOpacity,  } from 'react-native'
 import React from 'react'
 import store from '../../store/store';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const ChatRecsFlatlist = ({ sendMessage }) => {
 

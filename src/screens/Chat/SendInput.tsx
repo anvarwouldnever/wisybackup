@@ -4,7 +4,7 @@ import ChatMicroAnimation from './SendInput/ChatMicroAnimation';
 import translations from '../../../localization';
 import store from '../../store/store';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMessageRef, setKeyboardActive }) => {
 

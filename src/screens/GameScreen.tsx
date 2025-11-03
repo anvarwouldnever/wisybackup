@@ -1,9 +1,8 @@
-import { View, useWindowDimensions, Platform, ImageBackground } from 'react-native';
+import { View, ImageBackground } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import store from '../store/store';
 import Game1Screen from './Games/Game1Screen';
 import { useNavigation } from '@react-navigation/native';
-import bg from '../images/bgg.png';
 import Game5Screen from './Games/Game5Screen';
 import Game3Screen from './Games/Game3Screen';
 import Game4Screen from './Games/Game4Screen';
@@ -24,7 +23,7 @@ import { observer } from 'mobx-react-lite';
 import BackButton from './Game/BackButton';
 import ProgressAnimation from './Game/ProgressAnimation';
 import { gameStore } from './Games/store/gameStore';
-import { useScale } from '../hooks/useScale';
+import { useScale } from '../hooks/utils/useScale';
 
 const GameScreen = ({ route }) => {
 
@@ -33,13 +32,13 @@ const GameScreen = ({ route }) => {
     const navigation = useNavigation();
     const [taskLevel, setTaskLevel] = useState(0);
     const [isFrozen, setIsFrozen] = useState(false);
-    const [level, setLevel] = useState(isFromAttributes? 0 : tasks[taskLevel]?.current_task_id_index);
+    const [level, setLevel] = useState(isFromAttributes ? 0 : tasks[taskLevel]?.current_task_id_index);
     const [stars, setStars] = useState(null);
     const [earnedStars, setEarnedStars] = useState(null);
     const [cameFromBreak, setCameFromBreak] = useState(isFromBreak);
     const [isBreak, setIsBreak] = useState(false);
-    const [tutorialShow, setTutorialShow] = useState(isFromAttributes? false : true);
-    const [introTaskIndex, setIntroTaskIndex] = useState(isFromAttributes? 0 : tasks[taskLevel]?.current_task_id_index);
+    const [tutorialShow, setTutorialShow] = useState(isFromAttributes ? false : true);
+    const [introTaskIndex, setIntroTaskIndex] = useState(isFromAttributes ? 0 : tasks[taskLevel]?.current_task_id_index);
 
     const task = tasks[taskLevel]?.tasks;
 
@@ -47,7 +46,7 @@ const GameScreen = ({ route }) => {
     const introText = tasks[taskLevel]?.introText;
     const tutorials = tasks[taskLevel]?.tutorials;
 
-    console.log(task[level]?.type, task[level]?.content?.sub_type)
+    // console.log(task[level]?.type, task[level]?.content?.sub_type)
     
     const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);
     const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);    
@@ -115,8 +114,6 @@ const GameScreen = ({ route }) => {
         }
     }, [taskLevel]);
 
-    const { width: windowWidth } = useWindowDimensions();
-
     const { s, vs } = useScale()
 
     const RenderVoiceGame = () => {
@@ -139,7 +136,7 @@ const GameScreen = ({ route }) => {
 
     const RenderWithAudio = () => {
         return (
-            <Game4Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game4Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} tasks={tasks} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -181,7 +178,7 @@ const GameScreen = ({ route }) => {
 
     const RenderTextSingleChoiceWithAudioGame = () => {
         return (
-            <Game12Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game12Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} tasks={tasks} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -193,7 +190,7 @@ const GameScreen = ({ route }) => {
 
     const RenderTextSingleChoiceWithTitleImageGame = () => {
         return (
-            <Game16Screen taskLevel={taskLevel} tasks={tasks} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game16Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -258,9 +255,9 @@ const GameScreen = ({ route }) => {
             {!isFromAttributes && (cameFromBreak || isBreak)? 
                 <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
             :
-                isFrozen ? <ImageBackground source={bg} style={{flex: 1, alignItems: 'center', paddingHorizontal: s(15), paddingVertical: s(12)}} />
+                isFrozen ? <ImageBackground source={require('../images/bgg.png')} style={{flex: 1, alignItems: 'center', paddingHorizontal: s(15), paddingVertical: s(12)}} />
             :
-                <ImageBackground source={bg} style={{ flex: 1, paddingHorizontal: s(15), paddingVertical: s(12) }}>
+                <ImageBackground source={require('../images/bgg.png')} style={{ flex: 1, paddingHorizontal: s(15), paddingVertical: s(12) }}>
                     
                     <View style={{ flex: 1 }}>
                         {

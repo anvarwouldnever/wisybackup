@@ -2,7 +2,7 @@ import { useEffect, useState , useRef} from "react";
 import { View, TouchableOpacity, Image, Text } from "react-native";
 import { SvgUri } from "react-native-svg";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
-import { useScale } from "../../../hooks/useScale";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, voice }) => {
 

@@ -1,7 +1,7 @@
 import { TouchableOpacity, Image, Text, useWindowDimensions, Platform } from "react-native"
 import { useNavigation } from "@react-navigation/native";
 import tablerleft from '../../images/tabler_arrow-left.png'
-import { useScale } from "../../hooks/useScale";
+import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 const Back = ({ name }) => {

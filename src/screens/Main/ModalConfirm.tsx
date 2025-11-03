@@ -3,7 +3,7 @@ import React from 'react'
 import Modal from 'react-native-modal'
 import store from '../../store/store'
 import api from '../../api/api'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 
 const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, setAnimation, setCurrentAnimation }) => {
 
@@ -38,7 +38,7 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, se
 
                         <View style={{ flexDirection: 'row', width: '100%', columnGap: s(3), alignItems: 'center', justifyContent: 'center'  }}>
 
-                            <Image source={require('../../images/tabler_star-filled.png')} style={{width: s(15), height: s(15)}}/>
+                            <Image source={require('../../images/star.png')} style={{width: s(15), height: s(15)}}/>
                             
                             <Text style={{ color: '#000000', fontSize: s(15), fontWeight: '600', textAlign: 'center', textAlignVertical: 'center' }}>
                                 {currentAnimation?.cost}

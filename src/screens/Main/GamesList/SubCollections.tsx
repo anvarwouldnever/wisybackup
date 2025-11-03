@@ -3,7 +3,6 @@ import React from 'react'
 import { FadeInRight, runOnJS } from 'react-native-reanimated';
 import { SvgUri } from 'react-native-svg';
 import AnimatedPaw from '../../../components/AnimatedPaw';
-import api from '../../../api/api';
 import Blur from './SubCollections/BlurView';
 import store from '../../../store/store';
 import RenderAttributes from './SubCollections/RenderAttributes';
@@ -11,7 +10,8 @@ import Animated, { Easing } from 'react-native-reanimated';
 import { useNavigation } from '@react-navigation/native';
 import RenderStars from './SubCollections/RenderStars';
 import { gameStore } from '../../Games/store/gameStore';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
+import { BASE_URL } from '../../../api/api';
 
 const AnimatedTouchableOpacity = Animated.createAnimatedComponent(TouchableOpacity);
 
@@ -47,8 +47,8 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
             
             <View style={{ width: '200%', borderColor: 'white', borderWidth: 1, opacity: 0.12, alignSelf: 'center' }} />
             
-            {api?.baseUrl === 'https://tapimywisy.hostweb.uz/api/v1/app' && 
-                <Text style={{position: 'absolute', left: vs(10), top: '10%', color: 'blue'}}>{item?.id}</Text>
+            {BASE_URL === 'https://tapimywisy.hostweb.uz/api/v1/app' && 
+                <Text style={{ position: 'absolute', left: s(2), top: s(8), color: 'blue', fontSize: s(5) }}>{item?.id}</Text>
             }
             
             {typeof item?.image === 'string' && !item.image.endsWith('.svg') ? (

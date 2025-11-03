@@ -1,11 +1,10 @@
-import { Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native'
+import { Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
 import translations from '../../../localization';
-import { playSound } from '../../hooks/usePlayBase64Audio';
-import { playSoundWithoutStopping } from '../../hooks/usePlayWithoutStoppingBackgrounds';
+import { playSound } from '../../hooks/usePlaySound';
 import store from '../../store/store';
-import { useScale } from '../../hooks/useScale';
+import { useScale } from '../../hooks/utils/useScale';
 
 const BackButton = ({ setIsFrozen }) => {
 
@@ -14,8 +13,7 @@ const BackButton = ({ setIsFrozen }) => {
     const { s, vs } = useScale()
 
     const goBack = () => {
-        playSound.stop();
-        playSoundWithoutStopping.stop();
+        playSound.stop(true);
         navigation.goBack();
         setIsFrozen(true);
     };

@@ -2,7 +2,7 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import translations from '../../../localization'
 import store from '../../store/store'
-import { useScale } from '../../hooks/useScale'
+import { useScale } from '../../hooks/utils/useScale'
 
 const Texts = () => {
 

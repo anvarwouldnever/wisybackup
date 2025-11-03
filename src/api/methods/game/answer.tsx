@@ -1,4 +1,4 @@
-import api2 from "../../api2";
+import api2 from "../../api";
 
 export const AnswerVoiceTask = (taskId: string, attempt: string, childId: string, leadTime: number, voice: any) => {
 

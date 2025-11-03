@@ -1,7 +1,7 @@
 import { View, TouchableOpacity, Image } from 'react-native'
 import React, { useRef } from 'react'
 import { SvgUri } from 'react-native-svg';
-import { useScale } from '../../../hooks/useScale';
+import { useScale } from '../../../hooks/utils/useScale';
 
 const RenderItem = ({ item, lock, answer, setId, id }) => {
 
