@@ -86,7 +86,7 @@ const GamesList = ({ firstOpeningAction }) => {
         gameStore.completeTask(gameStore.categoryId, gameStore.collectionId, id, nextTaskId);
     }, [gameStore.categoryId, gameStore.collectionId]);
 
-    const collections = gameStore.categories.find(item => item?.id === gameStore.categoryId)?.collections;
+    const collections = gameStore.categories?.find(item => item?.id === gameStore.categoryId)?.collections;
     const availableSubCollections = collections?.find(col => col?.id === gameStore.collectionId)?.available_sub_collections || [];
 
     useEffect(() => {

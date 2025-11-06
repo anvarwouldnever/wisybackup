@@ -114,7 +114,7 @@ const GameScreen = ({ route }) => {
         }
     }, [taskLevel]);
 
-    const { s, vs } = useScale()
+    const { s, vs } = useScale();
 
     const RenderVoiceGame = () => {
         return (    

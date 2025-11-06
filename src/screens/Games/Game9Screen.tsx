@@ -11,11 +11,16 @@ import TutorialOverlay from './components/TutorialOverlay';
 import store from '../../store/store';
 import OverlayHint from './components/OverlayHint';
 import MainContentBlock from './Game9/MainContentBlock';
+import { useScale } from '../../hooks/utils/useScale';
 
 const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
     
     let images = data?.content?.images
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+
+    const { s, vs } = useScale()
+
+    const hint = data?.content?.hint_image;
+    const hintDuration = data?.content?.hint_display_mode;
 
     const [lines, setLines] = useState([]);
     const [currentLine, setCurrentLine] = useState([]);
@@ -76,7 +81,7 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             )}
             
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
-                <MainContentBlock viewShotRef={viewShotRef} setCurrentLine={setCurrentLine} setLines={setLines} images={images} currentLine={currentLine} lines={lines} data={data} id={id} />
+                <MainContentBlock lock={lock} hint={hint} hintDuration={hintDuration} viewShotRef={viewShotRef} setCurrentLine={setCurrentLine} setLines={setLines} images={images} currentLine={currentLine} lines={lines} data={data} id={id} />
             }
             
             <OverlayHint visible={store.isBlacked}>
@@ -96,12 +101,11 @@ const Game9Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
                 }}
             /> 
             
-            {lines.length != 0 && <TouchableOpacity onPress={lock? () => {return} : () => {
-                answer()
-                setId(null);
-                }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
-                <Text style={{fontSize: 16, color: 'white', fontWeight: '600'}}>Send</Text>
-            </TouchableOpacity>}
+            {lines?.length != 0 &&                    
+                <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
+                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>Send</Text>
+                </TouchableOpacity>                        
+            }
 
         </View>
     )

@@ -58,7 +58,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             )}
 
             {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && (
-                <Game2Animals1Animation lock={lock} setLock={setLock} id={id} text={text} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask} />
+                <Game2Animals1Animation lock={lock} id={id} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask} />
              )}
             
             <OverlayHint visible={store.isBlacked}>

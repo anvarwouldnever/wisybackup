@@ -1,20 +1,22 @@
 import React, { useEffect, useRef, useCallback } from "react";
-import { FlatList, TouchableOpacity, View, Image } from "react-native";
-import { SvgUri } from "react-native-svg";
+import { FlatList, View } from "react-native";
 import { observer } from "mobx-react-lite";
 import { playSound } from "../../hooks/usePlaySound";
 import { useFocusEffect } from "@react-navigation/native";
-import Blur from "./GamesList/SubCollections/BlurView";
 import { gameStore } from "../Games/store/gameStore";
 import store from "../../store/store";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
 import { useScale } from "../../hooks/utils/useScale";
+import { getCategories } from "./Categories/hooks/getCategories";
+import CategoryItem from "./Categories/CategoryItem";
 
 const Categories = () => {
 
     const gameoptions = gameStore?.categories;
 
     const { s, vs } = useScale()
+
+    getCategories()
 
     const isFirstRender = useRef(true);
 
@@ -58,7 +60,7 @@ const Categories = () => {
 
     useFocusEffect(
         useCallback(() => {
-            const firstCategory = gameoptions[0];
+            const firstCategory = gameoptions?.[0];
             if (firstCategory?.collections?.length === 0) {
                 gameStore.setCategoryId(firstCategory?.id);
                 getCollection(firstCategory?.id);
@@ -78,29 +80,13 @@ const Categories = () => {
         getCollection(item?.id)
     }
 
-    const renderItem = ({ item, index }) => {
-
-        const isSvg = item?.image?.url.endsWith(".svg")
-
-        return (
-            <TouchableOpacity onPress={() => onPress(item)} style={{ alignItems: 'center', padding: s(3), justifyContent: 'center', borderTopLeftRadius: 100, borderTopRightRadius: 100, backgroundColor: gameStore.categoryId === item?.id? 'white' : '#F8F8F833', overflow: 'hidden'}}>
-                {isSvg?
-                    <SvgUri width={s(24)} height={s(24)} uri={item?.image?.url} style={{backgroundColor: '#F8F8F833', borderRadius: 100}}/> 
-                :
-                    <Image source={{ uri: item?.image?.url }} style={{ width: s(24), height: s(24), backgroundColor: '#F8F8F833', borderRadius: 100 }}/>
-                }
-                {index != 0 && store.isFirstOpening && <Blur forMarket={true} isLocked={true} />}
-            </TouchableOpacity>
-        )
-    };
-
     return (
-        <View style={{width: '62%', position: 'absolute', bottom: 5, right: 0}}>
+        <View style={{ width: '62%', position: 'absolute', bottom: 5, right: 0 }}>
             {store.isFirstOpening && null}
             <FlatList
                 data={gameoptions?.slice()}
                 key={gameStore?.categories}
-                renderItem={renderItem}
+                renderItem={({ item, index }) => <CategoryItem index={index} item={item} onPress={onPress} />}
                 keyExtractor={(item) => item?.id}
                 horizontal
                 showsHorizontalScrollIndicator={false}

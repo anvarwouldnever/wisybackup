@@ -1,29 +1,52 @@
 import { View, Text, TouchableOpacity, PanResponder, Image } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word, lines, viewShotRef, audio, voiceForTask, lock, id }) => {
+const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word, lines, viewShotRef, audio, voiceForTask, lock, id, hint, hintDuration }) => {
 
     const { s, vs } = useScale()
+
+    const [showHint, setShowHint] = useState(false);
 
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        setCurrentLine([`${locationX},${locationY}`]);
+            if (lock) return;
+            if (showHint) {
+                setShowHint(false)
+            }
+            const { locationX, locationY } = evt.nativeEvent;
+            setCurrentLine([`${locationX},${locationY}`]);
         },
         onPanResponderMove: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        setCurrentLine((prev) => [...prev, `${locationX},${locationY}`]);
+            if (lock) return;
+            const { locationX, locationY } = evt.nativeEvent;
+            setCurrentLine((prev) => [...prev, `${locationX},${locationY}`]);
         },
         onPanResponderRelease: () => {
-        setLines((prev) => [...prev, currentLine]);
-        setCurrentLine([]);
+            if (lock) return;
+            setLines((prev) => [...prev, currentLine]);
+            setCurrentLine([]);
         },
     });
+
+    useEffect(() => {
+        if (lock) return
+        if (hintDuration === 'temporary') {
+            setShowHint(true);
+            const timer = setTimeout(() => {
+                setShowHint(false);
+            }, 1000); 
+            return () => clearTimeout(timer);
+        } else if (hintDuration === 'none') {
+            setShowHint(false);
+        } else if (hintDuration === 'permanent') {
+            setShowHint(true);
+        }
+    }, [hintDuration, lock]);
 
     return (
         <Animated.View entering={ZoomInEasyDown} style={{ width: 'auto', height: 'auto', alignItems: 'center', flexDirection: 'column', rowGap: s(12)}}>
@@ -52,38 +75,47 @@ const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word,
 
                     return (
                         <View key={index} style={{ width: s(40), height: s(40), borderWidth: isUnknown ? 0 : 2, borderColor: 'white', backgroundColor: 'white', justifyContent: 'center', borderRadius: s(3), alignItems: 'center', shadowColor: "#D0D0D0", shadowOffset: { width: 1, height: 1 }, shadowOpacity: 1, shadowRadius: 4}}>
+                            
                             {isUnknown ? (
-                                <ViewShot ref={viewShotRef} style={{ backgroundColor: 'white', borderRadius: 10, width: '100%', height: '100%', }} options={{ format: 'png', quality: 1 }}>  
+                                <ViewShot ref={viewShotRef} style={{ backgroundColor: 'white', borderRadius: 10, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }} options={{ format: 'png', quality: 1 }}>  
                                     
-                                    <View {...panResponder.panHandlers} style={{ borderWidth: 2, backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: s(3)}}>
-                                        
-                                        <Svg height='100%' width='100%'>
+                                        <View {...panResponder.panHandlers} style={{ borderWidth: 2, backgroundColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == data.id && id?.result == 'wrong'? '#D816164D' : 'white', borderColor: id?.id == data.id && id?.result == 'correct'? '#ADD64D' : id?.id == data.id && id?.result == 'wrong'? '#D81616' : '#504297', borderRadius: s(3), width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center' }}>
                                             
-                                            {lines?.map((line, index) => (
+                                            <Svg height='100%' width='100%' >
+                                                
+                                                {lines?.map((line, index) => (
+                                                    <Polyline
+                                                        key={index}
+                                                        points={line.join(' ')}
+                                                        stroke="#504297"
+                                                        strokeWidth="3"
+                                                        fill="none"
+                                                    />
+                                                ))}
+
                                                 <Polyline
-                                                    key={index}
-                                                    points={line.join(' ')}
+                                                    points={currentLine.join(' ')}
                                                     stroke="#504297"
                                                     strokeWidth="3"
                                                     fill="none"
                                                 />
-                                            ))}
 
-                                            <Polyline
-                                                points={currentLine.join(' ')}
-                                                stroke="#504297"
-                                                strokeWidth="3"
-                                                fill="none"
-                                            />
+                                            {showHint && 
+                                                <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100 }}>
+                                                    <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                                                </View>
+                                            }
 
-                                        </Svg>
+                                            </Svg>
 
-                                    </View>
+                                        </View>
+                                    
 
                                 </ViewShot>
                             ) : (
                                 <Text style={{ fontSize: s(24), fontWeight: '600', textAlign: 'center', color: '#504297' }}>{letter}</Text>
                             )}
+
                         </View>
                     );
                 })}

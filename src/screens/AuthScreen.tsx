@@ -34,6 +34,7 @@ const AuthScreen = ({ route }) => {
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            
             <SafeAreaView style={{flex: 1, alignItems: 'center', paddingHorizontal: vs(20)}}>
                 <Logo />
                 {authOption === 'signup'? 
@@ -42,6 +43,7 @@ const AuthScreen = ({ route }) => {
                     <AuthLogin playersScreen={playersScreen} toggleOption={setAuthOption}/>
                 }       
             </SafeAreaView>
+            
         </TouchableWithoutFeedback>
     )
 }

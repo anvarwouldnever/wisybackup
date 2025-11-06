@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, useWindowDimensions, TouchableOpacity, Platform} from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 import { Audio } from 'expo-av';
 import { captureRef } from 'react-native-view-shot';
 import useTimer from '../../hooks/utils/useTimer';
@@ -12,6 +12,7 @@ import store from '../../store/store';
 import OverlayHint from './components/OverlayHint';
 import { playSound } from '../../hooks/usePlaySound';
 import MainContainerBlock from './Game11/MainContainerBlock';
+import { useScale } from '../../hooks/utils/useScale';
 
 const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
@@ -20,10 +21,12 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const sound = React.useRef(new Audio.Sound());
     const audio = data?.content?.audio;
 
-    // console.log(audio)
+    const hint = data?.content?.hint_image;
+    const hintDuration = data?.content?.hint_display_mode;
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const word = `${data?.content?.word}`.split('');
+
+    const { s, vs } = useScale()
 
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
@@ -97,9 +100,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&
-            
-                <MainContainerBlock setCurrentLine={setCurrentLine} setLines={setLines} currentLine={currentLine} data={data} word={word} lines={lines} viewShotRef={viewShotRef} audio={audio} voiceForTask={voiceForTask} lock={lock} id={id} />
-            
+                <MainContainerBlock hint={hint} hintDuration={hintDuration} setCurrentLine={setCurrentLine} setLines={setLines} currentLine={currentLine} data={data} word={word} lines={lines} viewShotRef={viewShotRef} audio={audio} voiceForTask={voiceForTask} lock={lock} id={id} />
             }
 
             <OverlayHint visible={store.isBlacked}>
@@ -120,14 +121,9 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             />
 
             {lines?.length != 0 &&
-            
-                <TouchableOpacity onPress={lock? () => {return} : () => {
-                    answer()
-                    setId(null);
-                    }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
-                    <Text style={{fontSize: 16, color: 'white', fontWeight: '600'}}>Send</Text>
+                <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
+                    <Text style={{ fontSize: s(8), color: 'white', fontWeight: '600' }}>Send</Text>
                 </TouchableOpacity>
-            
             }
 
         </View>

@@ -66,7 +66,8 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
     }
 
     return (
-        <Modal backdropColor="black" backdropOpacity={0.1} hasBackdrop={true} onBackdropPress={() => setDropDown(prev => !prev)} style={{ height: 'auto', alignSelf: 'center', width: '100%', paddingHorizontal: vs(20), justifyContent: 'flex-start' }} isVisible={dropDown} animationOutTiming={1} animationInTiming={1}>
+        <Modal backdropColor="black" backdropOpacity={0.1} hasBackdrop={true} onBackdropPress={() => setDropDown(prev => !prev)} style={{ height: 'auto', alignSelf: 'center', width: '100%', paddingHorizontal: vs(20), justifyContent: 'flex-start' }} isVisible={dropDown} animationOutTiming={1} animationInTiming={1} animationIn={'fadeIn'}>
+            
             <FlatList 
                 showsVerticalScrollIndicator={false}
                 data={children.slice().sort((a, b) => {
@@ -75,7 +76,7 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                     return 0;
                 })}
                 renderItem={renderChild}
-                scrollEnabled={children.length >= 3? true : false}
+                scrollEnabled={children?.length >= 3? true : false}
                 keyExtractor={(item) => item?.id.toString()}
                 contentContainerStyle={{ backgroundColor: 'transparent' }}
                 style={{ height: vs(240), flexGrow: 0, marginTop: isTablet ? vs(30) : vs(75), borderRadius: vs(12), backgroundColor: 'white' }}
@@ -84,6 +85,7 @@ const DropDownModal = ({ setDropDown, dropDown }) => {
                 windowSize={5}
                 bounces={false}
             />
+
         </Modal>
     )
 }

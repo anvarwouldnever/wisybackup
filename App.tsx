@@ -5,8 +5,6 @@ import * as SplashScreen from 'expo-splash-screen';
 import { checkNetwork } from './src/network/checkNetwork';
 import NoNetworkScreen from './src/components/NoNetwork';
 import store from './src/store/store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as SecureStore from 'expo-secure-store';
 
 SplashScreen.preventAutoHideAsync()
 

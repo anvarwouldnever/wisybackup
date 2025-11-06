@@ -1,29 +1,52 @@
 import { View, Text, Image, PanResponder } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurrentLine, setLines }) => {
+const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurrentLine, setLines, hint, hintDuration, lock }) => {
 
     const { s, vs } = useScale()
 
+const [showHint, setShowHint] = useState<boolean>(false);
+    
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        setCurrentLine([`${locationX},${locationY}`]);
+            if (lock) return;
+            if (showHint) {
+                setShowHint(false)
+            }
+            const { locationX, locationY } = evt.nativeEvent;
+            setCurrentLine([`${locationX},${locationY}`]);
         },
         onPanResponderMove: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent;
-        setCurrentLine((prev) => [...prev, `${locationX},${locationY}`]);
+            if (lock) return;
+            const { locationX, locationY } = evt.nativeEvent;
+            setCurrentLine((prev) => [...prev, `${locationX},${locationY}`]);
         },
         onPanResponderRelease: () => {
-        setLines((prev) => [...prev, currentLine]);
-        setCurrentLine([]);
+            if (lock) return;
+            setLines((prev) => [...prev, currentLine]);
+            setCurrentLine([]);
         },
     });
+
+    useEffect(() => {
+        if (lock) return
+        if (hintDuration === 'temporary') {
+            setShowHint(true);
+            const timer = setTimeout(() => {
+                setShowHint(false);
+            }, 1000); 
+            return () => clearTimeout(timer);
+        } else if (hintDuration === 'none') {
+            setShowHint(false);
+        } else if (hintDuration === 'permanent') {
+            setShowHint(true);
+        }
+    }, [hintDuration, lock]);
 
     return (
         <Animated.View entering={ZoomInEasyDown} style={{width: 'auto', height: 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', columnGap: s(10)}}>
@@ -50,7 +73,7 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
 
             </View>
 
-            <Text style={{fontSize: 80, fontWeight: '600', color: '#555555'}}>=</Text>
+            <Text style={{fontSize: s(30), fontWeight: '600', color: '#555555'}}>=</Text>
 
             <ViewShot ref={viewShotRef} style={{borderRadius: 10, width: s(65), height: s(65), backgroundColor: 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}} options={{ format: 'png', quality: 1 }}>  
                 
@@ -76,6 +99,12 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
                         />
 
                     </Svg>
+
+                    {showHint && 
+                        <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100, position: 'absolute' }}>
+                            <Image source={{ uri: hint }} style={{ width: s(65), height: s(65) }} />
+                        </View>
+                    }
 
                 </View>
 

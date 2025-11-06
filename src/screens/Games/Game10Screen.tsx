@@ -1,7 +1,6 @@
-import { View, Text, useWindowDimensions, Platform, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useState, useRef, useEffect } from 'react'
 import { captureRef } from 'react-native-view-shot';
-import * as FileSystem from 'expo-file-system';
 import useTimer from '../../hooks/utils/useTimer';
 import { useHandwrittenAnswerLogic } from '../../hooks/answer/useHandwrittenAnswerLogic';
 import { useIntroSequence } from '../../hooks/useIntroSequence';
@@ -11,11 +10,17 @@ import OverlayHint from './components/OverlayHint';
 import store from '../../store/store';
 import MainContainerBlock from './Game10/MainContainerBlock';
 import TutorialOverlay from './components/TutorialOverlay';
+import { useScale } from '../../hooks/utils/useScale';
 
 const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    const { s, vs } = useScale()
+
     const viewShotRef = useRef(null);
+
+    const letter = data?.content?.letter
+    const hint = data?.content?.hint_image;
+    const hintDuration = data?.content?.hint_display_mode;
 
     const [text, setText] = useState(data?.content?.question);
     const [attempt, setAttempt] = useState('1');
@@ -74,9 +79,7 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
-            
-                <MainContainerBlock viewShotRef={viewShotRef} lines={lines} currentLine={currentLine} id={id} data={data} setCurrentLine={setCurrentLine} setLines={setLines} />
-            
+                <MainContainerBlock letter={letter} lock={lock} hint={hint} hintDuration={hintDuration} viewShotRef={viewShotRef} lines={lines} currentLine={currentLine} id={id} data={data} setCurrentLine={setCurrentLine} setLines={setLines} />
             }
 
             <OverlayHint visible={store.isBlacked}>
@@ -96,12 +99,11 @@ const Game10Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 }}
             />
 
-            {lines.length != 0 && <TouchableOpacity onPress={lock? () => {return} : () => {
-                answer()
-                setId(null);
-                }} style={{width: windowWidth * (120 / 800), backgroundColor: '#FF69B4', borderRadius: 100, height: Platform.isPad? windowWidth * (50 / 800) : windowHeight * (50 / 360), alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0}}>
-                <Text style={{fontSize: 16, color: 'white', fontWeight: '600'}}>Send</Text>
-            </TouchableOpacity>}
+            {lines?.length != 0 &&                    
+                <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
+                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>Send</Text>
+                </TouchableOpacity>                        
+            }
 
         </View>
     )

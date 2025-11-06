@@ -21,16 +21,11 @@ class Store {
 
     constructor() {
         makeAutoObservable(this);
-        this.initializeStore();
+        this.loadData();
     }             
-
-    async initializeStore() {
-        await this.loadData();
-    }
 
     async loadData() {
         try {
-            await this.loadDataFromStorageToken();
             await this.loadDataFromStorageLanguage();
             await this.loadDataFromStorageVoiceInstructions();
             await this.loadDataFromStorageBackgroundMusic();
@@ -42,14 +37,6 @@ class Store {
                 this.loading = false
             })
         }
-    }
-
-    async loadDataFromStorageToken() {
-        const usertoken = await this.loadDataFromStorage('token');
-        runInAction(() => {
-            this.token = usertoken
-        });
-        return this.token
     }
 
     async loadDataFromStorageLanguage() {
@@ -98,17 +85,6 @@ class Store {
         } catch (error) {
             console.error(`Ошибка загрузки данных из AsyncStorage (${key}):`, error);
             return null;
-        }
-    }
-
-    async setToken(token: string) {
-        runInAction(() => {
-            this.token = token;
-        })
-        if (token !== null) {
-            await AsyncStorage.setItem('token', JSON.stringify(token));
-        } else {
-            await AsyncStorage.removeItem('token');
         }
     }
 

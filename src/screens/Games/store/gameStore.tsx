@@ -1,6 +1,5 @@
-import { makeAutoObservable, reaction, runInAction } from "mobx";
+import { makeAutoObservable, runInAction } from "mobx";
 import store from "../../../store/store";
-import { GetCategories } from "../../../api/methods/game/categories";
 import { GetCollections } from "../../../api/methods/game/collections";
 import { GetSubcollections } from "../../../api/methods/game/subcollections";
 import { GetTasks } from "../../../api/methods/game/tasks";
@@ -9,7 +8,7 @@ class Store {
 
     categoryId = 0;
     collectionId = 0;
-    categories = [];
+    categories = null;
     collectionName = '';
 
     loadingCats = false;
@@ -30,43 +29,12 @@ class Store {
 
     constructor() {
         makeAutoObservable(this);
-
-        reaction(
-            () => ({
-                lang: store.language,
-                child: store.playingChildId,
-            }),
-            async ({ lang, child }) => {
-                this.loadCategories();
-            }
-        );
-          
     }
 
-    async loadCategories() {
-        try {
-            runInAction(() => {
-                this.loadingCats = true
-            })
-            const request = await GetCategories();
-
-            runInAction(() => {
-                this.categories = request.data?.data.map(category => ({
-                    ...category,
-                    collections: [],
-                }));
-            });
-
-        } catch (error) {
-            console.log(error);
-            runInAction(() => {
-                store.setWisyMenuText('Probably server overload, try again later')
-            })
-        } finally {
-            runInAction(() => {
-                this.loadingCats = false
-            })
-        }
+    async setCategories(categories: any) {
+        runInAction(() => {
+            this.categories = categories 
+        });
     }
 
     runNextSubCollectionsTask() {
