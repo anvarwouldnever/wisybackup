@@ -15,8 +15,8 @@ const AuthScreen = ({ route }) => {
 
     const { s, vs } = useScale()
 
-    const proceed = () => {
-        navigation.navigate('EmailConfirmScreen')
+    const proceed = (email) => {
+        navigation.navigate('EmailConfirmScreen', { email: email })
     }
 
     const playersScreen = (players) => {
@@ -36,12 +36,15 @@ const AuthScreen = ({ route }) => {
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             
             <SafeAreaView style={{flex: 1, alignItems: 'center', paddingHorizontal: vs(20)}}>
+                
                 <Logo />
+                
                 {authOption === 'signup'? 
                     <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> 
                 : 
                     <AuthLogin playersScreen={playersScreen} toggleOption={setAuthOption}/>
-                }       
+                }    
+
             </SafeAreaView>
             
         </TouchableWithoutFeedback>

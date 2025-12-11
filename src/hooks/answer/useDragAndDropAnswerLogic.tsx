@@ -7,135 +7,124 @@ import { AnswerDragAndDrop } from '../../api/methods/game/answer';
 import { GetSpeeches } from '../../api/methods/speeches/speech';
 import { gameStore } from '../../screens/Games/store/gameStore';
 
-export const useDragAndDropAnswer = ({
-  data,
-  subCollectionId,
-  onCompleteTask,
-  isFromAttributes = false,
-  setId,
-  levelHandlers,
-  uiHandlers,
-  attemptState,
-}) => {
-  const isActive = useRef(true);
-  const { getTime, start, stop, reset } = useTimer();
-  const { setLevel, setStars, setEarnedStars } = levelHandlers;
-  const { setText, setLock, setWisySpeaking, setThinking } = uiHandlers;
-  const { attempt, setAttempt } = attemptState;
+export const useDragAndDropAnswer = ({ data, subCollectionId, onCompleteTask, isFromAttributes = false, setId, levelHandlers, uiHandlers, attemptState }) => {
+    
+    const isActive = useRef(true);
 
-  const vibrate = () => Vibration.vibrate(500);
+    const { getTime, start, stop, reset } = useTimer();
+    const { setLevel, setStars, setEarnedStars } = levelHandlers;
+    const { setText, setLock, setWisySpeaking, setThinking } = uiHandlers;
+    const { attempt, setAttempt } = attemptState;
 
-  const playVoice = async (sound) => {
-    if (!isActive.current) return;
-    try {
-      setWisySpeaking(true);
-      await playSound(sound, false, false, true);
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setText(null);
-      setWisySpeaking(false);
-      setLock(false);
-      setId?.(null);
-    }
-  };
+    const vibrate = () => Vibration.vibrate(500);
 
-  const finish = async (response, isCorrect, extra = {}) => {
-    if (!isActive.current) return;
-    reset();
-    if (!isFromAttributes) {
-      onCompleteTask(subCollectionId, data.next_task_id);
-    }
-
-    if (extra.setId) {
-      setId({ id: 'answer', result: isCorrect ? 'correct' : 'wrong' });
-    }
-
-    try {
-      setWisySpeaking(true);
-      if (!isCorrect) {
-        playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), false, false, true)
-        const speech = await GetSpeeches('no_more_hints');
-        setText(speech.data?.data[0]?.text);
-        await playSound(speech?.data?.data[0]?.audio);
-      } else {
-        playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), false, false, true)
-        setText(response?.hint);
-        await playSound(response?.sound);
-        setText(response.data?.success_phrase);
-        await playSound(response?.data?.success_phrase_sound);
-      }
-    } catch (e) {
-      console.log(e);
-    } finally {
-      setText(null);
-      setWisySpeaking(false);
-      setTimeout(() => {
-        if (response?.stars) {
-          setStars(response.stars);
-          setEarnedStars(response?.stars - response?.old_stars);
+    const playVoice = async (sound) => {
+        if (!isActive.current) return;
+        try {
+            setWisySpeaking(true);
+            await playSound(sound);
+        } catch (error) {
+            console.error('Ошибка при воспроизведении звука:', error);
+        } finally {
+            setText(null);
+            setWisySpeaking(false);
+            setLock(false);
+            setId(null);
         }
-        setLevel((prev) => prev + 1);
-        if (extra.resetAttempt) setAttempt('1');
-        setLock(false);
-        setId(null);
-      }, 1500);
-    }
-  };
+    };
 
-  const answer = useCallback(async (params) => {
-    if (!isActive.current) return;
-    try {
-      const lead_time = getTime();
-      stop();
-      setThinking(true);
-      setLock(true);
-      await playSound.stop();
+    const answer = useCallback(async (params) => {
+        if (!isActive.current) return;
+        try {
+            const lead_time = getTime();
+            stop();
+            setThinking(true);
+            setLock(true);
+            await playSound.stop();
 
-      const response = await AnswerDragAndDrop(
-        data.id,
-        attempt,
-        store.playingChildId.id,
-        lead_time,
-        params.answer,
-        params.answer_id,
-        params.image_id,
-      );
+            const response = await AnswerDragAndDrop(
+                data.id,
+                attempt,
+                store.playingChildId.id,
+                lead_time,
+                params.answer,
+                params.answer_id,
+                params.image_id,
+            );
 
-      if (!isActive.current) return;
+            // console.log(response.data?.success_phrase)
 
-      if (response?.data?.success && response?.data?.stars) {
-        return await finish(response.data, true);
-      }
-      if (!response?.data?.success && response?.data?.stars) {
-        return await finish(response.data, false);
-      }
-      if (!response?.data?.success && !response?.data?.to_next) {
-        playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), false, false, true)
-        start();
-        vibrate();
-        setText(response?.data?.hint);
-        await playVoice(response?.data?.sound);
-        setAttempt('2');
-        return;
-      }
-      if (response?.data?.success && !response?.data?.to_next) {
-        return await finish(response.data, true, { resetAttempt: true });
-      }
-      if (response?.data?.success && response?.data?.to_next) {
-        return await finish(response.data, true, { setId: true, resetAttempt: true });
-      }
-      if (!response?.data?.success && response?.data?.to_next) {
-        return await finish(response.data, false, { resetAttempt: true });
-      }
-    } catch (error) {
-      console.log(error);
-      setLock(false);
-      setText(error || 'Ошибка при отправке ответа');
-    } finally {
-      setThinking(false);
-    }
-  }, [data, attempt]);
+            if (!isActive.current) return;
+
+            const handleSuccess = async (correct) => {
+
+                reset();
+                if (!isFromAttributes) {
+                    onCompleteTask(subCollectionId, data?.next_task_id);
+                }
+                setId({ id: answer, result: correct ? 'correct' : 'wrong' });
+                setWisySpeaking(true);
+                try {
+                    if (!correct) {
+                        playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), true, false, true)
+                        const speech = await GetSpeeches('no_more_hints')
+                        setText(speech.data?.data[0]?.text);
+                        await playSound(speech?.data?.data[0]?.audio);
+                    } else {
+                        playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), true, false, true)
+                        setText(response.data?.hint);
+                        await playSound(response.data?.sound);
+                        setText(response.data?.success_phrase);
+                        await playSound(response.data?.success_phrase_sound);
+                    }
+                } catch (e) {
+                    console.log(e);
+                } finally {
+                    setText(null);
+                    setWisySpeaking(false);
+                    setTimeout(() => {
+                        setStars?.(response?.data?.stars);
+                        setEarnedStars?.(response?.data?.stars - response?.data?.old_stars);
+                        setLevel?.((prev) => prev + 1);
+                        setLock(false);
+                        setId(null);
+                    }, 1500);
+                }
+            };
+
+            const handleRepeat = async () => {
+                playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), true, false, true)
+                start();
+                setId({ id: answer, result: 'wrong' });
+                vibrate();
+                setText(response?.data?.hint);
+                await playVoice(response?.data?.sound);
+                setAttempt?.('2');
+            };
+
+            if (response?.data?.success && response?.data?.stars) {
+                await handleSuccess(true);
+            } else if (response?.data?.success && response?.data?.to_next && !response?.data?.stars) {
+                await handleSuccess(true);
+            } else if (!response?.data?.success && response?.data?.stars) {
+                
+                await handleSuccess(false);
+            } else if (!response?.data?.success && !response?.data?.to_next) {
+                
+                await handleRepeat();
+            } else if (!response?.data?.success && response?.data?.to_next) {
+                
+                await handleSuccess(false);
+                setAttempt?.('1');
+            }
+        } catch (error) {
+            console.log(error);
+            setLock(false);
+            setText(error || 'Ошибка при отправке ответа');
+        } finally {
+            setThinking(false);
+        }
+    }, [data, attempt]);
 
   return { answer, isActive };
 };

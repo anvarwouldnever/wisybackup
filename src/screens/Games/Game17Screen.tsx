@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, useWindowDimensions, Platform } from 'react-native';
+import { View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useSharedValue, useAnimatedStyle, runOnJS, LinearTransition, withSpring, withDelay, ZoomInEasyDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics'
@@ -12,15 +12,17 @@ import PlaceholderBlock from './Game17/PlaceholderBlock';
 import { useDragAndDropAnswer } from '../../hooks/answer/useDragAndDropAnswerLogic';
 import { useScale } from '../../hooks/utils/useScale';
 
-const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDraggingId, s, vs }) => {
+const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDraggingId, s, clicked }) => {
     
     const translateX = useSharedValue(0);
     const translateY = useSharedValue(0);
 
     const dragGesture = Gesture.Pan()
         .onStart(() => {
-            if (lock) return;
-            runOnJS(setDraggingId)(item?.id);
+            if (!lock) {
+                runOnJS(clicked)()
+                runOnJS(setDraggingId)(item?.id);
+            };
         })
         .onUpdate((event) => {
             if (lock) {
@@ -38,12 +40,7 @@ const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDrag
                 return;
             }
 
-            const hit = runOnJS(checkDropZone)(
-                event.absoluteX,
-                event.absoluteY,
-                item?.image,
-                item
-            );
+            const hit = runOnJS(checkDropZone)(event.absoluteX, event.absoluteY, item?.image, item);
 
             if (hit) return;
 
@@ -67,8 +64,6 @@ const DraggableItem = ({ item, checkDropZone, lock, opacity, draggingId, setDrag
 };
 
 const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
-    
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const { s, vs } = useScale()
 
@@ -106,9 +101,9 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const placeholderRefs = useRef(new Map());
     const [placeholders, setPlaceholders] = useState(new Map());
 
-    const { answer, isActive } = useDragAndDropAnswer({ data, subCollectionId, onCompleteTask, isFromAttributes, setId, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
+    const { answer, isActive } = useDragAndDropAnswer({ data, subCollectionId, onCompleteTask, isFromAttributes, setId, levelHandlers: { setLevel, setStars, setEarnedStars, setText }, uiHandlers: { setText, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
     
     useEffect(() => {
         isActive.current = true;
@@ -212,7 +207,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 :
                     <Animated.View entering={ZoomInEasyDown} style={{ width: s(250), height: 'auto', flexDirection: 'row', columnGap: s(7), alignItems: 'center', justifyContent: 'center'}}>
                         {draggableObjects?.map((item) => (
-                            <DraggableItem key={item?.id} item={item} checkDropZone={checkDropZone} lock={lock} opacity={1} draggingId={draggingId} setDraggingId={setDraggingId} s={s} vs={vs} />
+                            <DraggableItem clicked={clicked} key={item?.id} item={item} checkDropZone={checkDropZone} lock={lock} opacity={1} draggingId={draggingId} setDraggingId={setDraggingId} s={s} />
                         ))}
                     </Animated.View>
                 }

@@ -48,7 +48,7 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const { answer, isActive } = useObjectMatchingAnswer({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setLock, setWisySpeaking, setThinking, setLines, setWrongObject }, attemptState: { attempt, setAttempt }});
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
 
     const { start, reset } = useTimer();
 
@@ -152,11 +152,11 @@ const Game14Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
                 <Animated.View entering={ZoomInEasyDown} style={{width: s(210), height: 'auto', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'absolute'}}>
                     
-                    <LeftImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
+                    <LeftImagesBlock clicked={clicked} images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered}/>
 
-                    <AnswersBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
+                    <AnswersBlock clicked={clicked} images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} answersRefs={answersRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} wrongObject={wrongObject} />
 
-                    {images?.length <= 3 ? null : <RightImagesBlock images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
+                    {images?.length <= 3 ? null : <RightImagesBlock clicked={clicked} images={images} offsets={offsets} answered={answered} lock={lock} imageLayouts={imageLayouts} setIsDrawing={setIsDrawing} setLines={setLines} lineStartX={lineStartX} lineStartY={lineStartY} lineEndX={lineEndX} lineEndY={lineEndY} imageRefs={imageRefs} answersLayouts={answersLayouts} answers={answers} answer={answer} setWrongObject={setWrongObject} addToAnswered={addToAnswered} /> }
 
                 </Animated.View>
 

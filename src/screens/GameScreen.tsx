@@ -24,6 +24,7 @@ import BackButton from './Game/BackButton';
 import ProgressAnimation from './Game/ProgressAnimation';
 import { gameStore } from './Games/store/gameStore';
 import { useScale } from '../hooks/utils/useScale';
+import useLockLandscape from '../hooks/utils/useLockLandscape';
 
 const GameScreen = ({ route }) => {
 
@@ -40,6 +41,8 @@ const GameScreen = ({ route }) => {
     const [tutorialShow, setTutorialShow] = useState(isFromAttributes ? false : true);
     const [introTaskIndex, setIntroTaskIndex] = useState(isFromAttributes ? 0 : tasks[taskLevel]?.current_task_id_index);
 
+    useLockLandscape()
+    
     const task = tasks[taskLevel]?.tasks;
 
     const introAudio = tasks[taskLevel]?.introAudio;
@@ -101,6 +104,7 @@ const GameScreen = ({ route }) => {
     };
 
     useEffect(() => {
+
         if (!isFromAttributes) {
             setLevel(tasks[taskLevel]?.current_task_id_index)
         }
@@ -112,6 +116,7 @@ const GameScreen = ({ route }) => {
     
             setIsBreak(false);
         }
+
     }, [taskLevel]);
 
     const { s, vs } = useScale();
@@ -152,15 +157,15 @@ const GameScreen = ({ route }) => {
         )
     }
 
-    const RenderHandWrittenRepeatGame = () => {
-        return (
-            <Game10Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
-        )
-    }
-
     const RenderHandWrittenCountingGame = () => {
         return (
             <Game9Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+        )
+    }
+
+    const RenderHandWrittenRepeatGame = () => {
+        return (
+            <Game10Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -251,7 +256,7 @@ const GameScreen = ({ route }) => {
     };
 
     return (
-        <View style={{flex: 1 }}>
+        <View style={{ flex: 1 }}>
             {!isFromAttributes && (cameFromBreak || isBreak)? 
                 <BreakScreen taskLevel={taskLevel} isFromAttributes={isFromAttributes} categoryId={categoryId} anyBreak={cameFromBreak? ifCameFromBreak : currentBreakContent} incrementTaskLevel={incrementTaskLevel}/>
             :
@@ -264,21 +269,21 @@ const GameScreen = ({ route }) => {
                             task && task[level] && task[level].type ? (
                                 task[level].type === 'voice_input' ?  
                                 <RenderVoiceGame /> :
-                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_image'?
+                                task[level]?.type === 'single_choice' && task[level]?.content?.sub_type === 'with_image'?
                                 <RenderWithImageGame /> :
-                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'simple'?
+                                task[level]?.type === 'single_choice' && task[level]?.content?.sub_type === 'simple'?
                                 <RenderSimpleGame /> :
-                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_audio'?
+                                task[level]?.type === 'single_choice' && task[level]?.content?.sub_type === 'with_audio'?
                                 <RenderWithAudio /> :
-                                task[level]?.type === 'single_choice' && task[level].content.sub_type === 'with_title'?
+                                task[level]?.type === 'single_choice' && task[level]?.content?.sub_type === 'with_title'?
                                 <RenderWithTitleGame /> :
-                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'simple'?
+                                task[level]?.type === 'handwritten' && task[level]?.content?.sub_type === 'simple'?
                                 <RenderHandWrittenSimpleGame /> :
-                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'repeat'?
+                                task[level]?.type === 'handwritten' && task[level]?.content?.sub_type === 'repeat'?
                                 <RenderHandWrittenRepeatGame /> :
-                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'counting'?
+                                task[level]?.type === 'handwritten' && task[level]?.content?.sub_type === 'counting'?
                                 <RenderHandWrittenCountingGame /> :
-                                task[level]?.type === 'handwritten' && task[level].content.sub_type === 'word'?
+                                task[level]?.type === 'handwritten' && task[level]?.content?.sub_type === 'word'?
                                 <RenderHandWrittenWordGame /> :
                                 task[level]?.type === 'object_matching' && (task[level]?.content?.sub_type === 'image_to_text' || task[level]?.content?.sub_type === 'image_to_image')?
                                 <RenderObjectMatchingTextGame /> :

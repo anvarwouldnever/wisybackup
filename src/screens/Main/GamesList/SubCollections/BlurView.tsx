@@ -6,7 +6,7 @@ import { useScale } from '../../../../hooks/utils/useScale';
 
 const Blur = ({ isLocked, forMarket }) => {
 
-    const { windowHeight, windowWidth } = useScale()
+    const { s, vs } = useScale()
 
     if (!isLocked) return null;
 
@@ -16,8 +16,8 @@ const Blur = ({ isLocked, forMarket }) => {
             tint="light"
             style={{
                 ...StyleSheet.absoluteFillObject,
-                width: Platform.isPad ? windowWidth * (306 / 1194) : windowHeight * (136 / 360),
-                height: 'auto',
+                width: vs(320), 
+                height: vs(370),
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderRadius: 12,

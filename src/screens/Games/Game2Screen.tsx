@@ -25,7 +25,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const { start, reset } = useTimer();
     const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
             
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, setLevel });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, setLevel });
 
     useEffect(() => {
         isActive.current = true;
@@ -40,13 +40,10 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const voiceForTask = async(sound) => {
         if (!sound) return
         try {
-            setLock(true)
             await playSound(sound)
         } catch (error) {
             setText('error loading the sound')
             setLock(true)
-        } finally {
-            setLock(false)
         }
     }
 
@@ -58,7 +55,7 @@ const Game2Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             )}
 
             {data && (!tutorialShow || tutorials?.length == 0 || isFromAttributes) && (
-                <Game2Animals1Animation lock={lock} id={id} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask} />
+                <Game2Animals1Animation clicked={clicked} lock={lock} id={id} answer={answer} images={data?.content?.images} animal={data?.content?.title} setId={setId} audio={data?.content?.title_audio} voiceForTask={voiceForTask} />
              )}
             
             <OverlayHint visible={store.isBlacked}>

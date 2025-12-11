@@ -10,6 +10,8 @@ import NewPasswordModal from "./Settings/NewPasswordModal";
 import PopUpModal from "./Settings/PopUpModal";
 import { BASE_URL } from "../../api/api";
 import * as SecureStore from 'expo-secure-store';
+import { clearChildrenCache } from "../ChoosePlayer/hooks/getChildren";
+import { gameStore } from "../Games/store/gameStore";
 
 const ParentsSettings = ({ setScreen }) => {
 
@@ -32,6 +34,8 @@ const ParentsSettings = ({ setScreen }) => {
     };
 
     const logout = async () => {
+        gameStore.resetSubCollection()
+        clearChildrenCache()
         await SecureStore.deleteItemAsync('token')
         navigation.reset({ index: 0, routes: [{ name: "LanguageScreen" }] });
     };

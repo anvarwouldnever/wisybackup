@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
-import { View, useWindowDimensions, Vibration } from 'react-native';
+import { View, Vibration } from 'react-native';
 import MicroAnimation from './Game1/MicroAnimation';
-import api from '../../api/api';
 import TaskComponent from './Game1/TaskComponent';
 import store from '../../store/store';
 import useTimer from '../../hooks/utils/useTimer';
@@ -13,38 +12,37 @@ import TutorialOverlay from './components/TutorialOverlay';
 import WisyHint from './components/WisyHint';
 import { AnswerVoiceTask } from '../../api/methods/game/answer';
 import { GetSpeeches } from '../../api/methods/speeches/speech';
+import { gameStore } from './store/gameStore';
 
 const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {    
-
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
 
     const [text, setText] = useState(null);
     const [attempt, setAttempt] = useState('1');
     const [image, setImage] = useState(1);
     const [thinking, setThinking] = useState(false);
     const [lock, setLock] = useState(false);
-    
+
     const { getTime, start, stop, reset } = useTimer();
 
-    const [wisySpeaking, setWisySpeaking] = useState(false)
+    const [wisySpeaking, setWisySpeaking] = useState(false);
 
     const isActive = useRef(true);
-                                
+
     const playVoice = async (sound) => {
-            if (!isActive.current) return
-            try {
-                setWisySpeaking(true)
-                await playSound(sound);
-            } catch (error) {
-                console.error("Ошибка при воспроизведении звука:", error);
-            } finally {
-                setText(null);
-                setWisySpeaking(false);
-                setLock(false);
-            }
+        if (!isActive.current) return
+        try {
+            setWisySpeaking(true)
+            await playSound(sound);
+        } catch (error) {
+            console.error("Ошибка при воспроизведении звука:", error);
+        } finally {
+            setText(null);
+            setWisySpeaking(false);
+            setLock(false);
+        }
     };
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
 
     useEffect(() => {
         isActive.current = true;
@@ -54,58 +52,30 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             isActive.current = false;
             reset();
         };
-    }, [])
+    }, []);
 
     const vibrate = () => {
         Vibration.vibrate(500);
     };
 
-    const lastAnswer = async(hint, stars, voice, old_stars) => {
-        console.log('1')
+    const correctAnswer = async(hint, stars, voice, old_stars, success_phrase, success_phrase_sound) => {
         if (!isActive.current) return
-        setImage(2)
+        
         reset();
         if (isFromAttributes) {
             // store.loadCategories();
         } else {
-            onCompleteTask(subCollectionId, data.next_task_id)
-        }
-        setStars(stars)
-        setText(hint)
-
-        try {
-            setWisySpeaking(true)
-            await playSound(voice)
-        } catch (error) {
-            console.log(error)
-        } finally {
-            setText(null);
-            setWisySpeaking(false);
-            setTimeout(() => {
-                setStars(stars);
-                setAttempt('1')
-                setEarnedStars(stars - old_stars)
-                setLevel(prev => prev + 1);
-                setLock(false)
-            }, 1500);
-        }
-    }
-
-    const correctAnswer = async(hint, stars, voice, old_stars) => {
-        console.log('2', hint)
-        if (!isActive.current) return
-        reset();
-        if (isFromAttributes) {
-            // store.loadCategories();
-        } else {
-            onCompleteTask(subCollectionId, data.next_task_id)
+            onCompleteTask(subCollectionId, data?.next_task_id)
         }
         setImage(2)
         setText(hint)
+        playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), true, false, true)
 
         try {
             setWisySpeaking(true)
             await playSound(voice)
+            setText(success_phrase);
+            await playSound(success_phrase_sound);
         } catch (error) {
             console.log(error)
         } finally {
@@ -125,6 +95,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
 
     const incorrectAnswer = async(hint, voice) => {
         if (!isActive.current) return
+        playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), true, false, true)
         start();
         setText(hint);
         playVoice(voice)
@@ -143,10 +114,12 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
         setText(hint)
         try {
 
+        playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), true, false, true)
         setWisySpeaking(true)
         const speech = await GetSpeeches('no_more_hints')   
         setText(speech.data?.data[0]?.text);
         await playSound(speech?.data?.data[0]?.audio);
+        
             
         } catch (error) {
             console.log(error)
@@ -220,7 +193,7 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <View style={{position: 'absolute', bottom: 0, right: 0}}>
-                {!lock && <MicroAnimation playVoice={playVoice} lastAnswer={lastAnswer} correctAnswer={correctAnswer} incorrectAnswer={incorrectAnswer} incorrectAnswerToNext={incorrectAnswerToNext} setText={setText} sendAnswer={sendAnswer} stop={stop}/>}
+                {!lock && <MicroAnimation clicked={clicked} correctAnswer={correctAnswer} incorrectAnswerToNext={incorrectAnswerToNext} incorrectAnswer={incorrectAnswer} setText={setText} sendAnswer={sendAnswer}/>}
             </View>}     
 
             <SkipButton visible={tutorialShow && tutorials?.length > 0} showPaw={store?.isFirstOpening}

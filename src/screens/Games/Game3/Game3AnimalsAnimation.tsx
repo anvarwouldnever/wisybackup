@@ -1,10 +1,9 @@
-import { useWindowDimensions, FlatList } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
 import RenderItem from './RenderItem';
 import { useScale } from '../../../hooks/utils/useScale';
 
-const Game3AnimalsAnimation = ({ answer, id, images,  lock }) => {
+const Game3AnimalsAnimation = ({ answer, id, images,  lock, clicked }) => {
 
     const [key, setKey] = useState(0);
 
@@ -36,6 +35,7 @@ const Game3AnimalsAnimation = ({ answer, id, images,  lock }) => {
             data={shuffledImages?.slice(0, 5)}
             renderItem={({ item }) => (
                 <RenderItem
+                    clicked={clicked}
                     item={item}
                     lock={lock}
                     answer={answer}

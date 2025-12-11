@@ -15,6 +15,7 @@ import { AddChild, GetChildren } from "../api/methods/children/children";
 import { getAvatars } from "./ChildParams/hooks/getAvatars";
 import { getSettings } from "./ChildParams/hooks/getSignUpSettings";
 import { clearChildrenCache, getChildren } from "./ChoosePlayer/hooks/getChildren";
+import translations from "../../localization";
 
 const { width, height } = Dimensions.get('window');
 
@@ -74,7 +75,7 @@ const ChildParams = () => {
     const navigate = () => {
         const newName = options.name.trim().toLowerCase();
     
-        const nameExists = children.some(child => child.name.trim().toLowerCase() === newName);
+        const nameExists = children?.some(child => child?.name.trim().toLowerCase() === newName);
 
         if (nameExists) {
             setFocusComponent('name')
@@ -129,7 +130,7 @@ const ChildParams = () => {
                             </TouchableOpacity>
                             {options[focusComponent] === ''?
                             <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100, opacity: 0.3}}>
-                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>Continue</Text>
+                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>{translations?.[store.language]?.continue}</Text>
                                 <Image source={require('../images/narrowright-purple.png')} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
                             </TouchableOpacity>
                             :
@@ -147,7 +148,7 @@ const ChildParams = () => {
                                 }
                             }}
                              style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100}}>
-                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>Continue</Text>
+                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>{translations?.[store.language]?.continue}</Text>
                                 <Image source={require('../images/narrowright-purple.png')} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
                             </TouchableOpacity>
                             }

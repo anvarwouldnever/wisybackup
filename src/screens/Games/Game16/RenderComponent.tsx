@@ -3,8 +3,9 @@ import { View, TouchableOpacity, Image, Text } from "react-native";
 import { SvgUri } from "react-native-svg";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import { useScale } from "../../../hooks/utils/useScale";
+import { playSound } from "../../../hooks/usePlaySound";
 
-const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, voice }) => {
+const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, voice, clicked }) => {
 
     const [shuffledOptions, setShuffledOptions] = useState<any[]>([]);
     const timeoutRef = useRef(null);
@@ -19,6 +20,8 @@ const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, v
 
     const onPress = (id) => {
         if (lock) return
+        clicked()
+        playSound.stop(true)
         answer({ answer: id });
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -41,6 +44,7 @@ const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, v
             </View>
             
             <View style={{ width: 'auto', columnGap: s(10), height: 'auto', alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                
                 {shuffledOptions.map((option, index) => (
                     !option.audio ? (
                         <View key={index} style={{ borderRadius: 100, backgroundColor: 'white' }}>
@@ -82,7 +86,7 @@ const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, v
                             </View>
 
                             <View style={{ backgroundColor: 'white', borderRadius: 100, borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}>
-                                <TouchableOpacity onPress={!lock? () => voice(option?.audio) : () => {return}} 
+                                <TouchableOpacity onPress={!lock? () => voice(option?.audio) : () => {}} 
                                     style={{
                                         width: s(20),
                                         height: s(20),
@@ -101,6 +105,7 @@ const RenderComponent = ({ animal, isAnimalSvg, answer, setId, id, lock, data, v
                         </View>
                     )
                 ))}
+
             </View>
         </Animated.View>
     )

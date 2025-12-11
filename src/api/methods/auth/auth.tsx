@@ -28,3 +28,4 @@ export const ResetPassword = (email: string, token: string, password: string, pa
 export const GetSignUpSettings = () => {
     return api2.get(`/sign-up-settings`);
 };
+

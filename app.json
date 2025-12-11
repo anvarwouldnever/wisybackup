@@ -4,7 +4,7 @@
     "name": "MyWisy",
     "slug": "wisy",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/wisyIcon.png",
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
@@ -14,7 +14,6 @@
       },
       "requireFullScreen": true,
       "supportsTablet": true,
-      "buildNumber": "3",
       "bundleIdentifier": "com.avtechsoftware.mywisy",
       "associatedDomains": [
         "applinks:mywisy.com"
@@ -46,22 +45,22 @@
           "fastmail",
           "protonmail"
         ],
-        "CFBundleShortVersionString": "2",
-        "CFBundleVersion": "3",
+        "CFBundleShortVersionString": "1.0.0",
+        "CFBundleVersion": "7",
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Allow MyWisy to access your camera to take photos or record videos.",
         "NSMicrophoneUsageDescription": "Allow MyWisy to access your microphone while recording videos.",
         "NSPhotoLibraryUsageDescription": "Allow MyWisy to access your photo library to upload or save media.",
-        "NSLocationWhenInUseUsageDescription": "Allow MyWisy to access your location data when capturing media to attach location information."
+        "NSLocationWhenInUseUsageDescription": "Allow MyWisy to access your location data when capturing media to attach location information.",
+        "UISupportedInterfaceOrientations": [
+          "UIInterfaceOrientationPortrait",
+          "UIInterfaceOrientationPortraitUpsideDown",
+          "UIInterfaceOrientationLandscapeLeft",
+          "UIInterfaceOrientationLandscapeRight"
+        ]
       }
     },
     "plugins": [
-      [
-        "expo-screen-orientation",
-        {
-          "initialOrientation": "DEFAULT"
-        }
-      ],
       [
         "expo-av",
         {

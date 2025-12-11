@@ -1,41 +1,35 @@
-import { View, Text, Platform, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
+import { View, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import { SvgUri } from 'react-native-svg';
-import galochka from '../../../images/galochka.png'
-import x from '../../../images/wrongX.png'
 import { useScale } from '../../../hooks/utils/useScale';
 
-const Button = ({ item, lock, answer, id }) => {
-
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+const Button = ({ item, answer, id, clicked, lock }) => {
 
     const { s, vs } = useScale()
 
     const isSvg = item.url.endsWith('.svg');
     
     const onPress = () => {
+        if (lock) return
+        clicked()
         answer({ answer: item?.id })
     }
 
     return (
-        <TouchableOpacity onPress={lock? () => {} : () => onPress()} 
-            style={{
-                borderRadius: 10, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white', 
-                width: Platform.isPad ? windowWidth * (120 / 800) : windowWidth * (120 / 800), height: Platform.isPad ? windowWidth * (120 / 800) : windowHeight * (120 / 360), 
-                justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white',
-                shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4
-            }}
-        >
-            {isSvg ? (
-                <SvgUri uri={item.url} style={{ width: windowHeight * (108 / 360), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10 }} />
-            ) : (
-                <Image source={{ uri: item?.url }} style={{ width: windowHeight * (108 / 360), height: Platform.isPad ? windowWidth * (108 / 800) : windowHeight * (108 / 360), aspectRatio: 1, borderRadius: 10 }} />
-            )}
-            {id?.id == item?.id && 
-                <View style={{width: s(12), height: s(12), position: 'absolute', top: 3, right: 5, backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                    <Image source={id?.result == 'correct'? galochka : x} style={{width: s(10), height: s(10)}}/>
+        <TouchableOpacity onPress={() => onPress()} style={{ borderRadius: 10, width: s(52), height: s(52), padding: s(2), backgroundColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D4D' : id?.id == item?.id && id?.result == 'wrong'? '#D816164D' : 'white', justifyContent: 'center', alignItems: 'center', borderWidth: 2, borderColor: id?.id == item?.id && id?.result == 'correct'? '#ADD64D' : id?.id == item?.id && id?.result == 'wrong'? '#D81616' : 'white', shadowColor: "#D0D0D0", shadowOffset: { width: 0, height: 0 }, shadowOpacity: 1, shadowRadius: 4}}>
+                            
+            {isSvg ? 
+                <SvgUri uri={item?.url} width={'100%'} height={'100%'} style={{ borderRadius: 10 }} />
+            : 
+                <Image source={{ uri: item?.url }} style={{ width: '100%', height: '100%', borderRadius: 10, }} />
+            }
+
+            {id?.id === item?.id && 
+                <View style={{width: s(12), height: s(12), position: 'absolute', top: vs(5), right: vs(5), backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
+                    <Image source={id?.result == 'correct'? require('../../../images/galochka.png') : require('../../../images/wrongX.png')} style={{ width: s(10), height: s(10) }}/>
                 </View>
             }
+
         </TouchableOpacity>
     )
 }

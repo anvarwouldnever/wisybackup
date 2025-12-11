@@ -2,8 +2,9 @@ import { View, TouchableOpacity, Text, Image } from "react-native";
 import { useRef, useEffect, useState } from "react";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import { useScale } from "../../../hooks/utils/useScale";
+import { playSound } from "../../../hooks/usePlaySound";
 
-const RenderGame12Component = ({ data, lock, setId, id, answer, voiceForTask }) => {
+const RenderGame12Component = ({ data, lock, setId, id, answer, voiceForTask, clicked }) => {
 
     const timeoutRef = useRef(null);
     const [shuffledOptions, setShuffledOptions] = useState([]);
@@ -15,6 +16,8 @@ const RenderGame12Component = ({ data, lock, setId, id, answer, voiceForTask }) 
 
     const onPress = (id) => {
         if (lock) return;
+        clicked()
+        playSound.stop(true)
         answer({ answer: id });
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setId(null);

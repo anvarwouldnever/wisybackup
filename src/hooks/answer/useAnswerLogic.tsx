@@ -102,10 +102,13 @@ export const useAnswerLogic = ({ data, subCollectionId, onCompleteTask, isFromAt
             } else if (response?.data?.success && response?.data?.to_next && !response?.data?.stars) {
                 await handleSuccess(true);
             } else if (!response?.data?.success && response?.data?.stars) {
+                
                 await handleSuccess(false);
             } else if (!response?.data?.success && !response?.data?.to_next) {
+                
                 await handleRepeat();
             } else if (!response?.data?.success && response?.data?.to_next) {
+                
                 await handleSuccess(false);
                 setAttempt?.('1');
             }

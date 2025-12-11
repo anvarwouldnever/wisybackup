@@ -143,7 +143,7 @@ const GamesList = ({ firstOpeningAction }) => {
                     viewabilityConfig={{
                         itemVisiblePercentThreshold: 50
                     }}
-                    contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20) }}
+                    contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20), paddingBottom: vs(30) }}
                 />
             }
         </View>

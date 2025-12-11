@@ -8,15 +8,15 @@ import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getChildren } from './hooks/getChildren';
 import LottieView from 'lottie-react-native';
+import translations from '../../../localization';
 
-function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) {
+function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading }) {
     
     const navigation = useNavigation();
 
     const { s, vs, isTablet } = useScale()
 
     const { avatars } = getAvatars()
-    const { children, loading } = getChildren()
 
     const onPress = (item, isNew) => {
         setChosenPlayerIndex(item?.id);
@@ -41,7 +41,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer }) 
                     </TouchableOpacity>
 
                     <Text style={{ color: '#504297', fontSize: vs(22), fontWeight: '600'}}>
-                        Add new user
+                        {translations?.[store.language]?.addNewUser}
                     </Text>
 
                 </View>

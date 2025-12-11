@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { playSound } from './usePlaySound';
 import store from '../store/store';
+import useTimer from './utils/useTimer';
 
 interface UseIntroSequenceProps {
     data: any;
@@ -17,6 +18,14 @@ interface UseIntroSequenceProps {
 }
 
 export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock }: UseIntroSequenceProps) => {
+    
+    const { start, reset, getTime } = useTimer()
+    
+    const clicked = () => {
+        const time = getTime()
+        console.log(time)
+        reset()
+    }
     
     useEffect(() => {
         if (level === null) return
@@ -45,15 +54,14 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
                 } finally {
                         setText(null);
                         setWisySpeaking(false);
-                    
+                        setLock(false);
+                        start()
                     try {
                         if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0)) {
                             await playSound(data?.content?.question_audio, true);
                         }
                     } catch (error) {
                         console.log(error);
-                    } finally {
-                        setLock(false);
                     }
                 }
             }
@@ -73,5 +81,8 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
         return () => {
             playSound.stop();
         };
+
     }, [data?.content?.speech, tutorialShow, level]);
+
+    return { clicked }
 };

@@ -5,7 +5,7 @@ import { runOnJS } from 'react-native-reanimated';
 import IsPointInsideAnswerRight from './IsPointInsideAnswerRight';
 import { useScale } from '../../../hooks/utils/useScale';
 
-const RightImagesBlock = ({ images, offsets, answered, lock, imageLayouts, setIsDrawing, setLines, lineStartX, lineStartY, lineEndX, lineEndY, imageRefs, answersLayouts, answers, answer, setWrongObject, addToAnswered }) => {
+const RightImagesBlock = ({ images, offsets, answered, lock, imageLayouts, setIsDrawing, setLines, lineStartX, lineStartY, lineEndX, lineEndY, imageRefs, answersLayouts, answers, answer, setWrongObject, addToAnswered, clicked }) => {
 
     const { s, vs } = useScale()
 
@@ -21,6 +21,7 @@ const RightImagesBlock = ({ images, offsets, answered, lock, imageLayouts, setIs
                 const gesture = Gesture.Pan()
                 .onBegin((event) => {
                     if (lock || answered.includes(item.key)) return;
+                    runOnJS(clicked)()
                     runOnJS(setIsDrawing)(true);
                     lineStartX.value = event.absoluteX - offsets.horizontal;
                     lineStartY.value = event.absoluteY - offsets.vertical;

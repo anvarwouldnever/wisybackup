@@ -60,6 +60,7 @@ export const useHandwrittenAnswerLogic = ({
 
   const answer = useCallback(async () => {
     if (!isActive.current) return;
+    playSound.stop(true)
 
     try {
       setThinking(true);
@@ -130,10 +131,13 @@ export const useHandwrittenAnswerLogic = ({
       } else if (response?.data?.success && response?.data?.to_next && !response?.data?.stars) {
         await handleSuccess(true);
       } else if (!response?.data?.success && response?.data?.stars) {
+        
         await handleSuccess(false);
       } else if (!response?.data?.success && !response?.data?.to_next) {
+        
         await handleRepeat();
       } else if (!response?.data?.success && response?.data?.to_next) {
+        
         await handleSuccess(false);
         setAttempt?.('1');
       }

@@ -1,11 +1,11 @@
-import { View, useWindowDimensions, FlatList, Image, TouchableOpacity, Platform } from 'react-native'
+import { View, FlatList, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import speaker from '../../../images/speaker2.png'
 import RenderItem from './RenderItem';
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated';
 import { useScale } from '../../../hooks/utils/useScale';
 
-const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceForTask }) => {
+const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceForTask, clicked }) => {
 
     const { s, vs } = useScale()
 
@@ -43,6 +43,7 @@ const Game4AnimalsAnimation = ({ answer, id, audio, images, setId, lock, voiceFo
                     data={shuffledImages?.slice(0, 5)}
                     renderItem={({ item }) => (
                         <RenderItem
+                            clicked={clicked}
                             item={item}
                             lock={lock}
                             answer={answer}

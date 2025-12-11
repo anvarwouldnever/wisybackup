@@ -29,7 +29,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     
     const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
     
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
         
     useEffect(() => {
         isActive.current = true;
@@ -44,12 +44,9 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const voice = async(sound) => {
         if (!sound) return
         try {
-            setLock(true)
             await playSound(sound)
         } catch (error) {
             setText('error loading the sound')
-            setLock(false)
-        } finally {
             setLock(false)
         }
     }
@@ -62,7 +59,7 @@ const Game16Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
-                <RenderComponent animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> 
+                <RenderComponent clicked={clicked} animal={animal} isAnimalSvg={isAnimalSvg} answer={answer} id={id} setId={setId} lock={lock} data={data} voice={voice}/> 
             }
             
             <OverlayHint visible={store.isBlacked}>

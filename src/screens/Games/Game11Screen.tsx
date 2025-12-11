@@ -13,6 +13,7 @@ import OverlayHint from './components/OverlayHint';
 import { playSound } from '../../hooks/usePlaySound';
 import MainContainerBlock from './Game11/MainContainerBlock';
 import { useScale } from '../../hooks/utils/useScale';
+import translations from '../../../localization';
 
 const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
@@ -32,7 +33,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
-    const [lock, setLock] = useState(false);
+    const [lock, setLock] = useState(true);
     const [wisySpeaking, setWisySpeaking] = useState(false);
     
     const viewShotRef = useRef(null);
@@ -66,7 +67,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const { answer, isActive } = useHandwrittenAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }, saveAndShareImage, setLines });
         
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
 
     useEffect(() => {
         start();
@@ -82,13 +83,9 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const voiceForTask = async(sound) => {
         if (!sound) return;
         try {
-            setLock(true);
             await playSound(sound);
         } catch (error) {
             setText('error loading the sound');
-            setLock(false);
-        } finally {
-            setLock(false);
         }
     }
 
@@ -100,7 +97,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) &&
-                <MainContainerBlock hint={hint} hintDuration={hintDuration} setCurrentLine={setCurrentLine} setLines={setLines} currentLine={currentLine} data={data} word={word} lines={lines} viewShotRef={viewShotRef} audio={audio} voiceForTask={voiceForTask} lock={lock} id={id} />
+                <MainContainerBlock clicked={clicked} hint={hint} hintDuration={hintDuration} setCurrentLine={setCurrentLine} setLines={setLines} currentLine={currentLine} data={data} word={word} lines={lines} viewShotRef={viewShotRef} audio={audio} voiceForTask={voiceForTask} lock={lock} id={id} />
             }
 
             <OverlayHint visible={store.isBlacked}>
@@ -122,7 +119,7 @@ const Game11Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
             {lines?.length != 0 &&
                 <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
-                    <Text style={{ fontSize: s(8), color: 'white', fontWeight: '600' }}>Send</Text>
+                    <Text style={{ fontSize: s(8), color: 'white', fontWeight: '600' }}>{translations[store.language]?.send}</Text>
                 </TouchableOpacity>
             }
 

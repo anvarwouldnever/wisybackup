@@ -2,13 +2,14 @@ import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React from 'react'
 import Modal from 'react-native-modal'
 import store from '../../store/store'
-import api from '../../api/api'
 import { useScale } from '../../hooks/utils/useScale'
+import { gameStore } from '../Games/store/gameStore'
 
 const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, setAnimation, setCurrentAnimation }) => {
 
     const purchaseItem = async() => {
             try {
+                
                 // const purchase = await api.purchaseItem({child_id: store.playingChildId.id, item_id: currentAnimation?.id, token: store.token, lang: store.language})
                 // if (purchase.is_error) {
                 //     setModal(false);

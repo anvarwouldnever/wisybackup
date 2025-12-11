@@ -3,7 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import { useScale } from "../../../hooks/utils/useScale";
 
-const RenderComponent13 = ({ lock, data, answer, id, setId }) => {
+const RenderComponent13 = ({ lock, data, answer, id, setId, clicked }) => {
 
     const timeoutRef = useRef(null);
     const [shuffledOptions, setShuffledOptions] = useState([]);
@@ -17,6 +17,7 @@ const RenderComponent13 = ({ lock, data, answer, id, setId }) => {
 
     const onPress = (id) => {
         if (lock) return;
+        clicked()
         answer({ answer: id });
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
         setId(null);

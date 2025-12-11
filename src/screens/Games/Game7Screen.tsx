@@ -7,7 +7,7 @@ import Animated, { useSharedValue, useAnimatedGestureHandler, useAnimatedProps, 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
 const Game7Screen = () => {
-    const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    
     const [layoutData, setLayoutData] = useState({});
     const [currentPoint, setCurrentPoint] = useState(1)
     const [opacityStates, setOpacityStates] = useState(new Array(20).fill(0));

@@ -27,7 +27,7 @@ const ChildAge = ({ setOptions, options, settings }) => {
         <Animated.View entering={SlideInRight} style={{width: width * 0.8666, height: '100%', justifyContent: 'space-between', flexDirection: 'column', alignItems: 'center'}}>
             
             <View style={{alignItems: 'center', gap: width * (25 / 360)}}>
-                <Text style={{fontSize: width * (16 / 360), fontWeight: '600'}}>{translations[store.language].howOldIsYourChild}</Text>
+                <Text style={{fontSize: width * (16 / 360), fontWeight: '600'}}>{translations?.[store.language]?.howOldIsYourChild}</Text>
                 
                 {
                 Platform.OS === 'ios'? <Modal visible={show} animationType='fade' transparent={true}>

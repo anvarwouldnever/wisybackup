@@ -1,170 +1,94 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
 import Logo from '../components/Logo';
 import EmailModal from './EmailConfirm/EmailModal';
 import store from '../store/store';
-import api from '../api/api';
 import translations from '../../localization';
 import { ForgotPassword } from '../api/methods/auth/auth';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useScale } from '../hooks/utils/useScale';
 
-const EmailConfirmScreen = () => {
+const EmailConfirmScreen = ({ route }) => {
 
-    const { width, height } = Dimensions.get('window');
+    const { s, vs, isTablet } = useScale()
+
     const [modal, setModal] = useState(false);
     const [timer, setTimer] = useState(20);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
+
+    const email = route?.params?.email;
+    console.log(email)
 
     const resetPassword = async () => {
         try {
             setIsButtonDisabled(true);
             setTimer(20);
-            await ForgotPassword(store.holdEmail);
+            await ForgotPassword(email);
         } catch (error) {
-            console.log(error);
+            console.log(error?.response?.data);
         }
     };
 
-    // Обрабатываем таймер
     useEffect(() => {
         let interval: NodeJS.Timeout | null = null;
 
         if (isButtonDisabled && timer > 0) {
-        interval = setInterval(() => {
-            setTimer((prevTimer) => prevTimer - 1);
-        }, 1000);
+            interval = setInterval(() => {
+                setTimer((prevTimer) => prevTimer - 1);
+            }, 1000);
         } else if (timer === 0) {
-        setIsButtonDisabled(false); // Включаем кнопку, когда таймер закончился
-        clearInterval(interval!);
+            setIsButtonDisabled(false);
+            clearInterval(interval!);
         }
 
         return () => clearInterval(interval!);
     }, [timer, isButtonDisabled]);
 
     return (
-        <SafeAreaView
-        style={{
-            flex: 1,
-            backgroundColor: 'white',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-        }}
-        >
-        <Logo />
-        <View
-            style={{
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: width * (312 / 360),
-            height: height * (356 / 800),
-            }}
-        >
-            <Image
-            source={require('../images/noti-img 2 (1).png')}
-            style={{
-                width: width * (244 / 360),
-                height: height * (244 / 800),
-                aspectRatio: 1 / 1,
-            }}
-            />
-            <View
-            style={{
-                width: width * (312 / 360),
-                height: height * (88 / 800),
-                justifyContent: 'space-between',
-                flexDirection: 'column',
-            }}
-            >
-            <Text
-                style={{
-                width: width * (312 / 360),
-                color: '#222222',
-                fontWeight: '600',
-                fontSize: height * (20 / 800),
-                lineHeight: height * (28 / 800),
-                textAlign: 'center',
-                height: height * (28 / 800),
-                }}
-            >
-                {translations?.[store.language]?.followInstructions}
-            </Text>
-            <Text
-                style={{
-                width: width * (312 / 360),
-                color: '#555555',
-                fontWeight: '400',
-                fontSize: height * (14 / 800),
-                lineHeight: height * (24 / 800),
-                height: height * (48 / 800),
-                textAlign: 'center',
-                }}
-            >
-                {translations?.[store.language]?.thereIsALink}
-            </Text>
+        <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: vs(20) }}>
+        
+            <Logo />
+        
+            <View style={{ alignItems: 'center', width: '100%', height: 'auto', rowGap: vs(20)}}>
+            
+                <Image source={require('../images/noti-img 2 (1).png')} style={{ width: vs(250), height: vs(250)}}/>
+                
+                <View style={{ width: '100%', height: 'auto', alignItems: 'center', justifyContent: 'center', rowGap: vs(12)}}>
+                
+                    <Text style={{ color: '#222222', fontWeight: '600', fontSize: isTablet ? vs(18) : vs(16), textAlign: 'center' }}>
+                        {translations?.[store.language]?.followInstructions}
+                    </Text>
+                    
+                    <Text style={{ color: '#555555', fontWeight: '400', fontSize: isTablet ? vs(18) : vs(16), textAlign: 'center' }}>
+                        {translations?.[store.language]?.thereIsALink}
+                    </Text>
+                
+                </View>
+
             </View>
-        </View>
-        <EmailModal modal={modal} setModal={setModal} />
-        <View
-            style={{
-            marginTop: 50,
-            marginBottom: 30,
-            width: width * (312 / 360),
-            height: height * (124 / 800),
-            justifyContent: 'space-between',
-            flexDirection: 'column',
-            alignItems: 'center',
-            }}
-        >
-            <TouchableOpacity
-            onPress={() => setModal(true)}
-            style={{
-                backgroundColor: '#504297',
-                borderRadius: 100,
-                justifyContent: 'center',
-                alignItems: 'center',
-                width: width * (312 / 360),
-                height: height * (56 / 800),
-            }}
-            >
-            <Text
-                style={{
-                color: '#FFFFFF',
-                fontWeight: '600',
-                fontSize: height * (14 / 800),
-                lineHeight: height * (24 / 800),
-                }}
-            >
-                {translations?.[store.language]?.openInbox}
-            </Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-            onPress={() => resetPassword()}
-            disabled={isButtonDisabled} // Делаем кнопку неактивной
-            style={{
-                justifyContent: 'center',
-                borderRadius: 100,
-                borderWidth: 1,
-                borderColor: '#E5E5E5',
-                alignItems: 'center',
-                width: width * (312 / 360),
-                height: height * (56 / 800),
-                opacity: 1, // Меняем прозрачность
-            }}
-            >
-            <Text
-                style={{
-                color: '#504297',
-                fontWeight: '600',
-                fontSize: height * (14 / 800),
-                lineHeight: height * (24 / 800),
-                }}
-            >
-                {isButtonDisabled
-                ? `${translations?.[store.language]?.resendCodeIn} 00:${timer.toString().padStart(2, '0')}`
-                : `${translations?.[store.language]?.resendCode}`}
-            </Text>
-            </TouchableOpacity>
-        </View>
+
+            <EmailModal modal={modal} setModal={setModal} />
+        
+            <View style={{ width: '100%', height: 'auto', justifyContent: 'center', alignItems: 'center', rowGap: vs(10)}}>
+            
+                <TouchableOpacity onPress={() => setModal(true)} style={{ backgroundColor: '#504297', borderRadius: 100, justifyContent: 'center', alignItems: 'center', width: '100%', height: vs(56)}}>
+                    
+                    <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14) }}>
+                        {translations?.[store.language]?.openInbox}
+                    </Text>
+
+                </TouchableOpacity>
+
+                <TouchableOpacity onPress={() => resetPassword()} disabled={isButtonDisabled} style={{ justifyContent: 'center', borderRadius: 100, borderWidth: 1, borderColor: '#E5E5E5', alignItems: 'center', width: '100%', height: vs(56), opacity: 1}}>
+                    
+                    <Text style={{ color: '#504297', fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14) }}>
+                        {isButtonDisabled ? `${translations?.[store.language]?.resendCodeIn} 00:${timer.toString().padStart(2, '0')}` : `${translations?.[store.language]?.resendCode}`}
+                    </Text>
+
+                </TouchableOpacity>
+
+            </View>
+
         </SafeAreaView>
     );
 };

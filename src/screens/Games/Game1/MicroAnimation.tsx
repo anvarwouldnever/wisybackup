@@ -1,16 +1,15 @@
 import React, { useState, useRef } from "react";
 import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
 import { TouchableOpacity, Image, useWindowDimensions, Platform } from "react-native";
-import micro from '../../../images/tabler_microphone.png'
-import microwhite from '../../../images/tabler_microphone-white.png'
 import { observer } from "mobx-react-lite";
 import { useAudioRecorder } from "../../../hooks/useAudioRecorder";
 import store from "../../../store/store";
 
-const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, incorrectAnswer, setText }) => {
+const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, incorrectAnswer, setText, clicked }) => {
+    
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
-    const [microOn, setMicroOn] = useState(false)
-    const { startRecording, stopRecording, isRecording } = useAudioRecorder()
+    const [microOn, setMicroOn] = useState(false);
+    const { startRecording, stopRecording, isRecording } = useAudioRecorder();
 
     const pressStartTime = useRef<number | null>(null);
 
@@ -42,21 +41,11 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, inco
         try {
             const requestStatus = await sendAnswer(uri);
     
-            if (requestStatus.to_next && requestStatus.success) {
-                return correctAnswer(
-                    requestStatus?.hint,
-                    requestStatus?.stars,
-                    requestStatus?.sound,
-                    requestStatus?.old_stars
-                );
-            } else if (requestStatus.to_next && !requestStatus?.success) {
-                return incorrectAnswerToNext(
-                    requestStatus?.hint,
-                    requestStatus?.stars,
-                    requestStatus?.sound,
-                    requestStatus?.old_stars
-                );
-            } else if (!requestStatus.to_next && !requestStatus.success) {
+            if (requestStatus?.to_next && requestStatus?.success) {
+                return correctAnswer(requestStatus?.hint, requestStatus?.stars, requestStatus?.sound, requestStatus?.old_stars, requestStatus?.success_phrase, requestStatus?.success_phrase_sound);
+            } else if (requestStatus?.to_next && !requestStatus?.success) {
+                return incorrectAnswerToNext(requestStatus?.hint, requestStatus?.stars, requestStatus?.sound, requestStatus?.old_stars);
+            } else if (!requestStatus?.to_next && !requestStatus?.success) {
                 return incorrectAnswer(requestStatus?.hint, requestStatus?.sound);
             } else {
                 setText(requestStatus?.hint);
@@ -65,7 +54,6 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, inco
             console.warn("Ошибка стопа записи:", e);
         }
     };
-    
 
     const animatedMicro = useAnimatedStyle(() => {
         const scaleX = withTiming(microOn ? 1.2 : 1, { duration: 100 })
@@ -97,6 +85,7 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, inco
             ]}
         >
             <TouchableOpacity
+                onPress={() => clicked()}
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
                 activeOpacity={1}
@@ -109,7 +98,7 @@ const MicroAnimation = ({ sendAnswer, correctAnswer, incorrectAnswerToNext, inco
                 }}
             >
                 <Image
-                    source={microOn ? microwhite : micro}
+                    source={microOn ? require('../../../images/tabler_microphone-white.png') : require('../../../images/tabler_microphone.png')}
                     style={{
                         width: windowWidth * (24 / 800),
                         height: Platform.isPad

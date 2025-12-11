@@ -1,4 +1,4 @@
-import { View, Text, ActivityIndicator, Platform, TouchableOpacity, useWindowDimensions , Image} from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, Image} from 'react-native'
 import React from 'react'
 import { FadeInRight, runOnJS } from 'react-native-reanimated';
 import { SvgUri } from 'react-native-svg';
@@ -41,11 +41,15 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
     }
 
     return (
-        <AnimatedTouchableOpacity entering={ store.isFirstOpening && !wasAnimated ? FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic)).withCallback(() => {runOnJS(setWasAnimated)(true)}) : !store.isFirstOpening && FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} onPress={(store.isFirstOpening && store.wisySpeaking) ? () => {} : isLocked ? () => func3() : () => { gameStore.prepareTasksArray(item.id); navigation.navigate('GameScreen', { breaks: item?.breaks, isFromBreak: item?.isBreak, categoryId, onComplete, onCompleteTask, firstOpeningAction, availableSubCollections})}} style={{ backgroundColor: '#D8F6FF33', borderRadius: 12, width: vs(305), height: vs(360), borderWidth: 1, borderColor: '#FFFFFF1F', overflow: 'hidden', padding: vs(20), justifyContent: 'space-between' }}>
+        <AnimatedTouchableOpacity entering={ store.isFirstOpening && !wasAnimated ? FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic)).withCallback(() => {runOnJS(setWasAnimated)(true)}) : !store.isFirstOpening && FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} onPress={(store.isFirstOpening && store.wisySpeaking) ? () => {} : isLocked ? () => func3() : () => { gameStore.prepareTasksArray(item.id); navigation.navigate('GameScreen', { breaks: item?.breaks, isFromBreak: item?.isBreak, categoryId, onComplete, onCompleteTask, firstOpeningAction, availableSubCollections})}} style={{ backgroundColor: '#D8F6FF33', borderRadius: 12, width: vs(305), height: vs(360), borderWidth: 1, borderColor: '#FFFFFF1F', overflow: 'visible', padding: vs(20), justifyContent: 'space-between' }}>
+            
+            { store.isFirstOpening && index === 0 && !store.wisySpeaking && 
+                <AnimatedPaw /> 
+            }
             
             <RenderStars earned={item?.stars?.earned} total={item?.stars?.total} />
             
-            <View style={{ width: '200%', borderColor: 'white', borderWidth: 1, opacity: 0.12, alignSelf: 'center' }} />
+            <View style={{ width: '100%', borderColor: 'white', borderWidth: 1, opacity: 0.12, alignSelf: 'center' }} />
             
             {BASE_URL === 'https://tapimywisy.hostweb.uz/api/v1/app' && 
                 <Text style={{ position: 'absolute', left: s(2), top: s(8), color: 'blue', fontSize: s(5) }}>{item?.id}</Text>
@@ -61,17 +65,11 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
                 </View>
             )}
             
-            <View style={{ width: '200%', borderColor: 'white', borderWidth: 1, opacity: 0.12, alignSelf: 'center' }} />
+            <View style={{ width: '100%', borderColor: 'white', borderWidth: 1, opacity: 0.12, alignSelf: 'center' }} />
             
-            {!(store.isFirstOpening && index === 0) && (
-                <RenderAttributes attributes={item?.attributes} />
-            )}
+            <RenderAttributes attributes={item?.attributes} />
 
             <Blur isLocked={isLocked} forMarket={false} />
-
-            { store.isFirstOpening && index === 0 && !store.wisySpeaking && 
-                <AnimatedPaw /> 
-            }
 
         </AnimatedTouchableOpacity>
     )

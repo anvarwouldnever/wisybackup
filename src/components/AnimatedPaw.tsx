@@ -25,10 +25,11 @@ const AnimatedPaw = () => {
             source={require('../images/paw.png')}
             style={[
                 {
+                    zIndex: 999,
                     width: s(25),
                     height: s(25),
                     position: 'absolute',
-                    right: -s(10),
+                    right: -s(7),
                     bottom: -s(10),
                 },
                 animatedStyle

@@ -1,11 +1,10 @@
-import { View, TouchableOpacity, Image, useWindowDimensions } from 'react-native'
+import { View, TouchableOpacity, Image } from 'react-native'
 import React, { useRef } from 'react'
 import { SvgUri } from 'react-native-svg';
-import galochka from '../../../images/galochka.png'
-import x from '../../../images/wrongX.png'
 import { useScale } from '../../../hooks/utils/useScale';
+import { playSound } from '../../../hooks/usePlaySound';
 
-const RenderItem = ({ item, id, lock, answer, setId }) => {
+const RenderItem = ({ item, id, lock, answer, setId, clicked }) => {
 
         const isSvg = item?.url?.endsWith('.svg');
 
@@ -14,7 +13,9 @@ const RenderItem = ({ item, id, lock, answer, setId }) => {
         const timeoutRef = useRef(null);
 
         const onPress = () => {
+            clicked()
             if (lock) return
+            playSound.stop(true)
             answer({ answer: item?.id });
             if (timeoutRef.current) clearTimeout(timeoutRef.current);    
             timeoutRef.current = setTimeout(() => {
@@ -35,7 +36,7 @@ const RenderItem = ({ item, id, lock, answer, setId }) => {
 
                     {id?.id === item?.id && 
                         <View style={{width: s(12), height: s(12), position: 'absolute', top: vs(5), right: vs(5), backgroundColor: id?.id == item.id && id?.result == 'correct'? '#ADD64D' : id?.id == item.id && id?.result == 'wrong'? '#D81616' : 'white', justifyContent: 'center', alignItems: 'center', borderRadius: 100}}>
-                            <Image source={id?.result == 'correct'? galochka : x} style={{ width: s(10), height: s(10) }}/>
+                            <Image source={id?.result == 'correct'? require('../../../images/galochka.png') : require('../../../images/wrongX.png')} style={{ width: s(10), height: s(10) }}/>
                         </View>
                     }
 

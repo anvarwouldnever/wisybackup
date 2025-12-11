@@ -4,7 +4,7 @@ import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import RenderItem from "./AnswerButton";
 import { useScale } from "../../../hooks/utils/useScale";
 
-const Game2Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voiceForTask }) => {
+const Game2Animals1Animation = ({ answer, id, images, animal, setId, audio, lock, voiceForTask, clicked }) => {
 
     const [key, setKey] = useState(0);
 
@@ -57,7 +57,8 @@ const Game2Animals1Animation = ({ answer, id, images, animal, setId, audio, lock
                 <FlatList 
                     data={shuffledImages?.slice(0, 5)}
                     renderItem={({ item }) => (
-                        <RenderItem 
+                        <RenderItem
+                            clicked={clicked}
                             item={item} 
                             id={id}
                             lock={lock}

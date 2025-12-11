@@ -11,6 +11,7 @@ import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';
 import MainContainerBlock from './Game8/MainContainerBlock';
 import { useScale } from '../../hooks/utils/useScale';
+import translations from '../../../localization';
 
 const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
 
@@ -28,7 +29,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const [attempt, setAttempt] = useState('1');
     const [thinking, setThinking] = useState(false);
     const [id, setId] = useState(null);
-    const [lock, setLock] = useState(false);
+    const [lock, setLock] = useState(true);
     const [wisySpeaking, setWisySpeaking] = useState(false);
 
     const { start, reset } = useTimer();
@@ -58,7 +59,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
     const { answer, isActive } = useHandwrittenAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }, saveAndShareImage, setLines });
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock });
     
     useEffect(() => {
         isActive.current = true;
@@ -78,7 +79,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             )}
 
             {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && 
-                <MainContainerBlock lock={lock} hint={hint} hintDuration={hintDuration} data={data} viewShotRef={viewShotRef} lines={lines} currentLine={currentLine} id={id} setCurrentLine={setCurrentLine} setLines={setLines} />
+                <MainContainerBlock clicked={clicked} lock={lock} hint={hint} hintDuration={hintDuration} data={data} viewShotRef={viewShotRef} lines={lines} currentLine={currentLine} id={id} setCurrentLine={setCurrentLine} setLines={setLines} />
             }
             
             <OverlayHint visible={store.isBlacked}>
@@ -101,7 +102,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {lines?.length != 0 &&
                         
                 <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
-                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>Send</Text>
+                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>{translations[store.language]?.send}</Text>
                 </TouchableOpacity>
                     
             }

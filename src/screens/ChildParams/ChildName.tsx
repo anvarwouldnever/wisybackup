@@ -33,7 +33,7 @@ const ChildName = ({ setKeyboardActive, setOptions, options, nameError, setNameE
                 value={options.name}
             />
             <Text style={{fontWeight: '600', color: 'red', alignSelf: 'center', fontSize: height * (12 / 800), opacity: nameError? 1 : 0}}>
-                {translations[store.language].childWithThisName}
+                {translations?.[store.language]?.childWithThisName}
             </Text>
         </Animated.View>
     )

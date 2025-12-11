@@ -6,6 +6,8 @@ import { useAnimatedProps, useAnimatedStyle, useDerivedValue, useSharedValue, wi
 import lapa from '../../images/lapa.png'
 import { useNavigation } from '@react-navigation/native'
 import Animated from 'react-native-reanimated'
+import translations from '../../../localization'
+import store from '../../store/store'
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
 const { width, height } = Dimensions.get('window');
@@ -17,7 +19,7 @@ const Loader = ({ setText }) => {
     useEffect(() => {
         progress.value = withTiming(1, {duration: 1500})
         setTimeout(() => {
-            setText('We have matched activities that fit your child!')
+            setText(translations?.[store.language]?.weHaveMatched)
         }, 1300);
     }, [])
     

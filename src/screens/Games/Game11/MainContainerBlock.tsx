@@ -5,7 +5,7 @@ import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word, lines, viewShotRef, audio, voiceForTask, lock, id, hint, hintDuration }) => {
+const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word, lines, viewShotRef, audio, voiceForTask, lock, id, hint, hintDuration, clicked }) => {
 
     const { s, vs } = useScale()
 
@@ -15,6 +15,7 @@ const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word,
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt) => {
             if (lock) return;
+            clicked()
             if (showHint) {
                 setShowHint(false)
             }
@@ -63,7 +64,7 @@ const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word,
 
                 {audio && 
                     <TouchableOpacity onPress={lock? () => {} : () => voiceForTask(audio)} style={{width: s(35), height: s(35), padding: s(7), borderRadius: 100, backgroundColor: '#B3ABDB', borderColor: '#DFD0EE', borderWidth: 4, alignItems: 'center', justifyContent: 'center'}}>
-                         <Image source={require('../../../images/speaker2.png')} style={{width: '100%', height: '100%'}}/> 
+                        <Image source={require('../../../images/speaker2.png')} style={{width: '100%', height: '100%'}}/> 
                     </TouchableOpacity>
                 }
 
@@ -100,11 +101,15 @@ const MainContainerBlock = ({ setCurrentLine, setLines, currentLine, data, word,
                                                     fill="none"
                                                 />
 
-                                            {showHint && 
-                                                <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100 }}>
-                                                    <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
-                                                </View>
-                                            }
+                                                {showHint && 
+                                                    <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100 }}>
+                                                        {hint?.endsWith('.svg') ? (
+                                                            <SvgUri uri={hint} width={s(24)} height={s(24)} />
+                                                        ) : (
+                                                            <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                                                        )}
+                                                    </View>
+                                                }
 
                                             </Svg>
 

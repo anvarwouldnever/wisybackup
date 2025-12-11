@@ -2,8 +2,9 @@ import { View, TouchableOpacity, Image } from 'react-native'
 import React, { useRef } from 'react'
 import { SvgUri } from 'react-native-svg';
 import { useScale } from '../../../hooks/utils/useScale';
+import { playSound } from '../../../hooks/usePlaySound';
 
-const RenderItem = ({ item, lock, answer, setId, id }) => {
+const RenderItem = ({ item, lock, answer, setId, id, clicked }) => {
 
     const isSvg = item.url.endsWith('.svg');
 
@@ -13,6 +14,8 @@ const RenderItem = ({ item, lock, answer, setId, id }) => {
 
     const onPress = (id) => {
         if (lock) return
+        clicked()
+        playSound.stop(true)
         answer({ answer: id })
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);

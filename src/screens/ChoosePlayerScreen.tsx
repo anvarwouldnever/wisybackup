@@ -6,8 +6,11 @@ import Children from './ChoosePlayer/Children';
 import store from '../store/store';
 import { observer } from 'mobx-react-lite';
 import { useScale } from '../hooks/utils/useScale';
-import useLockLandscape from '../hooks/utils/useLockLandscape'
+import useLockLandscape from '../hooks/utils/useLockLandscape';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import SearchInput from './ChoosePlayer/SearchInput';
+import translations from '../../localization';
+import { getChildren } from './ChoosePlayer/hooks/getChildren';
 
 const ChoosePlayerScreen = () => {
 
@@ -15,7 +18,19 @@ const ChoosePlayerScreen = () => {
     const [chosenPlayerIndex, setChosenPlayerIndex] = useState(null);
     const [chosenPlayer, setChosenPlayer] = useState();
 
-    const { s, vs } = useScale()
+    const [searchInput, setSearchInput] = useState<string>(''); // просто текст
+    const [query, setQuery] = useState<string>('');
+
+    const { s, vs } = useScale();
+
+    const { children, loading } = getChildren();
+
+    const filteredChildren = React.useMemo(() => {
+        if (!query || query.trim() === '') return children;
+        return children?.filter(child =>
+            child?.name?.toLowerCase().includes(query.toLowerCase())
+        );
+    }, [children, query]);
 
     useLockLandscape();
 
@@ -23,15 +38,29 @@ const ChoosePlayerScreen = () => {
         <ImageBackground source={require('../images/choosePlayer.png')} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             
             <BackgroundMusic />
+
+            <SearchInput onClear={() => setQuery('')} onSearch={() => setQuery(searchInput)}  searchInput={searchInput} setSearchInput={setSearchInput} />
         
-            <Children setChosenPlayerIndex={setChosenPlayerIndex} chosenPlayerIndex={chosenPlayerIndex} setChosenPlayer={setChosenPlayer}/>
+            {query && filteredChildren?.length === 0 ? (
+                <Text style={{ color: '#504297', fontSize: s(6), fontWeight: '700', textAlign: 'center' }}>
+                    {translations?.[store.language]?.nothingFound}
+                </Text>
+            ) : (
+                <Children
+                    setChosenPlayerIndex={setChosenPlayerIndex}
+                    chosenPlayerIndex={chosenPlayerIndex}
+                    setChosenPlayer={setChosenPlayer}
+                    children={filteredChildren}
+                    loading={loading}
+                />
+            )}
 
             {chosenPlayerIndex != null && (
 
                 <TouchableOpacity onPress={() => { navigation.navigate('GamesScreen'); store.setPlayingChildId(chosenPlayer)}} style={{ borderRadius: 100, flexDirection: 'row', columnGap: vs(10), justifyContent: 'center', alignItems: 'center', backgroundColor: '#504297', width: s(65), height: s(25), bottom: s(10), right: s(10), position: 'absolute'}}>
                     
                     <Text style={{ fontWeight: '600', fontSize: s(7), color: 'white'}}>
-                        Let's play
+                        {translations?.[store.language]?.letsPlay}
                     </Text>
 
                     <Ionicons name='arrow-forward' size={s(8)} color={'white'} />

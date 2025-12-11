@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from 'react-native'
+import { View, Text } from 'react-native'
 import React, { useState } from 'react'
 import Logo from '../components/Logo';
 import GoBack from './ForgotPassword/GoBack';
@@ -6,6 +6,7 @@ import { useScale } from '../hooks/utils/useScale';
 import Button from './ForgotPassword/Button';
 import Input from './ForgotPassword/Input';
 import Texts from './ForgotPassword/Texts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ForgotPasswordScreen = () => {
 

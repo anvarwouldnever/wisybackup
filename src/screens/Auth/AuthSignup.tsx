@@ -20,12 +20,13 @@ const AuthSignup = ({ proceed, toggleOption }) => {
         try {
             setLoading(true)
             const response = await Register(email, password)
+            console.log(response?.data)
             if (response.data?.is_success) {
-                proceed()
+                proceed(email)
             }
 
         } catch (error) {
-            console.log(error)
+            console.log(error?.response?.data)
             setError(error?.response?.data?.message)
         } finally {
             setLoading(false)

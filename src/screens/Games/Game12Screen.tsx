@@ -26,7 +26,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
 
     const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, tasks, setLevel });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, tasks, setLevel });
     
     useEffect(() => {
         isActive.current = true;
@@ -41,13 +41,9 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
     const voiceForTask = async(sound) => {
         if (!sound) return
         try {
-            console.log(sound)
-            setLock(true)
             await playSound(sound)
         } catch (error) {
             setText("error loading the sound")
-            setLock(false)
-        } finally {
             setLock(false)
         }
     }
@@ -59,7 +55,7 @@ const Game12Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                 <TutorialOverlay tutorials={tutorials} />
             )}
 
-            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderGame12Component setId={setId} id={id} lock={lock} answer={answer} data={data} voiceForTask={voiceForTask} />}
+            {(!tutorialShow || tutorials?.length == 0 || isFromAttributes) && <RenderGame12Component clicked={clicked} setId={setId} id={id} lock={lock} answer={answer} data={data} voiceForTask={voiceForTask} />}
             
             <OverlayHint visible={store.isBlacked}>
                 <WisyHint text={text} thinking={thinking} wisySpeaking={wisySpeaking} />

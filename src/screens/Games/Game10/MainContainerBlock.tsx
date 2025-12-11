@@ -1,11 +1,11 @@
 import { View, Text, PanResponder, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Animated, { ZoomInEasyDown } from 'react-native-reanimated'
-import Svg, { Polyline } from 'react-native-svg'
+import Svg, { Polyline, SvgUri } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const MainContainerBlock = ({ viewShotRef, lines, currentLine, id, data, setCurrentLine, setLines, lock, hint, hintDuration, letter }) => {
+const MainContainerBlock = ({ viewShotRef, lines, currentLine, id, data, setCurrentLine, setLines, lock, hint, hintDuration, letter, clicked }) => {
 
     const { s, vs } = useScale()
 
@@ -15,6 +15,7 @@ const MainContainerBlock = ({ viewShotRef, lines, currentLine, id, data, setCurr
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt) => {
             if (lock) return;
+            clicked()
             if (showHint) {
                 setShowHint(false)
             }
@@ -84,8 +85,12 @@ const MainContainerBlock = ({ viewShotRef, lines, currentLine, id, data, setCurr
                     </Svg>
 
                     {showHint && 
-                        <View pointerEvents='none' style={{ alignItems: 'center', justifyContent: 'center', zIndex: -100, position: 'absolute' }}>
-                            <Image source={{ uri: hint }} style={{ width: s(45), height: s(45) }} />
+                        <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100, position: 'absolute' }}>
+                            {hint?.endsWith('.svg') ? (
+                                <SvgUri uri={hint} width={s(24)} height={s(24)} />
+                            ) : (
+                                <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                            )}
                         </View>
                     }
 

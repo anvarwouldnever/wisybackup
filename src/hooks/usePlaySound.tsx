@@ -4,7 +4,7 @@ import store from '../store/store';
 let currentSound: Audio.Sound | null = null;
 let isPlaying = false;
 let isLoading = false;
-let isStopping = false;
+let playToken = 0;
 
 const withTimeout = (promise: Promise<any>, ms = 1000) =>
     Promise.race([
@@ -12,16 +12,17 @@ const withTimeout = (promise: Promise<any>, ms = 1000) =>
         new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), ms))
     ]);
 
-export const playSound = async (source: string, toRenew: boolean = true, isBreak: boolean = false, isNeutral: boolean = false): Promise<void> => {
-    
-    if (!source || (typeof source !== 'string' && typeof source !== 'number')) return
+export const playSound = async (source: string, toRenew: boolean = true, isBreak: boolean = false, isNeutral: boolean = false) : Promise<void> => {
+
+    if (!source || (typeof source !== 'string' && typeof source !== 'number')) return;
 
     if (isPlaying || isLoading) return;
 
+    const token = ++playToken;
     isLoading = true;
 
     try {
-        await playSound.stop(toRenew);
+        await playSound.stopInternal(toRenew);
 
         if (store.voiceInstructions && !isNeutral) {
             store.setPlayingMusic(false);
@@ -41,10 +42,28 @@ export const playSound = async (source: string, toRenew: boolean = true, isBreak
             await sound.loadAsync({ uri: source });
         }
 
+        if (!isNeutral && token !== playToken) {
+            await sound.unloadAsync().catch(() => {});
+            return;
+        }
+
         await sound.setVolumeAsync(store.voiceInstructions ? 1.0 : 0);
+
+        if (!isNeutral && token !== playToken) {
+            await sound.unloadAsync().catch(() => {});
+            return;
+        }
+
         await sound.playAsync();
 
-        if (isNeutral) return
+        if (isNeutral) {
+            sound.setOnPlaybackStatusUpdate(async (status) => {
+              if (status.didJustFinish) {
+                await sound.unloadAsync().catch(() => {});
+              }
+            });
+            return; // сразу выходим
+        }
 
         currentSound = sound;
         isPlaying = true;
@@ -84,25 +103,16 @@ export const playSound = async (source: string, toRenew: boolean = true, isBreak
     }
 };
 
-playSound.stop = async (toRenew?) => {
-    
-    if (isStopping) return;
 
-    isStopping = true;
-
+playSound.stopInternal = async (toRenew?: boolean) => {
     try {
-
         const sound = currentSound;
-
         currentSound = null;
 
         if (!sound) return;
 
         const status = await sound.getStatusAsync();
-
-        if (!status.isLoaded) {
-            return;
-        }
+        if (!status.isLoaded) return;
 
         sound.setOnPlaybackStatusUpdate(null);
 
@@ -112,16 +122,19 @@ playSound.stop = async (toRenew?) => {
 
         await withTimeout(sound.unloadAsync().catch(() => {}), 1000);
         store.setWisySpeaking(false);
-        
     } catch (error) {
         console.error("Ошибка при остановке звука:", error);
     } finally {
         currentSound = null;
         isPlaying = false;
         isLoading = false;
-        isStopping = false;
         if (toRenew) {
             store.setPlayingMusic(true);
         }
     }
+};
+
+playSound.stop = async (toRenew?: boolean) => {
+    playToken++;
+    await playSound.stopInternal(toRenew);
 };

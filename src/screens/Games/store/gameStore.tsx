@@ -12,7 +12,6 @@ class Store {
     collectionName = '';
 
     loadingCats = false;
-
     loadingGames = false;
 
     tasks = null;
@@ -30,7 +29,7 @@ class Store {
     constructor() {
         makeAutoObservable(this);
     }
-
+    
     async setCategories(categories: any) {
         runInAction(() => {
             this.categories = categories 
@@ -142,6 +141,10 @@ class Store {
                     ...b,
                     parentCollectionId: params.collectionId
                 }));
+
+                // runInAction(() => {
+                //     allSubCollections.forEach(sub => this.subCollectionsCounter.add(sub.id));
+                // });
 
                 if (!Array.isArray(allSubCollections) || allSubCollections.length === 0) {
                     console.warn('[Ошибка] Пустой массив sub_collections из API или неверный формат');

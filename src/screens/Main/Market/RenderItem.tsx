@@ -48,7 +48,7 @@ const RenderItem = ({ item, setCurrentAnimation, setModal, setAnimationStart, an
 
             { shadow ? <></> : store.isFirstOpening && index === 0 && !store.wisySpeaking && <AnimatedPaw /> }
 
-            { store.isFirstOpening && <Blur forMarket={true} isLocked={index != 0} /> }
+            { store?.isFirstOpening && <Blur forMarket={true} isLocked={index != 0} /> }
 
         </TouchableOpacity>
     )

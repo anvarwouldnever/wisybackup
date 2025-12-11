@@ -23,6 +23,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { observer } from 'mobx-react-lite';
 import { navigationRef } from './utils/navigate';
 import * as SecureStore from 'expo-secure-store';
+import TurnPhoneScreen from '../screens/TurnPhoneScreen';
 
 const Navigation = () => {
 
@@ -33,7 +34,7 @@ const Navigation = () => {
     return (
         <NavigationContainer ref={navigationRef}>
             
-            <StatusBar translucent={true} backgroundColor="transparent" barStyle='dark-content' hidden={false}/>
+            <StatusBar translucent={true} backgroundColor="transparent" barStyle='default' hidden={false}/>
             
             <Stack.Navigator id={null} initialRouteName={token === null ? "LanguageScreen" : "ChoosePlayerScreen"} screenOptions={{ headerShown: false, animation: 'slide_from_bottom', animationDuration: 300}}>
                 
@@ -47,14 +48,15 @@ const Navigation = () => {
                 <Stack.Screen name="ResettedPasswordScreen" component={ResettedPasswordScreen} />
                 <Stack.Screen name="ChoosePlayerScreen" component={ChoosePlayerScreen} />
                 <Stack.Screen name="ChildParamsScreen" component={ChildParams} />
-                <Stack.Screen name="GamesScreen" options={{ animation: 'fade', animationDuration: 1000 }} component={MainScreen} />
-                <Stack.Screen name="ParentsCaptchaScreen" options={{ animation: 'fade', animationDuration: 1000 }} component={ParentsCaptchaScreen} />
+                <Stack.Screen name="GamesScreen" options={{ animation: 'default', animationDuration: 300 }} component={MainScreen} />
+                <Stack.Screen name="ParentsCaptchaScreen" options={{ animation: 'default', animationDuration: 300 }} component={ParentsCaptchaScreen} />
                 <Stack.Screen name="ParentsScreen" component={ParentsScreen} />
                 <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
                 <Stack.Screen name="ChatScreen" component={ChatScreen} />
                 <Stack.Screen name="ParentsSegments" component={ParentsSegments} />
                 <Stack.Screen name="GameScreen" component={GameScreen} />
                 <Stack.Screen name="TestScreen" component={TestScreen} />
+                <Stack.Screen name="TurnPhoneScreen" component={TurnPhoneScreen} />
         
             </Stack.Navigator>
 

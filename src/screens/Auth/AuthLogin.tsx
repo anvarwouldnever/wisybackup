@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Linking, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator } from "react-native";
+import { Linking, View, Text, TouchableOpacity, TextInput, Image, ActivityIndicator, Keyboard } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
 import store from "../../store/store";
 import { observer } from 'mobx-react-lite'
@@ -35,11 +35,12 @@ const AuthLogin = ({ toggleOption, playersScreen }) => {
             setLoading(true);
             const response = await Login(email, password)
             if (response.data?.token) {
+                Keyboard.dismiss()
                 await SecureStore.setItemAsync('token', response.data?.token);
                 playersScreen()
             }            
         } catch (error) {
-            console.log(error)
+            console.log(error?.response?.data)
             setError(error?.response?.data?.message)
         } finally {
             setLoading(false)

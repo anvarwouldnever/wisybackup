@@ -6,7 +6,7 @@ import { playSound } from '../../../hooks/usePlaySound'
 import IsPointInsideImage from './IsPointInsideImage'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const AnswersBlock = ({ images, offsets, answered, lock, imageLayouts, setIsDrawing, setLines, lineStartX, lineStartY, lineEndX, lineEndY, answersRefs, answersLayouts, answers, answer, setWrongObject, addToAnswered, wrongObject }) => {
+const AnswersBlock = ({ images, offsets, answered, lock, imageLayouts, setIsDrawing, setLines, lineStartX, lineStartY, lineEndX, lineEndY, answersRefs, answersLayouts, answers, answer, setWrongObject, addToAnswered, wrongObject, clicked }) => {
 
     const handleAddLine = (data) => {
         setIsDrawing(false);
@@ -27,6 +27,7 @@ const AnswersBlock = ({ images, offsets, answered, lock, imageLayouts, setIsDraw
                 const gesture = Gesture.Pan()
                     .onBegin((event) => {
                         if (lock || answered.includes(item.key)) return;
+                        runOnJS(clicked)()
                         runOnJS(setIsDrawing)(true);
                         lineStartX.value = event.absoluteX - offsets.horizontal;
                         lineStartY.value = event.absoluteY - offsets.vertical;

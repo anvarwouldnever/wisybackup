@@ -5,16 +5,17 @@ import Svg, { SvgUri, Polyline } from 'react-native-svg'
 import ViewShot from 'react-native-view-shot'
 import { useScale } from '../../../hooks/utils/useScale'
 
-const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurrentLine, setLines, hint, hintDuration, lock }) => {
+const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurrentLine, setLines, hint, hintDuration, lock, clicked }) => {
 
     const { s, vs } = useScale()
 
-const [showHint, setShowHint] = useState<boolean>(false);
+    const [showHint, setShowHint] = useState<boolean>(false);
     
     const panResponder = PanResponder.create({
         onStartShouldSetPanResponder: () => true,
         onPanResponderGrant: (evt) => {
             if (lock) return;
+            clicked()
             if (showHint) {
                 setShowHint(false)
             }
@@ -102,7 +103,11 @@ const [showHint, setShowHint] = useState<boolean>(false);
 
                     {showHint && 
                         <View pointerEvents='none' style={{ height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center', zIndex: -100, position: 'absolute' }}>
-                            <Image source={{ uri: hint }} style={{ width: s(65), height: s(65) }} />
+                            {hint?.endsWith('.svg') ? (
+                                <SvgUri uri={hint} width={s(24)} height={s(24)} />
+                            ) : (
+                                <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                            )}
                         </View>
                     }
 

@@ -55,12 +55,22 @@ const translations = {
         followInstructions: 'Follow instructions to proceed',
         thereIsALink: 'There’s a link sent to your email address. Please open it on this device.',
         openInbox: 'Open inbox',
-        redendCode: 'Resend code',
+        resendCode: 'Resend code',
         resendCodeIn: 'Resend code in',
         exit: 'Exit',
         backgroundMusic: 'Background music',
         childWithThisName: 'Child with this name already exists',
-        howOldIsYourChild: "How old is your child?"
+        howOldIsYourChild: "How old is your child?",
+        send: "Send",
+        chooseEmailProvider: "Choose email provider",
+        open: "Open",
+        nothingFound: "You don't have any children with that name",
+        search: 'Search',
+        childName: 'Child’s name',
+        letsPlay: "Let's play",
+        continue: "Continue",
+        addNewUser: "Add new user",
+        weHaveMatched: "We have matched activities that match your child"
     },
     lv: {
         welcome: 'Laipni lūdzam!',
@@ -113,7 +123,6 @@ const translations = {
         emailAddress: 'E-pasta adrese',
         send: 'Nosūtīt',
         backTo: 'Atpakaļ uz',
-        letsPlay: 'Spēlēsim!',
         mistakes: 'Kļūdas',
         followInstructions: 'Izpildiet norādījumus, lai turpinātu',
         thereIsALink: 'Uz jūsu e-pasta adresi ir nosūtīta saite. Lūdzu, atveriet to šajā ierīcē.',
@@ -123,7 +132,17 @@ const translations = {
         exit: 'Iziet',
         backgroundMusic: 'Fona mūzika',
         childWithThisName: 'Bērns ar šādu vārdu jau eksistē',
-        howOldIsYourChild: "Cik vecs ir tavs bērns?"
+        howOldIsYourChild: "Cik vecs ir tavs bērns?",
+        send: "Sūtīt",
+        chooseEmailProvider: "Izvēlieties e-pasta pakalpojumu sniedzēju",
+        open: "Atvērt",
+        nothingFound: "Jums nav bērnu ar šādu vārdu",
+        search: 'Meklēt',
+        childName: 'Bērna vārds',
+        letsPlay: "Turpināt",
+        continue: "Turpināt",
+        addNewUser: "Pievienot lietotāju",
+        weHaveMatched: "Piemeklējam atbilstošus uzdevumus"
     }
 };
 

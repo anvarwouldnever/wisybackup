@@ -19,7 +19,7 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
     const { items, loading } = getMarketItems(firstId);
 
     return (
-        <View style={{position: 'absolute', top: vs(230), right: 0, width: '62%', height: 'auto', justifyContent: 'center', overflow: 'visible'}}>
+        <View style={{ position: 'absolute', top: vs(230), right: 0, width: '62%', height: 'auto', justifyContent: 'center', overflow: 'visible' }}>
             {loading ? 
                 (
                     <LottieView
@@ -50,7 +50,7 @@ const MarketCollections = ({ setCurrentAnimation, setModal, setAnimationStart, a
                         )}
                         scrollEnabled
                         horizontal
-                        contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20) }}
+                        contentContainerStyle={{ columnGap: vs(20), paddingRight: s(20), paddingBottom: vs(30)}}
                         showsHorizontalScrollIndicator={false}
                     />
                 )

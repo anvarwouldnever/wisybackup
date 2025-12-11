@@ -24,11 +24,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const isActive = useRef(true);
 
     const { start, reset } = useTimer();
-    const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes,
-        levelHandlers: { setLevel, setStars, setEarnedStars },
-        uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking },
-        attemptState: { attempt, setAttempt },
-    });
+    const { answer } = useAnswerLogic({ data, subCollectionId, onCompleteTask, isFromAttributes, levelHandlers: { setLevel, setStars, setEarnedStars }, uiHandlers: { setText, setId, setLock, setWisySpeaking, setThinking }, attemptState: { attempt, setAttempt }});
 
     useEffect(() => {
         isActive.current = true;
@@ -43,17 +39,13 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     const voiceForTask = async(sound) => {
         if (!sound) return;
         try {
-            setLock(true)
             await playSound(sound, true)
         } catch (error) {
             setText('error loading the sound')
-            setLock(false)
-        } finally {
-            setLock(false)
         }
     }
 
-    useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
+    const { clicked } = useIntroSequence({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock, isActive });
 
     return (
         <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
@@ -64,6 +56,7 @@ const Game4Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
 
             {data && (!tutorialShow || tutorials?.length === 0 || isFromAttributes) && (
                 <Game4AnimalsAnimation 
+                    clicked={clicked}
                     lock={lock} 
                     id={id} 
                     answer={answer} 

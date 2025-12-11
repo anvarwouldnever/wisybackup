@@ -29,7 +29,6 @@ class Store {
             await this.loadDataFromStorageLanguage();
             await this.loadDataFromStorageVoiceInstructions();
             await this.loadDataFromStorageBackgroundMusic();
-            await this.loadNewChildren()
         } catch (error) {
             console.log(error)
         } finally {
@@ -44,6 +43,8 @@ class Store {
         runInAction(() => {
             if (lang) {
                 this.language = lang
+            } else {
+                this.language = 'en'
             }
         });
     }
@@ -66,17 +67,6 @@ class Store {
             }
         });
     }
-
-    async loadDataFromStorageIsFirstOpening() {
-        const isFirstOpeningState = await this.loadDataFromStorage('isFirstOpening');
-        const isBlacked = await this.loadDataFromStorage('isBlacked');
-        runInAction(() => {
-            if (isFirstOpeningState !== null && isFirstOpeningState !== undefined && isBlacked !== null && isBlacked !== undefined) {
-                this.isFirstOpening = isFirstOpeningState
-                this.isBlacked = isBlacked
-            }
-        });
-    }   
 
     async loadDataFromStorage(key: any) {
         try {
@@ -129,12 +119,6 @@ class Store {
         runInAction(() => {
             this.newChildren = updated;
         });
-        
-        try {
-            await AsyncStorage.setItem('newChildren', JSON.stringify(updated));
-        } catch (e) {
-            console.log('Ошибка сохранения в AsyncStorage:', e);
-        }
     }
 
     async removeNewChild(id: any) {
@@ -143,25 +127,6 @@ class Store {
         runInAction(() => {
             this.newChildren = updated;
         });
-
-        try {
-            await AsyncStorage.setItem('newChildren', JSON.stringify(updated));
-        } catch (e) {
-            console.log('Ошибка сохранения в AsyncStorage при удалении:', e);
-        }
-    }
-
-    async loadNewChildren() {
-        try {
-            const json = await AsyncStorage.getItem('newChildren');
-            const parsed = json != null ? JSON.parse(json) : [];
-    
-            runInAction(() => {
-                this.newChildren = parsed;
-            });
-        } catch (e) {
-            console.log('Ошибка загрузки newChildren из AsyncStorage:', e);
-        }
     }
 
     async setBreakPlayingMusic(bool: boolean) {
