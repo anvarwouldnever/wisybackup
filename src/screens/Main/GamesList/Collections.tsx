@@ -22,6 +22,8 @@ const Collections = ({ item, index, playSpeech }) => {
         playSpeech('enter_subcollections_screen');
     };
 
+    // console.log(item)
+
     return (
         <AnimatedTouchableOpacity onPress={() => { try { gameStore.enqueueGetAndProcessSubCollections({collectionId: item?.id, categoryId: item?.category?.id}); gameStore.setCollectionId(item.id); gameStore.setCollectionName(item?.name); func(); } catch (error) { console.log('Ошибка в onPress:', error); } }} entering={FadeInRight.delay(200).duration(400).easing(Easing.out(Easing.cubic))} style={{ width: vs(305), height: vs(360), backgroundColor: 'white', borderRadius: 12, borderWidth: 1, borderColor: '#FFFFFF1F', justifyContent: 'space-between', padding: vs(20) }}>
                 

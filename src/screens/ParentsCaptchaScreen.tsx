@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, ActivityIndicator } from "react-native";
 import ParentsCancel from "./Parents/ParentsCancel";
 import translations from "../../localization";
 import store from "../store/store";
@@ -13,9 +13,9 @@ import useLockPortrait from "../hooks/utils/useLockPortrait";
 
 const ParentsCaptchaScreen = () => {
 
-    const { s, vs } = useScale()
-
     useLockPortrait()
+
+    const { s, vs } = useScale()
 
     useEffect(() => {
         setAnswer([])
@@ -25,10 +25,18 @@ const ParentsCaptchaScreen = () => {
     const [answer, setAnswer] = useState<number[]>([]);
     const [error, setError] = useState(false)
 
+    const [isFrozen, setIsFrozen] = useState<boolean>(false)
+
+    if (isFrozen) {
+        return (
+            <View style={{flex: 1, backgroundColor: 'white'}} />
+        )
+    }
+
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', flexDirection: 'column', paddingHorizontal: vs(20), rowGap: vs(20) }}>
             
-            <ParentsCancel />
+            <ParentsCancel setIsFrozen={setIsFrozen}/>
             
             <Image source={require('../images/Rotate.png')} style={{ width: vs(244), height: vs(244)}} />
             

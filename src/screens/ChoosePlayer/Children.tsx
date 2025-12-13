@@ -6,11 +6,11 @@ import { observer } from 'mobx-react-lite';
 import { getAvatars } from '../ChildParams/hooks/getAvatars';
 import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { getChildren } from './hooks/getChildren';
 import LottieView from 'lottie-react-native';
 import translations from '../../../localization';
+import * as ScreenOrientation from "expo-screen-orientation";
 
-function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading }) {
+function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading, setIsFrozen }) {
     
     const navigation = useNavigation();
 
@@ -30,13 +30,22 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
         }
     }
 
+    const onAddChild = async() => {
+        setIsFrozen(true)
+            
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+        setTimeout(() => {
+            navigation.navigate('ChildParamsScreen')
+        }, 100);
+    }
+
     const renderItem = ({ item }) => {
         
         if (item?.isAddButton) {
             return (
                 <View style={{ alignItems: 'center', rowGap: vs(20) }}>
 
-                    <TouchableOpacity onPress={() => navigation.navigate('ChildParamsScreen')} style={{ width: s(46), height: s(46), justifyContent: 'center', flexDirection: 'column', alignItems: 'center', borderRadius: 100, backgroundColor: 'white', shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.20, shadowRadius: 1.41, elevation: 2}}>
+                    <TouchableOpacity onPress={() => onAddChild()} style={{ width: s(46), height: s(46), justifyContent: 'center', flexDirection: 'column', alignItems: 'center', borderRadius: 100, backgroundColor: 'white', shadowColor: "#000", shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.20, shadowRadius: 1.41, elevation: 2}}>
                         <Ionicons name='add' size={s(22)} color={'#504297'} />
                     </TouchableOpacity>
 

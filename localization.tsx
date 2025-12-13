@@ -2,7 +2,6 @@ const translations = {
     en: {
         welcome: 'Welcome!',
         goodbye: 'Goodbye!',
-        continue: 'Continue',
         enterTheCode: 'Enter the code',
         parents: 'Parents',
         chat: 'Chat',
@@ -48,7 +47,6 @@ const translations = {
         forgotUrPassword: 'Forgot your password',
         enterYourEmailAddressAnd: 'Enter your email address and we will send you instructions to reset your password',
         emailAddress: 'Email address',
-        send: 'Send',
         backTo: 'Back to',
         letsPlay: "Let's play",
         mistakes: 'Mistakes',
@@ -67,10 +65,9 @@ const translations = {
         nothingFound: "You don't have any children with that name",
         search: 'Search',
         childName: 'Child’s name',
-        letsPlay: "Let's play",
         continue: "Continue",
         addNewUser: "Add new user",
-        weHaveMatched: "We have matched activities that match your child"
+        weHaveMatched: "We have matched activities that match your child",
     },
     lv: {
         welcome: 'Laipni lūdzam!',
@@ -121,7 +118,6 @@ const translations = {
         forgotUrPassword: 'Aizmirsi savu paroli',
         enterYourEmailAddressAnd: 'Ievadiet savu e-pasta adresi, un mēs nosūtīsim norādījumus paroles atiestatīšanai',
         emailAddress: 'E-pasta adrese',
-        send: 'Nosūtīt',
         backTo: 'Atpakaļ uz',
         mistakes: 'Kļūdas',
         followInstructions: 'Izpildiet norādījumus, lai turpinātu',
@@ -140,7 +136,6 @@ const translations = {
         search: 'Meklēt',
         childName: 'Bērna vārds',
         letsPlay: "Turpināt",
-        continue: "Turpināt",
         addNewUser: "Pievienot lietotāju",
         weHaveMatched: "Piemeklējam atbilstošus uzdevumus"
     }

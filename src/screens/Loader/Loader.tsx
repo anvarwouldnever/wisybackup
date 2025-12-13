@@ -1,18 +1,18 @@
-import { View, Text, Dimensions, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
 import React, { useEffect } from 'react'
 import { ReText } from 'react-native-redash'
 import Svg, { Circle } from 'react-native-svg'
 import { useAnimatedProps, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
-import lapa from '../../images/lapa.png'
-import { useNavigation } from '@react-navigation/native'
 import Animated from 'react-native-reanimated'
 import translations from '../../../localization'
 import store from '../../store/store'
+import { useScale } from '../../hooks/utils/useScale'
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
-const { width, height } = Dimensions.get('window');
 
 const Loader = ({ setText }) => {
+
+    const { s, vs, windowHeight: height, windowWidth: width } = useScale()
 
     const progress = useSharedValue(0)
     
@@ -70,10 +70,10 @@ const Loader = ({ setText }) => {
                 />
             </Svg>
             
-            <ReText style={{position: 'absolute', color: '#222222', fontSize: height * (24 / 800), fontWeight: '600', width: width * (150 / 360), textAlign: 'center'}} text={progressText} />
+            <ReText style={{position: 'absolute', color: '#222222', fontSize: vs(24), fontWeight: '600', width: vs(150), textAlign: 'center'}} text={progressText} />
             
             <View style={styles.container}>
-                <Animated.Image source={lapa} style={[styles.circle, animatedStyle]} />
+                <Animated.Image source={require('../../images/lapa.png')} style={[styles.circle, animatedStyle]} />
             </View>
 
         </View>

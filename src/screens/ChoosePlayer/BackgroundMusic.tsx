@@ -90,16 +90,6 @@ const BackgroundMusic = () => {
     };
 
     useEffect(() => {
-    
-        loadMusic();
-    
-        return () => {
-            if (fadeInterval.current) clearInterval(fadeInterval.current);
-            if (sound.current) sound.current.unloadAsync();
-        };
-    }, [audio, store.musicTurnedOn]);
-
-    useEffect(() => {
 
         const handleAppStateChange = async (nextAppState) => {
             if (appState.match(/inactive|background/) && nextAppState === 'active') {
@@ -117,6 +107,16 @@ const BackgroundMusic = () => {
         AppState.addEventListener('change', handleAppStateChange);
 
     }, [appState]);
+
+    useEffect(() => {
+    
+        loadMusic();
+    
+        return () => {
+            if (fadeInterval.current) clearInterval(fadeInterval.current);
+            if (sound.current) sound.current.unloadAsync();
+        };
+    }, [audio, store.musicTurnedOn]);
 
     return null;
 };

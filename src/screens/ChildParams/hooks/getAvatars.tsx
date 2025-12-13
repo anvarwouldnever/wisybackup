@@ -3,7 +3,6 @@ import { GetAvatars } from '../../../api/methods/avatars/avatars';
 import { alertHandler } from '../../../network/alertHandler';
 import { checkNetwork } from '../../../network/checkNetwork';
 
-// Простейший кеш в памяти модуля
 let cachedAvatars: any[] | null = null;
 
 export const getAvatars = () => {
@@ -12,13 +11,14 @@ export const getAvatars = () => {
     const [avatars, setAvatars] = useState<Array<any>>(cachedAvatars || []);
 
     useEffect(() => {
-        if (cachedAvatars) return; // если уже есть — не грузим снова
+        if (cachedAvatars) return;
 
         const fetchAvatars = async () => {
             try {
                 const network = await checkNetwork()
                 if (!network) return alertHandler()
 
+                console.log('called avatars')
                 const response = await GetAvatars();
                 const newData = response?.data?.data || [];
 

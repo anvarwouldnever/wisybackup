@@ -4,7 +4,6 @@
     "name": "MyWisy",
     "slug": "wisy",
     "version": "1.0.0",
-    "orientation": "default",
     "icon": "./assets/wisyIcon.png",
     "newArchEnabled": true,
     "userInterfaceStyle": "light",
@@ -46,7 +45,7 @@
           "protonmail"
         ],
         "CFBundleShortVersionString": "1.0.0",
-        "CFBundleVersion": "7",
+        "CFBundleVersion": "8",
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Allow MyWisy to access your camera to take photos or record videos.",
         "NSMicrophoneUsageDescription": "Allow MyWisy to access your microphone while recording videos.",

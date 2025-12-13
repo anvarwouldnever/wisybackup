@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, TouchableOpacity, ImageBackground } from 'react-native';
+import { Text, TouchableOpacity, ImageBackground, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import BackgroundMusic from './ChoosePlayer/BackgroundMusic';
 import Children from './ChoosePlayer/Children';
@@ -17,6 +17,7 @@ const ChoosePlayerScreen = () => {
     const navigation = useNavigation();
     const [chosenPlayerIndex, setChosenPlayerIndex] = useState(null);
     const [chosenPlayer, setChosenPlayer] = useState();
+    const [isFrozen, setIsFrozen] = useState<boolean>(false)
 
     const [searchInput, setSearchInput] = useState<string>(''); // просто текст
     const [query, setQuery] = useState<string>('');
@@ -34,6 +35,12 @@ const ChoosePlayerScreen = () => {
 
     useLockLandscape();
 
+    if (isFrozen) {
+        return (
+            <View style={{ flex: 1, backgroundColor: 'white' }} />
+        )
+    }
+
     return (
         <ImageBackground source={require('../images/choosePlayer.png')} style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
             
@@ -47,6 +54,7 @@ const ChoosePlayerScreen = () => {
                 </Text>
             ) : (
                 <Children
+                    setIsFrozen={setIsFrozen}
                     setChosenPlayerIndex={setChosenPlayerIndex}
                     chosenPlayerIndex={chosenPlayerIndex}
                     setChosenPlayer={setChosenPlayer}

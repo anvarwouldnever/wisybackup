@@ -4,19 +4,29 @@ import { useNavigation } from "@react-navigation/native";
 import translations from "../../../localization";
 import store from "../../store/store";
 import { useScale } from "../../hooks/utils/useScale";
+import * as ScreenOrientation from "expo-screen-orientation";
 
-const ParentsCancel = () => {
+const ParentsCancel = ({ setIsFrozen }) => {
 
     const navigation = useNavigation();
 
     const { s, vs } = useScale()
+
+    const onPress = async() => {
+        setIsFrozen(true)
+    
+        await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+        setTimeout(() => {
+            navigation.navigate('GamesScreen');
+        }, 50);
+    }
     
     return (
         <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', width: '100%', height: vs(28)}}>
             
             <Text style={{fontWeight: '600', fontSize: vs(20), lineHeight: vs(28)}}>{translations?.[store.language]?.parents}</Text>
             
-            <TouchableOpacity onPress={() => navigation.replace('GamesScreen')} style={{justifyContent: 'center', alignItems: 'center', width: s(24), height: vs(24)}}>
+            <TouchableOpacity onPress={() => onPress()} style={{justifyContent: 'center', alignItems: 'center', width: s(24), height: vs(24)}}>
                 
                 <Image source={require('../../images/x.png')} style={{width: s(18), height: vs(18), aspectRatio: 1}}/>
             

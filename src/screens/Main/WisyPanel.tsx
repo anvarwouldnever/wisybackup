@@ -10,7 +10,6 @@ import standingWisy from '../../lotties/standingWisy.json';
 import speakingAndStanding from '../../lotties/speakingAndStanding.json';
 import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json';
 import { observer } from "mobx-react-lite";
-import bamboo from '../../lotties/panda bamboo eat5-F.json'
 import { gameStore } from "../Games/store/gameStore";
 import { GetSpeeches } from "../../api/methods/speeches/speech";
 import { useScale } from "../../hooks/utils/useScale";
@@ -134,8 +133,8 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     useEffect(() => {
         if (store.isFirstOpening) return;
     
-        if (!gameStore.loadingCats && !store.wisySpeaking && !doneWelcomeSpeech.current && !welcomeSequenceDone.current) {
-            doneWelcomeSpeech.current = true;
+        if (!gameStore.loadingCats && !store.wisySpeaking && !store.doneWelcomeSpeech && !welcomeSequenceDone.current) {
+            store.setDoneWelcomeSpeech(true)
             func('enter_collections_screen');
         }
     }, [gameStore.loadingCats]);    

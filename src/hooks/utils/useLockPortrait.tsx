@@ -1,17 +1,25 @@
-import { useFocusEffect } from "@react-navigation/native";
-import { useCallback } from "react";
+import { useEffect } from "react";
 import * as ScreenOrientation from "expo-screen-orientation";
+import { AppState } from "react-native";
 
 const useLockPortrait = () => {
-    useFocusEffect(
-        useCallback(() => {
-            const lock = async () => {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-            };
+    useEffect(() => {
+        ScreenOrientation.lockAsync(
+            ScreenOrientation.OrientationLock.PORTRAIT_UP
+        );
 
-            lock();
-        }, [])
-    );
+        const sub = AppState.addEventListener("change", state => {
+            if (state === "inactive" || state === "background") {
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+            }
+
+            if (state === "active") {
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+            }
+        });
+
+        return () => sub.remove();
+    }, []);
 };
 
 export default useLockPortrait

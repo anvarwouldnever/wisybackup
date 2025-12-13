@@ -24,11 +24,19 @@ const ParentsScreen = () => {
 
     const { s, vs } = useScale()
 
+    const [isFrozen, setIsFrozen] = useState<boolean>(false)
+    
+    if (isFrozen) {
+        return (
+            <View style={{flex: 1, backgroundColor: 'white'}} />
+        )
+    }
+
     return (
         <SafeAreaView style={{flex: 1, alignItems: 'center', rowGap: vs(15), paddingHorizontal: vs(20), backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             
             {index !== 'Lang' && 
-                <ParentsCancel />
+                <ParentsCancel setIsFrozen={setIsFrozen} />
             }
 
             {index == 'Lang' ? 

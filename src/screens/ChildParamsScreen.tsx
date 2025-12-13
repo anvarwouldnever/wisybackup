@@ -1,192 +1,146 @@
-import React, { useState, useCallback } from "react";
-import Logo from "../components/Logo";
-import { View, Image, Dimensions, TouchableOpacity, ImageBackground, Text, Platform, ActivityIndicator } from "react-native";
-import Animated, { useAnimatedStyle, withTiming } from "react-native-reanimated";
-import * as ScreenOrientation from 'expo-screen-orientation';
-import { useNavigation, useFocusEffect } from "@react-navigation/native";
-import api from '../api/api'
-import store from "../store/store";
-import ChildAge from "./ChildParams/ChildAge";
-import ChildAvatar from "./ChildParams/ChildAvatar";
-import ChildEngagementTime from "./ChildParams/ChildEngagementTime";
-import ChildGender from "./ChildParams/ChildGender";
-import ChildName from "./ChildParams/ChildName";
-import { AddChild, GetChildren } from "../api/methods/children/children";
-import { getAvatars } from "./ChildParams/hooks/getAvatars";
-import { getSettings } from "./ChildParams/hooks/getSignUpSettings";
-import { clearChildrenCache, getChildren } from "./ChoosePlayer/hooks/getChildren";
-import translations from "../../localization";
+import { ActivityIndicator, View } from 'react-native'
+import React, { useState } from 'react'
+import Logo from '../components/Logo';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useScale } from '../hooks/utils/useScale';
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Animated, { FadeInLeft, FadeInRight, useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
+import Buttons from './CreateChild/Buttons';
+import Name from './CreateChild/Name';
+import Avatars from './CreateChild/Avatars';
+import Progress from './CreateChild/Progress';
+import Age from './CreateChild/Age';
+import Gender from './CreateChild/Gender';
+import EngagementTime from './CreateChild/EngagementTime';
+import { AddChild } from '../api/methods/children/children';
+import { useNavigation } from '@react-navigation/native';
+import useLockPortrait from '../hooks/utils/useLockPortrait';
+import { getSettings } from './ChildParams/hooks/getSignUpSettings';
+import { getChildren } from './ChoosePlayer/hooks/getChildren';
+import store from '../store/store';
+import { getAvatars } from './ChildParams/hooks/getAvatars';
 
-const { width, height } = Dimensions.get('window');
+const ChildParamsScreen = () => {
 
-const ChildParams = () => {
+    useLockPortrait()
 
-    const { avatars } = getAvatars()
     const { settings } = getSettings()
     const { children } = getChildren()
+    const { avatars } = getAvatars()
 
-    const [currentIndex, setCurrentIndex] = useState(0)
-    const [keyboardActive, setKeyboardActive] = useState(false)
-    const [focusComponent, setFocusComponent] = useState('name')
-    const [nameError, setNameError] = useState(false)
-    const currentAvatar = avatars?.[currentIndex]?.id ?? null
-    
-    const [options, setOptions] = useState({name: '', avatar: '1', age: '', gender: 0, engagement_time: 30})
-    const [loading, setLoading] = useState(false)
+    const { vs, windowWidth } = useScale();
+    const insets = useSafeAreaInsets();
     const navigation = useNavigation()
 
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    const [name, setName] = useState<string>(null);
+    const [avatarIndex, setAvatarIndex] = useState<number>(0);
+    const [avatarId, setAvatarId] = useState<number | null>(null);
+    const [birthday, setBirthday] = useState<Date | null>(null);
+    const [gender, setGender] = useState<number>(null)
+    const [engagementTime, setEngagementTime] = useState<number>(null)
 
-    const animatedUp = useAnimatedStyle(() => {
-        return {
-            height: withTiming(keyboardActive && focusComponent === 'name'? height * (371 / 800) : height * (642 / 800), {duration: 250})
-        }
-    })
+    const [stage, setStage] = useState<number>(1)
+    const [prevStage, setPrevStage] = useState<number>(1);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [nameExists, setNameExists] = useState<boolean>(false)
+    const [isFrozen, setIsFrozen] = useState<boolean>(false)
 
-    const animatedProgress = useAnimatedStyle(() => {
-        return {
-            width: withTiming(focusComponent === 'name'? ((width * 0.8666) / 5) : focusComponent === 'avatar'? ((width * 0.8666) / (5 / 2)) : focusComponent === 'age'? ((width * 0.8666) / (5 / 3)) : focusComponent === 'gender'? ((width * 0.8666) / (5 / 4)) : (width * 0.8666), {duration: 250})
-        }
-    })
+    const inputHeight = useSharedValue(vs(460));
 
-    const addChild = async() => {
+    const animatedStyle = useAnimatedStyle(() => ({
+        height: inputHeight.value
+    }));
+
+    const getEnteringAnimation = () => {
+        return stage > prevStage ? FadeInRight.duration(400) : FadeInLeft.duration(400);
+    };
+
+    const formatDate = (date) => {
+        if (!date) return '';
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    }
+
+    const createChild = async() => {
         try {
             setLoading(true)
-            const addedChild = await AddChild(options.name, `${currentAvatar}`, options.age, options.gender, options.engagement_time)
-            await store.setNewChildren(addedChild?.data?.data?.id)
-            if (addedChild.data) {
-                clearChildrenCache()
-                navigation.navigate('LoaderScreen')
+            const response = await AddChild(name, avatarId.toString(), formatDate(birthday), gender, engagementTime)
+            if (response?.data?.data?.user_id) {
+                await store.setNewChildren(response?.data?.data?.id)
+                navigation.replace('LoaderScreen')
             }
         } catch (error) {
-            console.log(error)   
+            console.log(error?.response?.data?.message || error)
+            setLoading(false)
         } finally {
             setLoading(false)
         }
     }
 
-    const navigate = () => {
-        const newName = options.name.trim().toLowerCase();
-    
-        const nameExists = children?.some(child => child?.name.trim().toLowerCase() === newName);
-
-        if (nameExists) {
-            setFocusComponent('name')
-            setNameError(true)
-            return;
-        }
-
-        setFocusComponent('avatar')
+    const checkName = () => {
+        const newName = name.trim().toLowerCase();
+        const nameExists = children.some(child => child.name.trim().toLowerCase() === newName);
+        return nameExists
     };
 
+    if (isFrozen) {
+        return (
+            <View style={{ flex: 1, backgroundColor: 'white' }} />
+        )
+    }
+    
     return (
-            <View style={{flex: 1, backgroundColor: 'white'}}>
-                <ImageBackground style={{flex: 1}} source={require('../images/BGimage.png')}>
-                    
-                    <Animated.View style={[animatedUp, {paddingTop: height * (60 / 932), backgroundColor: 'white', height: height * (642 / 800), alignItems: 'center', borderBottomLeftRadius: 24, borderBottomRightRadius: 24}]}>
-                        <View style={{marginTop: Platform.OS === 'android'? -40 : 0}}>
-                            <Logo />
-                        </View>
-                        <View style={{width: width * 0.8666, height: 8, backgroundColor: '#F8F8F8', marginVertical: height * (45 / 932), borderRadius: 100}}>
-                            <Animated.View style={[animatedProgress, {width: 78, backgroundColor: '#504297', height: '100%', borderRadius: 100}]} />
-                        </View>
-                        <View style={{marginTop: height * (15 / 800), alignItems: 'center'}}>
-                            {
-                                focusComponent === 'name' && ScreenOrientation.Orientation.PORTRAIT_UP ?
-                                <Animated.View key={ScreenOrientation.Orientation} style={{width: width, height: height * (180 / 800), alignItems: 'center'}}>
-                                    <ChildName settings={settings} nameError={nameError} setNameError={setNameError} setKeyboardActive={setKeyboardActive} setOptions={setOptions} options={options}/> 
-                                </Animated.View>
-                                : focusComponent === 'avatar'?
-                                <View style={{width: width, height: height * (360 / 800)}}>
-                                    <ChildAvatar settings={settings} currentIndex={currentIndex} setCurrentIndex={setCurrentIndex}/> 
-                                </View>
-                                : focusComponent === 'gender'?
-                                <View style={{width: width * 0.8666, height: height * (244 / 800)}}>
-                                    <ChildGender setOptions={setOptions} options={options}/>
-                                </View> 
-                                : focusComponent === 'engtime'?
-                                <View style={{width: width * 0.8666, height: height * (400 / 800), flexDirection: 'column', justifyContent: 'space-between'}}>
-                                    <ChildEngagementTime settings={settings} setOptions={setOptions} options={options}/>
-                                </View> 
-                                :
-                                <View style={{height: height * (380 / 800), width: width, alignItems: 'center'}}>
-                                    <ChildAge settings={settings} setOptions={setOptions} options={options}/>
-                                </View>
-                            }
-                        </View>
-                    </Animated.View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', paddingTop: insets?.top, gap: vs(44) }}>
+            <Logo />
+            <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1, alignItems: 'center', width: '100%', gap: vs(44)}}>
+                
+                <Animated.View style={[animatedStyle, { width: '100%', alignItems: 'center', backgroundColor: 'white', borderBottomLeftRadius: vs(24), borderBottomRightRadius: vs(24), paddingHorizontal: vs(24), gap: vs(44) }]}>
 
-                    <View style={{justifyContent: 'center', width: width, height: height * (140 / 932)}}>
-                        <View style={{justifyContent: 'space-between', paddingHorizontal: 20, width: width, alignItems: 'center', flexDirection: 'row', height: height * (56 / 800)}}>
-                            <TouchableOpacity onPress={() => setFocusComponent(prev => prev === 'avatar'? 'name' : prev === 'age'? 'avatar' : prev === 'gender'? 'age' : prev === 'engtime'? 'gender' : navigation.navigate('ChoosePlayerScreen'))} style={{width: width * (56 / 360), justifyContent: 'center', alignItems: 'center', height: height * (56 / 800), backgroundColor: '#F8F8F833', borderRadius: 100}}>
-                                <Image source={require('../images/narrowleft.png')} style={{width: height * (24 / 800), height: height * (24 / 800),}}/>
-                            </TouchableOpacity>
-                            {options[focusComponent] === ''?
-                            <TouchableOpacity style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100, opacity: 0.3}}>
-                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>{translations?.[store.language]?.continue}</Text>
-                                <Image source={require('../images/narrowright-purple.png')} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
-                            </TouchableOpacity>
-                            :
-                            <TouchableOpacity onPress={() => {
-                                if (focusComponent === 'engtime' && !loading) {
-                                    addChild();
-                                } else if (focusComponent === 'name') {
-                                    navigate(); // сам вызывает setFocusComponent, если имя уникальное
-                                } else if (focusComponent === 'avatar') {
-                                    setFocusComponent('age');
-                                } else if (focusComponent === 'age') {
-                                    setFocusComponent('gender');
-                                } else if (focusComponent === 'gender') {
-                                    setFocusComponent('engtime');
-                                }
-                            }}
-                             style={{alignItems: 'center', justifyContent: 'center', gap: height * (8 / 800), flexDirection: 'row', padding: height * (16 / 800), width: width * (121 / 360), height: height * (56 / 800), backgroundColor: 'white', borderRadius: 100}}>
-                                <Text style={{color: '#504297', fontSize: height * (14 / 800), fontWeight: '600'}}>{translations?.[store.language]?.continue}</Text>
-                                <Image source={require('../images/narrowright-purple.png')} style={{width: height * (24 / 800), height: height * (24 / 800), aspectRatio: 24 / 24}}/>
-                            </TouchableOpacity>
-                            }
-                        </View>
-                    </View>
+                    <Progress stage={stage} />
                     
-                    {loading && <ActivityIndicator color='#504297' style={{position: 'absolute', alignSelf: 'center', top: 0, left: 0, right: 0, bottom: 0}}/>}
-                </ImageBackground>
-            </View>  
+                    { stage === 1 ?
+                        
+                        <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
+                            <Name nameExists={nameExists} setNameExists={setNameExists} settings={settings} name={name} inputHeight={inputHeight} setName={setName} />
+                        </Animated.View>
+
+                    : stage === 2 ?
+                        
+                        <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: windowWidth }}>
+                            <Avatars settings={settings} avatarIndex={avatarIndex} setAvatarIndex={setAvatarIndex} setAvatarId={setAvatarId}/>
+                        </Animated.View>
+
+                    : stage === 3 ? 
+                        
+                        <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
+                            <Age formatDate={formatDate} settings={settings} birthday={birthday} setBirthday={setBirthday}  />
+                        </Animated.View>
+
+                    : stage === 4 ?
+
+                        <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
+                            <Gender gender={gender} setGender={setGender} />
+                        </Animated.View>
+                    
+                    : stage === 5 ?
+
+                        <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
+                            <EngagementTime engagementTime={engagementTime} setEngagementTime={setEngagementTime} />
+                        </Animated.View> : null
+
+                    }      
+
+                </Animated.View>
+
+                <Buttons avatar={avatarId} inputHeight={inputHeight} checkName={checkName} setNameExists={setNameExists} birthday={birthday} engagementTime={engagementTime} gender={gender} name={name} loading={loading} createChild={createChild} stage={stage} setPrevStage={setPrevStage} setStage={setStage} setIsFrozen={setIsFrozen} />
+
+            </LinearGradient>
+
+            {loading && <ActivityIndicator size={'large'} style={{position: 'absolute', alignSelf: 'center'}} color={'#B1B1B1'} />}
+        </View>
     )
 }
 
-export default ChildParams;
-
-{/* <FlatList 
-    data={components}
-    renderItem={renderItem}
-    keyExtractor={item => item.key}
-    horizontal
-    style={{position: 'absolute', top: 250}}
-    showsHorizontalScrollIndicator={false}
-    scrollEnabled={true}
-/> */}
-
-// const toggleKeyboard = () => {
-    //     Keyboard.dismiss()
-    //     setKeyboardActive(false)
-    // }
-
-    // const components = [
-    //     {key: '1', component: <ChildName setKeyboardActive={setKeyboardActive}/>},
-    //     {key: '2', component: <ChildAvatar />},
-    // ]
-
-    // const renderItem = ({ item }) => {
-    //     return (
-    //             <View style={{width: width, alignItems: 'center'}}>
-    //                 {item.component}
-    //             </View>
-    //     )
-    // }
+export default ChildParamsScreen;

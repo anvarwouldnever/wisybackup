@@ -5,11 +5,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { checkNetwork } from './src/network/checkNetwork';
 import NoNetworkScreen from './src/components/NoNetwork';
 import store from './src/store/store';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store'
 import * as Linking from 'expo-linking';
 import { navigationRef } from './src/navigation/utils/navigate';
-import TurnPhoneScreen from './src/screens/TurnPhoneScreen';
 
 SplashScreen.preventAutoHideAsync()
 
@@ -73,8 +71,8 @@ const App = () => {
         <GestureHandlerRootView style={{ flex: 1 }}>
             {hasNetwork ?
                 <>
-                    <TurnPhoneScreen />
-                    {/* <Navigation /> */}
+                    {/* <TurnPhoneScreen /> */}
+                    <Navigation />
                 </>
             :
                 <NoNetworkScreen onRetry={initialize} />

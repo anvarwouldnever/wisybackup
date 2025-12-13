@@ -31,12 +31,14 @@ const Navigation = () => {
 
     const token = SecureStore.getItem('token');
 
+    // console.log(token)
+
     return (
         <NavigationContainer ref={navigationRef}>
             
             <StatusBar translucent={true} backgroundColor="transparent" barStyle='default' hidden={false}/>
             
-            <Stack.Navigator id={null} initialRouteName={token === null ? "LanguageScreen" : "ChoosePlayerScreen"} screenOptions={{ headerShown: false, animation: 'slide_from_bottom', animationDuration: 300}}>
+            <Stack.Navigator id={null} initialRouteName={token === null ? "LanguageScreen" : "ChoosePlayerScreen"} screenOptions={{ headerShown: false, animation: 'slide_from_bottom', animationDuration: 300 }}>
                 
                 <Stack.Screen name="LanguageScreen" component={LanguageScreen} />
                 <Stack.Screen name="WelcomeScreen" component={WelcomeScreen} />
@@ -46,10 +48,10 @@ const Navigation = () => {
                 <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
                 <Stack.Screen name="ResetPassword" component={ResetPasswordScreen} />
                 <Stack.Screen name="ResettedPasswordScreen" component={ResettedPasswordScreen} />
-                <Stack.Screen name="ChoosePlayerScreen" component={ChoosePlayerScreen} />
-                <Stack.Screen name="ChildParamsScreen" component={ChildParams} />
-                <Stack.Screen name="GamesScreen" options={{ animation: 'default', animationDuration: 300 }} component={MainScreen} />
-                <Stack.Screen name="ParentsCaptchaScreen" options={{ animation: 'default', animationDuration: 300 }} component={ParentsCaptchaScreen} />
+                <Stack.Screen name="ChoosePlayerScreen" options={{ animation: 'fade', animationDuration: 300 }} component={ChoosePlayerScreen} />
+                <Stack.Screen name="ChildParamsScreen" options={{ animation: 'fade', animationDuration: 300 }} component={ChildParams} />
+                <Stack.Screen name="GamesScreen" options={{ animation: 'fade', animationDuration: 300 }} component={MainScreen} />
+                <Stack.Screen name="ParentsCaptchaScreen" options={{ animation: 'fade', animationDuration: 300 }} component={ParentsCaptchaScreen} />
                 <Stack.Screen name="ParentsScreen" component={ParentsScreen} />
                 <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
                 <Stack.Screen name="ChatScreen" component={ChatScreen} />

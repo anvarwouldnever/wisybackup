@@ -17,6 +17,7 @@ class Store {
     wisyMenuText = null;
     isFirstOpening = false;
     isBlacked = false;
+    doneWelcomeSpeech = false;
     newChildren = [];
 
     constructor() {
@@ -181,6 +182,12 @@ class Store {
         });
     }
     
+    async setDoneWelcomeSpeech(boolean: boolean) {
+        runInAction(() => {
+            this.doneWelcomeSpeech = boolean;
+        });
+    }
+
     async setWisyMenuText(text: string) {
         runInAction(() => {
             this.wisyMenuText = text;

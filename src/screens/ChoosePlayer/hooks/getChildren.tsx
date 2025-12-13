@@ -10,6 +10,7 @@ export const clearChildrenCache = () => {
 };
 
 export const getChildren = () => {
+    
     const [loading, setLoading] = useState(!cachedChildren);
     const [error, setError] = useState<string | null>(null);
     const [children, setChildren] = useState<any>(cachedChildren);
@@ -26,6 +27,7 @@ export const getChildren = () => {
                 const network = await checkNetwork()
                 if (!network) return alertHandler()
 
+                console.log('called children')
                 const response = await GetChildren()
                 cachedChildren = response?.data?.data;
                 setChildren(response?.data?.data);

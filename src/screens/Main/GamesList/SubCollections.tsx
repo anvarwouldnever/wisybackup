@@ -69,7 +69,7 @@ const SubCollections = ({ item, onComplete, onCompleteTask, index, availableSubC
             
             <RenderAttributes attributes={item?.attributes} />
 
-            <Blur isLocked={isLocked} forMarket={false} />
+            <Blur isLocked={isLocked} forMarket={false} height={360} width={305} />
 
         </AnimatedTouchableOpacity>
     )

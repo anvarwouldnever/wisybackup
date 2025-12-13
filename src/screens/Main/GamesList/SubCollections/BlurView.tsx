@@ -4,7 +4,7 @@ import { BlurView } from 'expo-blur'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useScale } from '../../../../hooks/utils/useScale';
 
-const Blur = ({ isLocked, forMarket }) => {
+const Blur = ({ isLocked, forMarket, height, width }) => {
 
     const { s, vs } = useScale()
 
@@ -16,8 +16,8 @@ const Blur = ({ isLocked, forMarket }) => {
             tint="light"
             style={{
                 ...StyleSheet.absoluteFillObject,
-                width: vs(320), 
-                height: vs(370),
+                width: vs(width) || 'auto', 
+                height: vs(height) || 'auto',
                 justifyContent: 'center',
                 alignItems: 'center',
                 borderRadius: 12,

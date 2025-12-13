@@ -24,10 +24,9 @@ const MainScreen = () => {
     const [animationStart, setAnimationStart] = useState(false);
     const [modal, setModal] = useState(false);
     const [animation, setAnimation] = useState(null);
+    const [isFrozen, setIsFrozen] = useState<boolean>(false)
 
-    useLockLandscape()
-
-    const { s, vs, isTablet } = useScale()
+    const { s, vs, isTablet } = useScale();
 
     const firstOpeningAction = () => {
         setAnimation(null);
@@ -35,6 +34,14 @@ const MainScreen = () => {
         setMarketCollections(!null);
         gameStore.resetSubCollection()
         store.setWisySpeaking(true)
+    }
+
+    useLockLandscape();
+
+    if (isFrozen) {
+        return (
+            <View style={{ flex: 1, backgroundColor: 'white' }} />
+        )
     }
 
     return (
@@ -58,7 +65,7 @@ const MainScreen = () => {
                     
                     <Stars />
 
-                    <GoParent setAnimationStart={setAnimationStart}/>
+                    <GoParent setIsFrozen={setIsFrozen} setAnimationStart={setAnimationStart}/>
 
                 </View>
 
