@@ -18,7 +18,7 @@ const ParentsCancel = ({ setIsFrozen }) => {
         await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
         setTimeout(() => {
             navigation.navigate('GamesScreen');
-        }, 50);
+        }, 150);
     }
     
     return (

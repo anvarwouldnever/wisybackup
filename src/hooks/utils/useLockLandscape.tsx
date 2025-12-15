@@ -4,13 +4,13 @@ import { AppState } from "react-native";
 
 const useLockLandscape = () => {
     useEffect(() => {
-        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+        ScreenOrientation.lockAsync(
+            ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT
+        );
 
         const sub = AppState.addEventListener("change", state => {
             if (state === "inactive" || state === "background") {
-                ScreenOrientation.lockAsync(
-                    ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT
-                );
+                ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
             }
 
             if (state === "active") {
@@ -18,7 +18,9 @@ const useLockLandscape = () => {
             }
         });
 
-        return () => sub.remove();
+        return () => {
+            sub.remove() 
+        };
     }, []);
 };
 

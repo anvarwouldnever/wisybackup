@@ -72,8 +72,6 @@ export const useDragAndDropAnswer = ({ data, subCollectionId, onCompleteTask, is
                         await playSound(speech?.data?.data[0]?.audio);
                     } else {
                         playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), true, false, true)
-                        setText(response.data?.hint);
-                        await playSound(response.data?.sound);
                         setText(response.data?.success_phrase);
                         await playSound(response.data?.success_phrase_sound);
                     }

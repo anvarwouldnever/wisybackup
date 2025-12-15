@@ -93,7 +93,9 @@ const ChildParamsScreen = () => {
     
     return (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white', paddingTop: insets?.top, gap: vs(44) }}>
+            
             <Logo />
+            
             <LinearGradient colors={['#ACA5F6', '#3E269D']} style={{flex: 1, alignItems: 'center', width: '100%', gap: vs(44)}}>
                 
                 <Animated.View style={[animatedStyle, { width: '100%', alignItems: 'center', backgroundColor: 'white', borderBottomLeftRadius: vs(24), borderBottomRightRadius: vs(24), paddingHorizontal: vs(24), gap: vs(44) }]}>
@@ -121,13 +123,13 @@ const ChildParamsScreen = () => {
                     : stage === 4 ?
 
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <Gender gender={gender} setGender={setGender} />
+                            <Gender settings={settings} gender={gender} setGender={setGender} />
                         </Animated.View>
                     
                     : stage === 5 ?
 
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <EngagementTime engagementTime={engagementTime} setEngagementTime={setEngagementTime} />
+                            <EngagementTime settings={settings} engagementTime={engagementTime} setEngagementTime={setEngagementTime} />
                         </Animated.View> : null
 
                     }      
@@ -139,6 +141,7 @@ const ChildParamsScreen = () => {
             </LinearGradient>
 
             {loading && <ActivityIndicator size={'large'} style={{position: 'absolute', alignSelf: 'center'}} color={'#B1B1B1'} />}
+        
         </View>
     )
 }

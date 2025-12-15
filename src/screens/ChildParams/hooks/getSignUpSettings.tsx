@@ -1,38 +1,55 @@
 import { useEffect, useState } from 'react'
-import { GetSignUpSettings } from '../../../api/methods/auth/auth';
-import { alertHandler } from '../../../network/alertHandler';
-import { checkNetwork } from '../../../network/checkNetwork';
+import { GetSignUpSettings } from '../../../api/methods/auth/auth'
+import { alertHandler } from '../../../network/alertHandler'
+import { checkNetwork } from '../../../network/checkNetwork'
+import store from '../../../store/store'
 
-let cachedSettings: any[] | null = null;
+type Language = 'en' | 'lv';
+
+const cachedSettings: Record<Language, any[] | null> = {
+    en: null,
+    lv: null,
+};
 
 export const getSettings = () => {
-    const [loading, setLoading] = useState(!cachedSettings);
+    const language = store.language as Language;
+
+    const [loading, setLoading] = useState(!cachedSettings[language]);
     const [error, setError] = useState<string | null>(null);
-    const [settings, setSettings] = useState<Array<any>>(cachedSettings || []);
+    const [settings, setSettings] = useState<any[]>(cachedSettings[language] || []);
 
     useEffect(() => {
-        if (cachedSettings) return;
+        if (cachedSettings[language]) {
+            setSettings(cachedSettings[language]!);
+            setLoading(false);
+            return;
+        }
 
-        const fetchsettings = async () => {
+        const fetchSettings = async () => {
+            setLoading(true);
+
             try {
-                const network = await checkNetwork()
-                if (!network) return alertHandler()
-                    
+                const network = await checkNetwork();
+                if (!network) return alertHandler();
+
                 const response = await GetSignUpSettings();
                 const newData = response?.data || [];
 
-                cachedSettings = newData;
+                cachedSettings[language] = newData;
                 setSettings(newData);
             } catch (e: any) {
                 console.log(e);
-                setError(e?.response?.data?.message || 'Ошибка загрузки настроек для регистрации');
+                setError(
+                    e?.response?.data?.message ||
+                    'Ошибка загрузки настроек для регистрации'
+                );
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchsettings();
-    }, []);
+        fetchSettings();
+    }, [language]);
 
     return { settings, loading, error };
 };

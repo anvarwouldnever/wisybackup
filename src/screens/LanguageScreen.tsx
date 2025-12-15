@@ -8,6 +8,7 @@ import { useScale } from '../hooks/utils/useScale';
 import useLockPortrait from '../hooks/utils/useLockPortrait';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { getAudios } from './ChoosePlayer/hooks/getAudios';
+import { getLabels } from './Welcome/hooks/getLabels';
 
 const LanguageScreen = () => {
 
@@ -18,6 +19,7 @@ const LanguageScreen = () => {
     useLockPortrait();
 
     const { audio } = getAudios()
+    const { labels } = getLabels()
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: vs(20), rowGap: vs(20) }}>

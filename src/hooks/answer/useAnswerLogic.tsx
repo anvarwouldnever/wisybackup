@@ -49,6 +49,8 @@ export const useAnswerLogic = ({ data, subCollectionId, onCompleteTask, isFromAt
 
             const response = await AnswerSimpleChoice(data?.id, attempt, store.playingChildId?.id, lead_time, answer);
 
+            // console.log(response.data)
+
             if (!isActive.current) return;
 
             const handleSuccess = async (correct) => {
@@ -67,8 +69,6 @@ export const useAnswerLogic = ({ data, subCollectionId, onCompleteTask, isFromAt
                         await playSound(speech?.data?.data[0]?.audio);
                     } else {
                         playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), true, false, true)
-                        setText(response.data?.hint);
-                        await playSound(response.data?.sound);
                         setText(response.data?.success_phrase);
                         await playSound(response.data?.success_phrase_sound);
                     }

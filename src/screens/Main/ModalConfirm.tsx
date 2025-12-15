@@ -10,17 +10,16 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, se
 
     const purchaseItem = async() => {
         try {
-            const purchase = await Purchase(store?.playingChildId?.id, currentAnimation?.id)
-            if (purchase?.data?.is_error) {
-                setModal(false);
-                setAnimationStart(false);
-                setCurrentAnimation(null)
-            } else {
+            // const purchase = await Purchase(store?.playingChildId?.id, currentAnimation?.id)
+            // if (purchase?.data?.is_error) {
+            //     setModal(false);
+            //     setAnimationStart(false);
+            //     setCurrentAnimation(null)
+            // } else {
                 setModal(false);
                 setAnimationStart(true);
                 store.setPlayingChildStars(-currentAnimation?.cost);
-
-            }
+            // }
         } catch (error) {
             console.log(error?.response?.data?.message)
             setModal(false);

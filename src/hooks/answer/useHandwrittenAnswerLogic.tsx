@@ -95,8 +95,6 @@ export const useHandwrittenAnswerLogic = ({
             await playSound(speech?.data?.data[0]?.audio);
           } else {
               playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), false, false, true)
-              setText(response?.data?.hint);
-              await playSound(response?.data?.sound);
               setText(response.data?.success_phrase);
               await playSound(response?.data?.success_phrase_sound);
           }

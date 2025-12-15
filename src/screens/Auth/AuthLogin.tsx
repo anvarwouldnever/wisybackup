@@ -11,7 +11,7 @@ import * as SecureStore from 'expo-secure-store';
 import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const AuthLogin = ({ toggleOption, playersScreen }) => {
+const AuthLogin = ({ toggleOption, playersScreen, settings }) => {
 
     const handleOpenUrl = async (url) => {
         const supported = await Linking.canOpenURL(url);
@@ -29,6 +29,8 @@ const AuthLogin = ({ toggleOption, playersScreen }) => {
     const [loading, setLoading] = useState(false);
 
     const navigation = useNavigation();
+
+    console.log(settings)
 
     const signIn = async() => {
         try {

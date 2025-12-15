@@ -45,7 +45,7 @@
           "protonmail"
         ],
         "CFBundleShortVersionString": "1.0.0",
-        "CFBundleVersion": "8",
+        "CFBundleVersion": "9",
         "ITSAppUsesNonExemptEncryption": false,
         "NSCameraUsageDescription": "Allow MyWisy to access your camera to take photos or record videos.",
         "NSMicrophoneUsageDescription": "Allow MyWisy to access your microphone while recording videos.",
@@ -92,8 +92,6 @@
       "softwareKeyboardLayoutMode": "pan",
       "permissions": [
         "android.permission.RECORD_AUDIO",
-        "android.permission.MODIFY_AUDIO_SETTINGS",
-        "android.permission.RECORD_AUDIO",
         "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
@@ -103,14 +101,13 @@
     "runtimeVersion": {
       "policy": "appVersion"
     },
-    "updates": {
-      "url": "https://u.expo.dev/11386f1b-6825-43f7-a2d1-4cdea0c20043"
-    },
     "extra": {
       "eas": {
         "projectId": "11386f1b-6825-43f7-a2d1-4cdea0c20043"
       }
     },
-    "owner": "anvarwouldnever2"
+    "updates": {
+      "url": "https://u.expo.dev/11386f1b-6825-43f7-a2d1-4cdea0c20043"
+    }
   }
 }

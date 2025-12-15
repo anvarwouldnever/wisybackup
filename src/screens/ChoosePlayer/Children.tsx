@@ -9,12 +9,15 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
 import translations from '../../../localization';
 import * as ScreenOrientation from "expo-screen-orientation";
+import { useMemo } from 'react';
 
 function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading, setIsFrozen }) {
     
     const navigation = useNavigation();
 
     const { s, vs, isTablet } = useScale()
+
+    const ITEM_WIDTH = s(46) + vs(30);
 
     const { avatars } = getAvatars()
 
@@ -29,6 +32,12 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
             store.setIsBlacked(false)
         }
     }
+
+    const avatarsMap = useMemo(() => {
+        const map = new Map();
+        avatars?.forEach(a => map.set(a.id, a));
+        return map;
+    }, [avatars]);
 
     const onAddChild = async() => {
         setIsFrozen(true)
@@ -57,7 +66,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
             );
         }
 
-        const avatarObj = avatars?.find(avatar => avatar?.id === item?.avatar_id);
+        const avatarObj = avatarsMap.get(item?.avatar_id);
         const avatarImage = avatarObj?.image
         const avatarUrl = typeof avatarImage === 'string' ? avatarImage : avatarImage?.url; 
         const isSvg = avatarUrl?.endsWith('.svg');
@@ -109,6 +118,16 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
             style={{ width: 'auto' }}
             contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', columnGap: vs(30), paddingHorizontal: vs(170) }}
             renderItem={renderItem}
+            getItemLayout={(_, index) => ({
+                length: ITEM_WIDTH,
+                offset: ITEM_WIDTH * index,
+                index,
+            })}
+            initialNumToRender={8}
+            maxToRenderPerBatch={6}
+            windowSize={5}
+            removeClippedSubviews
+            updateCellsBatchingPeriod={50}
         />
     );
 }

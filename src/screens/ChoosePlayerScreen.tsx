@@ -11,15 +11,16 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import SearchInput from './ChoosePlayer/SearchInput';
 import translations from '../../localization';
 import { getChildren } from './ChoosePlayer/hooks/getChildren';
+import { gameStore } from './Games/store/gameStore';
 
 const ChoosePlayerScreen = () => {
 
     const navigation = useNavigation();
     const [chosenPlayerIndex, setChosenPlayerIndex] = useState(null);
-    const [chosenPlayer, setChosenPlayer] = useState();
+    const [chosenPlayer, setChosenPlayer] = useState<any>();
     const [isFrozen, setIsFrozen] = useState<boolean>(false)
 
-    const [searchInput, setSearchInput] = useState<string>(''); // просто текст
+    const [searchInput, setSearchInput] = useState<string>('');
     const [query, setQuery] = useState<string>('');
 
     const { s, vs } = useScale();
@@ -32,6 +33,16 @@ const ChoosePlayerScreen = () => {
             child?.name?.toLowerCase().includes(query.toLowerCase())
         );
     }, [children, query]);
+
+    const onPress = () => {
+        if (chosenPlayer?.id != store?.playingChildId?.id) {
+            store.setDoneWelcomeSpeech(false)
+            gameStore.resetSubCollection()
+            gameStore.resetCategories()
+        }
+        navigation.navigate('GamesScreen'); 
+        store.setPlayingChildId(chosenPlayer)
+    }
 
     useLockLandscape();
 
@@ -65,7 +76,7 @@ const ChoosePlayerScreen = () => {
 
             {chosenPlayerIndex != null && (
 
-                <TouchableOpacity onPress={() => { navigation.navigate('GamesScreen'); store.setPlayingChildId(chosenPlayer)}} style={{ borderRadius: 100, flexDirection: 'row', columnGap: vs(10), justifyContent: 'center', alignItems: 'center', backgroundColor: '#504297', width: s(65), height: s(25), bottom: s(10), right: s(10), position: 'absolute'}}>
+                <TouchableOpacity onPress={() => onPress()} style={{ borderRadius: 100, flexDirection: 'row', columnGap: vs(10), justifyContent: 'center', alignItems: 'center', backgroundColor: '#504297', width: s(65), height: s(25), bottom: s(10), right: s(10), position: 'absolute'}}>
                     
                     <Text style={{ fontWeight: '600', fontSize: s(7), color: 'white'}}>
                         {translations?.[store.language]?.letsPlay}

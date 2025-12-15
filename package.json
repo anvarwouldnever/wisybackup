@@ -65,7 +65,8 @@
     "react-native-view-shot": "~4.0.3",
     "react-native-worklets": "0.5.1",
     "typescript": "~5.9.2",
-    "undefined": "@expo/vector-icons/Ionicons"
+    "undefined": "@expo/vector-icons/Ionicons",
+    "expo-image": "~3.0.11"
   },
   "devDependencies": {
     "@babel/core": "^7.26.0",

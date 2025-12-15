@@ -54,7 +54,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
         if (isFromAttributes) {
             // store.loadCategories()
         } else {
-            onComplete(id, starId, stars.length);
+            onComplete(id, starId, earnedStars.length);
         }
 
         const timeoutId = setTimeout(() => {

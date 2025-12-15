@@ -27,7 +27,6 @@ export const getChildren = () => {
                 const network = await checkNetwork()
                 if (!network) return alertHandler()
 
-                console.log('called children')
                 const response = await GetChildren()
                 cachedChildren = response?.data?.data;
                 setChildren(response?.data?.data);

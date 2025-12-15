@@ -17,8 +17,7 @@ import Back from "./Back";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
        
-    const animationRef = useRef<LottieView>(null);
-    const doneWelcomeSpeech = useRef<any>(null);
+    const animationRef = useRef<LottieView>(null)
     const welcomeSequenceDone = useRef(false);
 
     const animationHasFinishedOnceRef = useRef<boolean>(false);

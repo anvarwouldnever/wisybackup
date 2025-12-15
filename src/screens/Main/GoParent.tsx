@@ -18,7 +18,7 @@ const GoParent = ({ setAnimationStart, setIsFrozen }) => {
         ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
         setTimeout(() => {
             navigation.navigate('ParentsCaptchaScreen');
-        }, 50);
+        }, 150);
     }
     
     return (

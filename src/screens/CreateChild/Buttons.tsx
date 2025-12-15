@@ -1,4 +1,4 @@
-import { View, Text, Platform, TouchableOpacity } from 'react-native'
+import { View, Text, Platform, TouchableOpacity, Keyboard } from 'react-native'
 import React from 'react'
 import { Ionicons } from '@expo/vector-icons';
 import { useScale } from '../../hooks/utils/useScale';
@@ -28,7 +28,7 @@ const Buttons = ({ createChild, loading, stage, name, avatar, birthday, gender, 
             await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
             setTimeout(() => {
                 navigationRef.navigate('ChoosePlayerScreen'); 
-            }, 100);
+            }, 150);
             return;
         }
         
@@ -37,7 +37,13 @@ const Buttons = ({ createChild, loading, stage, name, avatar, birthday, gender, 
             if (nameExists) {
                 return setNameExists(true)
             }
-            
+            Keyboard.dismiss()
+            inputHeight.value = withTiming(vs(460), { duration: 600 })
+            setTimeout(() => {
+                setPrevStage(stage);
+                setStage(newStage);
+            }, 200);
+            return
         }
       
         if (newStage < stage) {

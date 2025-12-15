@@ -1,10 +1,9 @@
-import { StyleSheet, Platform } from 'react-native'
 import React from 'react'
 import { BlurView } from 'expo-blur'
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useScale } from '../../../../hooks/utils/useScale';
 
-const Blur = ({ isLocked, forMarket, height, width }) => {
+const Blur = ({ isLocked, forMarket, height, width, borderRadius }) => {
 
     const { s, vs } = useScale()
 
@@ -15,12 +14,14 @@ const Blur = ({ isLocked, forMarket, height, width }) => {
             intensity={7}
             tint="light"
             style={{
-                ...StyleSheet.absoluteFillObject,
-                width: vs(width) || 'auto', 
-                height: vs(height) || 'auto',
+                flex: 1,
+                position: 'absolute',
+                alignSelf: 'center',
+                width: width || 'auto', 
+                height: height || 'auto',
                 justifyContent: 'center',
                 alignItems: 'center',
-                borderRadius: 12,
+                borderRadius: borderRadius,
                 overflow: 'hidden'
             }}
         >

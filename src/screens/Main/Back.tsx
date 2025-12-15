@@ -13,7 +13,7 @@ const Back = () => {
 
     const { s, vs } = useScale()
 
-    const { avatars, error, loading } = getAvatars()
+    const { avatars } = getAvatars()
 
     const goBack = () => {
         if (store.isFirstOpening) return; 
@@ -21,7 +21,6 @@ const Back = () => {
             index: 0,
             routes: [{ name: 'ChoosePlayerScreen' }],
         });
-        gameStore.resetSubCollection()
     }    
        
     return (
@@ -32,7 +31,7 @@ const Back = () => {
             </View>
 
             {(() => {
-                const avatarObj = avatars?.find(avatar => avatar?.id === store.playingChildId?.avatar_id);    
+                const avatarObj = avatars?.find(avatar => avatar?.id === store?.playingChildId?.avatar_id);    
                 const avatarUrl = avatarObj.image?.url
                 const isSvg = typeof avatarUrl === 'string' && avatarUrl.endsWith('.svg');
 

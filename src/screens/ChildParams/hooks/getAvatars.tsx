@@ -17,8 +17,7 @@ export const getAvatars = () => {
             try {
                 const network = await checkNetwork()
                 if (!network) return alertHandler()
-
-                console.log('called avatars')
+                    
                 const response = await GetAvatars();
                 const newData = response?.data?.data || [];
 

@@ -18,6 +18,7 @@ import RenderAttributes from "./ParentsSegments/RenderAttributes";
 import { GetChildAttributes } from "../api/methods/attributes/attributes";
 import { useScale } from "../hooks/utils/useScale";
 import { SafeAreaView } from "react-native-safe-area-context";
+import useLockPortrait from "../hooks/utils/useLockPortrait";
 
 const ParentsSegments = ({ route }) => {
 
@@ -26,15 +27,7 @@ const ParentsSegments = ({ route }) => {
 
     const { s, vs } = useScale()
 
-    useFocusEffect(
-        useCallback(() => {
-            async function changeScreenOrientation() {
-                setIsFrozen(false)
-                await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
-            }
-            changeScreenOrientation();
-        }, [])
-    );
+    useLockPortrait()
 
     const [show, setShow] = useState(false);
     const [data, setData] = useState();
@@ -98,32 +91,28 @@ const ParentsSegments = ({ route }) => {
         }
     };    
     
-    
     useEffect(() => {
         const getData = async() => {
             try {
                 if (chosenPeriod === 'day') {
-                        if (isToday(new Date(formattedDate.split('.').reverse().join('-')))) {
-                            const attributes = await GetChildAttributes(
-                                id,
-                                store.playingChildId.id,
-                            );
-                            setData(attributes.data);
-                        } else {
-                            const selectedDate = new Date(formattedDate.split('.').reverse().join('-'));
-                            const fromDate = format(subDays(selectedDate, 1), 'dd.MM.yyyy');
-                            const toDate = format(addDays(selectedDate, 1), 'dd.MM.yyyy');
-                
-                            const attributes = await GetChildAttributes(
-                                id,
-                                store.playingChildId.id,
-                                fromDate,
-                                toDate,
-                                
-                            );
-                            setData(attributes.data);
-                        }
-                    
+                    if (isToday(new Date(formattedDate.split('.').reverse().join('-')))) {
+                        const attributes = await GetChildAttributes(
+                            id,
+                            store.playingChildId.id,
+                        );
+                        console.log(attributes?.data)
+                        setData(attributes.data);
+                    } else {
+                        const selectedDate = new Date(
+                            formattedDate.split('.').reverse().join('-')
+                        );
+                        
+                        const date = format(selectedDate, 'dd.MM.yyyy');
+                        
+                        const attributes = await GetChildAttributes(id, store.playingChildId.id, date, date);
+                        
+                        setData(attributes?.data);
+                    }
                 } else if (chosenPeriod === 'week') {
                     const attributes = await GetChildAttributes(id, store.playingChildId.id, weekRange.startDate, weekRange.endDate)
                     setData(attributes.data)

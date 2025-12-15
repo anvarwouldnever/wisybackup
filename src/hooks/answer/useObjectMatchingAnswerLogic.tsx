@@ -7,23 +7,12 @@ import { AnswerObjectMatching } from '../../api/methods/game/answer';
 import { GetSpeeches } from '../../api/methods/speeches/speech';
 import { gameStore } from '../../screens/Games/store/gameStore';
 
-export const useObjectMatchingAnswer = ({
-  data,
-  subCollectionId,
-  onCompleteTask,
-  isFromAttributes = false,
-  levelHandlers,
-  uiHandlers,
-  attemptState,
-}) => {
-  const isActive = useRef(true);
-  const { getTime, start, stop, reset } = useTimer();
+export const useObjectMatchingAnswer = ({ data, subCollectionId, onCompleteTask, isFromAttributes = false, levelHandlers, uiHandlers, attemptState }) => {
+  
+    const isActive = useRef(true);
+    const { getTime, start, stop, reset } = useTimer();
 
-  const {
-    setLevel,
-    setStars,
-    setEarnedStars,
-  } = levelHandlers;
+  const { setLevel, setStars, setEarnedStars } = levelHandlers;
 
   const {
     setText,
@@ -92,8 +81,6 @@ export const useObjectMatchingAnswer = ({
             await playSound(speech?.data?.data[0]?.audio, true);
           } else {
             playSound(gameStore.sounds.correct ?? require('../../../assets/ok.mp3'), false, false, true)
-            setText(response?.data?.hint);
-            await playSound(response?.data?.sound);
             setText(response.data?.success_phrase);
             await playSound(response?.data?.success_phrase_sound);
           }

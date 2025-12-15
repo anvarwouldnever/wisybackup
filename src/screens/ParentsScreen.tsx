@@ -15,7 +15,7 @@ import { getAttributes } from "./Parents/hooks/getAttributes";
 
 const ParentsScreen = () => {
 
-    const { attributes, loading, error } = getAttributes()
+    const { attributes, loading, error } = getAttributes();
 
     const [index, setIndex] = useState<string | number>(0);
     const [dropDown, setDropDown] = useState(null);

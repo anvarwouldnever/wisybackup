@@ -18,7 +18,9 @@ const useLockPortrait = () => {
             }
         });
 
-        return () => sub.remove();
+        return () => { 
+            sub.remove() 
+        };
     }, []);
 };
 

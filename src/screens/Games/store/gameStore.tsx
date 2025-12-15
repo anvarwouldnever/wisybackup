@@ -284,6 +284,19 @@ class Store {
         });
     }
 
+    async resetCategories() {
+        runInAction(() => {
+            this.categoryId = 0;
+            this.collectionId = 0;
+            this.categories = null;
+            this.collectionName = '';
+            this.toPutNewSubCollections = false;
+            this.isSubCollectionsLoading = false;
+            this.subCollections = [];
+            this.subCollectionsQueue = [];
+        });
+    }
+
     async prepareTasksArray(itemId) {
         const tasksArray = this.subCollections
             .filter(item => item.tasks?.length > 0)
