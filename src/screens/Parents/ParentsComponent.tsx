@@ -5,7 +5,7 @@ import { useScale } from "../../hooks/utils/useScale";
 import GetToKnowYourChild from "./ParentsComponent/GetToKnowYourChild";
 import Attributes from "./ParentsComponent/Attributes";
 
-const ParentsComponent = ({ activeIndex, loading, attributes, name }) => {
+const ParentsComponent = ({ activeIndex, loading, attributes, name, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -15,7 +15,7 @@ const ParentsComponent = ({ activeIndex, loading, attributes, name }) => {
             <Text style={{ fontSize: vs(16), fontWeight: '600', height: vs(24) }}>{name}</Text>
             
             {activeIndex != 'Settings' && 
-                <GetToKnowYourChild />
+                <GetToKnowYourChild labels={labels} />
             }
             
             <ScrollView contentContainerStyle={{justifyContent: loading? 'center' : 'space-between', height: loading? vs(300) : 'auto' }} showsVerticalScrollIndicator={false}>

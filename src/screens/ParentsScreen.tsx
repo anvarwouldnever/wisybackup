@@ -12,10 +12,12 @@ import ParentsSettings from "./Parents/ParentsSettings";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useScale } from "../hooks/utils/useScale";
 import { getAttributes } from "./Parents/hooks/getAttributes";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
 const ParentsScreen = () => {
 
     const { attributes, loading, error } = getAttributes();
+    const { labels } = getLabels()
 
     const [index, setIndex] = useState<string | number>(0);
     const [dropDown, setDropDown] = useState(null);
@@ -36,7 +38,7 @@ const ParentsScreen = () => {
         <SafeAreaView style={{flex: 1, alignItems: 'center', rowGap: vs(15), paddingHorizontal: vs(20), backgroundColor: '#FFFFFF', paddingTop: Platform.OS === 'android'? 40 : 0}}>
             
             {index !== 'Lang' && 
-                <ParentsCancel setIsFrozen={setIsFrozen} />
+                <ParentsCancel labels={labels} setIsFrozen={setIsFrozen} />
             }
 
             {index == 'Lang' ? 
@@ -52,15 +54,15 @@ const ParentsScreen = () => {
             }
             
             {index == 'Settings' ? 
-                <ParentsSettings setScreen={setIndex}/> 
+                <ParentsSettings labels={labels} setScreen={setIndex}/> 
             : index == 'Lang'? 
-                <LanguageComponent setScreen={setIndex}/> 
+                <LanguageComponent labels={labels} setScreen={setIndex}/> 
             : 
-                <ParentsComponent attributes={attributes?.[index]} loading={loading} activeIndex={index} name={name} />
+                <ParentsComponent labels={labels} attributes={attributes?.[index]} loading={loading} activeIndex={index} name={name} />
             }
             
             <View style={{width: '100%', height: 'auto', alignItems: 'center', position: 'absolute', bottom: vs(35), alignSelf: 'center'}}>
-                {!loading && <BottomTabs attributes={attributes} setScreen={setIndex} activeIndex={index} />}
+                {!loading && <BottomTabs labels={labels} attributes={attributes} setScreen={setIndex} activeIndex={index} />}
             </View>
 
         </SafeAreaView>

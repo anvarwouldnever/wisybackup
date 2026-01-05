@@ -1,9 +1,7 @@
 import { View, TouchableOpacity, Text } from "react-native";
-import translations from "../../../localization";
-import store from "../../store/store";
 import { useScale } from "../../hooks/utils/useScale";
 
-const NonAndMistakes = ({ chosenMistakesOption, setChosenMistakesOption }) => {
+const NonAndMistakes = ({ chosenMistakesOption, setChosenMistakesOption, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -12,13 +10,13 @@ const NonAndMistakes = ({ chosenMistakesOption, setChosenMistakesOption }) => {
             
             <TouchableOpacity onPress={() => setChosenMistakesOption(true)} style={{ width: '49%', height: '100%', borderRadius: vs(10), backgroundColor: chosenMistakesOption? '#504297' : '#F8F8F8', justifyContent: 'center', alignItems: 'center'}}>
                 
-                <Text style={{color: chosenMistakesOption? '#FFFFFF' : '#555555', fontWeight: '600', fontSize: vs(12)}}>{translations[store.language]?.withMistakes}</Text>
+                <Text style={{color: chosenMistakesOption? '#FFFFFF' : '#555555', fontWeight: '600', fontSize: vs(12)}}>{labels?.withMistakes}</Text>
             
             </TouchableOpacity>
 
             <TouchableOpacity onPress={() => setChosenMistakesOption(false)} style={{ width: '49%', height: '100%', backgroundColor: !chosenMistakesOption? '#504297' : '#F8F8F8', borderRadius: vs(10), justifyContent: 'center', alignItems: 'center'}}>
                 
-                <Text style={{color: chosenMistakesOption? '#555555' : '#FFFFFF', fontWeight: '600', fontSize: vs(12)}}>{translations[store.language]?.withoutMistakes}</Text>
+                <Text style={{color: chosenMistakesOption? '#555555' : '#FFFFFF', fontWeight: '600', fontSize: vs(12)}}>{labels?.withoutMistakes}</Text>
             
             </TouchableOpacity>
 

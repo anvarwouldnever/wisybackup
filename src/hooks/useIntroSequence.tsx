@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { playSound } from './usePlaySound';
 import store from '../store/store';
 import useTimer from './utils/useTimer';
+import { getSpeech } from '../screens/Main/hooks/getSpeech';
 
 interface UseIntroSequenceProps {
     data: any;
@@ -11,28 +12,24 @@ interface UseIntroSequenceProps {
     introAudio: string;
     level: number;
     introTaskIndex: number;
-    isActive: any;
     setText: (text: string | null) => void;
     setWisySpeaking: (val: boolean) => void;
     setLock: (val: boolean) => void;
 }
 
 export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, introAudio, level, introTaskIndex, setText, setWisySpeaking, setLock }: UseIntroSequenceProps) => {
-    
-    const { start, reset, getTime } = useTimer()
-    
-    const clicked = () => {
-        const time = getTime()
-        console.log(time)
-        reset()
-    }
-    
+
+    const { start } = useTimer()
+
+    const clicked = () => { }
+
     useEffect(() => {
         if (level === null) return
 
-        const introPlay = async () => {
-            await playSound.stop();
+        const introPlay = async() => {
 
+            await playSound.stop();
+    
             try {
                 setLock(true);
                 if (level === introTaskIndex && (!tutorialShow || tutorials?.length === 0)) {
@@ -44,7 +41,7 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
                 console.log(error);
             } finally {
                 try {
-                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0)) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0) && data?.content?.question_hidden) {
                         setText(data?.content?.question);
                         setWisySpeaking(true);
                         await playSound(data?.content?.speech);
@@ -67,13 +64,22 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
             }
         };
 
-        if (store.isFirstOpening && store.isBlacked) {
-            setWisySpeaking(true);
-            setText("Here's your first task");
+        const getFirstTaskSpeech = async() => {
+            setText(null)
+            const response = await getSpeech('first_task');
+            const randomIndex = Math.floor(Math.random() * response?.data?.data?.length);
+            setWisySpeaking(true)
+            setText(response.data?.data[randomIndex]?.text);
+            await playSound(response.data?.data[randomIndex]?.audio);
+            store.setIsBlacked(false);
             setTimeout(() => {
-                store.setIsBlacked(false);
                 introPlay();
-            }, 3000);
+            }, 1000);
+        }
+
+        if (store.isFirstOpening && store.isBlacked) {
+            getFirstTaskSpeech()
+            return
         } else {
             introPlay();
         }
@@ -82,7 +88,7 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
             playSound.stop();
         };
 
-    }, [data?.content?.speech, tutorialShow, level]);
+    }, [data?.content?.speech, tutorialShow]);
 
     return { clicked }
 };

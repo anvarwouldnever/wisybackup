@@ -10,11 +10,14 @@ import { useScale } from "../hooks/utils/useScale";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Back from "./Chat/Back";
 import { chatStore } from "./Chat/store/chatStore";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
 const ChatScreen = () => {
     
     const [text, setText] = useState('');
     const [thinking, setThinking] = useState(false);
+
+    const { labels } = getLabels()
 
     const flatListRef = useRef(null);
     const firstMessageRef = useRef(null);
@@ -60,7 +63,7 @@ const ChatScreen = () => {
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white', alignItems: 'center', justifyContent: 'center', paddingHorizontal: vs(20), paddingBottom: vs(20), paddingTop: vs(15) }}>
             
             { !keyboardActive &&
-                <Back />
+                <Back labels={labels} />
             }
             
             <KeyboardAvoidingView behavior='position' keyboardVerticalOffset={vs(10)}>
@@ -71,7 +74,7 @@ const ChatScreen = () => {
                     
                     <ChatRecsFlatlist sendMessage={sendMessage}/>
                     
-                    <SendInput setKeyboardActive={setKeyboardActive} text={text} thinking={thinking} sendMessage={sendMessage} setText={setText} firstMessageRef={firstMessageRef} flatListRef={flatListRef}/>
+                    <SendInput labels={labels} setKeyboardActive={setKeyboardActive} text={text} thinking={thinking} sendMessage={sendMessage} setText={setText} firstMessageRef={firstMessageRef} flatListRef={flatListRef}/>
                 
                 </View>
 

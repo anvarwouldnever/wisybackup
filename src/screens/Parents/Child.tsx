@@ -5,7 +5,7 @@ import { observer } from "mobx-react-lite";
 import translations from "../../../localization";
 import Animated from "react-native-reanimated";
 import { getChildren } from "../ChoosePlayer/hooks/getChildren";
-import { getAvatars } from "../ChildParams/hooks/getAvatars";
+import { getAvatars } from "../CreateChild/hooks/getAvatars";
 import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { calculateAge } from "./utils/calculateAge";

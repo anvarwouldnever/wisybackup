@@ -6,7 +6,7 @@ import store from '../../store/store';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useScale } from '../../hooks/utils/useScale';
 
-const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMessageRef, setKeyboardActive }) => {
+const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMessageRef, setKeyboardActive, labels }) => {
 
     const onSendText = () => {
         setKeyboardActive(false)
@@ -22,7 +22,7 @@ const SendInput = ({ text, setText, sendMessage, thinking, flatListRef, firstMes
             
             <TextInput 
                 style={{ height: '100%', borderWidth: 1, borderColor: '#E5E5E5', borderRadius: 100, width: '85%', paddingHorizontal: vs(16), fontSize: vs(14)}}
-                placeholder={translations?.[store.language]?.message}
+                placeholder={labels?.message}
                 placeholderTextColor={'#B1B1B1'}
                 onChangeText={(text) => setText(text)}
                 keyboardAppearance="dark"

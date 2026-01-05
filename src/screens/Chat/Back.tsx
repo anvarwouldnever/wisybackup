@@ -3,10 +3,9 @@ import React from 'react'
 import { useScale } from '../../hooks/utils/useScale'
 import { useNavigation } from '@react-navigation/native'
 import { Ionicons } from '@expo/vector-icons'
-import translations from '../../../localization'
 import store from '../../store/store'
 
-const Back = () => {
+const Back = ({ labels }) => {
 
     const { s, vs } = useScale()
 
@@ -23,7 +22,7 @@ const Back = () => {
             <Ionicons name='chevron-back' size={vs(24)} />
                 
             <Text style={{fontWeight: '600', color: '#222222', fontSize: vs(16)}}>
-                {translations?.[store.language]?.back}
+                {labels?.back}
             </Text>
         
         </TouchableOpacity>

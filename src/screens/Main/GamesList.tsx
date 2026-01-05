@@ -9,8 +9,8 @@ import md5 from 'react-native-md5';
 import Collections from "./GamesList/Collections";
 import SubCollections from "./GamesList/SubCollections";
 import store from "../../store/store";
-import { GetSpeeches } from "../../api/methods/speeches/speech";
 import { useScale } from "../../hooks/utils/useScale";
+import { getSpeech } from "./hooks/getSpeech";
 
 const GamesList = ({ firstOpeningAction }) => {
 
@@ -27,7 +27,7 @@ const GamesList = ({ firstOpeningAction }) => {
             await playSound.stop();
             store.setWisySpeaking(true);
             
-            const response = await GetSpeeches(speechKey);
+            const response = await getSpeech(speechKey);
             if (response.data?.data.length > 0) {
                 const randomIndex = Math.floor(Math.random() * response.data?.data.length);
                 store.setWisyMenuText(response.data?.data[randomIndex]?.text);
@@ -64,19 +64,10 @@ const GamesList = ({ firstOpeningAction }) => {
     }, [gameStore.categoryId, gameStore.collectionId]);
 
     const handleGameCompletion = (id, starId, earnedStars) => {
-        console.log('run handleGameCompletion')
-        const subCollection = gameStore.subCollections.find(sub => sub?.id === starId);
-        if (subCollection) {
-            subCollection.stars.earned += earnedStars;
-        }
-
-        console.log(id, gameStore.collectionId)
-    
         gameStore.completeGame(gameStore.categoryId, id, starId, earnedStars, gameStore.collectionId);
     };
     
     const handleTaskCompletion = useCallback((id, nextTaskId) => {
-        console.log('run handleTaskCompletion')
         const collection = gameStore.subCollections.find(item => item.id === id);
     
         if (collection) {

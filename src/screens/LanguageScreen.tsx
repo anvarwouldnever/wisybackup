@@ -18,19 +18,19 @@ const LanguageScreen = () => {
 
     useLockPortrait();
 
-    const { audio } = getAudios()
-    const { labels } = getLabels()
+    const { audio } = getAudios();
+    const { labels } = getLabels();
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'white', paddingHorizontal: vs(20), rowGap: vs(20) }}>
             
             <Logo />
             
-            <Text style={{fontWeight: '400', fontSize: isTablet? vs(16) : vs(14), textAlign: 'center', color: "#555555", width: '100%', height: vs(24), alignSelf: 'center', justifyContent: 'center'}}>Select language to proceed</Text>
+            <Text style={{fontWeight: '400', fontSize: isTablet? vs(16) : vs(14), textAlign: 'center', color: "#555555", width: '100%', height: vs(24), alignSelf: 'center', justifyContent: 'center'}}>{labels?.lang_select}</Text>
                 
             <Languages setChosenLang={setChosenLang} chosenLang={chosenLang} />
                 
-            <Button chosenLang={chosenLang} />
+            <Button labels={labels} chosenLang={chosenLang} />
 
         </SafeAreaView>
     )

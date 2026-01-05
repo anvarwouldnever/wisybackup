@@ -170,21 +170,17 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     return [...filtered, id];
                 });
 
-                const filteredIds = foundPlaceholder.possibleAnswers.filter(id => id !== draggedItem.id);
-                const exists = draggableObjects.some(obj => filteredIds.includes(obj.id));
-                if (exists) {
-                    setLock(true)
-                    setTimeout(() => {
-                        setAnswered((prev) => prev.filter(item => item !== id));
-                        setPlaceholderObjects((prev) =>
-                            prev.map((p) =>
-                                p.id === id ? { ...p, draggedUri: null } : p
-                            )
-                        );
-                    setLock(false)
-                    }, 1500);
-                }
-    
+                setLock(true)
+                setTimeout(() => {
+                    setAnswered((prev) => prev.filter(item => item !== id));
+                    setPlaceholderObjects((prev) =>
+                        prev.map((p) =>
+                            p.id === id ? { ...p, draggedUri: null } : p
+                        )
+                    );
+                setLock(false)
+                }, 1500);
+            
                 hit = true;
                 break;
             }

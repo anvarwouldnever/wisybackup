@@ -1,40 +1,56 @@
 import { useEffect, useState } from 'react'
-import { GetCategories } from '../../../../api/methods/market/categories';
-import { alertHandler } from '../../../../network/alertHandler';
-import { checkNetwork } from '../../../../network/checkNetwork';
+import { GetCategories } from '../../../../api/methods/market/categories'
+import { alertHandler } from '../../../../network/alertHandler'
+import { checkNetwork } from '../../../../network/checkNetwork'
+import store from '../../../../store/store'
 
-let cachedCategories: any = null;
+type Language = 'en' | 'lv';
+
+const cachedCategories: Record<Language, any | null> = {
+    en: null,
+    lv: null,
+};
 
 export const getMarketCategories = () => {
-    const [loading, setLoading] = useState(!cachedCategories);
+    const rawLanguage = store.language as Language | null;
+    const language: Language = rawLanguage ?? 'en';
+
+    const [loading, setLoading] = useState(!cachedCategories[language]);
     const [error, setError] = useState<string | null>(null);
-    const [categories, setCategories] = useState<any>(cachedCategories);
+    const [categories, setCategories] = useState<any>(cachedCategories[language]);
 
     useEffect(() => {
-        if (cachedCategories) {
-            setCategories(cachedCategories);
+        if (cachedCategories[language]) {
+            setCategories(cachedCategories[language]);
             setLoading(false);
             return;
         }
 
         const fetchCategories = async () => {
-            try {
-                const network = await checkNetwork()
-                if (!network) return alertHandler()
+            setLoading(true);
 
-                const response = await GetCategories()
-                cachedCategories = response?.data?.data;
-                setCategories(response?.data?.data);
+            try {
+                const network = await checkNetwork();
+                if (!network) return alertHandler();
+
+                const response = await GetCategories();
+                const data = response?.data?.data;
+
+                cachedCategories[language] = data;
+                setCategories(data);
             } catch (e: any) {
                 console.log(e?.response?.data);
-                setError(e?.response?.data?.message || 'Ошибка загрузки детей');
+                setError(
+                    e?.response?.data?.message ||
+                    'Ошибка загрузки категорий'
+                );
             } finally {
                 setLoading(false);
             }
         };
 
         fetchCategories();
-    }, []);
+    }, [language]);
 
     return { categories, loading, error };
-}
+};

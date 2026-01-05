@@ -29,7 +29,10 @@ const BackgroundMusic = () => {
 
     const fadeVolume = async (targetVolume, step, interval) => {
         if (!sound.current) return;
-        if (fadeInterval.current) clearInterval(fadeInterval.current);
+        if (fadeInterval.current) {
+            clearInterval(fadeInterval.current);
+            fadeInterval.current = null;
+        }
 
         const { value: currentVolume } = await sound.current.getStatusAsync().then(s => ({ value: s.volume }));
         let volume = currentVolume;
@@ -44,27 +47,11 @@ const BackgroundMusic = () => {
                 volume = targetVolume;
                 clearInterval(fadeInterval.current);
                 fadeInterval.current = null;
-
-                if (targetVolume === 0) {
-                await sound.current.pauseAsync();
-                }
             }
 
             await sound.current.setVolumeAsync(volume);
         }, interval);
     };
-
-    useEffect(() => {
-        if (!sound.current) return;
-    
-        if (store.musicPlaying) {
-            sound.current.playAsync();
-            fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 60);
-        } else {
-            fadeVolume(0, 0.1, 30);
-            sound.current.pauseAsync();
-        }
-    }, [store.musicPlaying, store.musicTurnedOn]);
     
     const loadMusic = async () => {
         if (!audio) return;
@@ -109,6 +96,33 @@ const BackgroundMusic = () => {
     }, [appState]);
 
     useEffect(() => {
+        if (!sound.current) return;
+    
+        const run = async () => {
+            // всегда гасим предыдущий fade
+            if (fadeInterval.current) {
+                clearInterval(fadeInterval.current);
+                fadeInterval.current = null;
+            }
+    
+            if (!store.musicPlaying) {
+                // глобально нельзя играть
+                await sound.current.pauseAsync();
+                await sound.current.setVolumeAsync(0);
+                return;
+            }
+    
+            // можно играть
+            await sound.current.playAsync();
+    
+            // плавно включаем или выключаем
+            fadeVolume(store.musicTurnedOn ? 1 : 0, 0.05, 50);
+        };
+    
+        run();
+    }, [store.musicPlaying, store.musicTurnedOn]);
+
+    useEffect(() => {
     
         loadMusic();
     
@@ -116,7 +130,7 @@ const BackgroundMusic = () => {
             if (fadeInterval.current) clearInterval(fadeInterval.current);
             if (sound.current) sound.current.unloadAsync();
         };
-    }, [audio, store.musicTurnedOn]);
+    }, [audio]);
 
     return null;
 };

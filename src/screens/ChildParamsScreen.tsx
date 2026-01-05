@@ -15,10 +15,11 @@ import EngagementTime from './CreateChild/EngagementTime';
 import { AddChild } from '../api/methods/children/children';
 import { useNavigation } from '@react-navigation/native';
 import useLockPortrait from '../hooks/utils/useLockPortrait';
-import { getSettings } from './ChildParams/hooks/getSignUpSettings';
+import { getSettings } from './CreateChild/hooks/getSignUpSettings';
 import { getChildren } from './ChoosePlayer/hooks/getChildren';
 import store from '../store/store';
-import { getAvatars } from './ChildParams/hooks/getAvatars';
+import { getAvatars } from './CreateChild/hooks/getAvatars';
+import { getLabels } from './Welcome/hooks/getLabels';
 
 const ChildParamsScreen = () => {
 
@@ -27,6 +28,8 @@ const ChildParamsScreen = () => {
     const { settings } = getSettings()
     const { children } = getChildren()
     const { avatars } = getAvatars()
+
+    const { labels } = getLabels()
 
     const { vs, windowWidth } = useScale();
     const insets = useSafeAreaInsets();
@@ -105,38 +108,38 @@ const ChildParamsScreen = () => {
                     { stage === 1 ?
                         
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <Name nameExists={nameExists} setNameExists={setNameExists} settings={settings} name={name} inputHeight={inputHeight} setName={setName} />
+                            <Name labels={labels} nameExists={nameExists} setNameExists={setNameExists} settings={settings} name={name} inputHeight={inputHeight} setName={setName} />
                         </Animated.View>
 
                     : stage === 2 ?
                         
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: windowWidth }}>
-                            <Avatars settings={settings} avatarIndex={avatarIndex} setAvatarIndex={setAvatarIndex} setAvatarId={setAvatarId}/>
+                            <Avatars labels={labels} avatarIndex={avatarIndex} setAvatarIndex={setAvatarIndex} setAvatarId={setAvatarId}/>
                         </Animated.View>
 
                     : stage === 3 ? 
                         
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <Age formatDate={formatDate} settings={settings} birthday={birthday} setBirthday={setBirthday}  />
+                            <Age labels={labels} formatDate={formatDate} birthday={birthday} setBirthday={setBirthday}  />
                         </Animated.View>
 
                     : stage === 4 ?
 
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <Gender settings={settings} gender={gender} setGender={setGender} />
+                            <Gender labels={labels} gender={gender} setGender={setGender} />
                         </Animated.View>
                     
                     : stage === 5 ?
 
                         <Animated.View key={stage} entering={getEnteringAnimation()} style={{ width: '100%' }}>
-                            <EngagementTime settings={settings} engagementTime={engagementTime} setEngagementTime={setEngagementTime} />
+                            <EngagementTime labels={labels} engagementTime={engagementTime} setEngagementTime={setEngagementTime} />
                         </Animated.View> : null
 
                     }      
 
                 </Animated.View>
 
-                <Buttons avatar={avatarId} inputHeight={inputHeight} checkName={checkName} setNameExists={setNameExists} birthday={birthday} engagementTime={engagementTime} gender={gender} name={name} loading={loading} createChild={createChild} stage={stage} setPrevStage={setPrevStage} setStage={setStage} setIsFrozen={setIsFrozen} />
+                <Buttons labels={labels} avatar={avatarId} inputHeight={inputHeight} checkName={checkName} setNameExists={setNameExists} birthday={birthday} engagementTime={engagementTime} gender={gender} name={name} loading={loading} createChild={createChild} stage={stage} setPrevStage={setPrevStage} setStage={setStage} setIsFrozen={setIsFrozen} />
 
             </LinearGradient>
 

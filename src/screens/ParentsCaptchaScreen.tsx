@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image, ActivityIndicator } from "react-native";
+import { View, Text, Image } from "react-native";
 import ParentsCancel from "./Parents/ParentsCancel";
-import translations from "../../localization";
-import store from "../store/store";
 import { observer } from "mobx-react-lite";
 import Pad from "./ParentsCaptcha/Pad";
 import { useScale } from "../hooks/utils/useScale";
@@ -10,12 +8,14 @@ import Inputs from "./ParentsCaptcha/Inputs";
 import NumbersText from "./ParentsCaptcha/NumbersText";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useLockPortrait from "../hooks/utils/useLockPortrait";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
 const ParentsCaptchaScreen = () => {
 
     useLockPortrait()
 
     const { s, vs } = useScale()
+    const { labels } = getLabels()
 
     useEffect(() => {
         setAnswer([])
@@ -42,7 +42,7 @@ const ParentsCaptchaScreen = () => {
             
             <View style={{ alignItems: 'center', width: '100%', height: 'auto', rowGap: vs(18) }}>
                 
-                <Text style={{ fontWeight: '600', marginBottom: vs(14), fontSize: vs(24), textAlign: 'center'}}>{translations[store.language]?.enterTheCode ?? "Enter the code"}</Text>
+                <Text style={{ fontWeight: '600', marginBottom: vs(14), fontSize: vs(24), textAlign: 'center'}}>{labels?.enter_code}</Text>
                 
                 <NumbersText answer={answer} setError={setError} />
 

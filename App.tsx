@@ -5,11 +5,11 @@ import * as SplashScreen from 'expo-splash-screen';
 import { checkNetwork } from './src/network/checkNetwork';
 import NoNetworkScreen from './src/components/NoNetwork';
 import store from './src/store/store';
-import * as SecureStore from 'expo-secure-store'
+import * as SecureStore from 'expo-secure-store';
 import * as Linking from 'expo-linking';
 import { navigationRef } from './src/navigation/utils/navigate';
 
-SplashScreen.preventAutoHideAsync()
+SplashScreen.preventAutoHideAsync();
 
 SplashScreen.setOptions({
     duration: 300,
@@ -19,7 +19,7 @@ SplashScreen.setOptions({
 // igor.khegay@avtech.uz
 
 const App = () => {
-
+ 
     // SecureStore.deleteItemAsync('token')
     // AsyncStorage.clear()
 

@@ -1,9 +1,7 @@
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { View, FlatList, ActivityIndicator } from "react-native";
 import CalendarParentsWeek from "../calendars/CalendarParentsWeek";
 import CalendarParentsDay from "../calendars/CalendarParentsDay";
-import { useFocusEffect } from "@react-navigation/native";
-import * as ScreenOrientation from 'expo-screen-orientation';
 import Modal from 'react-native-modal'
 import { startOfWeek, endOfWeek, addDays, format, parse, startOfMonth, endOfMonth, addMonths, isToday, subDays } from "date-fns";
 import store from "../store/store";
@@ -19,15 +17,24 @@ import { GetChildAttributes } from "../api/methods/attributes/attributes";
 import { useScale } from "../hooks/utils/useScale";
 import { SafeAreaView } from "react-native-safe-area-context";
 import useLockPortrait from "../hooks/utils/useLockPortrait";
+import { useFocusEffect } from "@react-navigation/native";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
-const ParentsSegments = ({ route }) => {
+const ParentsSegmentsScreen = ({ route }) => {
 
-    const id = route?.params?.screen?.id
-    const name = route?.params?.screen?.name
+    const id = route?.params?.screen?.id;
+    const name = route?.params?.screen?.name;
 
-    const { s, vs } = useScale()
+    const { s, vs } = useScale();
+    const { labels } = getLabels()
 
     useLockPortrait()
+
+    useFocusEffect(
+        useCallback(() => {
+            setIsFrozen(false);
+        }, [])
+    );
 
     const [show, setShow] = useState(false);
     const [data, setData] = useState();
@@ -41,7 +48,7 @@ const ParentsSegments = ({ route }) => {
     const [monthRange, setMonthRange] = useState({ startDate: format(startOfMonth(new Date()), 'dd.MM.yyyy'), endDate: format(endOfMonth(new Date()), 'dd.MM.yyyy')});
 
     const updateWeekRange = (direction) => {
-        const currentStartDate = parse(weekRange.startDate, 'dd.MM.yyyy', new Date());
+        const currentStartDate = parse(weekRange?.startDate, 'dd.MM.yyyy', new Date());
         const newStartDate = addDays(currentStartDate, direction * 7);
         const newEndDate = addDays(newStartDate, 6);
 
@@ -52,7 +59,7 @@ const ParentsSegments = ({ route }) => {
     };
 
     const updateMonthRange = (direction) => {
-        const currentStartDate = parse(monthRange.startDate, 'dd.MM.yyyy', new Date()); 
+        const currentStartDate = parse(monthRange?.startDate, 'dd.MM.yyyy', new Date()); 
         const newStartDate = addMonths(currentStartDate, direction);
         const newEndDate = endOfMonth(newStartDate); 
     
@@ -73,7 +80,7 @@ const ParentsSegments = ({ route }) => {
     
             setFormatedDate(format(newDate, 'dd.MM.yyyy'));
         } else if (chosenPeriod === 'week') {
-            const currentStartDate = parse(weekRange.startDate, 'dd.MM.yyyy', new Date());
+            const currentStartDate = parse(weekRange?.startDate, 'dd.MM.yyyy', new Date());
             const newStartDate = addDays(currentStartDate, direction * 7);
     
             // Проверяем НАЧАЛО новой недели
@@ -81,7 +88,7 @@ const ParentsSegments = ({ route }) => {
     
             updateWeekRange(direction);
         } else if (chosenPeriod === 'month') {
-            const currentStartDate = parse(monthRange.startDate, 'dd.MM.yyyy', new Date());
+            const currentStartDate = parse(monthRange?.startDate, 'dd.MM.yyyy', new Date());
             const newStartDate = addMonths(currentStartDate, direction);
     
             // Проверяем НАЧАЛО нового месяца
@@ -96,16 +103,11 @@ const ParentsSegments = ({ route }) => {
             try {
                 if (chosenPeriod === 'day') {
                     if (isToday(new Date(formattedDate.split('.').reverse().join('-')))) {
-                        const attributes = await GetChildAttributes(
-                            id,
-                            store.playingChildId.id,
-                        );
-                        console.log(attributes?.data)
-                        setData(attributes.data);
+                        const attributes = await GetChildAttributes(id, store.playingChildId?.id); 
+                       
+                        setData(attributes?.data);
                     } else {
-                        const selectedDate = new Date(
-                            formattedDate.split('.').reverse().join('-')
-                        );
+                        const selectedDate = new Date(formattedDate.split('.').reverse().join('-'));
                         
                         const date = format(selectedDate, 'dd.MM.yyyy');
                         
@@ -114,11 +116,13 @@ const ParentsSegments = ({ route }) => {
                         setData(attributes?.data);
                     }
                 } else if (chosenPeriod === 'week') {
-                    const attributes = await GetChildAttributes(id, store.playingChildId.id, weekRange.startDate, weekRange.endDate)
+                    const attributes = await GetChildAttributes(id, store.playingChildId?.id, weekRange?.startDate, weekRange?.endDate)
+                    
                     setData(attributes.data)
                 } else if (chosenPeriod === 'month') {
-                    const attributes = await GetChildAttributes(id, store.playingChildId.id, monthRange.startDate, monthRange.endDate)
-                    setData(attributes.data)
+                    const attributes = await GetChildAttributes(id, store.playingChildId?.id, monthRange?.startDate, monthRange?.endDate)
+                    
+                    setData(attributes?.data)
                 }
             } catch (error) {
                 console.log(error)
@@ -150,17 +154,17 @@ const ParentsSegments = ({ route }) => {
 
             </Modal>
 
-            <Periods chosenPeriod={chosenPeriod} setChosenPeriod={setChosenPeriod}/>
+            <Periods labels={labels} chosenPeriod={chosenPeriod} setChosenPeriod={setChosenPeriod}/>
 
             <ChosenPeriod changeDate={changeDate} setShow={setShow} chosenPeriod={chosenPeriod} monthRange={monthRange} weekRange={weekRange} formattedDate={formattedDate}/>
                 
             <View style={{width: '100%', height: 'auto', rowGap: vs(12), alignItems: 'center' }}>
                     
-                <TimeAndPuzzles data={data}/>
+                <TimeAndPuzzles labels={labels} data={data}/>
                 
                 <View style={{ width: '100%', height: 'auto', alignItems: 'center', justifyContent: 'center', rowGap: vs(16) }}>
                         
-                    <NonAndMistakes chosenMistakesOption={chosenMistakesOption} setChosenMistakesOption={setChosenMistakesOption}/>
+                    <NonAndMistakes labels={labels} chosenMistakesOption={chosenMistakesOption} setChosenMistakesOption={setChosenMistakesOption}/>
                     
                     <FlatList
                         scrollEnabled
@@ -179,11 +183,11 @@ const ParentsSegments = ({ route }) => {
             </View>
 
             {informationModal && 
-                <InformationModal modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal} setIsFrozen={setIsFrozen}/>
+                <InformationModal labels={labels} modalData={modalData} setInformationModal={setInformationModal} informationModal={informationModal} setIsFrozen={setIsFrozen}/>
             }
 
         </SafeAreaView>
     )
 }
 
-export default ParentsSegments;
+export default ParentsSegmentsScreen;

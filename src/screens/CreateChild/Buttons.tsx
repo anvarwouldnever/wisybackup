@@ -8,7 +8,7 @@ import translations from '../../../localization';
 import store from '../../store/store';
 import { withTiming } from 'react-native-reanimated';
 
-const Buttons = ({ createChild, loading, stage, name, avatar, birthday, gender, setStage, engagementTime, setPrevStage, setIsFrozen, checkName, setNameExists, inputHeight }) => {
+const Buttons = ({ createChild, loading, stage, name, avatar, birthday, gender, setStage, engagementTime, setPrevStage, setIsFrozen, checkName, setNameExists, inputHeight, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -74,7 +74,7 @@ const Buttons = ({ createChild, loading, stage, name, avatar, birthday, gender, 
             </TouchableOpacity>
 
             <TouchableOpacity disabled={loading || move} onPress={() => changeStage(stage + 1)} style={{ opacity: move ? 0.5 : 1, width: s(121), height: '100%', backgroundColor: 'white', borderRadius: 100, justifyContent: 'center', alignItems: 'center', flexDirection: 'row', gap: vs(8)}}>
-                <Text style={{ fontSize: Platform.isPad ? vs(16) : vs(14), fontWeight: '600', color: '#504297' }}>{translations?.[store.language]?.continue}</Text>
+                <Text style={{ fontSize: Platform.isPad ? vs(16) : vs(14), fontWeight: '600', color: '#504297' }}>{labels?.continue}</Text>
                 <Ionicons size={vs(24)} name='arrow-forward' color={'#504297'} />
             </TouchableOpacity>
 

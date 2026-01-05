@@ -2,7 +2,7 @@ import React from "react";
 import { View, Modal, Text, Image, TouchableWithoutFeedback, TouchableOpacity } from "react-native";
 import { useScale } from "../../../hooks/utils/useScale";
 
-const PopUpModal = ({ modal, setModal }) => {
+const PopUpModal = ({ modal, setModal, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -15,7 +15,7 @@ const PopUpModal = ({ modal, setModal }) => {
                     
                     <View style={{position: 'absolute', top: vs(60), alignSelf: 'center', borderRadius: 12, width: '100%', padding: vs(16), height: vs(56), backgroundColor: '#504297', justifyContent: 'space-between', alignItems: 'center', flexDirection: 'row'}}>
                         
-                        <Text style={{fontWeight: '600', fontSize: vs(14), color: '#FFFFFF'}}>New password was saved</Text>
+                        <Text style={{fontWeight: '600', fontSize: vs(14), color: '#FFFFFF'}}>{labels?.new_password_saved}</Text>
                         
                         <TouchableOpacity onPress={() => setModal(false)}>
                         

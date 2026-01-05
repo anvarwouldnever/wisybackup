@@ -4,8 +4,8 @@ import { playSound } from '../usePlaySound';
 import store from '../../store/store';
 import useTimer from '../utils/useTimer';
 import { AnswerDragAndDrop } from '../../api/methods/game/answer';
-import { GetSpeeches } from '../../api/methods/speeches/speech';
 import { gameStore } from '../../screens/Games/store/gameStore';
+import { getSpeech } from '../../screens/Main/hooks/getSpeech';
 
 export const useDragAndDropAnswer = ({ data, subCollectionId, onCompleteTask, isFromAttributes = false, setId, levelHandlers, uiHandlers, attemptState }) => {
     
@@ -67,7 +67,7 @@ export const useDragAndDropAnswer = ({ data, subCollectionId, onCompleteTask, is
                 try {
                     if (!correct) {
                         playSound(gameStore.sounds.wrong ?? require('../../../assets/notok.mp3'), true, false, true)
-                        const speech = await GetSpeeches('no_more_hints')
+                        const speech = await getSpeech('no_more_hints')
                         setText(speech.data?.data[0]?.text);
                         await playSound(speech?.data?.data[0]?.audio);
                     } else {

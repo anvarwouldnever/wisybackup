@@ -1,17 +1,13 @@
 import { View, Text, Platform, TouchableOpacity, Modal } from 'react-native'
 import React, { useState } from 'react'
 import { useScale } from '../../hooks/utils/useScale';
-import RNDateTimePicker from "@react-native-community/datetimepicker";
-import CalendarAndroid from '../../calendars/CalendarAndroid';
 import Calendar from '../../calendars/Calendar';
-import translations from '../../../localization';
-import store from '../../store/store';
 
-const Age = ({ setBirthday, settings, birthday, formatDate }) => {
+const Age = ({ setBirthday, birthday, formatDate, labels }) => {
 
     const { vs } = useScale()
 
-    const title = settings?.child_age_placeholder
+    const title = labels?.select_date
 
     const [show, setShow] = useState(false);
 
@@ -21,7 +17,7 @@ const Age = ({ setBirthday, settings, birthday, formatDate }) => {
             <View style={{ height: 'auto', width:'100%', gap: vs(16), alignItems: 'center', justifyContent: 'center' }}>
                 
                 <Text style={{ width: '100%', textAlign: 'center', fontSize: Platform.isPad? vs(22) : vs(20), fontWeight: '600' }}>
-                    {translations[store.language].howOldIsYourChild}
+                    {labels?.child_age}
                 </Text>
 
                 {
@@ -39,7 +35,7 @@ const Age = ({ setBirthday, settings, birthday, formatDate }) => {
             </View>
 
             <Text style={{ width: '100%', textAlign: 'center', color: '#555555', fontSize: Platform.isPad ? vs(14) : vs(12), fontWeight: '500', lineHeight: Platform.isPad ? vs(22) : vs(20), paddingHorizontal: vs(20) }}>
-                We need the age for generating appropriate games and date to celebrate with Wisy the Birthday
+                {labels?.age_explanation}
             </Text>
         
         </View>

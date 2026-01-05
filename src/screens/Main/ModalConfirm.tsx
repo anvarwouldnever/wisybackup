@@ -3,25 +3,44 @@ import React from 'react'
 import Modal from 'react-native-modal'
 import store from '../../store/store'
 import { useScale } from '../../hooks/utils/useScale'
-import { gameStore } from '../Games/store/gameStore'
 import { Purchase } from '../../api/methods/market/purchase'
+import { playSound } from '../../hooks/usePlaySound'
+import { getSpeech } from './hooks/getSpeech'
 
-const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, setAnimation, setCurrentAnimation }) => {
+const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, labels, setCurrentAnimation }) => {
+
+    const func = async (name: string) => {
+        try {
+            playSound.stop()
+            store.setWisySpeaking(true);
+            const response = await getSpeech(name);
+            if (response.data?.data?.length > 0) {
+                const randomIndex = Math.floor(Math.random() * response?.data?.data?.length);
+                store.setWisyMenuText(response.data?.data[randomIndex]?.text);
+                await playSound(response.data?.data[randomIndex]?.audio);
+            }
+        } catch (error) {
+            console.log(error);
+        } finally {
+            store.setWisySpeaking(false);
+        }
+    };
 
     const purchaseItem = async() => {
         try {
-            // const purchase = await Purchase(store?.playingChildId?.id, currentAnimation?.id)
-            // if (purchase?.data?.is_error) {
-            //     setModal(false);
-            //     setAnimationStart(false);
-            //     setCurrentAnimation(null)
-            // } else {
+            const purchase = await Purchase(store?.playingChildId?.id, currentAnimation?.id)
+            if (purchase?.data?.is_error) {
+                func('no_money')
+                setModal(false);
+                setAnimationStart(false);
+                setCurrentAnimation(null)
+            } else {
                 setModal(false);
                 setAnimationStart(true);
                 store.setPlayingChildStars(-currentAnimation?.cost);
-            // }
+            }
         } catch (error) {
-            console.log(error?.response?.data?.message)
+            func('no_money')
             setModal(false);
             setAnimationStart(false);
             setCurrentAnimation(null)
@@ -37,7 +56,7 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, se
                 
                 <View style={{ width: '100%', rowGap: s(5), alignItems: 'center', justifyContent: 'center' }}>
                     
-                    <Text style={{ fontWeight: '600', color: '#000000', fontSize: s(10), textAlign: 'center' }}>Please Confirm</Text>
+                    <Text style={{ fontWeight: '600', color: '#000000', fontSize: s(10), textAlign: 'center' }}>{labels?.pleaseConfirm}</Text>
 
                     <View style={{ flexDirection: 'row', width: '100%', columnGap: s(3), alignItems: 'center', justifyContent: 'center'  }}>
 
@@ -73,4 +92,4 @@ const ModalConfirm = ({ modal, setModal, setAnimationStart, currentAnimation, se
     )
 }
 
-export default ModalConfirm
+export default ModalConfirm;

@@ -11,9 +11,8 @@ import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';
 import MainContainerBlock from './Game8/MainContainerBlock';
 import { useScale } from '../../hooks/utils/useScale';
-import translations from '../../../localization';
 
-const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow }) => {
+const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -72,7 +71,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
     }, [])
 
     return (
-        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center' }}>
+        <View style={{ width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
             
             {tutorialShow && tutorials?.length > 0 && (
                 <TutorialOverlay tutorials={tutorials} />
@@ -102,7 +101,7 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             {lines?.length != 0 &&
                         
                 <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
-                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>{translations[store.language]?.send}</Text>
+                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>{labels?.send}</Text>
                 </TouchableOpacity>
                     
             }

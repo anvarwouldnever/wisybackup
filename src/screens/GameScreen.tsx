@@ -25,6 +25,9 @@ import ProgressAnimation from './Game/ProgressAnimation';
 import { gameStore } from './Games/store/gameStore';
 import { useScale } from '../hooks/utils/useScale';
 import useLockLandscape from '../hooks/utils/useLockLandscape';
+import { getLabels } from './Welcome/hooks/getLabels';
+import { playSound } from '../hooks/usePlaySound';
+import * as ScreenOrientation from "expo-screen-orientation";
 
 const GameScreen = ({ route }) => {
 
@@ -67,6 +70,15 @@ const GameScreen = ({ route }) => {
             const nextLevel = prev + 1;
       
             if (nextLevel >= tasks?.length) {
+                if (isFromAttributes) {
+                    setIsFrozen(true);
+                    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+                    playSound.stop(true);
+                    setTimeout(() => {
+                        navigation.goBack();
+                    }, 150);
+                    return
+                }
                 return navigation.goBack();
             }
         
@@ -85,7 +97,16 @@ const GameScreen = ({ route }) => {
                 if (isNextTaskAvailable) {
                     setCameFromBreak(false);
                 } else {
-                    return navigation.goBack();
+                    if (isFromAttributes) {
+                        setIsFrozen(true);
+                        ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP);
+                        playSound.stop(true);
+                        setTimeout(() => {
+                            navigation.goBack();
+                        }, 150);
+                    } else {
+                        return navigation.goBack();
+                    }
                 }
             }
 
@@ -120,6 +141,7 @@ const GameScreen = ({ route }) => {
     }, [taskLevel]);
 
     const { s, vs } = useScale();
+    const { labels } = getLabels();
 
     const RenderVoiceGame = () => {
         return (    
@@ -153,25 +175,25 @@ const GameScreen = ({ route }) => {
 
     const RenderHandWrittenSimpleGame = () => {
         return (
-            <Game8Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game8Screen labels={labels} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenCountingGame = () => {
         return (
-            <Game9Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game9Screen labels={labels} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenRepeatGame = () => {
         return (
-            <Game10Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game10Screen labels={labels} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
     const RenderHandWrittenWordGame = () => {
         return (
-            <Game11Screen tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
+            <Game11Screen labels={labels} tutorials={tutorials} tutorialShow={tutorialShow} setTutorialShow={setTutorialShow} level={level} introTaskIndex={introTaskIndex} introText={introText} introAudio={introAudio} setEarnedStars={setEarnedStars} setStars={setStars} data={task[level]} setLevel={setLevel} subCollectionId={tasks[taskLevel]?.id} onCompleteTask={onCompleteTask} isFromAttributes={isFromAttributes}/>
         )
     }
 
@@ -297,12 +319,12 @@ const GameScreen = ({ route }) => {
                                 <RenderTextSingleChoiceSimpleGame /> : 
                                 task[level]?.type === 'text_single_choice' && task[level]?.content?.sub_type === 'with_audio' &&
                                 <RenderTextSingleChoiceWithAudioGame />
-                            ) : <CongratulationsScreen setLevel2={setLevel} taskLevel={taskLevel} categoryId={categoryId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
+                            ) : <CongratulationsScreen labels={labels} setLevel2={setLevel} taskLevel={taskLevel} categoryId={categoryId} setTutorialShow={setTutorialShow} setIntroTaskIndex={setIntroTaskIndex} setLevel={incrementLevel} setTaskLevel={incrementTaskLevel} stars={stars} earnedStars={earnedStars} id={tasks[taskLevel + 1]?.id} starId={tasks[taskLevel]?.id} onComplete={onComplete} isFromAttributes={isFromAttributes}/>
                         }
 
                         <View style={{ position: 'absolute', top: 0, width: '100%', flexDirection: 'row', justifyContent: 'space-between' }}>
                             
-                            <BackButton setIsFrozen={setIsFrozen}/>
+                            <BackButton labels={labels} isFromAttributes={isFromAttributes} setIsFrozen={setIsFrozen}/>
 
                             {task && task[level] && task[level].type && 
                                 <ProgressAnimation task={task} level={level}/>

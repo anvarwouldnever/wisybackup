@@ -1,12 +1,10 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import translations from "../../../localization";
-import store from "../../store/store";
 import { useScale } from "../../hooks/utils/useScale";
 import * as ScreenOrientation from "expo-screen-orientation";
 
-const ParentsCancel = ({ setIsFrozen }) => {
+const ParentsCancel = ({ setIsFrozen, labels }) => {
 
     const navigation = useNavigation();
 
@@ -24,7 +22,7 @@ const ParentsCancel = ({ setIsFrozen }) => {
     return (
         <View style={{justifyContent: 'space-between', flexDirection: 'row', alignItems: 'center', width: '100%', height: vs(28)}}>
             
-            <Text style={{fontWeight: '600', fontSize: vs(20), lineHeight: vs(28)}}>{translations?.[store.language]?.parents}</Text>
+            <Text style={{fontWeight: '600', fontSize: vs(20), lineHeight: vs(28)}}>{labels?.parents}</Text>
             
             <TouchableOpacity onPress={() => onPress()} style={{justifyContent: 'center', alignItems: 'center', width: s(24), height: vs(24)}}>
                 

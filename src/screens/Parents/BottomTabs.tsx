@@ -4,7 +4,7 @@ import { useNavigation } from "@react-navigation/native";
 import { Svg, Path } from "react-native-svg";
 import { useScale } from '../../hooks/utils/useScale';
 
-const BottomTabs = ({ activeIndex, setScreen, attributes }) => {
+const BottomTabs = ({ activeIndex, setScreen, attributes, labels }) => {
 
     const navigation = useNavigation();
 
@@ -79,7 +79,7 @@ const BottomTabs = ({ activeIndex, setScreen, attributes }) => {
                 
                 <Image source={require('../../images/chat.png')} style={{ width: vs(24), height: vs(24) }}/>
                
-                <Text style={{fontWeight: '600', fontSize: vs(12), lineHeight: vs(24), color: '#504297'}}>Chat</Text>
+                <Text style={{fontWeight: '600', fontSize: vs(12), lineHeight: vs(24), color: '#504297'}}>{labels?.chat}</Text>
                 
             </TouchableOpacity>
 

@@ -3,7 +3,7 @@ import { Modal, TouchableOpacity, TextInput, View, KeyboardAvoidingView, Touchab
 import { ChangePassword } from "../../../api/methods/auth/auth";
 import { useScale } from "../../../hooks/utils/useScale";
 
-const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal }) => {
+const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal, labels }) => {
 
     const { s, vs, isTablet } = useScale()
     const [newPassword, setNewPassword] = useState("");
@@ -37,7 +37,7 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
                                         
                                         <TextInput 
                                             style={{ borderRadius: 100, height: '100%', fontSize: vs(14), alignItems: 'center', fontWeight: '600', width: '90%' }}
-                                            placeholder="New password"
+                                            placeholder={labels?.new_password}
                                             placeholderTextColor={'#B1B1B1'}
                                             secureTextEntry={secure}
                                             onChangeText={(text) => setNewPassword(text)}
@@ -51,7 +51,7 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
 
                                     </View>
 
-                                    <Text style={{ fontWeight: '500', fontSize: vs(12), color: '#555555' }}>Password must contain at least 1 uppercase letter</Text>
+                                    <Text style={{ fontWeight: '500', fontSize: vs(12), color: '#555555' }}>{labels?.passwordUppercaseRule}</Text>
                                 
                                 </View>
 
@@ -60,7 +60,7 @@ const NewPasswordModal = ({ setModal, setSecure, secure, modal, setPopUpModal })
                             <TouchableOpacity onPress={() => onPress()} style={{ backgroundColor: '#504297', opacity: newPassword.length < 8 || !/[A-Z]/.test(newPassword) ? 0.5 : 1, borderRadius: 100, justifyContent: 'center', alignItems: 'center', width: '100%', height: vs(56), alignSelf: 'center' }}>
                                 
                                 <Text style={{color: '#FFFFFF', fontWeight: '600', fontSize: vs(14) }}>
-                                    Save
+                                    {labels?.save}
                                 </Text>
 
                             </TouchableOpacity>

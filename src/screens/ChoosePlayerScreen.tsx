@@ -9,9 +9,9 @@ import { useScale } from '../hooks/utils/useScale';
 import useLockLandscape from '../hooks/utils/useLockLandscape';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import SearchInput from './ChoosePlayer/SearchInput';
-import translations from '../../localization';
 import { getChildren } from './ChoosePlayer/hooks/getChildren';
 import { gameStore } from './Games/store/gameStore';
+import { getLabels } from './Welcome/hooks/getLabels';
 
 const ChoosePlayerScreen = () => {
 
@@ -26,6 +26,7 @@ const ChoosePlayerScreen = () => {
     const { s, vs } = useScale();
 
     const { children, loading } = getChildren();
+    const { labels } = getLabels();
 
     const filteredChildren = React.useMemo(() => {
         if (!query || query.trim() === '') return children;
@@ -57,14 +58,15 @@ const ChoosePlayerScreen = () => {
             
             <BackgroundMusic />
 
-            <SearchInput onClear={() => setQuery('')} onSearch={() => setQuery(searchInput)}  searchInput={searchInput} setSearchInput={setSearchInput} />
+            <SearchInput labels={labels} onClear={() => setQuery('')} onSearch={() => setQuery(searchInput)}  searchInput={searchInput} setSearchInput={setSearchInput} />
         
             {query && filteredChildren?.length === 0 ? (
                 <Text style={{ color: '#504297', fontSize: s(6), fontWeight: '700', textAlign: 'center' }}>
-                    {translations?.[store.language]?.nothingFound}
+                    {labels?.noChildrenWithName}
                 </Text>
             ) : (
                 <Children
+                    labels={labels}
                     setIsFrozen={setIsFrozen}
                     setChosenPlayerIndex={setChosenPlayerIndex}
                     chosenPlayerIndex={chosenPlayerIndex}
@@ -79,7 +81,7 @@ const ChoosePlayerScreen = () => {
                 <TouchableOpacity onPress={() => onPress()} style={{ borderRadius: 100, flexDirection: 'row', columnGap: vs(10), justifyContent: 'center', alignItems: 'center', backgroundColor: '#504297', width: s(65), height: s(25), bottom: s(10), right: s(10), position: 'absolute'}}>
                     
                     <Text style={{ fontWeight: '600', fontSize: s(7), color: 'white'}}>
-                        {translations?.[store.language]?.letsPlay}
+                        {labels?.letsPlay}
                     </Text>
 
                     <Ionicons name='arrow-forward' size={s(8)} color={'white'} />

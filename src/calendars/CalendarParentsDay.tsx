@@ -10,7 +10,6 @@ import { useScale } from '../hooks/utils/useScale';
 const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
 
     LocaleConfig.locales['lv'] = {
-        
         monthNames: [
             'Janvāris',
             'Februāris',
@@ -29,11 +28,9 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
         dayNames: ['Svētdiena', 'Pirmdiena', 'Otrdiena', 'Trešdiena', 'Ceturtdiena', 'Piektdiena', 'Sestdiena'],
         dayNamesShort: ['Sv.', 'Pr.', 'Ot.', 'Tr.', 'Ce.', 'Pk.', 'Sv.'],
         today: "Šodien"
-
     };
-      
+
     LocaleConfig.locales['en'] = {
-        
         monthNames: [
             'January',
             'February',
@@ -52,9 +49,8 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
         dayNames: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
         dayNamesShort: ['Sun.', 'Mon.', 'Tue.', 'Wed.', 'Thu.', 'Fri.', 'Sat.'],
         today: "Today"
-
     };
-      
+
     LocaleConfig.defaultLocale = store.language;
 
     const [selectedDate, setSelectedDate] = useState(null);
@@ -71,7 +67,7 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
         setShow(false);
     };
 
-    const { s, vs } = useScale()
+    const { s, vs } = useScale();
 
     return (
         <View style={{ width: vs(314), height: 'auto', padding: vs(14), rowGap: vs(16), alignItems: 'center', borderRadius: 20, backgroundColor: 'white', position: 'absolute', alignSelf: 'center', flexDirection: 'column', shadowColor: 'black', shadowRadius: 400, shadowOffset: { width: 1, height: 1 }, shadowOpacity: 1, elevation: 100 }}>
@@ -88,7 +84,6 @@ const CalendarParentsDay = ({ setShow, setFormattedDate }) => {
                         selectedColor: '#504297',
                     },
                 }}
-                
                 locale={store.language}
                 monthFormat={'MMMM yyyy'}
             />

@@ -7,17 +7,19 @@ import translations from '../../localization';
 import { ForgotPassword } from '../api/methods/auth/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useScale } from '../hooks/utils/useScale';
+import { getLabels } from './Welcome/hooks/getLabels';
 
 const EmailConfirmScreen = ({ route }) => {
 
     const { s, vs, isTablet } = useScale()
+
+    const { labels } = getLabels()
 
     const [modal, setModal] = useState(false);
     const [timer, setTimer] = useState(20);
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     const email = route?.params?.email;
-    console.log(email)
 
     const resetPassword = async () => {
         try {
@@ -56,25 +58,25 @@ const EmailConfirmScreen = ({ route }) => {
                 <View style={{ width: '100%', height: 'auto', alignItems: 'center', justifyContent: 'center', rowGap: vs(12)}}>
                 
                     <Text style={{ color: '#222222', fontWeight: '600', fontSize: isTablet ? vs(18) : vs(16), textAlign: 'center' }}>
-                        {translations?.[store.language]?.followInstructions}
+                        {labels?.follow_instructions}
                     </Text>
                     
                     <Text style={{ color: '#555555', fontWeight: '400', fontSize: isTablet ? vs(18) : vs(16), textAlign: 'center' }}>
-                        {translations?.[store.language]?.thereIsALink}
+                        {labels?.link_sent}
                     </Text>
                 
                 </View>
 
             </View>
 
-            <EmailModal modal={modal} setModal={setModal} />
+            <EmailModal labels={labels} modal={modal} setModal={setModal} />
         
             <View style={{ width: '100%', height: 'auto', justifyContent: 'center', alignItems: 'center', rowGap: vs(10)}}>
             
                 <TouchableOpacity onPress={() => setModal(true)} style={{ backgroundColor: '#504297', borderRadius: 100, justifyContent: 'center', alignItems: 'center', width: '100%', height: vs(56)}}>
                     
                     <Text style={{ color: '#FFFFFF', fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14) }}>
-                        {translations?.[store.language]?.openInbox}
+                        {labels?.open_inbox}
                     </Text>
 
                 </TouchableOpacity>
@@ -82,7 +84,7 @@ const EmailConfirmScreen = ({ route }) => {
                 <TouchableOpacity onPress={() => resetPassword()} disabled={isButtonDisabled} style={{ justifyContent: 'center', borderRadius: 100, borderWidth: 1, borderColor: '#E5E5E5', alignItems: 'center', width: '100%', height: vs(56), opacity: 1}}>
                     
                     <Text style={{ color: '#504297', fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14) }}>
-                        {isButtonDisabled ? `${translations?.[store.language]?.resendCodeIn} 00:${timer.toString().padStart(2, '0')}` : `${translations?.[store.language]?.resendCode}`}
+                        {isButtonDisabled ? `${labels?.resend_code_in} 00:${timer.toString().padStart(2, '0')}` : `${translations?.[store.language]?.resendCode}`}
                     </Text>
 
                 </TouchableOpacity>

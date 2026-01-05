@@ -13,7 +13,6 @@ import LoaderScreen from '../screens/LoaderScreen';
 import MainScreen from '../screens/MainScreen';
 import ParentsCaptchaScreen from '../screens/ParentsCaptchaScreen';
 import ParentsScreen from '../screens/ParentsScreen';
-import ParentsSegments from '../screens/ParentsSegments';
 import ResetPasswordScreen from '../screens/ResetPasswordScreen';
 import ResettedPasswordScreen from '../screens/ResettedPasswordScreen';
 import WelcomeScreen from '../screens/WelcomeScreen';
@@ -24,6 +23,7 @@ import { observer } from 'mobx-react-lite';
 import { navigationRef } from './utils/navigate';
 import * as SecureStore from 'expo-secure-store';
 import TurnPhoneScreen from '../screens/TurnPhoneScreen';
+import ParentsSegmentsScreen from '../screens/ParentsSegmentsScreen';
 
 const Navigation = () => {
 
@@ -55,7 +55,7 @@ const Navigation = () => {
                 <Stack.Screen name="ParentsScreen" component={ParentsScreen} />
                 <Stack.Screen name="LoaderScreen" component={LoaderScreen} />
                 <Stack.Screen name="ChatScreen" component={ChatScreen} />
-                <Stack.Screen name="ParentsSegments" component={ParentsSegments} />
+                <Stack.Screen name="ParentsSegments" component={ParentsSegmentsScreen} />
                 <Stack.Screen name="GameScreen" component={GameScreen} />
                 <Stack.Screen name="TestScreen" component={TestScreen} />
                 <Stack.Screen name="TurnPhoneScreen" component={TurnPhoneScreen} />

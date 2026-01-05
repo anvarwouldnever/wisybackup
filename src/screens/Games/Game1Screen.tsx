@@ -161,8 +161,8 @@ const Game1Screen = ({ data, setLevel, setStars, onCompleteTask, subCollectionId
             setLock(false);
     
             const message =
-                error?.response?.data?.message || // axios ошибки от сервера
-                error?.message ||                 // сетевые ошибки или JS-исключения
+                error?.response?.data?.message
+                error?.message ||          
                 'Произошла ошибка. Попробуйте снова';
     
             setText(message);

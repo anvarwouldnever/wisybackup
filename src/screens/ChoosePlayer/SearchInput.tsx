@@ -2,10 +2,8 @@ import { View, Text, TextInput, TouchableOpacity, Keyboard } from 'react-native'
 import React from 'react'
 import { useScale } from '../../hooks/utils/useScale'
 import { Ionicons } from '@expo/vector-icons'
-import translations from '../../../localization'
-import store from '../../store/store'
 
-const SearchInput = ({ searchInput, setSearchInput, onSearch, onClear }) => {
+const SearchInput = ({ searchInput, setSearchInput, onSearch, onClear, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -20,6 +18,8 @@ const SearchInput = ({ searchInput, setSearchInput, onSearch, onClear }) => {
         Keyboard.dismiss()       // optional: прячем клаву
     }
 
+    // console.log(labels?.search, labels?.childName)
+
     return (
         <View style={{ position: 'absolute', top: s(10), left: vs(170), width: 'auto', height: s(18), flexDirection: 'row', alignItems: 'center', columnGap: s(5), zIndex: 1000 }}>
             
@@ -28,7 +28,7 @@ const SearchInput = ({ searchInput, setSearchInput, onSearch, onClear }) => {
                 <Ionicons name='search' size={s(10)} color={'#504297'} />
                 
                 <TextInput 
-                    placeholder={translations?.[store.language]?.childName}
+                    placeholder={labels?.childName}
                     placeholderTextColor={'#504297'}
                     style={{ color: '#504297', fontSize: s(6), fontWeight: '600', width: '55%', height: '100%' }}
                     keyboardType='default'
@@ -48,7 +48,7 @@ const SearchInput = ({ searchInput, setSearchInput, onSearch, onClear }) => {
             <TouchableOpacity disabled={!searchInput?.trim()} onPress={handleSearch} style={{ opacity: !searchInput?.trim() ? 0.5 : 1, width: s(40), height: '100%', backgroundColor: '#504297', borderRadius: 100, alignItems: 'center', justifyContent: 'center' }}>
                 
                 <Text style={{ color: 'white', fontSize: s(6), fontWeight: '600', }}>
-                    {translations?.[store.language]?.search}
+                    {labels?.search}
                 </Text>
 
             </TouchableOpacity>

@@ -5,7 +5,7 @@ import { useScale } from '../../hooks/utils/useScale'
 import translations from '../../../localization'
 import store from '../../store/store'
 
-const Name = ({ inputHeight, setName, name, settings, nameExists, setNameExists }) => {
+const Name = ({ inputHeight, setName, name, settings, nameExists, setNameExists, labels }) => {
 
     const { vs } = useScale()
 
@@ -27,7 +27,7 @@ const Name = ({ inputHeight, setName, name, settings, nameExists, setNameExists 
     return (
         <View style={{ width: '100%', height: 'auto', gap: vs(16), alignItems: 'center', justifyContent: 'center'}}>
 
-            <Text style={{ height: vs(28), fontSize: Platform.isPad ? vs(22) : vs(20), fontWeight: '600', textAlign: 'center' }}>What's Your Child's Name?</Text>
+            <Text style={{ height: vs(28), fontSize: Platform.isPad ? vs(22) : vs(20), fontWeight: '600', textAlign: 'center' }}>{labels?.child_name}</Text>
 
             <TextInput 
                 style={{ width: '100%', height: vs(56), alignSelf: 'center', borderWidth: 1, borderRadius: 100, paddingHorizontal: vs(16), borderColor: '#E5E5E5', fontSize: Platform.isPad ? vs(16) : vs(14), color :'#222222', fontWeight: '600', justifyContent: 'center', alignItems: 'center', textAlign: 'center' }}
@@ -41,7 +41,7 @@ const Name = ({ inputHeight, setName, name, settings, nameExists, setNameExists 
             />
 
             <Text style={{fontWeight: '600', color: 'red', alignSelf: 'center', fontSize: vs(12), opacity: nameExists ? 1 : 0}}>
-                {translations[store.language]?.childWithThisName}
+                {labels?.noChildrenWithName}
             </Text>
 
         </View>

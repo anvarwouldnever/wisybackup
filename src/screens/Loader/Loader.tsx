@@ -10,7 +10,7 @@ import { useScale } from '../../hooks/utils/useScale'
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle)
 
-const Loader = ({ setText }) => {
+const Loader = ({ setText, labels }) => {
 
     const { s, vs, windowHeight: height, windowWidth: width } = useScale()
 
@@ -19,7 +19,7 @@ const Loader = ({ setText }) => {
     useEffect(() => {
         progress.value = withTiming(1, {duration: 1500})
         setTimeout(() => {
-            setText(translations?.[store.language]?.weHaveMatched)
+            setText(labels?.matched_activities)
         }, 1300);
     }, [])
     

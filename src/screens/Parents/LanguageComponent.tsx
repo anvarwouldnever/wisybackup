@@ -5,19 +5,25 @@ import store from '../../store/store';
 import Animated, { SlideInRight } from 'react-native-reanimated';
 import { gameStore } from '../Games/store/gameStore';
 
-const LanguageComponent = ({ setScreen }) => {
+const LanguageComponent = ({ setScreen, labels }) => {
+    
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [chosenLang, setChosenLang] = useState(null);
     const [loading, setLoading] = useState(false);
 
     const func = async(tag) => {
         setLoading(true);
-        await store.setLanguage(tag);
-        gameStore.resetSubCollection()
+
+        if (tag != store.language) {
+            gameStore.resetCategories()
+            store.setWisyMenuText(null)
+            await store.setLanguage(tag);
+
+        }
         setTimeout(() => {
             setLoading(false);
             setScreen('Settings');
-        }, 3000);
+        }, 1000);
     };
 
     const langs = [
@@ -78,7 +84,7 @@ const LanguageComponent = ({ setScreen }) => {
                     }}
                     disabled={loading} // Блокируем кнопку во время загрузки
                 >
-                    <Text style={{fontSize: windowWidth * (14 / 360), color: 'white', fontWeight: '600'}}>{translations?.[chosenLang?.tag]?.save ?? 'Save'}</Text>
+                    <Text style={{fontSize: windowWidth * (14 / 360), color: 'white', fontWeight: '600'}}>{labels?.save}</Text>
                 </TouchableOpacity>
             )}
         </Animated.View>

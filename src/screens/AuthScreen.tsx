@@ -8,7 +8,8 @@ import * as ScreenOrientation from 'expo-screen-orientation';
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useScale } from "../hooks/utils/useScale";
 import useLockPortrait from "../hooks/utils/useLockPortrait";
-import { getSettings } from "./ChildParams/hooks/getSignUpSettings";
+import { getLabels } from "./Welcome/hooks/getLabels";
+import { getSettings } from "./CreateChild/hooks/getSignUpSettings";
 
 const AuthScreen = ({ route }) => {
 
@@ -33,6 +34,7 @@ const AuthScreen = ({ route }) => {
     }
 
     const { settings } = getSettings()
+    const { labels } = getLabels()
 
     useLockPortrait()
 
@@ -50,9 +52,9 @@ const AuthScreen = ({ route }) => {
                 <Logo />
                 
                 {authOption === 'signup'? 
-                    <AuthSignup proceed={proceed} toggleOption={setAuthOption}/> 
+                    <AuthSignup labels={labels} proceed={proceed} toggleOption={setAuthOption}/> 
                 : 
-                    <AuthLogin settings={settings} playersScreen={playersScreen} toggleOption={setAuthOption}/>
+                    <AuthLogin labels={labels} playersScreen={playersScreen} toggleOption={setAuthOption}/>
                 }    
 
             </SafeAreaView>

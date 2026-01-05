@@ -7,7 +7,7 @@ import translations from '../../../localization';
 import store from '../../store/store';
 import { Ionicons } from '@expo/vector-icons';
 
-const EmailModal = ({ modal, setModal }) => {
+const EmailModal = ({ modal, setModal, labels }) => {
 
     const [clients, setClients] = useState<any>()
 
@@ -30,7 +30,7 @@ const EmailModal = ({ modal, setModal }) => {
                 <View style={{  width: vs(48), height: vs(4), backgroundColor: '#D4D1D1', borderRadius: 100 }} />
 
                 <Text style={{ alignSelf: 'flex-start', color: '#222222', fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14) }}>
-                    {translations?.[store.language]?.chooseEmailProvider}
+                    {labels?.choose_email_provider}
                 </Text>
 
                 <View style={{ width: '100%', height: 'auto', rowGap: vs(10) }}>

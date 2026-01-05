@@ -7,7 +7,7 @@ import { useNavigation } from '@react-navigation/native'
 import api from '../../api/api'
 import { ForgotPassword } from '../../api/methods/auth/auth'
 
-const Button = ({ setError, email, isValidEmail }) => {
+const Button = ({ setError, email, isValidEmail, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -21,7 +21,7 @@ const Button = ({ setError, email, isValidEmail }) => {
                 navigation.navigate("EmailConfirmScreen")
             }
         } catch (error) {
-            console.log(error);
+            console.log(error.response.data.message);
             setError(error.response.data.message)
         }
     };
@@ -30,7 +30,7 @@ const Button = ({ setError, email, isValidEmail }) => {
         <TouchableOpacity onPress={isValidEmail ? () => resetPassword() : () => navigation.navigate("ResetPassword")} style={{ backgroundColor: '#504297', width: s(312), height: vs(56), borderRadius: 100, alignItems: 'center', justifyContent: 'center', opacity: isValidEmail ? 1 : 0.5 }}>
 
             <Text style={{ fontWeight: '600', color: '#FFFFFF', fontSize:vs(14), textAlign: 'center' }}>
-                {translations?.[store.language]?.send}
+                {labels?.send}
             </Text>
 
         </TouchableOpacity>

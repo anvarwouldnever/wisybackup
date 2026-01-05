@@ -1,11 +1,12 @@
-import { View, Text, SafeAreaView, TextInput, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
+import { View, Text, TextInput, TouchableOpacity, useWindowDimensions, Image } from 'react-native'
 import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import Logo from '../components/Logo';
 import { observer } from 'mobx-react-lite';
 import store from '../store/store';
-import api2 from '../api/api';
 import { ResetPassword } from '../api/methods/auth/auth';
+import { getLabels } from './Welcome/hooks/getLabels';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ResetPasswordScreen = ({ route }) => {
 
@@ -13,13 +14,15 @@ const ResetPasswordScreen = ({ route }) => {
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const navigation = useNavigation();
 
+    const { labels } = getLabels()
+
     const [newPassword, setNewPassword] = useState<string>('')
     const [confirmPassword, setConfirmPassword] = useState<string>('')
     const [newPasswordHidden, setNewPasswordHidden] = useState<boolean>(true)
     const [confirmPasswordHidden, setConfirmPasswordHidden] = useState<boolean>(true)
 
     const isPasswordValid = (password: string) => {
-        return /[A-Z]/.test(password) && password.length >= 8; // Пароль должен быть длиной >= 8 и содержать хотя бы одну заглавную букву
+        return /[A-Z]/.test(password) && password.length >= 8; 
     };
 
     const resetPassword = async () => {
@@ -47,9 +50,9 @@ const ResetPasswordScreen = ({ route }) => {
             <View style={{ gap: windowHeight * (20 / 800), position: 'absolute', alignSelf: 'center' }}>
                 
                 <View style={{ width: windowWidth * (312 / 360), height: windowHeight * (88 / 800), justifyContent: 'space-between' }}>
-                    <Text style={{ fontWeight: '600', color: '#222222', fontSize: windowHeight * (20 / 800), textAlign: 'center' }}>Reset your password</Text>
+                    <Text style={{ fontWeight: '600', color: '#222222', fontSize: windowHeight * (20 / 800), textAlign: 'center' }}>{labels?.reset_password}</Text>
                     <Text style={{ fontWeight: '400', color: '#555555', fontSize: windowHeight * (14 / 800), textAlign: 'center', lineHeight: windowHeight * (24 / 800) }}>
-                        Enter your email address and we will send you instructions to reset your password
+                        {labels?.forgot_password_instructions}
                     </Text>
                 </View>
 
@@ -61,7 +64,7 @@ const ResetPasswordScreen = ({ route }) => {
                             secureTextEntry={newPasswordHidden}
                             onChangeText={(text) => setNewPassword(text)}
                             placeholderTextColor={"#B1B1B1"}
-                            placeholder='New password'
+                            placeholder={labels?.new_password}
                             style={{
                                 fontSize: windowHeight * (14 / 800),
                                 fontWeight: '600',
@@ -83,7 +86,7 @@ const ResetPasswordScreen = ({ route }) => {
                             onChangeText={(text) => setConfirmPassword(text)}
                             secureTextEntry={confirmPasswordHidden}
                             placeholderTextColor={"#B1B1B1"}
-                            placeholder='Confirm password'
+                            placeholder={labels?.confirm_password}
                             style={{
                                 fontSize: windowHeight * (14 / 800),
                                 fontWeight: '600',
@@ -95,12 +98,12 @@ const ResetPasswordScreen = ({ route }) => {
                             }}
                         />
                         <TouchableOpacity onPress={() => setConfirmPasswordHidden(prev => !prev)}>
-                            <Image source={eye} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
+                            <Image source={require('../images/tabler_eye.png')} style={{width: windowWidth * (24 / 360), height: windowHeight * (24 / 800), aspectRatio: 24 / 24}}/>
                         </TouchableOpacity>
                     </View>
                     
                     <Text style={{color: '#555555', fontSize: windowHeight * (12 / 800), fontWeight: '400', textAlign: 'center'}}>
-                        Password must contain 1 uppercase letter
+                        {labels?.password_requirements}
                     </Text>
 
                 </View>
@@ -118,7 +121,7 @@ const ResetPasswordScreen = ({ route }) => {
                     }}
                 >
                     <Text style={{ fontWeight: '600', color: '#FFFFFF', fontSize: windowHeight * (14 / 800), textAlign: 'center' }}>
-                        Save
+                        {labels?.save}
                     </Text>
                 </TouchableOpacity>
 

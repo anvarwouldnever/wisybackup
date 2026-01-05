@@ -3,15 +3,14 @@ import { FlatList, TouchableOpacity, View, Text, Image } from 'react-native';
 import { SvgUri } from 'react-native-svg';
 import { useNavigation } from '@react-navigation/native';
 import { observer } from 'mobx-react-lite';
-import { getAvatars } from '../ChildParams/hooks/getAvatars';
+import { getAvatars } from '../CreateChild/hooks/getAvatars';
 import { useScale } from '../../hooks/utils/useScale';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import LottieView from 'lottie-react-native';
-import translations from '../../../localization';
 import * as ScreenOrientation from "expo-screen-orientation";
 import { useMemo } from 'react';
 
-function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading, setIsFrozen }) {
+function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, children, loading, setIsFrozen, labels }) {
     
     const navigation = useNavigation();
 
@@ -59,7 +58,7 @@ function Children({ setChosenPlayerIndex, chosenPlayerIndex, setChosenPlayer, ch
                     </TouchableOpacity>
 
                     <Text style={{ color: '#504297', fontSize: vs(22), fontWeight: '600'}}>
-                        {translations?.[store.language]?.addNewUser}
+                        {labels?.addNewUser}
                     </Text>
 
                 </View>

@@ -2,14 +2,16 @@ import { View, Text, TouchableOpacity, Platform } from 'react-native'
 import React from 'react'
 import { useScale } from '../../hooks/utils/useScale'
 
-const Gender = ({ gender, setGender, settings }) => {
+const Gender = ({ gender, setGender, labels }) => {
 
     const { vs } = useScale()
 
-    const title = settings?.child_gender_title;
-    const male = settings?.child_gender_0;
-    const female = settings?.child_gender_1;
-    const other = settings?.child_gender_2;
+    const title = labels?.child_gender
+    const male = labels?.child_gender_0;
+    const female = labels?.child_gender_1;
+    const other = labels?.child_gender_2;
+
+    // console.log(settings)
 
     return (
         <View style={{ height: 'auto', width: '100%', gap: vs(16) }}>

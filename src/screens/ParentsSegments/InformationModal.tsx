@@ -8,7 +8,7 @@ import { gameStore } from "../Games/store/gameStore";
 import { useScale } from "../../hooks/utils/useScale";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
-const InformationModal = ({ modalData, setInformationModal, informationModal, setIsFrozen }) => {
+const InformationModal = ({ modalData, setInformationModal, informationModal, setIsFrozen, labels }) => {
 
     const navigation = useNavigation();
     const [isLoading, setIsLoading] = useState(false);
@@ -20,25 +20,25 @@ const InformationModal = ({ modalData, setInformationModal, informationModal, se
             setIsFrozen(true)
             setIsLoading(true);
 
-            const response = await GetTasks(modalData.id);
+            const response = await GetTasks(modalData?.id);
 
             await gameStore.setTasks([{
                 tasks: response.data?.data,
                 current_task_id_index: 0,
-                id: modalData.id,
+                id: modalData?.id,
                 order: modalData?.order_column,
                 introAudio: modalData?.intro_speech_audio,
                 introText: modalData?.intro_speech,
                 tutorials: modalData?.tutorials,
             }]);
-
-            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
             
             setInformationModal(false);
 
+            await ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.LANDSCAPE_RIGHT);
+
             setTimeout(() => {
                 navigation.navigate('GameScreen', { isFromAttributes: true });
-            }, 200);
+            }, 100);
 
         } catch (error) {
             console.log("Ошибка при запуске игры:", error);
@@ -75,7 +75,7 @@ const InformationModal = ({ modalData, setInformationModal, informationModal, se
                 <TouchableOpacity onPress={() => handleStartGame()} disabled={isLoading} style={{ width: '100%', opacity: isLoading ? 0.5 : 1, backgroundColor: '#504297', borderRadius: 100, height: vs(56), justifyContent: 'center', alignItems: 'center'}}>
                     
                     <Text style={{ fontWeight: '600', fontSize: isTablet ? vs(16) : vs(14), color: '#FFFFFF' }}>
-                        {isLoading ? "Loading..." : "Open game"}
+                        {isLoading ? "Loading..." : labels?.openGame}
                     </Text>
 
                 </TouchableOpacity>

@@ -3,7 +3,6 @@ import { View, TouchableOpacity, Text, Image, StyleSheet } from "react-native";
 import LottieView from "lottie-react-native";
 import store from "../../store/store";
 import lot from '../../lotties/panda anim 2.json'
-import fetchAnimation from "./FetchLottie";
 import { playSound } from "../../hooks/usePlaySound";
 import Animated, { ZoomInEasyDown } from "react-native-reanimated";
 import standingWisy from '../../lotties/standingWisy.json';
@@ -11,9 +10,9 @@ import speakingAndStanding from '../../lotties/speakingAndStanding.json';
 import speakingWisyMarket from '../../lotties/wisySpeakingMarket.json';
 import { observer } from "mobx-react-lite";
 import { gameStore } from "../Games/store/gameStore";
-import { GetSpeeches } from "../../api/methods/speeches/speech";
 import { useScale } from "../../hooks/utils/useScale";
 import Back from "./Back";
+import { getSpeech } from "./hooks/getSpeech";
 
 const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCurrentAnimation, modal, animation, setAnimation, setAnimationStart }) => {
        
@@ -28,7 +27,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
         try {
             playSound.stop()
             store.setWisySpeaking(true);
-            const response = await GetSpeeches(name);
+            const response = await getSpeech(name);
             if (response.data?.data?.length > 0) {
                 const randomIndex = Math.floor(Math.random() * response?.data?.data?.length);
                 store.setWisyMenuText(response.data?.data[randomIndex]?.text);
@@ -59,7 +58,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
     const firstOpening = async(name: string) => {
         try {
             playSound.stop()
-            const sound = await GetSpeeches(name);
+            const sound = await getSpeech(name);
             store.setWisySpeaking(true);
             store.setWisyMenuText(sound.data?.data[0]?.text);
             await playSound(sound.data?.data[0]?.audio);
@@ -158,7 +157,7 @@ const WisyPanel = ({ currentAnimation, animationStart, marketCollections, setCur
 
                 if (store.isFirstOpening) return
 
-                const sound = await GetSpeeches('market_item_purchase');
+                const sound = await getSpeech('market_item_purchase');
                 if (sound.data?.data?.length > 0) {
                     playSound.stop();
                     const randomIndex = Math.floor(Math.random() * sound.data?.data?.length);

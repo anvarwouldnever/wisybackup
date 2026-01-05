@@ -4,7 +4,7 @@ import translations from '../../../localization'
 import store from '../../store/store'
 import { useScale } from '../../hooks/utils/useScale'
 
-const Input = ({ setIsValidEmail, setEmail, error }) => {
+const Input = ({ setIsValidEmail, setEmail, error, labels }) => {
 
     const { s, vs } = useScale()
 
@@ -22,7 +22,7 @@ const Input = ({ setIsValidEmail, setEmail, error }) => {
         <TextInput
             onChangeText={handleEmailChange}
             placeholderTextColor={"#B1B1B1"}
-            placeholder={translations?.[store.language]?.emailAddress}
+            placeholder={labels?.email_address}
             style={{
                 borderWidth: 1,
                 fontSize: vs(14),

@@ -1,11 +1,9 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React from 'react'
-import translations from '../../../localization'
-import store from '../../store/store'
 import { useNavigation } from '@react-navigation/native'
 import { useScale } from '../../hooks/utils/useScale'
 
-const Buttons = () => {
+const Buttons = ({ labels }) => {
 
     const navigation = useNavigation();
 
@@ -16,13 +14,13 @@ const Buttons = () => {
                 
             <TouchableOpacity onPress={() => navigation.navigate('AuthScreen', {authOption: 'signup'})} style={{ alignItems: 'center', justifyContent: 'center', backgroundColor: '#504297', width: s(312), height: vs(56), borderRadius: 100, borderWidth: 1, borderColor: 'black', }}>
                 
-                <Text style={{ fontWeight: '600', fontSize: vs(14), color: '#FFFFFF', }}>{translations?.[store.language]?.signup}</Text>
+                <Text style={{ fontWeight: '600', fontSize: vs(14), color: '#FFFFFF', }}>{labels?.sign_up}</Text>
             
             </TouchableOpacity>
             
             <TouchableOpacity onPress={() => navigation.navigate('AuthScreen', {authOption: 'login'})} style={{ alignItems: 'center', justifyContent: 'center', width: s(312), height: vs(56), borderRadius: 100, borderWidth: 1, borderColor: '#E5E5E5', }}>
                 
-                <Text style={{ fontWeight: '600', fontSize: vs(14), color: '#504297'}}>{translations?.[store.language]?.login}</Text>
+                <Text style={{ fontWeight: '600', fontSize: vs(14), color: '#504297'}}>{labels?.log_in}</Text>
            
             </TouchableOpacity>
 

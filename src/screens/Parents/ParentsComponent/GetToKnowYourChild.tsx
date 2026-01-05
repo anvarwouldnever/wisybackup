@@ -1,12 +1,10 @@
 import { Text, View, Image, TouchableOpacity } from 'react-native'
 import React from 'react'
 import { useNavigation } from '@react-navigation/native';
-import translations from '../../../../localization';
-import store from '../../../store/store';
 import { observer } from 'mobx-react-lite';
 import { useScale } from '../../../hooks/utils/useScale';
 
-const GetToKnowYourChild = () => {
+const GetToKnowYourChild = ({ labels }) => {
 
     const navigation = useNavigation();
 
@@ -21,15 +19,15 @@ const GetToKnowYourChild = () => {
                 
                 <View style={{ width: '100%', height: 'auto', alignSelf: 'center', flexDirection: 'column', justifyContent: 'center', rowGap: vs(6) }}>
                     
-                    <Text style={{ fontWeight: '600', fontSize: vs(16), height: 'auto', lineHeight: vs(20) }}>{translations?.[store.language].getToKnowYourChild}</Text>
+                    <Text style={{ fontWeight: '600', fontSize: vs(16), height: 'auto', lineHeight: vs(20) }}>{labels?.get_to_know_child}</Text>
                     
-                    <Text style={{ fontWeight: '600', color: '#555555', fontSize: isTablet ? vs(14) : vs(12), height: 'auto', lineHeight: vs(20) }}>{translations?.[store.language].tenInsights}</Text>
+                    <Text style={{ fontWeight: '600', color: '#555555', fontSize: isTablet ? vs(14) : vs(12), height: 'auto', lineHeight: vs(20) }}>{labels?.insightsLast7Days}</Text>
                 
                 </View>
 
                 <TouchableOpacity onPress={() => navigation.navigate("ChatScreen")} style={{width: vs(110), height: vs(40), justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 100}}>
                     
-                    <Text style={{ color: '#504297', fontWeight: '600', fontSize: vs(12) }}>{translations?.[store.language]?.openChat}</Text>
+                    <Text style={{ color: '#504297', fontWeight: '600', fontSize: vs(12) }}>{labels?.open_chat}</Text>
                 
                 </TouchableOpacity>
 

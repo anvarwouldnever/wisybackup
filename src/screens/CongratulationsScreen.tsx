@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { View, useWindowDimensions, Platform } from 'react-native';
+import { View } from 'react-native';
 import Animated, { BounceIn, withTiming, runOnJS, useSharedValue, useAnimatedStyle, FadeIn } from 'react-native-reanimated'
 import StarsLottie from './Congratulations/StarsLottie';
 import ConfettiLottie from './Congratulations/ConfettiLottie';
@@ -12,7 +12,7 @@ import EarnedStars from './Congratulations/EarnedStars';
 import { useScale } from '../hooks/utils/useScale';
 import { gameStore } from './Games/store/gameStore';
 
-const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow, categoryId, taskLevel, setLevel2 }) => {
+const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete, stars: starsText, isFromAttributes, earnedStars: earnedStarsText, setIntroTaskIndex, setTutorialShow, categoryId, taskLevel, setLevel2, labels }) => {
 
     const stars = Array.from({ length: parseInt(starsText, 10) }, (_, index) => ({
         id: index + 1,
@@ -148,7 +148,7 @@ const CongratulationsScreen = ({ setTaskLevel, setLevel, id, starId, onComplete,
                 
                 {earnedStars?.length > 0 && <EarnedStars earnedStars={earnedStars} starsContainerOpacity={starsContainerOpacity} starsContainerRef={starsContainerRef} />}
                 
-                <Description stars={stars} />
+                <Description labels={labels} stars={stars} />
                 
                 <View style={{ flexDirection: 'row', height: s(19), justifyContent: 'space-between' }}>
                     

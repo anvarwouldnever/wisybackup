@@ -4,17 +4,15 @@ import Animated, { useAnimatedScrollHandler, useSharedValue } from 'react-native
 import { useScale } from '../../hooks/utils/useScale';
 import Item from './Avatars/Item';
 import Dots from './Avatars/Dots';
-import { getAvatars } from '../ChildParams/hooks/getAvatars';
+import { getAvatars } from './hooks/getAvatars';
 
-const Avatars = ({ settings, setAvatarIndex, setAvatarId, avatarIndex }) => {
+const Avatars = ({ setAvatarIndex, setAvatarId, avatarIndex, labels }) => {
 
     const { s, vs, windowHeight: height, windowWidth: width } = useScale()
 
     const AvatarWidth = width * (180 / 360)
     const AvatarHeight = height * (180 / 800)
     const Spacing = width * (10 / 360);
-
-    const title = settings?.choose_avatar_title;
 
     const { avatars, error, loading } = getAvatars()
 
@@ -46,7 +44,7 @@ const Avatars = ({ settings, setAvatarIndex, setAvatarId, avatarIndex }) => {
         <View style={{width: width, height: 'auto', gap: vs(44), alignItems: 'center', justifyContent: 'center'}}>
             
             <Text style={{ fontSize: Platform.isPad ? vs(22) : vs(20), fontWeight: '600', textAlign: 'center' }}>
-                {title}
+                {labels?.choose_avatar}
             </Text>
 
             <Animated.FlatList

@@ -1,19 +1,20 @@
 import React, { useState } from "react";
-import { Text, Platform, View } from "react-native";
+import { Text, View } from "react-native";
 import Logo from "../components/Logo";
 import Loader from "./Loader/Loader";
 import { useScale } from "../hooks/utils/useScale";
 import Button from "./Loader/Button";
-import translations from "../../localization";
-import store from "../store/store";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
 const LoaderScreen = () => {
 
-    const [text, setText] = useState('Finding activities that matches your child’s skills!')
+    const { labels } = getLabels()
+
+    const [text, setText] = useState(labels?.finding_activities)
     const [isFrozen, setIsFrozen] = useState<boolean>(false)
 
-    const { s, vs } = useScale()
+    const { s, vs, isTablet } = useScale()
 
     if (isFrozen) {
         return (
@@ -22,15 +23,15 @@ const LoaderScreen = () => {
     }
 
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: 'white', alignItems: 'center'}}>
+        <SafeAreaView style={{flex: 1, backgroundColor: 'white', alignItems: 'center', paddingHorizontal: vs(22)}}>
             
             <Logo />
             
-            <Loader setText={setText} />
+            <Loader setText={setText} labels={labels} />
 
-            <Text style={{width: s(312), height: vs(56), color: '#222222', fontWeight: '600', fontSize: Platform.isPad? vs(15) : vs(20), textAlign: 'center', lineHeight: vs(28), position: 'absolute', top: vs(500)}}>{text}</Text>
+            <Text style={{width: '100%', height: 'auto', color: '#222222', fontWeight: '600', fontSize: isTablet ? vs(15) : vs(20), textAlign: 'center', lineHeight: vs(28), position: 'absolute', top: vs(500)}}>{text}</Text>
             
-            {text === translations?.[store.language]?.weHaveMatched && <Button setIsFrozen={setIsFrozen} />}
+            {text === labels?.matched_activities && <Button setIsFrozen={setIsFrozen} />}
 
         </SafeAreaView>
     )

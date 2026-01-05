@@ -8,6 +8,7 @@ import useLockPortrait from "../hooks/utils/useLockPortrait";
 import { getOnboardings } from "./Welcome/hooks/getSlides";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Slides from "./Onboarding/Slides";
+import { getLabels } from "./Welcome/hooks/getLabels";
 
 const WelcomeScreen = () => {
 
@@ -17,6 +18,8 @@ const WelcomeScreen = () => {
 
     const { onboardings, loading } = getOnboardings()
 
+    const { labels } = getLabels()
+    
     return (
         <SafeAreaView style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'white' }}>
             
@@ -26,7 +29,7 @@ const WelcomeScreen = () => {
 
                 <Slides loading={loading} onboardings={onboardings} />
 
-                <Buttons />
+                <Buttons labels={labels} />
 
             </View>
             

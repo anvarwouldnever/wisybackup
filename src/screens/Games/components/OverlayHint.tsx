@@ -1,25 +1,15 @@
-import { View, useWindowDimensions } from 'react-native';
 import Modal from 'react-native-modal'
+import { useScale } from '../../../hooks/utils/useScale';
 
 const OverlayHint = ({ visible, children }) => {
 
-    const { width: windowWidth, height: windowHeight } = useWindowDimensions();
+    const { s, vs } = useScale()
 
     return (
-        <Modal animationIn={'lightSpeedIn'} animationOut={'fadeOut'} isVisible={visible} style={{position: 'absolute', width: windowWidth - windowWidth * (60 / 800), height: windowHeight - 84}}>
-            <View
-                style={{
-                    position: 'absolute',
-                    left: 0,
-                    bottom: 0,
-                    alignItems: 'flex-end',
-                    flexDirection: 'row',
-                }}
-            >
+        <Modal animationInTiming={100} animationIn={'fadeInUp'} animationOut={'fadeOut'} isVisible={visible} style={{ width: 'auto', position: 'absolute', left: -s(3), bottom: -s(7), height: 'auto', alignSelf: 'flex-end', alignItems: 'flex-end', flexDirection: 'row', pointerEvents: 'box-none' }}>
             {children}
-            </View>
         </Modal>
     )
 }
 
-export default OverlayHint
+export default OverlayHint;

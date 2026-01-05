@@ -2,12 +2,12 @@ import { View, Text, TouchableOpacity, Platform } from 'react-native'
 import React from 'react'
 import { useScale } from '../../hooks/utils/useScale'
 
-const EngagementTime = ({ engagementTime, setEngagementTime, settings }) => {
+const EngagementTime = ({ engagementTime, setEngagementTime, labels }) => {
 
     const { s, vs } = useScale()
 
-    const title = settings?.engagement_title;
-    const text = settings?.engagement_placeholder;
+    const title = labels?.engagement_time;
+    const text = labels?.wisy_monitor;
 
     return (
         <View style={{ height: 'auto', width: '100%', gap: vs(16) }}>
@@ -18,19 +18,19 @@ const EngagementTime = ({ engagementTime, setEngagementTime, settings }) => {
 
             <TouchableOpacity activeOpacity={0.8} onPress={() => setEngagementTime(30)} style={{ height: vs(56), width: '100%', borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: engagementTime === 30 ? '#504297' : '#E5E5E5', backgroundColor: engagementTime === 30 ? '#504297' : 'white'  }}>
                 <Text style={{ width: '100%', textAlign: 'center', fontSize: Platform.isPad? vs(16) : vs(14), fontWeight: '600', color: engagementTime === 30 ? 'white' : '#222222' }}>
-                    30 min
+                    {labels?.['30_min']}
                 </Text>
             </TouchableOpacity>
 
             <TouchableOpacity activeOpacity={0.8} onPress={() => setEngagementTime(45)} style={{ height: vs(56), width: '100%', borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: engagementTime === 45 ? '#504297' : '#E5E5E5', backgroundColor: engagementTime === 45 ? '#504297' : 'white' }}>
                 <Text style={{ width: '100%', textAlign: 'center', fontSize: Platform.isPad? vs(16) : vs(14), fontWeight: '600', color:  engagementTime === 45 ? 'white' : '#222222' }}>
-                    45 min
+                    {labels?.['45_min']}
                 </Text>
             </TouchableOpacity>
 
             <TouchableOpacity activeOpacity={0.8} onPress={() => setEngagementTime(60)} style={{ height: vs(56), width: '100%', borderRadius: 100, alignSelf: 'center', justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: engagementTime === 60 ? '#504297' : '#E5E5E5', backgroundColor: engagementTime === 60 ? '#504297' : 'white' }}>
                 <Text style={{ width: '100%', textAlign: 'center', fontSize: Platform.isPad? vs(16) : vs(14), fontWeight: '600', color: engagementTime === 60 ? 'white' : '#222222' }}>
-                    1 hour
+                    {labels?.['1_hour']}
                 </Text>
             </TouchableOpacity>
 

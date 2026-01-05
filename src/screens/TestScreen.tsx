@@ -52,9 +52,10 @@ const DraggableItem = ({ item, windowWidth, windowHeight, checkDropZone }) => {
     );
 };
 
-
 const TestScreen = () => {
+    
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
+    
     const [draggableObjects, setDraggableObjects] = useState([
         { id: 1, image: petux },
         { id: 2, image: cow },
@@ -63,11 +64,13 @@ const TestScreen = () => {
         { id: 5, image: petux },
         { id: 6, image: petux },
     ]);
+
     const [placeholderObjects, setPlaceholderObjects] = useState([
         { id: 1, image: ocean, draggedUri: null },
         { id: 2, image: polyana, draggedUri: null },
         { id: 3, image: sky, draggedUri: null }
     ]);
+
     const [answered, setAnswered] = useState([])
 
     const placeholderRefs = useRef(new Map());

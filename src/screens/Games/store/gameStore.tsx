@@ -20,7 +20,7 @@ class Store {
 
     isSubCollectionsLoading = false;
     subCollectionsQueue: (() => Promise<void>)[] = [];
-    
+
     collectionQueue: (() => Promise<void>)[] = [];
     isCollectionLoading = false;
 
@@ -29,7 +29,7 @@ class Store {
     constructor() {
         makeAutoObservable(this);
     }
-    
+
     async setCategories(categories: any) {
         runInAction(() => {
             this.categories = categories 

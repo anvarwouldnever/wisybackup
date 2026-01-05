@@ -5,10 +5,10 @@ import { playSound } from "../../hooks/usePlaySound";
 import { useFocusEffect } from "@react-navigation/native";
 import { gameStore } from "../Games/store/gameStore";
 import store from "../../store/store";
-import { GetSpeeches } from "../../api/methods/speeches/speech";
 import { useScale } from "../../hooks/utils/useScale";
 import { getCategories } from "./Categories/hooks/getCategories";
 import CategoryItem from "./Categories/CategoryItem";
+import { getSpeech } from "./hooks/getSpeech";
 
 const Categories = () => {
 
@@ -31,7 +31,7 @@ const Categories = () => {
         try {
             await playSound.stop()
 
-            const response = await GetSpeeches('switch_category');
+            const response = await getSpeech('switch_category');
             if (response.data?.data?.length > 0) {
                 const randomIndex = Math.floor(Math.random() * response.data?.data?.length);
                 store.setWisyMenuText(response.data?.data[randomIndex]?.text);
