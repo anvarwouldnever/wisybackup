@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { View, useWindowDimensions, Platform, Image } from "react-native";
 import Animated, { FadeInRight } from "react-native-reanimated";
+import { useScale } from "../../../hooks/utils/useScale";
 
 const TaskComponent = ({ image, successImage }) => {
+
+    const { s, vs, isTablet } = useScale()
 
     const { height: windowHeight, width: windowWidth } = useWindowDimensions();
     const [imageKey, setImageKey] = useState(0);
@@ -14,10 +17,10 @@ const TaskComponent = ({ image, successImage }) => {
     }, [image]);
 
     return (
-        <View style={{backgroundColor: 'white', borderRadius: 10, width: windowWidth * (188 / 800), height: Platform.isPad ? windowWidth * (188 / 800) : windowHeight * (188 / 360), position: 'absolute',}}>
+        <View style={{backgroundColor: 'white', borderRadius: 10, width: windowWidth * (188 / 800), height: isTablet ? windowWidth * (188 / 800) : windowHeight * (188 / 360), position: 'absolute'}}>
             <View style={{
                 width: windowWidth * (188 / 800),
-                height: Platform.isPad ? windowWidth * (188 / 800) : windowHeight * (188 / 360),
+                height: isTablet ? windowWidth * (188 / 800) : windowHeight * (188 / 360),
                 backgroundColor: successImage === 2 && imageLoaded ? '#ADD64D4D' : 'white',
                 borderRadius: 10,
                 alignItems: 'center',
@@ -34,9 +37,10 @@ const TaskComponent = ({ image, successImage }) => {
                         entering={FadeInRight.duration(500)}
                         source={{ uri: image }}
                         style={{
-                            width: windowWidth * (140 / 800),
-                            height: Platform.isPad ? windowWidth * (140 / 800) : windowHeight * (140 / 360)
+                            width: isTablet ? windowWidth * (140 / 860) : windowWidth * (140 / 800),
+                            height: isTablet ? windowWidth * (140 / 860) : windowWidth * (140 / 360)
                         }}
+                        resizeMode={'contain'}
                     />
                 ) : (
                     <Image
@@ -44,7 +48,7 @@ const TaskComponent = ({ image, successImage }) => {
                         style={{
                             opacity: 0,
                             width: windowWidth * (140 / 800),
-                            height: Platform.isPad ? windowWidth * (140 / 800) : windowHeight * (140 / 360)
+                            height: isTablet ? windowWidth * (140 / 800) : windowHeight * (140 / 360)
                         }}
                         onLoad={() => setImageLoaded(true)}
                     />
@@ -54,7 +58,7 @@ const TaskComponent = ({ image, successImage }) => {
                         source={require('../../../images/gamepassed.png')}
                         style={{
                             width: windowWidth * (24 / 800),
-                            height: Platform.isPad ? windowWidth * (24 / 800) : windowHeight * (24 / 360),
+                            height: isTablet ? windowWidth * (24 / 800) : windowHeight * (24 / 360),
                             position: 'absolute',
                             right: 4,
                             top: 4,

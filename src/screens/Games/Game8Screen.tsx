@@ -11,6 +11,7 @@ import WisyHint from './components/WisyHint';
 import OverlayHint from './components/OverlayHint';
 import MainContainerBlock from './Game8/MainContainerBlock';
 import { useScale } from '../../hooks/utils/useScale';
+import { Ionicons } from '@expo/vector-icons';
 
 const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask, isFromAttributes, setEarnedStars, introAudio, introText, introTaskIndex, level, tutorials, tutorialShow, setTutorialShow, labels }) => {
 
@@ -100,10 +101,17 @@ const Game8Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTask
             
             {lines?.length != 0 &&
                         
-                <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0 }}>
-                    <Text style={{fontSize: s(8), color: 'white', fontWeight: '600'}}>{labels?.send}</Text>
-                </TouchableOpacity>
-                    
+                <View style={{ flexDirection: 'row', justifyContent: 'center', position: 'absolute', bottom: 0, right: 0, width: 'auto', height: 'auto', columnGap: s(5) }}>
+
+                    <TouchableOpacity onPress={() => setLines([])} style={{ width: s(24), height: '100%', backgroundColor: '#B3ABDB', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                        <Ionicons name='reload-sharp' color={'white'} size={s(8)} />
+                    </TouchableOpacity>
+    
+                    <TouchableOpacity onPress={lock? () => {return} : () => { answer(); setId(null) }} style={{ width: 'auto', height: 'auto', paddingHorizontal: s(18), paddingVertical: s(7), backgroundColor: '#FF69B4', borderRadius: 100, alignItems: 'center', flexDirection: 'row', justifyContent: 'center' }}>
+                        <Text style={{ fontSize: s(8), color: 'white', fontWeight: '600' }}>{labels?.send}</Text>
+                    </TouchableOpacity>
+    
+                </View>    
             }
 
         </View>

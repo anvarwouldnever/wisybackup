@@ -84,11 +84,11 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
                         
                         {lines.map((line, index) => (
                             <Polyline
-                            key={index}
-                            points={line.join(' ')}
-                            stroke="#504297"
-                            strokeWidth="3"
-                            fill="none"
+                                key={index}
+                                points={line.join(' ')}
+                                stroke="#504297"
+                                strokeWidth="3"
+                                fill="none"
                             />
                         ))}
 
@@ -106,7 +106,7 @@ const MainContainerBlock = ({ data, viewShotRef, lines, currentLine, id, setCurr
                             {hint?.endsWith('.svg') ? (
                                 <SvgUri uri={hint} width={s(24)} height={s(24)} />
                             ) : (
-                                <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                                <Image source={{ uri: hint }} style={{ width: s(55), height: s(55), resizeMode: 'contain' }} />
                             )}
                         </View>
                     }

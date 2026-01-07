@@ -345,47 +345,12 @@ class Store {
                 return !before.tasks?.length && sub.tasks?.length;
             });
     
-            // если нет сабов → пробуем следующую коллекцию
             if (!newSubWithTasks) {
-                console.log('[INFO] Сабы закончились, пробуем следующую коллекцию');
-    
-                const categoryNow = this.categories.find(c => c.id === params.categoryId);
-                const currentIndexNow = categoryNow?.collections?.findIndex(col => col.id === params.collectionId) ?? -1;
-    
-                if (categoryNow && currentIndexNow !== -1 && currentIndexNow + 1 < (categoryNow.collections?.length ?? 0)) {
-                    await this.enqueueGetCollection({ categoryId: params.categoryId });
-    
-                    const updatedCategory = this.categories.find(c => c.id === params.categoryId);
-                    const updatedIndex = updatedCategory?.collections?.findIndex(col => col.id === params.collectionId) ?? -1;
-    
-                    if (updatedIndex !== -1 && updatedIndex + 1 < (updatedCategory.collections?.length ?? 0)) {
-                        const nextCollection = updatedCategory.collections[updatedIndex + 1];
-    
-                        await this.enqueueGetAndProcessSubCollections({
-                            categoryId: params.categoryId,
-                            collectionId: nextCollection.id
-                        });
-    
-                        runInAction(() => {
-                            this.collectionId = nextCollection?.id;
-                            this.collectionName = nextCollection?.name;
-                        });
-    
-                        newSubWithTasks = this.subCollections.find(sub => !sub.isBreak && sub.tasks?.length);
-                    }
-                } else {
-                    console.log('[INFO] Коллекции закончились в этой категории, дальше не идём');
-                    return;
-                }
-            }
-    
-            // финальная проверка
-            if (!newSubWithTasks) {
-                console.log('[WARN] Не удалось найти саб с тасками даже после перехода на следующую коллекцию');
                 return;
             }
     
             // собираем таски (фильтруем break-и)
+
             const tasksArray = this.subCollections
                 .filter(item => !item.isBreak && item.tasks?.length > 0)
                 .map(item => {

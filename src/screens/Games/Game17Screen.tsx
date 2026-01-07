@@ -137,7 +137,7 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
         if (draggableObjects.length === 0) {
             answer({answer: true})
         }
-    }, [answered]);
+    }, [draggableObjects.length]);
 
     const checkDropZone = (touchX, touchY, draggedUri, draggedItem) => {
         let hit = false;
@@ -170,7 +170,6 @@ const Game17Screen = ({ data, setLevel, setStars, subCollectionId, onCompleteTas
                     return [...filtered, id];
                 });
 
-                setLock(true)
                 setTimeout(() => {
                     setAnswered((prev) => prev.filter(item => item !== id));
                     setPlaceholderObjects((prev) =>

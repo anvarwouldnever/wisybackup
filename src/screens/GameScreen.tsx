@@ -54,8 +54,8 @@ const GameScreen = ({ route }) => {
 
     // console.log(task[level]?.type, task[level]?.content?.sub_type)
     
-    const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);
-    const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order && b?.parentCollectionId === gameStore.collectionId);    
+    const ifCameFromBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);
+    const currentBreakContent = breaks?.find(b => b?.order === tasks[taskLevel]?.order);    
 
     const incrementTaskLevel = () => {
 
@@ -67,6 +67,14 @@ const GameScreen = ({ route }) => {
         }
 
         setTaskLevel(prev => {
+
+            const isScheduledBreak = breaks?.find(b => b?.order === tasks[taskLevel]?.order);            
+        
+            if (isScheduledBreak && !cameFromBreak && !isBreak) {
+                setIsBreak(true);
+                return prev;
+            };
+            
             const nextLevel = prev + 1;
       
             if (nextLevel >= tasks?.length) {
@@ -81,16 +89,6 @@ const GameScreen = ({ route }) => {
                 }
                 return navigation.goBack();
             }
-        
-            const isScheduledBreak = breaks?.find(
-                b => b?.order === tasks[taskLevel]?.order &&
-                     b?.parentCollectionId === gameStore.collectionId
-            );            
-        
-            if (isScheduledBreak && !cameFromBreak && !isBreak) {
-                setIsBreak(true);
-                return prev;
-            };
         
             if (cameFromBreak) {
                 const isNextTaskAvailable = availableSubCollections?.includes(tasks[nextLevel]?.id)

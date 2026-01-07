@@ -89,7 +89,7 @@ const MainContainerBlock = ({ viewShotRef, lines, currentLine, id, data, setCurr
                             {hint?.endsWith('.svg') ? (
                                 <SvgUri uri={hint} width={s(24)} height={s(24)} />
                             ) : (
-                                <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                                <Image source={{ uri: hint }} style={{ width: s(80), height: s(80), resizeMode: 'contain' }} />
                             )}
                         </View>
                     }

@@ -41,7 +41,7 @@ export const useIntroSequence = ({ data, tutorialShow, tutorials, introText, int
                 console.log(error);
             } finally {
                 try {
-                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0) && data?.content?.question_hidden) {
+                    if ((data?.content?.question || data?.content?.speech) && (!tutorialShow || tutorials?.length === 0) && !data?.content?.question_hidden) {
                         setText(data?.content?.question);
                         setWisySpeaking(true);
                         await playSound(data?.content?.speech);

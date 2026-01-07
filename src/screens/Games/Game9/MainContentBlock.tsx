@@ -128,7 +128,7 @@ const MainContentBlock = ({ setCurrentLine, setLines, images, currentLine, lines
                                 {hint?.endsWith('.svg') ? (
                                     <SvgUri uri={hint} width={s(24)} height={s(24)} />
                                 ) : (
-                                    <Image source={{ uri: hint }} style={{ width: s(24), height: s(24) }} />
+                                    <Image source={{ uri: hint }} style={{ width: s(45), height: s(45), resizeMode: 'contain' }} />
                                 )}
                             </View>
                         }

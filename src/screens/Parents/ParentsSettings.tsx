@@ -33,7 +33,7 @@ const ParentsSettings = ({ setScreen, labels }) => {
     };
 
     const logout = async () => {
-        gameStore.resetSubCollection()
+        gameStore.resetCategories()
         clearChildrenCache()
         await SecureStore.deleteItemAsync('token')
         navigation.reset({ index: 0, routes: [{ name: "LanguageScreen" }] });
